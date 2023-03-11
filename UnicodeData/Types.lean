@@ -10,10 +10,8 @@ protected def max : UInt32 := 0x10FFFF
 
 /-- Hexadecimal string representation of a code point
 
-  Prefix `U+` followed by at least four uppercase hexadecimal digits
-  (e.g. `U+0123` and `U+4B0A1` but neither `U+123` nor `U+4b0a1`).
--/
-def toHexString (code : UInt32) : String := Id.run do
+  Same as `toHexString` but without the `U+` prefix. -/
+def toHexStringAux (code : UInt32) : String := Id.run do
   let hex := #['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F']
   let mut code := code
   let mut dgts := []
@@ -23,7 +21,16 @@ def toHexString (code : UInt32) : String := Id.run do
   while code != 0 do
     dgts := hex[(code &&& 0xF).toNat]! :: dgts
     code := code >>> 4
-  return String.mk ('U'::'+'::dgts)
+  return String.mk dgts
+
+/-- Hexadecimal string representation of a code point
+
+  Prefix `U+` followed by at least four uppercase hexadecimal digits
+  (e.g. `U+0123` and `U+4B0A1` but neither `U+123` nor `U+4b0a1`).
+-/
+@[inline]
+def toHexString (code : UInt32) : String :=
+  "U+" ++ toHexStringAux code
 
 /-- Get code point from hexadecimal string representation
 

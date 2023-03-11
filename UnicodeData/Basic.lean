@@ -179,6 +179,36 @@ where
     else
       panic! "invalid code point"
 
+/-- Get Hangul syllable string -/
+def getHangulSyllableString? (code : UInt32) : Option String := do
+  -- See Unicode Standard 3.12
+  if code < 0xAC00 then none else
+    let SIndex := (code - 0xAC00).toNat
+    if SIndex ≥ JamoL.size * JamoV.size * JamoT.size then none else
+      -- NB: SIndex < JamoL.size * JamoV.size * JamoT.size
+      let LIndex := SIndex / (JamoV.size * JamoT.size) -- NB: LIndex < JamoL.size
+      let NIndex := SIndex % (JamoV.size * JamoT.size) -- NB: NIndex < JamoV.size * JamoT.size
+      let VIndex := NIndex / JamoT.size -- NB: VIndex < JamoV.size
+      let TIndex := NIndex % JamoT.size -- NB: TIndex < JamoT.size
+      return JamoL[LIndex]! ++ JamoV[VIndex]! ++ JamoT[TIndex]!
+
+where
+
+  /-- Extracted from `Jamo.txt` -/
+  JamoL := #["G", "GG", "N", "D", "DD", "R", "M", "B", "BB", "S", "SS", "", "J", "JJ", "C", "K", "T", "P", "H"]
+
+  /-- Extracted from `Jamo.txt` -/
+  JamoV := #["A", "AE", "YA", "YAE", "EO", "E", "YEO", "YE", "O", "WA", "WAE", "OE", "YO", "U", "WEO", "WE", "WI", "YU", "EU", "YI", "I"]
+
+  /-- Extracted from `Jamo.txt` -/
+  JamoT := #["", "G", "GG", "GS", "N", "NJ", "NH", "D", "L", "LG", "LM", "LB", "LS", "LT", "LP", "LH", "M", "B", "BS", "S", "SS", "NG", "J", "C", "K", "T", "P", "H"]
+
+@[inherit_doc getHangulSyllableString?]
+def getHangulSyllableString! (code : UInt32) : String :=
+  match getHangulSyllableString? code with
+  | some str => str
+  | none => panic! "invalid Hangul syllable code point"
+
 /-- Get Unicode data for code point -/
 partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
   if code > Unicode.max then
@@ -212,21 +242,20 @@ partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
     -/
     if "<".isPrefixOf data.characterName then
       if code = data.codeValue || data.characterName.endsWith ", First>" then
-        let hex := (toHexString code).drop 2
         if "<Hangul Syllable".isPrefixOf data.characterName then
           return {data with
             codeValue := code
-            characterName := "<Hangul Syllable-" ++ hex ++ ">"
+            characterName := "HANGUL SYLLABLE " ++ getHangulSyllableString! code
           }
         else if "<CJK Ideograph".isPrefixOf data.characterName then
           return {data with
             codeValue := code
-            characterName := "CJK UNIFIED IDEOGRAPH-" ++ hex
+            characterName := "CJK UNIFIED IDEOGRAPH-" ++ toHexStringAux code
           }
         else if "<Tangut Ideograph".isPrefixOf data.characterName then
           return {data with
             codeValue := code
-            characterName := "TANGUT IDEOGRAPH-" ++ hex
+            characterName := "TANGUT IDEOGRAPH-" ++ toHexStringAux code
           }
         else if data.characterName.endsWith ", First>" then
           return {data with

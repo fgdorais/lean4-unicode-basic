@@ -8,7 +8,7 @@ Unicode properties that are currently supported are:
 * `Canonical_Combining_Class`
 * `Decomposition_Type` and `Decomposition_Mapping`
 * `General_Category`
-* `Name` (except for Hangul Syllables)
+* `Name`
 * `Numeric_Type` and `Numeric_Value`
 * `Simple_Lowercase_Mapping`, `Simple_Uppercase_Mapping`, and `Simple_Titlecase_Mapping`
 
