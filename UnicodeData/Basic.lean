@@ -34,11 +34,14 @@ structure UnicodeData where
   titlecaseMapping : Option Char := none
 deriving Repr, Inhabited
 
-/-- Unicode data for unassigned code point -/
-def UnicodeData.unassigned (code : UInt32): UnicodeData where
+/-- Unicode data for noncharacter code point -/
+def UnicodeData.mkNoncharacter (code : UInt32) : UnicodeData where
   codeValue := code
   generalCategory := .Cn
-  characterName := "<unassigned>"
+  characterName :=
+    -- Extracted from `PropLists.txt`
+    let isReserved := (code &&& 0xFFFFFFF0 == 0x0000FDD0) || (code &&& 0xFFFFFFF0 == 0x0000FDE0) || (code &&& 0x0000FFFE) == 0x0000FFFE
+    (if isReserved then "<reserved-" else "<noncharacter-") ++ toHexStringAux code ++ ">"
   canonicalCombiningClass := 0
   bidiCategory := .BN
   bidiMirrored := false
@@ -222,7 +225,11 @@ partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
     -/
     let data := arrayUnicodeData.get[find 0 888]!
     assert! (data.codeValue = code)
-    return data
+    if "<".isPrefixOf data.characterName then
+      assert! (data.characterName = "<control>")
+      return {data with characterName := "<control-" ++ toHexStringAux code ++ ">"}
+    else
+      return data
   else
     let data := arrayUnicodeData.get[find 888 arrayUnicodeData.get.size]!
     /-
@@ -257,23 +264,24 @@ partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
             codeValue := code
             characterName := "TANGUT IDEOGRAPH-" ++ toHexStringAux code
           }
-        else if data.characterName.endsWith ", First>" then
+        else if data.generalCategory = GeneralCategory.Co then
           return {data with
             codeValue := code
-            characterName := (data.characterName.dropRight 8).push '>'
+            characterName := "<private-use-" ++ toHexStringAux code ++ ">"
           }
-        else if data.characterName.endsWith ", Last>" then
+        else if data.generalCategory = GeneralCategory.Cs then
           return {data with
-            characterName := (data.characterName.dropRight 7).push '>'
+            codeValue := code
+            characterName := "<surrogate-" ++ toHexStringAux code ++ ">"
           }
         else
-          return data
+          panic! "unexpected character name value"
       else
-        return .unassigned code
+        return .mkNoncharacter code
     else if code = data.codeValue then
       return data
     else
-      return .unassigned code
+      return .mkNoncharacter code
 
 where
 
