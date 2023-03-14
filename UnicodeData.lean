@@ -121,7 +121,7 @@ def isDecimalNumber (char : Char) : Bool :=
   | _ => false
 
 /-- Check if letter number character (general category Nl) -/
-def isDigitNumber (char : Char) : Bool :=
+def isLetterNumber (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .letterNumber⟩ => true
   | _ => false
