@@ -14,19 +14,45 @@ def getUnicodeData (char : Char) : UnicodeData :=
   | some data => data
   | none => unreachable!
 
-/-- Get character name -/
+/-!
+  ## Name ##
+-/
+
+/-- Get character name
+
+  When the Unicode property `Name` is empty, a unique code label is returned
+  as described in Unicode Standard, section 4.8. These labels start with
+  `'<'` (U+003C) and end with `'>'` (U+003E) so they are distinguishable from
+  actual name values.
+
+  Unicode property: `Name`
+-/
 def getName (char : Char) : String :=
   UnicodeData.characterName <| getUnicodeData char
 
-/-- Get character bidirectional class -/
-def getBidiCategory (char : Char) : BidirectionalCategory :=
+/-!
+  ## Bidirectional Category ##
+-/
+
+/-- Get character bidirectional category
+
+  Unicode property: `Bidi_Class` -/
+def bidiClass (char : Char) : BidirectionalCategory :=
   UnicodeData.bidiCategory <| getUnicodeData char
 
-/-- Check if bidirectional mirrored character -/
+/-- Check if bidirectional mirrored character
+
+  Unicode property: `Bidi_Mirrored` -/
 def isBidiMirrored (char : Char) : Bool :=
   UnicodeData.bidiMirrored <| getUnicodeData char
 
-/-- Get character general category -/
+/-!
+  ## General Category ##
+-/
+
+/-- Get character general category
+
+  Unicode property: `General_Category` -/
 def getGeneralCategory (char : Char) : GeneralCategory :=
   UnicodeData.generalCategory <| getUnicodeData char
 
@@ -40,31 +66,45 @@ def isInGeneralCategory (char : Char) (category : GeneralCategory) : Bool :=
   | ⟨_, some .casedLetter⟩, _ => false
   | cat, charCat => cat = charCat
 
-/-- Check if letter character (general category L) -/
+/-- Check if letter character (`L`)
+
+  This is a derived category (`L = Lu | Ll | Lt | Lm | Lo`).
+
+  Unicode Property: `General_Category=L` -/
 def isLetter (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨.letter, _⟩ => true
   | _ => false
 
-/-- Check if lowercase letter character (general category Ll) -/
+/-- Check if lowercase letter character (`Ll`)
+
+  Unicode Property: `General_Category=Ll` -/
 def isLowercaseLetter (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .lowercaseLetter⟩ => true
   | _ => false
 
-/-- Check if titlecase letter character (general category Lt) -/
+/-- Check if titlecase letter character (`Lt`)
+
+  Unicode Property: `General_Category=Lt` -/
 def isTitlecaseLetter (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .titlecaseLetter⟩ => true
   | _ => false
 
-/-- Check if uppercase letter character (general category Lu) -/
+/-- Check if uppercase letter character (`Lu`)
+
+  Unicode Property: `General_Category=Lu` -/
 def isUppercaseLetter (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .uppercaseLetter⟩ => true
   | _ => false
 
-/-- Check if cased letter character (general category LC) -/
+/-- Check if cased letter character (`LC`)
+
+  This is a derived category (`L = Lu | Ll | Lt`).
+
+  Unicode Property: `General_Category=LC` -/
 def isCasedLetter (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .lowercaseLetter⟩ => true
@@ -72,223 +112,326 @@ def isCasedLetter (char : Char) : Bool :=
   | ⟨_, some .uppercaseLetter⟩ => true
   | _ => false
 
-/-- Check if modifier letter character (general category Lm)-/
+/-- Check if modifier letter character (`Lm`)
+
+  Unicode Property: `General_Category=Lm`-/
 def isModifierLetter (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .modifierLetter⟩ => true
   | _ => false
 
-/-- Check if other letter character (general category Lo)-/
+/-- Check if other letter character (`Lo`)
+
+  Unicode Property: `General_Category=Lo`-/
 def isOtherLetter (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .otherLetter⟩ => true
   | _ => false
 
-/-- Check if mark character (general category M) -/
+/-- Check if mark character (`M`)
+
+  This is a derived category (`M = Mn | Mc | Me`).
+
+  Unicode Property: `General_Category=M` -/
 def isMark (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨.mark, _⟩ => true
   | _ => false
 
-/-- Check if nonspacing mark character (general category Mn) -/
+/-- Check if nonspacing combining mark character (`Mn`)
+
+  Unicode Property: `General_Category=Mn` -/
 def isNonspacingMark (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .nonspacingMark⟩ => true
   | _ => false
 
-/-- Check if nonspacing mark character (general category Mc) -/
+/-- Check if spacing combining mark character (`Mc`)
+
+  Unicode Property: `General_Category=Mc` -/
 def isSpacingMark (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .spacingMark⟩ => true
   | _ => false
 
-/-- Check if enclosing mark character (general category Me) -/
+/-- Check if enclosing combining mark character (`Me`)
+
+  Unicode Property: `General_Category=Me` -/
 def isEnclosingMark (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .enclosingMark⟩ => true
   | _ => false
 
-/-- Check if number character (general category N) -/
+/-- Check if number character (`N`)
+
+  This is a derived category (`N = Nd | Nl | No`).
+
+  Unicode Property: `General_Category=N` -/
 def isNumber (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨.number, _⟩ => true
   | _ => false
 
-/-- Check if decimal number character (general category Nd) -/
+/-- Check if decimal number character (`Nd`)
+
+  Unicode Property: `General_Category=Nd` -/
 def isDecimalNumber (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .decimalNumber⟩ => true
   | _ => false
 
-/-- Check if letter number character (general category Nl) -/
+/-- Check if letter number character (`Nl`)
+
+  Unicode Property: `General_Category=Nl` -/
 def isLetterNumber (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .letterNumber⟩ => true
   | _ => false
 
-/-- Check if other number character (general category No) -/
+/-- Check if other number character (`No`)
+
+  Unicode Property: `General_Category=No` -/
 def isOtherNumber (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .otherNumber⟩ => true
   | _ => false
 
-/-- Check if punctuation character (general category P) -/
+/-- Check if punctuation character (`P`)
+
+  This is a derived category (`P = Pc | Pd | Ps | Pe | Pi | Pf | Po`).
+
+  Unicode Property: `General_Category=P` -/
 def isPunctuation (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨.punctuation, _⟩ => true
   | _ => false
 
-/-- Check if connector punctuation character (general category Pc) -/
+/-- Check if connector punctuation character (`Pc`)
+
+  Unicode Property: `General_Category=Pc` -/
 def isConnectorPunctuation (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .connectorPunctuation⟩ => true
   | _ => false
 
-/-- Check if dash punctuation character (general category Pd) -/
+/-- Check if dash punctuation character (`Pd`)
+
+  Unicode Property: `General_Category=Pd` -/
 def isDashPunctuation (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .dashPunctuation⟩ => true
   | _ => false
 
-/-- Check if open punctuation character (general category Ps) -/
+/-- Check if open punctuation character (`Ps`)
+
+  Unicode Property: `General_Category=Ps` -/
 def isOpenPunctuation (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .openPunctuation⟩ => true
   | _ => false
 
-/-- Check if close punctuation character (general category Pe) -/
+/-- Check if close punctuation character (`Pe`)
+
+  Unicode Property: `General_Category=Pe` -/
 def isClosePunctuation (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .closePunctuation⟩ => true
   | _ => false
 
-/-- Check if initial punctuation character (general category Pi) -/
+/-- Check if initial punctuation character (`Pi`)
+
+  Unicode Property: `General_Category=Pi` -/
 def isInitialPunctuation (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .initialPunctuation⟩ => true
   | _ => false
 
-/-- Check if initial punctuation character (general category Pf) -/
+/-- Check if initial punctuation character (`Pf`)
+
+  Unicode Property: `General_Category=Pf` -/
 def isFinalPunctuation (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .finalPunctuation⟩ => true
   | _ => false
 
-/-- Check if other punctuation character (general category Po) -/
+/-- Check if other punctuation character (`Po`)
+
+  Unicode Property: `General_Category=Po` -/
 def isOtherPunctuation (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .otherPunctuation⟩ => true
   | _ => false
 
-/-- Check if symbol character (general category S) -/
+/-- Check if symbol character (`S`)
+
+  This is a derived category (`S = Sm | Sc | Sk | So`).
+
+  Unicode Property: `General_Category=S` -/
 def isSymbol (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨.symbol, _⟩ => true
   | _ => false
 
-/-- Check if math symbol character (general category Sm) -/
+/-- Check if math symbol character (`Sm`)
+
+  Unicode Property: `General_Category=Sm` -/
 def isMathSymbol (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .mathSymbol⟩ => true
   | _ => false
 
-/-- Check if currency symbol character (general category Sc) -/
+/-- Check if currency symbol character (`Sc`)
+
+  Unicode Property: `General_Category=Sc` -/
 def isCurrencySymbol (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .currencySymbol⟩ => true
   | _ => false
 
-/-- Check if modifier symbol character (general category Sk) -/
+/-- Check if modifier symbol character (`Sk`)
+
+  Unicode Property: `General_Category=Sk` -/
 def isModifierSymbol (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .modifierSymbol⟩ => true
   | _ => false
 
-/-- Check if other symbol character (general category So) -/
+/-- Check if other symbol character (`So`)
+
+  Unicode Property: `General_Category=So` -/
 def isOtherSymbol (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .otherSymbol⟩ => true
   | _ => false
 
-/-- Check if separator character (general category Z) -/
+/-- Check if separator character (`Z`)
+
+  This is a derived property (`Z = Zs | Zl | Zp`).
+
+  Unicode Property: `General_Category=Z` -/
 def isSeparator (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨.separator, _⟩ => true
   | _ => false
 
-/-- Check if space separator character (general category Zs) -/
+/-- Check if space separator character (`Zs`)
+
+  Unicode Property: `General_Category=Zs` -/
 def isSpaceSeparator (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .spaceSeparator⟩ => true
   | _ => false
 
-/-- Check if line separator character (general category Zl) -/
+/-- Check if line separator character (`Zl`)
+
+  Unicode Property: `General_Category=Zl` -/
 def isLineSeparator (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .lineSeparator⟩ => true
   | _ => false
 
-/-- Check if paragraph separator character (general category Zp) -/
+/-- Check if paragraph separator character (`Zp`)
+
+  Unicode Property: `General_Category=Zp` -/
 def isParagraphSeparator (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .paragraphSeparator⟩ => true
   | _ => false
 
-/-- Check if other character (general category C) -/
+/-- Check if other character (`C`)
+
+  This is a derived category (`C = Cc | Cf | Cs | Co | Cn`).
+
+  Unicode Property: `General_Category=C` -/
 def isOther (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨.other, _⟩ => true
   | _ => false
 
-/-- Check if control character (general category Cc) -/
+/-- Check if control character (`Cc`)
+
+  Unicode Property: `General_Category=Cc` -/
 def isControl (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .control⟩ => true
   | _ => false
 
-/-- Check if format character (general category Cf) -/
+/-- Check if format character (`Cf`)
+
+  Unicode Property: `General_Category=Cf` -/
 def isFormat (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .format⟩ => true
   | _ => false
 
-/-- Check if surrogate character (general category Cs) -/
+/-- Check if surrogate character (`Cs`)
+
+  Unicode Property: `General_Category=Cs` -/
 def isSurrogate (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .surrogate⟩ => true
   | _ => false
 
-/-- Check if private use character (general category Co) -/
+/-- Check if private use character (`Co`)
+
+  Unicode Property: `General_Category=Co` -/
 def isPrivateUse (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .privateUse⟩ => true
   | _ => false
 
-/-- Check if unassigned character (general category Cn) -/
+/-- Check if unassigned character (`Cn`)
+
+  Unicode Property: `General_Category=Cn` -/
 def isUnassigned (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .unassigned⟩ => true
   | _ => false
 
-/-- Convert character to lowercase -/
+/-!
+  ## Case Type and Mapping ##
+-/
+
+/-- Map character to lowercase
+
+  This function does not handle the case where the lowercase mapping would
+  consist of more than one character.
+
+  Unicode property: `Simple_Lowercase_Mapping` -/
 def toLower (char : Char) : Char :=
   match UnicodeData.lowercaseMapping <| getUnicodeData char with
   | some char => char
   | none => char
 
-/-- Convert character to uppercase -/
+/-- Map character to uppercase
+
+  This function does not handle the case where the uppercase mapping would
+  consist of more than one character.
+
+  Unicode property: `Simple_Uppercase_Mapping` -/
 def toUpper (char : Char) : Char :=
   match UnicodeData.uppercaseMapping <| getUnicodeData char with
   | some char => char
   | none => char
 
-/-- Convert character to titlecase -/
+/-- Map character to titlecase
+
+  This function does not handle the case where the titlecase mapping would
+  consist of more than one character.
+
+  Unicode property: `Simple_Titlecase_Mapping` -/
 def toTitle (char : Char) : Char :=
   match UnicodeData.titlecaseMapping <| getUnicodeData char with
   | some char => char
   | none => toUpper char
 
-/-- Canonical decomposition of character (NFD) -/
+/-!
+  ## Decomposition Type and Mapping ##
+-/
+
+/-- Get canonical decomposition of character (`NFD`)
+
+  Unicode property: `Decomposition_Mapping` -/
 partial def canonicalDecomposition (char : Char) : String :=
   /-
     In some instances a canonical mapping or a compatibility mapping may consist of a single
@@ -313,28 +456,46 @@ partial def canonicalDecomposition (char : Char) : String :=
   | _ => unreachable!
   String.mk <| loop [char]
 
-/-- Check if character represents a decimal digit -/
+/-!
+  ## Numeric Type and Value ##
+-/
+
+/-- Check if character represents a digit in base 10
+
+  Unicode property: `Numeric_Type=Digit` -/
 def isDigit (char : Char) : Bool :=
   match UnicodeData.numeric <| getUnicodeData char with
   | some (.decimal _) => true
   | some (.digit _) => true
   | _ => false
 
-/-- Get value of decimal digit -/
+/-- Get value of digit
+
+  Unicode properties: `Numeric_Value`, `Numeric_Type=Digit` -/
 def toDigit? (char : Char) : Option (Fin 10) :=
   match UnicodeData.numeric <| getUnicodeData char with
   | some (.decimal value) => some value
   | some (.digit value) => some value
   | _ => none
 
-/-- Check if character is part of a contiguous sequence representing decimal digits 0 .. 9 -/
+/-- Check if character represents a decimal digit
+
+  For this property, a character must be part of a contiguous sequence
+  representing the ten decimal digits in order from 0 to 9.
+
+  Unicode property: `Numeric_Type=Decimal` -/
 def isDecimal (char : Char) : Bool :=
   match UnicodeData.numeric <| getUnicodeData char with
   | some (.decimal _) => true
   | _ => false
 
-/-- If the character is part of a contiguous sequence representing decimal digits 0 .. 9,
-  then get the zero digit from that sequence -/
+/-- Get base of decimal digit range
+
+  If the character is part of a contiguous sequence representing the ten
+  decimal digits in order from 0 to 9, this function returns the character
+  representing 0 from that range.
+
+  Unicode property: `Numeric_Type=Decimal` -/
 def decimalDigitZero? (char : Char) : Option Char :=
   match UnicodeData.numeric <| getUnicodeData char with
   | some (.decimal value) => some (Char.ofNat (char.toNat - value.val))
