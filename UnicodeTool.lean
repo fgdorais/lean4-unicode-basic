@@ -17,7 +17,7 @@ def main (args : List String) : IO Unit := do
         IO.println s!"Character Name .......: {data.characterName}"
         IO.println s!"General Category .....: {data.generalCategory.toAbbrev}"
         IO.println s!"Combining Class ......: {data.canonicalCombiningClass}"
-        IO.println s!"Bidi Category ........: {data.bidiCategory.toAbbrev}"
+        IO.println s!"Bidi Class ...........: {data.bidiClass.toAbbrev}"
         IO.println s!"Bidi Mirrored ........: {data.bidiMirrored}"
         match data.decompositionMapping with
         | some ⟨none, m⟩ =>
