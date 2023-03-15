@@ -46,13 +46,14 @@ def UnicodeData.mkNoncharacter (code : UInt32) : UnicodeData where
   bidiClass := .BN
   bidiMirrored := false
 
-/-- Stream from `UnicodeData.txt` -/
-def streamUnicodeData : UCDStream := .ofString <| include_str "../data/UnicodeData.txt"
+/-- Raw string from file `UnicodeData.txt` -/
+protected def UnicodeData.txt := include_str "../data/UnicodeData.txt"
 
-/-- Array of `UnicodeData` parsed from `UnicodeData.txt` -/
-def arrayUnicodeData : Thunk (Array UnicodeData) := Thunk.pure <| Id.run do
+/-- Parse `UnicodeData.txt` -/
+private unsafe def UnicodeData.init : IO (Array UnicodeData) := do
+  let stream := UCDStream.ofString UnicodeData.txt
   let mut arr := #[]
-  for record in streamUnicodeData do
+  for record in stream do
     arr := arr.push {
       codeValue := ofHexString! record[0]!
       characterName := record[1]!
@@ -62,9 +63,9 @@ def arrayUnicodeData : Thunk (Array UnicodeData) := Thunk.pure <| Id.run do
       decompositionMapping := getDecompositionMapping? record[5]!
       numeric := getNumericType? record[6]! record[7]! record[8]!
       bidiMirrored := record[9]! == "Y"
-      uppercaseMapping := if record[12]!.isEmpty then none else some (charOfHex! record[12]!)
-      lowercaseMapping := if record[13]!.isEmpty then none else some (charOfHex! record[13]!)
-      titlecaseMapping := if record[14]!.isEmpty then none else some (charOfHex! record[14]!)
+      uppercaseMapping := if record[12]!.isEmpty then none else some <| Char.mkUnsafe <| ofHexString! record[12]!
+      lowercaseMapping := if record[13]!.isEmpty then none else some <| Char.mkUnsafe <| ofHexString! record[13]!
+      titlecaseMapping := if record[14]!.isEmpty then none else some <| Char.mkUnsafe <| ofHexString! record[14]!
     }
   return arr
 
@@ -94,7 +95,7 @@ where
       match s.splitOn " " with
       | t :: cs =>
         let mut tag := none
-        let mut cs := cs.map charOfHex!
+        let mut cs := cs.map fun c => Char.mkUnsafe <| ofHexString! c
         if "<".isPrefixOf t then
           -- compatibility mapping
           tag := match t with
@@ -117,7 +118,7 @@ where
           | _ => panic! "invalid compatibility tag"
         else
           -- canonical mapping
-          cs := charOfHex! t :: cs
+          cs := (Char.mkUnsafe <| ofHexString! t) :: cs
         some ⟨tag, cs⟩
       | [] => unreachable!
 
@@ -156,43 +157,31 @@ where
             return .numeric sn.toInt! (some sd.toNat!)
           | _ => panic! "invalid numeric value"
       else
-        return .digit (getDigit! s₂)
+        return .digit <| getDigitUnsafe <| s₂.get! 0
     else
-      return .decimal (getDigit! s₁)
+      return .decimal <| getDigitUnsafe <| s₁.get! 0
 
   /-- Get decimal digit -/
-  getDigit! : String → Fin 10
-  | "0" => 0
-  | "1" => 1
-  | "2" => 2
-  | "3" => 3
-  | "4" => 4
-  | "5" => 5
-  | "6" => 6
-  | "7" => 7
-  | "8" => 8
-  | "9" => 9
-  | _ => panic! "invalid decimal digit"
+  @[inline]
+  getDigitUnsafe (char : Char) : Fin 10 :=
+    unsafeCast (char.val - '0'.val).toNat
 
-  charOfHex! (str : String) : Char :=
-    let val := ofHexString! str
-    if h: val.isValidChar then
-      Char.mk val h
-    else
-      panic! "invalid code point"
+/-- Parsed data from `UnicodeData.txt` -/
+@[init UnicodeData.init]
+protected def UnicodeData.data : Array UnicodeData := #[]
 
-/-- Get Hangul syllable string -/
-def getHangulSyllableString? (code : UInt32) : Option String := do
-  -- See Unicode Standard 3.12
-  if code < 0xAC00 then none else
-    let SIndex := (code - 0xAC00).toNat
-    if SIndex ≥ JamoL.size * JamoV.size * JamoT.size then none else
-      -- NB: SIndex < JamoL.size * JamoV.size * JamoT.size
-      let LIndex := SIndex / (JamoV.size * JamoT.size) -- NB: LIndex < JamoL.size
-      let NIndex := SIndex % (JamoV.size * JamoT.size) -- NB: NIndex < JamoV.size * JamoT.size
-      let VIndex := NIndex / JamoT.size -- NB: VIndex < JamoV.size
-      let TIndex := NIndex % JamoT.size -- NB: TIndex < JamoT.size
-      return JamoL[LIndex]! ++ JamoV[VIndex]! ++ JamoT[TIndex]!
+/-- Get Hangul syllable name -/
+def getHangulSyllableName? (code : UInt32) : Option String :=
+    -- See Unicode Standard 3.12
+    if code < 0xAC00 then none else
+      let SIndex := (code - 0xAC00).toNat
+      if SIndex ≥ JamoL.size * JamoV.size * JamoT.size then none else
+        -- NB: SIndex < JamoL.size * JamoV.size * JamoT.size
+        let LIndex := SIndex / (JamoV.size * JamoT.size) -- NB: LIndex < JamoL.size
+        let NIndex := SIndex % (JamoV.size * JamoT.size) -- NB: NIndex < JamoV.size * JamoT.size
+        let VIndex := NIndex / JamoT.size -- NB: VIndex < JamoV.size
+        let TIndex := NIndex % JamoT.size -- NB: TIndex < JamoT.size
+        return "HANGUL SYLLABLE " ++ JamoL[LIndex]! ++ JamoV[VIndex]! ++ JamoT[TIndex]!
 
 where
 
@@ -205,9 +194,9 @@ where
   /-- Extracted from `Jamo.txt` -/
   JamoT := #["", "G", "GG", "GS", "N", "NJ", "NH", "D", "L", "LG", "LM", "LB", "LS", "LT", "LP", "LH", "M", "B", "BS", "S", "SS", "NG", "J", "C", "K", "T", "P", "H"]
 
-@[inherit_doc getHangulSyllableString?]
-def getHangulSyllableString! (code : UInt32) : String :=
-  match getHangulSyllableString? code with
+@[inherit_doc getHangulSyllableName?]
+def getHangulSyllableName! (code : UInt32) : String :=
+  match getHangulSyllableName? code with
   | some str => str
   | none => panic! "invalid Hangul syllable code point"
 
@@ -222,7 +211,7 @@ partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
       below 888. This is convenient because the smaller code points include ASCII and other common
       subsets.
     -/
-    let data := arrayUnicodeData.get[find 0 888]!
+    let data := UnicodeData.data[find 0 888]!
     assert! (data.codeValue = code)
     if "<".isPrefixOf data.characterName then
       assert! (data.characterName = "<control>")
@@ -230,7 +219,7 @@ partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
     else
       return data
   else
-    let data := arrayUnicodeData.get[find 888 arrayUnicodeData.get.size]!
+    let data := UnicodeData.data[find 888 UnicodeData.data.size]!
     /-
       For backward compatibility, ranges in the file UnicodeData.txt are specified by entries for the
       start and end characters of the range, rather than by the form "X..Y". The start character is
@@ -251,7 +240,7 @@ partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
         if "<Hangul Syllable".isPrefixOf data.characterName then
           return {data with
             codeValue := code
-            characterName := "HANGUL SYLLABLE " ++ getHangulSyllableString! code
+            characterName := getHangulSyllableName! code
           }
         else if "<CJK Ideograph".isPrefixOf data.characterName then
           return {data with
@@ -263,18 +252,19 @@ partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
             codeValue := code
             characterName := "TANGUT IDEOGRAPH-" ++ toHexStringAux code
           }
-        else if data.generalCategory = GeneralCategory.Co then
-          return {data with
-            codeValue := code
-            characterName := "<private-use-" ++ toHexStringAux code ++ ">"
-          }
-        else if data.generalCategory = GeneralCategory.Cs then
-          return {data with
-            codeValue := code
-            characterName := "<surrogate-" ++ toHexStringAux code ++ ">"
-          }
         else
-          panic! "unexpected character name value"
+          match data.generalCategory with
+          | ⟨.other, some .privateUse⟩ =>
+            return {data with
+              codeValue := code
+              characterName := "<private-use-" ++ toHexStringAux code ++ ">"
+            }
+          | ⟨.other, some .surrogate⟩ =>
+            return {data with
+              codeValue := code
+              characterName := "<surrogate-" ++ toHexStringAux code ++ ">"
+            }
+          | _ => panic! "unexpected character name value"
       else
         return .mkNoncharacter code
     else if code = data.codeValue then
@@ -286,14 +276,14 @@ where
 
   /-- Binary search -/
   find (lo hi : Nat) : Nat :=
-    assert! (hi ≤ arrayUnicodeData.get.size)
+    assert! (hi ≤ UnicodeData.data.size)
     assert! (lo < hi)
-    assert! (arrayUnicodeData.get[lo]!.codeValue ≤ code)
+    assert! (UnicodeData.data[lo]!.codeValue ≤ code)
     let mid := (lo + hi) / 2 -- NB: mid < hi because lo < hi
     if lo = mid then
       mid
     else
-      if code < arrayUnicodeData.get[mid]!.codeValue then
+      if code < UnicodeData.data[mid]!.codeValue then
         find lo mid
       else
         find mid hi
