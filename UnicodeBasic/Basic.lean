@@ -47,7 +47,7 @@ def UnicodeData.mkNoncharacter (code : UInt32) : UnicodeData where
   bidiMirrored := false
 
 /-- Table from `UnicodeData.txt` -/
-def tableUnicodeData : TableStream := .ofString <| include_str "../UnicodeData.txt"
+def tableUnicodeData : TableStream := .ofString <| include_str "../data/UnicodeData.txt"
 
 /-- Array of unicode data parsed from `UnicodeData.txt` -/
 def arrayUnicodeData : Thunk (Array UnicodeData) := Thunk.pure <| Id.run do
