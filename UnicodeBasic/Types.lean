@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 namespace Unicode
 
-/-- Maximum valid code point -/
+/-- Maximum valid code point value -/
 protected def max : UInt32 := 0x10FFFF
 
 /-- Hexadecimal string representation of a code point
@@ -39,7 +39,7 @@ def toHexString (code : UInt32) : String :=
 -/
 def ofHexString? (str : String) : Option UInt32 := do
   let str := if "U+".isPrefixOf str then str.drop 2 else str
-  if str.length > 8 then none else
+  if str.isEmpty || str.length > 8 then none else
     let mut val : UInt32 := 0
     for dgt in str.toSubstring do
       val := (val <<< 4) + (← hexValue? dgt)
@@ -48,7 +48,7 @@ def ofHexString? (str : String) : Option UInt32 := do
 where
 
   /-- Get value of hex digit -/
-  hexValue? (dgt : Char) : Option UInt32 := do
+  @[inline] hexValue? (dgt : Char) : Option UInt32 := do
     if dgt.val < '0'.val then none else
       let mut n := dgt.val - '0'.val
       if n < 10 then
