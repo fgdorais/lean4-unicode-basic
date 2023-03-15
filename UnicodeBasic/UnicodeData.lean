@@ -16,10 +16,10 @@ structure UnicodeData where
   characterName : String
   /-- General Category -/
   generalCategory : GeneralCategory
-  /-- Canonical Combining Classes -/
+  /-- Canonical Combining Class -/
   canonicalCombiningClass : Nat
-  /-- Bidirectional Category -/
-  bidiCategory : BidirectionalCategory
+  /-- Bidirectional Class -/
+  bidiClass : BidiClass
   /-- Bidirectional Mirrored -/
   bidiMirrored : Bool
   /-- Character Decomposition Mapping -/
@@ -43,7 +43,7 @@ def UnicodeData.mkNoncharacter (code : UInt32) : UnicodeData where
     let isReserved := (code &&& 0xFFFFFFF0 == 0x0000FDD0) || (code &&& 0xFFFFFFF0 == 0x0000FDE0) || (code &&& 0x0000FFFE) == 0x0000FFFE
     (if isReserved then "<reserved-" else "<noncharacter-") ++ toHexStringAux code ++ ">"
   canonicalCombiningClass := 0
-  bidiCategory := .BN
+  bidiClass := .BN
   bidiMirrored := false
 
 /-- Stream from `UnicodeData.txt` -/
@@ -53,13 +53,12 @@ def streamUnicodeData : UCDStream := .ofString <| include_str "../data/UnicodeDa
 def arrayUnicodeData : Thunk (Array UnicodeData) := Thunk.pure <| Id.run do
   let mut arr := #[]
   for record in streamUnicodeData do
-    match BidirectionalCategory.ofAbbrev? record[4]! with | some bc => bc | none => return arr
     arr := arr.push {
       codeValue := ofHexString! record[0]!
       characterName := record[1]!
       generalCategory := GeneralCategory.ofAbbrev! record[2]!
       canonicalCombiningClass := record[3]!.toNat!
-      bidiCategory := BidirectionalCategory.ofAbbrev! record[4]!
+      bidiClass := BidiClass.ofAbbrev! record[4]!
       decompositionMapping := getDecompositionMapping? record[5]!
       numeric := getNumericType? record[6]! record[7]! record[8]!
       bidiMirrored := record[9]! == "Y"

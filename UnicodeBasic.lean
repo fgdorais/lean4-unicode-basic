@@ -25,14 +25,14 @@ def getName (char : Char) : String :=
   getUnicodeData char |>.characterName
 
 /-!
-  ## Bidirectional Category ##
+  ## Bidi Class ##
 -/
 
-/-- Get character bidirectional category
+/-- Get character bidirectional class
 
   Unicode property: `Bidi_Class` -/
-def bidiClass (char : Char) : BidirectionalCategory :=
-  getUnicodeData char |>.bidiCategory
+def bidiClass (char : Char) : BidiClass :=
+  getUnicodeData char |>.bidiClass
 
 /-- Check if bidirectional mirrored character
 

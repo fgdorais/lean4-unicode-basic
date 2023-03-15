@@ -462,7 +462,10 @@ deriving Inhabited, Repr
   ## Bidirectional Class ##
 -/
 
-inductive BidirectionalCategory
+/-- Bidirectional class
+
+  Unicode property: `BIDI_CLASS` -/
+inductive BidiClass
 /-- (`L`) strong left-to-right character -/
 | leftToRight
 /-- (`R`) strong right-to-left (non-Arabic-type) character -/
@@ -512,54 +515,54 @@ inductive BidirectionalCategory
 deriving Inhabited, DecidableEq
 
 /-- Bidirectional category strong left-to-right (`L`) -/
-protected def BidirectionalCategory.L := leftToRight
+protected def BidiClass.L := leftToRight
 /-- Bidirectional category strong right-to-left (`R`) -/
-protected def BidirectionalCategory.R := rightToLeft
+protected def BidiClass.R := rightToLeft
 /-- Bidirectional category arabic letter (`AL`) -/
-protected def BidirectionalCategory.AL := arabicLetter
+protected def BidiClass.AL := arabicLetter
 /-- Bidirectional category european number (`EN`) -/
-protected def BidirectionalCategory.EN := europeanNumber
+protected def BidiClass.EN := europeanNumber
 /-- Bidirectional category european separator (`ES`) -/
-protected def BidirectionalCategory.ES := europeanSeparator
+protected def BidiClass.ES := europeanSeparator
 /-- Bidirectional category european terminator (`ET`) -/
-protected def BidirectionalCategory.ET := europeanTerminator
+protected def BidiClass.ET := europeanTerminator
 /-- Bidirectional category arabic number (`AN`) -/
-protected def BidirectionalCategory.AN := arabicNumber
+protected def BidiClass.AN := arabicNumber
 /-- Bidirectional category common separator (`CS`) -/
-protected def BidirectionalCategory.CS := commonSeparator
+protected def BidiClass.CS := commonSeparator
 /-- Bidirectional category nonspacing mark (`NSM`) -/
-protected def BidirectionalCategory.NSM := nonspacingMark
+protected def BidiClass.NSM := nonspacingMark
 /-- Bidirectional category boundary neutral (`BN`) -/
-protected def BidirectionalCategory.BN := boundaryNeutral
+protected def BidiClass.BN := boundaryNeutral
 /-- Bidirectional category paragraph separator (`B`) -/
-protected def BidirectionalCategory.B := paragraphSeparator
+protected def BidiClass.B := paragraphSeparator
 /-- Bidirectional category segment separator (`S`) -/
-protected def BidirectionalCategory.S := segmentSeparator
+protected def BidiClass.S := segmentSeparator
 /-- Bidirectional category white space (`WS`) -/
-protected def BidirectionalCategory.WS := whiteSpace
+protected def BidiClass.WS := whiteSpace
 /-- Bidirectional category other neutral (`ON`) -/
-protected def BidirectionalCategory.ON := otherNeutral
+protected def BidiClass.ON := otherNeutral
 /-- Bidirectional category left-to-right embedding (`LRE`) -/
-protected def BidirectionalCategory.LRE := leftToRightEmbedding
+protected def BidiClass.LRE := leftToRightEmbedding
 /-- Bidirectional category left-to-right override (`LRO`) -/
-protected def BidirectionalCategory.LRO := leftToRightOverride
+protected def BidiClass.LRO := leftToRightOverride
 /-- Bidirectional category right-to-left embedding (`RLE`) -/
-protected def BidirectionalCategory.RLE := rightToLeftEmbeding
+protected def BidiClass.RLE := rightToLeftEmbeding
 /-- Bidirectional category right-to-left override (`RLO`) -/
-protected def BidirectionalCategory.RLO := rightToLeftOverride
+protected def BidiClass.RLO := rightToLeftOverride
 /-- Bidirectional category pop directional format (`PDF`) -/
-protected def BidirectionalCategory.PDF := popDirectionalFormat
+protected def BidiClass.PDF := popDirectionalFormat
 /-- Bidirectional category left-to-right isolate (`LRI`) -/
-protected def BidirectionalCategory.LRI := leftToRightIsolate
+protected def BidiClass.LRI := leftToRightIsolate
 /-- Bidirectional category right-to-left isolate (`RLI`) -/
-protected def BidirectionalCategory.RLI := rightToLeftIsolate
+protected def BidiClass.RLI := rightToLeftIsolate
 /-- Bidirectional category first strong isolate (`FSI`) -/
-protected def BidirectionalCategory.FSI := firstStrongIsolate
+protected def BidiClass.FSI := firstStrongIsolate
 /-- Bidirectional category pop directional isolate (`PDI`) -/
-protected def BidirectionalCategory.PDI := popDirectionalIsolate
+protected def BidiClass.PDI := popDirectionalIsolate
 
 /-- String abbreviation for bidirectional category -/
-def BidirectionalCategory.toAbbrev : BidirectionalCategory → String
+def BidiClass.toAbbrev : BidiClass → String
 | leftToRight => "L"
 | rightToLeft => "R"
 | arabicLetter => "AL"
@@ -585,7 +588,7 @@ def BidirectionalCategory.toAbbrev : BidirectionalCategory → String
 | popDirectionalIsolate => "PDI"
 
 /-- String abbreviation for bidirectional category -/
-def BidirectionalCategory.ofAbbrev? : String → Option BidirectionalCategory
+def BidiClass.ofAbbrev? : String → Option BidiClass
 | "L" => some leftToRight
 | "R" => some rightToLeft
 | "AL" => some arabicLetter
@@ -611,13 +614,13 @@ def BidirectionalCategory.ofAbbrev? : String → Option BidirectionalCategory
 | "PDI" => some popDirectionalIsolate
 | _ => none
 
-@[inherit_doc BidirectionalCategory.ofAbbrev?]
-def BidirectionalCategory.ofAbbrev! (abbr : String) : BidirectionalCategory :=
+@[inherit_doc BidiClass.ofAbbrev?]
+def BidiClass.ofAbbrev! (abbr : String) : BidiClass :=
   match ofAbbrev? abbr with
   | some bc => bc
   | none => panic! "invalid bidi category abbrev"
 
-instance : Repr BidirectionalCategory where
-  reprPrec bc _ := s!"Unicode.BidirectionalCategory.{bc.toAbbrev}"
+instance : Repr BidiClass where
+  reprPrec bc _ := s!"Unicode.BidiClass.{bc.toAbbrev}"
 
 end Unicode
