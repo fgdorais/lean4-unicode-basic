@@ -3,12 +3,12 @@ Copyright © 2023 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
-import UnicodeBasic.Table
+import UnicodeBasic.CharacterDatabase
 import UnicodeBasic.Types
 
 namespace Unicode
 
-/-- Unicode data structure -/
+/-- Structure for data from `UnicodeData.txt` -/
 structure UnicodeData where
   /-- Code Value -/
   codeValue : UInt32
@@ -34,7 +34,7 @@ structure UnicodeData where
   titlecaseMapping : Option Char := none
 deriving Repr, Inhabited
 
-/-- Unicode data for noncharacter code point -/
+/-- Make `UnicodeData` for noncharacter code point -/
 def UnicodeData.mkNoncharacter (code : UInt32) : UnicodeData where
   codeValue := code
   generalCategory := .Cn
@@ -46,13 +46,13 @@ def UnicodeData.mkNoncharacter (code : UInt32) : UnicodeData where
   bidiCategory := .BN
   bidiMirrored := false
 
-/-- Table from `UnicodeData.txt` -/
-def tableUnicodeData : TableStream := .ofString <| include_str "../data/UnicodeData.txt"
+/-- Stream from `UnicodeData.txt` -/
+def streamUnicodeData : UCDStream := .ofString <| include_str "../data/UnicodeData.txt"
 
-/-- Array of unicode data parsed from `UnicodeData.txt` -/
+/-- Array of `UnicodeData` parsed from `UnicodeData.txt` -/
 def arrayUnicodeData : Thunk (Array UnicodeData) := Thunk.pure <| Id.run do
   let mut arr := #[]
-  for record in tableUnicodeData do
+  for record in streamUnicodeData do
     match BidirectionalCategory.ofAbbrev? record[4]! with | some bc => bc | none => return arr
     arr := arr.push {
       codeValue := ofHexString! record[0]!
@@ -212,7 +212,7 @@ def getHangulSyllableString! (code : UInt32) : String :=
   | some str => str
   | none => panic! "invalid Hangul syllable code point"
 
-/-- Get Unicode data for code point -/
+/-- Get code point data from `UnicodeData.txt` -/
 partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
   if code > Unicode.max then
     none
@@ -305,7 +305,7 @@ def getUnicodeData! (code : UInt32) :=
   | some data => data
   | none => panic! "code point out of range"
 
-/-- Get character Unicode data -/
+/-- Get character data from `UnicodeData.txt` -/
 def getUnicodeData (char : Char) : UnicodeData :=
   match getUnicodeData? char.val with
   | some data => data
