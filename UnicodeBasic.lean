@@ -8,12 +8,6 @@ import UnicodeBasic.Types
 
 namespace Unicode
 
-/-- Get character Unicode data -/
-def getUnicodeData (char : Char) : UnicodeData :=
-  match getUnicodeData? char.val with
-  | some data => data
-  | none => unreachable!
-
 /-!
   ## Name ##
 -/
@@ -28,7 +22,7 @@ def getUnicodeData (char : Char) : UnicodeData :=
   Unicode property: `Name`
 -/
 def getName (char : Char) : String :=
-  UnicodeData.characterName <| getUnicodeData char
+  getUnicodeData char |>.characterName
 
 /-!
   ## Bidirectional Category ##
@@ -38,13 +32,13 @@ def getName (char : Char) : String :=
 
   Unicode property: `Bidi_Class` -/
 def bidiClass (char : Char) : BidirectionalCategory :=
-  UnicodeData.bidiCategory <| getUnicodeData char
+  getUnicodeData char |>.bidiCategory
 
 /-- Check if bidirectional mirrored character
 
   Unicode property: `Bidi_Mirrored` -/
 def isBidiMirrored (char : Char) : Bool :=
-  UnicodeData.bidiMirrored <| getUnicodeData char
+  getUnicodeData char |>.bidiMirrored
 
 /-!
   ## General Category ##
@@ -54,7 +48,7 @@ def isBidiMirrored (char : Char) : Bool :=
 
   Unicode property: `General_Category` -/
 def getGeneralCategory (char : Char) : GeneralCategory :=
-  UnicodeData.generalCategory <| getUnicodeData char
+  getUnicodeData char |>.generalCategory
 
 /-- Check if character belongs to the general category -/
 def isInGeneralCategory (char : Char) (category : GeneralCategory) : Bool :=
@@ -399,7 +393,7 @@ def isUnassigned (char : Char) : Bool :=
 
   Unicode property: `Simple_Lowercase_Mapping` -/
 def toLower (char : Char) : Char :=
-  match UnicodeData.lowercaseMapping <| getUnicodeData char with
+  match getUnicodeData char |>.lowercaseMapping with
   | some char => char
   | none => char
 
@@ -410,7 +404,7 @@ def toLower (char : Char) : Char :=
 
   Unicode property: `Simple_Uppercase_Mapping` -/
 def toUpper (char : Char) : Char :=
-  match UnicodeData.uppercaseMapping <| getUnicodeData char with
+  match getUnicodeData char |>.uppercaseMapping with
   | some char => char
   | none => char
 
@@ -421,7 +415,7 @@ def toUpper (char : Char) : Char :=
 
   Unicode property: `Simple_Titlecase_Mapping` -/
 def toTitle (char : Char) : Char :=
-  match UnicodeData.titlecaseMapping <| getUnicodeData char with
+  match getUnicodeData char |>.titlecaseMapping with
   | some char => char
   | none => toUpper char
 
@@ -446,7 +440,7 @@ partial def canonicalDecomposition (char : Char) : String :=
   -/
   let rec loop : List Char → List Char
   | c :: cs =>
-    match UnicodeData.decompositionMapping <| getUnicodeData c with
+    match getUnicodeData c |>.decompositionMapping with
     | some ⟨none, ds⟩ =>
       match ds with
       | [c] => loop (c :: cs)
@@ -464,7 +458,7 @@ partial def canonicalDecomposition (char : Char) : String :=
 
   Unicode property: `Numeric_Type=Digit` -/
 def isDigit (char : Char) : Bool :=
-  match UnicodeData.numeric <| getUnicodeData char with
+  match getUnicodeData char |>.numeric with
   | some (.decimal _) => true
   | some (.digit _) => true
   | _ => false
@@ -473,7 +467,7 @@ def isDigit (char : Char) : Bool :=
 
   Unicode properties: `Numeric_Value`, `Numeric_Type=Digit` -/
 def toDigit? (char : Char) : Option (Fin 10) :=
-  match UnicodeData.numeric <| getUnicodeData char with
+  match getUnicodeData char |>.numeric with
   | some (.decimal value) => some value
   | some (.digit value) => some value
   | _ => none
@@ -485,7 +479,7 @@ def toDigit? (char : Char) : Option (Fin 10) :=
 
   Unicode property: `Numeric_Type=Decimal` -/
 def isDecimal (char : Char) : Bool :=
-  match UnicodeData.numeric <| getUnicodeData char with
+  match getUnicodeData char |>.numeric with
   | some (.decimal _) => true
   | _ => false
 
@@ -497,7 +491,7 @@ def isDecimal (char : Char) : Bool :=
 
   Unicode property: `Numeric_Type=Decimal` -/
 def decimalDigitZero? (char : Char) : Option Char :=
-  match UnicodeData.numeric <| getUnicodeData char with
+  match getUnicodeData char |>.numeric with
   | some (.decimal value) => some (Char.ofNat (char.toNat - value.val))
   | _ => none
 

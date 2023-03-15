@@ -305,4 +305,10 @@ def getUnicodeData! (code : UInt32) :=
   | some data => data
   | none => panic! "code point out of range"
 
+/-- Get character Unicode data -/
+def getUnicodeData (char : Char) : UnicodeData :=
+  match getUnicodeData? char.val with
+  | some data => data
+  | none => unreachable!
+
 end Unicode
