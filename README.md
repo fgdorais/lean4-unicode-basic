@@ -11,6 +11,7 @@ Unicode properties that are currently supported are:
 * `Name`
 * `Numeric_Type` and `Numeric_Value`
 * `Simple_Lowercase_Mapping`, `Simple_Uppercase_Mapping`, and `Simple_Titlecase_Mapping`
+* `White_Space`
 
 To keep the library lightweight, only properties that can be derived exclusively from `UnicodeData.txt` using a minimum of additional data are supported.
 
