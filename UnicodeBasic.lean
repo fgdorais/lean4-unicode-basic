@@ -540,7 +540,7 @@ def decimalRange? (char : Char) : Option (Char × Char) :=
   match getUnicodeData char |>.numeric with
   | some (.decimal value) =>
     let first := char.toNat - value.val
-    some (Char.ofNat first, Char.ofNat (first + 10))
+    some (Char.ofNat first, Char.ofNat (first + 9))
   | _ => none
 
 /-!
