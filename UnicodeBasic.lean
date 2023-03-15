@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 import UnicodeBasic.Types
 import UnicodeBasic.UnicodeData
+import UnicodeBasic.PropList
 
 namespace Unicode
 
@@ -672,5 +673,34 @@ def isWhiteSpace (char : Char) : Bool :=
       || char.val == 0x85 || char.val == 0xA0
   else
     GeneralCategory.isSeparator char
+
+/-- Check if lowercase letter character
+
+  Unicode property: `Lowercase` -/
+def isLowercase (char : Char) : Bool :=
+  GeneralCategory.isLl char || PropList.isOtherLowercase char.val
+
+/-- Check if uppercase letter character
+
+  Unicode property: `Uppercase` -/
+def isUppercase (char : Char) : Bool :=
+  GeneralCategory.isLu char || PropList.isOtherUppercase char.val
+
+/-- Check if mathematical symbol character
+
+  Unicode property: `Math` -/
+def isMath (char : Char) : Bool :=
+  GeneralCategory.isSm char || PropList.isOtherMath char.val
+
+/-- Check if alphabetic character
+
+  Unicode property: `Alphabetic` -/
+def isAlphabetic (char : Char) : Bool :=
+  match generalCategory char with
+  | ⟨.letter, _⟩ => true
+  | ⟨.number, some .letterNumber⟩ => true
+  | _ => PropList.isOtherLowercase char.val
+      || PropList.isOtherUppercase char.val
+      || PropList.isOtherAlphabetic char.val
 
 end Unicode
