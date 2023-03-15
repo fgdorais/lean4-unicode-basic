@@ -60,6 +60,8 @@ def isInGeneralCategory (char : Char) (category : GeneralCategory) : Bool :=
   | ⟨_, some .casedLetter⟩, _ => false
   | cat, charCat => cat = charCat
 
+namespace GeneralCategory
+
 /-- Check if letter character (`L`)
 
   This is a derived category (`L = Lu | Ll | Lt | Lm | Lo`).
@@ -381,6 +383,8 @@ def isUnassigned (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .unassigned⟩ => true
   | _ => false
+
+end GeneralCategory
 
 /-!
   ## Case Type and Mapping ##
