@@ -499,4 +499,20 @@ def decimalDigitZero? (char : Char) : Option Char :=
   | some (.decimal value) => some (Char.ofNat (char.toNat - value.val))
   | _ => none
 
+/-!
+  ## Other Properties ##
+-/
+
+/-- Check if white space character
+
+  Unicode property: `White_Space`
+-/
+@[inline]
+def isWhiteSpace (char : Char) : Bool :=
+  if char.val < 256 then
+    char == ' ' || char >= '\t' && char <= '\r'
+      || char.val == 0x85 || char.val == 0xA0
+  else
+    GeneralCategory.isSeparator char
+
 end Unicode
