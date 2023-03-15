@@ -81,7 +81,9 @@ def ofHexString! (str : String) : UInt32 :=
   ## General Category ##
 -/
 
-/-- Major general category (L, M, N, P, S, Z, C) -/
+/-- Major general category (`L`, `M`, `N`, `P`, `S`, `Z`, `C`)
+
+  Unicode property: `General_Category` -/
 inductive MajorGeneralCategory : Type
 /-- (`L`) Letter -/
 | letter
@@ -109,7 +111,9 @@ def MajorGeneralCategory.toAbbrev : MajorGeneralCategory → String
 | separator => "Z"
 | other => "C"
 
-/-- Minor general category -/
+/-- Minor general category
+
+  Unicode property: `General_Category` -/
 inductive MinorGeneralCategory : MajorGeneralCategory → Type
 /-- (`LC`) cased letter (derived from `Lu | Ll | Lt`) -/
 | casedLetter : MinorGeneralCategory .letter
@@ -175,11 +179,13 @@ inductive MinorGeneralCategory : MajorGeneralCategory → Type
 | unassigned : MinorGeneralCategory .other
 deriving DecidableEq
 
-/-- General category of a character -/
+/-- General category of a code point
+
+  Unicode property: `General_Category` -/
 structure GeneralCategory : Type where
-  /-- Major general category of a character -/
+  /-- Major general category of a code point -/
   major : MajorGeneralCategory
-  /-- Minor general category of a character -/
+  /-- Minor general category of a code point -/
   minor : Option (MinorGeneralCategory major)
 deriving Inhabited, DecidableEq
 
@@ -356,19 +362,24 @@ instance : Repr GeneralCategory where
   ## Numeric Type and Value ##
 -/
 
-/-- Unicode numeric type -/
+/-- Unicode numeric type
+
+  Unicode properties: `Numeric_Type`, `Numeric_Value` -/
 inductive NumericType
-/-- Decimal digit type -/
+/-- Decimal digit type and value -/
 | decimal (value : Fin 10) : NumericType
-/-- Digit type -/
+/-- Digit type and value -/
 | digit (value : Fin 10) : NumericType
-/-- Numeric type -/
+/-- Numeric type and value -/
 | numeric (num : Int) (den : Option Nat) : NumericType
 deriving Inhabited, DecidableEq, Repr
 
 /-- Decimal digit type
 
-  The character is part of a sequence of contiguous code points representing decimal digits 0 through 9.
+  The character is part of a sequence of contiguous code points representing
+  decimal digits 0 through 9.
+
+  Unicode property: `Numeric_Type`
 -/
 def NumericType.isDecimal : NumericType → Bool
 | decimal _ => true
@@ -377,6 +388,8 @@ def NumericType.isDecimal : NumericType → Bool
 /-- Digit type
 
   The character represents a decimal digit 0 through 9, but may need special handling.
+
+  Unicode property: `Numeric_Type`
 -/
 def NumericType.isDigit : NumericType → Bool
 | decimal _ => true
@@ -386,6 +399,8 @@ def NumericType.isDigit : NumericType → Bool
 /-- Get the value of a numeric type
 
   Returns either an integer value or a numerator-denominator pair representing a rational value.
+
+  Unicode property: `Numeric_Value`
 -/
 def NumericType.value : NumericType → Int ⊕ Int × Nat
 | decimal n => .inl n
@@ -397,7 +412,9 @@ def NumericType.value : NumericType → Int ⊕ Int × Nat
   ## Decomposition Mapping ##
 -/
 
-/-- Compatibility tag -/
+/-- Compatibility format tag
+
+  Unicode properties: `Decomposition_Type`, `Decomposition_Mapping` -/
 inductive CompatibilityTag
 /-- Font variant -/
 | font
@@ -452,9 +469,13 @@ instance : ToString CompatibilityTag where
   | .fraction => "<fraction>"
   | .compat => "<compat>"
 
-/-- Decomposition maping -/
+/-- Decomposition maping
+
+  Unicode properties: `Decomposition_Type`, `Decomposition_Mapping` -/
 structure DecompositionMapping where
+  /-- Compatibility format tag -/
   tag : Option CompatibilityTag
+  /-- Decomposition mapping -/
   mapping : List Char
 deriving Inhabited, Repr
 
@@ -514,54 +535,54 @@ inductive BidiClass
 | popDirectionalIsolate
 deriving Inhabited, DecidableEq
 
-/-- Bidirectional category strong left-to-right (`L`) -/
+/-- Bidi class: strong left-to-right (`L`) -/
 protected def BidiClass.L := leftToRight
-/-- Bidirectional category strong right-to-left (`R`) -/
+/-- Bidi class: strong right-to-left (`R`) -/
 protected def BidiClass.R := rightToLeft
-/-- Bidirectional category arabic letter (`AL`) -/
+/-- Bidi class: arabic letter (`AL`) -/
 protected def BidiClass.AL := arabicLetter
-/-- Bidirectional category european number (`EN`) -/
+/-- Bidi class: european number (`EN`) -/
 protected def BidiClass.EN := europeanNumber
-/-- Bidirectional category european separator (`ES`) -/
+/-- Bidi class: european separator (`ES`) -/
 protected def BidiClass.ES := europeanSeparator
-/-- Bidirectional category european terminator (`ET`) -/
+/-- Bidi class: european terminator (`ET`) -/
 protected def BidiClass.ET := europeanTerminator
-/-- Bidirectional category arabic number (`AN`) -/
+/-- Bidi class: arabic number (`AN`) -/
 protected def BidiClass.AN := arabicNumber
-/-- Bidirectional category common separator (`CS`) -/
+/-- Bidi class: common separator (`CS`) -/
 protected def BidiClass.CS := commonSeparator
-/-- Bidirectional category nonspacing mark (`NSM`) -/
+/-- Bidi class: nonspacing mark (`NSM`) -/
 protected def BidiClass.NSM := nonspacingMark
-/-- Bidirectional category boundary neutral (`BN`) -/
+/-- Bidi class: boundary neutral (`BN`) -/
 protected def BidiClass.BN := boundaryNeutral
-/-- Bidirectional category paragraph separator (`B`) -/
+/-- Bidi class: paragraph separator (`B`) -/
 protected def BidiClass.B := paragraphSeparator
-/-- Bidirectional category segment separator (`S`) -/
+/-- Bidi class: segment separator (`S`) -/
 protected def BidiClass.S := segmentSeparator
-/-- Bidirectional category white space (`WS`) -/
+/-- Bidi class: white space (`WS`) -/
 protected def BidiClass.WS := whiteSpace
-/-- Bidirectional category other neutral (`ON`) -/
+/-- Bidi class: other neutral (`ON`) -/
 protected def BidiClass.ON := otherNeutral
-/-- Bidirectional category left-to-right embedding (`LRE`) -/
+/-- Bidi class: left-to-right embedding (`LRE`) -/
 protected def BidiClass.LRE := leftToRightEmbedding
-/-- Bidirectional category left-to-right override (`LRO`) -/
+/-- Bidi class: left-to-right override (`LRO`) -/
 protected def BidiClass.LRO := leftToRightOverride
-/-- Bidirectional category right-to-left embedding (`RLE`) -/
+/-- Bidi class: right-to-left embedding (`RLE`) -/
 protected def BidiClass.RLE := rightToLeftEmbeding
-/-- Bidirectional category right-to-left override (`RLO`) -/
+/-- Bidi class: right-to-left override (`RLO`) -/
 protected def BidiClass.RLO := rightToLeftOverride
-/-- Bidirectional category pop directional format (`PDF`) -/
+/-- Bidi class: pop directional format (`PDF`) -/
 protected def BidiClass.PDF := popDirectionalFormat
-/-- Bidirectional category left-to-right isolate (`LRI`) -/
+/-- Bidi class: left-to-right isolate (`LRI`) -/
 protected def BidiClass.LRI := leftToRightIsolate
-/-- Bidirectional category right-to-left isolate (`RLI`) -/
+/-- Bidi class: right-to-left isolate (`RLI`) -/
 protected def BidiClass.RLI := rightToLeftIsolate
-/-- Bidirectional category first strong isolate (`FSI`) -/
+/-- Bidi class: first strong isolate (`FSI`) -/
 protected def BidiClass.FSI := firstStrongIsolate
-/-- Bidirectional category pop directional isolate (`PDI`) -/
+/-- Bidi class: pop directional isolate (`PDI`) -/
 protected def BidiClass.PDI := popDirectionalIsolate
 
-/-- String abbreviation for bidirectional category -/
+/-- String abbreviation for bidi class -/
 def BidiClass.toAbbrev : BidiClass → String
 | leftToRight => "L"
 | rightToLeft => "R"
@@ -587,7 +608,7 @@ def BidiClass.toAbbrev : BidiClass → String
 | firstStrongIsolate => "FSI"
 | popDirectionalIsolate => "PDI"
 
-/-- String abbreviation for bidirectional category -/
+/-- Get bidi class from abbreviation -/
 def BidiClass.ofAbbrev? : String → Option BidiClass
 | "L" => some leftToRight
 | "R" => some rightToLeft
