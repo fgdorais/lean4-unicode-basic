@@ -3,6 +3,13 @@ Copyright © 2023 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
+/-- Low-level conversion from `UInt32` to `Char` (*unsafe*)
+
+  This function translates to a no-op in the compiler. However, it does not
+  check whether the `UInt32` code is a valid `Char` value. Only use where it's
+  known for external reasons that the code is valid. -/
+protected unsafe def Char.mkUnsafe : UInt32 → Char := unsafeCast
+
 namespace Unicode
 
 /-- Maximum valid code point value -/
