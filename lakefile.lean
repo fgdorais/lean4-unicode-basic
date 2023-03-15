@@ -17,7 +17,7 @@ lean_exe UnicodeTool
 
 script UpdateUCD := do
   let dir : FilePath := "./data"
-  for file in ["UnicodeData.txt"] do
+  for file in ["UnicodeData.txt", "PropList.txt"] do
     IO.println s!"Updating {file}"
     let url := "https://www.unicode.org/Public/UCD/latest/ucd/" ++ file
 
