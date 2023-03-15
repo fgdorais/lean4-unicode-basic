@@ -77,23 +77,25 @@ def ofHexString! (str : String) : UInt32 :=
   | some val => val
   | none => panic! "invalid unicode hexadecimal string representation"
 
-section GeneralCategory
+/-!
+  ## General Category ##
+-/
 
 /-- Major general category (L, M, N, P, S, Z, C) -/
 inductive MajorGeneralCategory : Type
-/-- (L) Letter -/
+/-- (`L`) Letter -/
 | letter
-/-- (M) Mark -/
+/-- (`M`) Mark -/
 | mark
-/-- (N) Number -/
+/-- (`N`) Number -/
 | number
-/-- (P) Punctuation -/
+/-- (`P`) Punctuation -/
 | punctuation
-/-- (S) Symbol -/
+/-- (`S`) Symbol -/
 | symbol
-/-- (Z) Separator -/
+/-- (`Z`) Separator -/
 | separator
-/-- (C) Other -/
+/-- (`C`) Other -/
 | other
 deriving Inhabited, DecidableEq
 
@@ -109,67 +111,67 @@ def MajorGeneralCategory.toAbbrev : MajorGeneralCategory → String
 
 /-- Minor general category -/
 inductive MinorGeneralCategory : MajorGeneralCategory → Type
-/-- (LC) cased letter (derived from Lu, Ll, Lt) -/
+/-- (`LC`) cased letter (derived from `Lu | Ll | Lt`) -/
 | casedLetter : MinorGeneralCategory .letter
-/-- (Lu) uppercase letter -/
+/-- (`Lu`) uppercase letter -/
 | uppercaseLetter : MinorGeneralCategory .letter
-/-- (Ll) lowercase letter -/
+/-- (`Ll`) lowercase letter -/
 | lowercaseLetter : MinorGeneralCategory .letter
-/-- (Lt) titlecase letter: digraphic character, with first part uppercase -/
+/-- (`Lt`) titlecase letter: digraphic character, with first part uppercase -/
 | titlecaseLetter : MinorGeneralCategory .letter
-/-- (Lm) modifier letter -/
+/-- (`Lm`) modifier letter -/
 | modifierLetter : MinorGeneralCategory .letter
-/-- (Lo) other letters, including syllables and ideographs -/
+/-- (`Lo`) other letters, including syllables and ideographs -/
 | otherLetter : MinorGeneralCategory .letter
-/-- (Mn) nonspacing combining mark (zero advance width) -/
+/-- (`Mn`) nonspacing combining mark (zero advance width) -/
 | nonspacingMark : MinorGeneralCategory .mark
-/-- (Mc) spacing combining mark (positive advance width) -/
+/-- (`Mc`) spacing combining mark (positive advance width) -/
 | spacingMark : MinorGeneralCategory .mark
-/-- (Me) enclosing combining mark -/
+/-- (`Me`) enclosing combining mark -/
 | enclosingMark : MinorGeneralCategory .mark
-/-- (Nd) decimal digit -/
+/-- (`Nd`) decimal digit -/
 | decimalNumber : MinorGeneralCategory .number
-/-- (Nl) letter number: a letterlike numeric character -/
+/-- (`Nl`) letter number: a letterlike numeric character -/
 | letterNumber : MinorGeneralCategory .number
-/-- (No) numeric character of other type -/
+/-- (`No`) numeric character of other type -/
 | otherNumber : MinorGeneralCategory .number
-/-- (Pc) connecting punctuation mark, like a tie -/
+/-- (`Pc`) connecting punctuation mark, like a tie -/
 | connectorPunctuation : MinorGeneralCategory .punctuation
-/-- (Pd) dash or hyphen punctuation mark -/
+/-- (`Pd`) dash or hyphen punctuation mark -/
 | dashPunctuation : MinorGeneralCategory .punctuation
-/-- (Ps) opening punctuation mark (of a pair) -/
+/-- (`Ps`) opening punctuation mark (of a pair) -/
 | openPunctuation : MinorGeneralCategory .punctuation
-/-- (Pe) closing punctuation mark (of a pair) -/
+/-- (`Pe`) closing punctuation mark (of a pair) -/
 | closePunctuation : MinorGeneralCategory .punctuation
-/-- (Pi) initial quotation mark -/
+/-- (`Pi`) initial quotation mark -/
 | initialPunctuation : MinorGeneralCategory .punctuation
-/-- (Pf) final quotation mark -/
+/-- (`Pf`) final quotation mark -/
 | finalPunctuation : MinorGeneralCategory .punctuation
-/-- (Po) punctuation mark of other type -/
+/-- (`Po`) punctuation mark of other type -/
 | otherPunctuation : MinorGeneralCategory .punctuation
-/-- (Sm) symbol of mathematical use -/
+/-- (`Sm`) symbol of mathematical use -/
 | mathSymbol : MinorGeneralCategory .symbol
-/-- (Sc) currency sign -/
+/-- (`Sc`) currency sign -/
 | currencySymbol : MinorGeneralCategory .symbol
-/-- (Sk) non-letterlike modifier symbol -/
+/-- (`Sk`) non-letterlike modifier symbol -/
 | modifierSymbol : MinorGeneralCategory .symbol
-/-- (So) symbol of other type -/
+/-- (`So`) symbol of other type -/
 | otherSymbol : MinorGeneralCategory .symbol
-/-- (Zs) space character (of various non-zero widths) -/
+/-- (`Zs`) space character (of various non-zero widths) -/
 | spaceSeparator : MinorGeneralCategory .separator
-/-- (Zl) line separator (U+2028 LINE SEPARATOR only) -/
+/-- (`Zl`) line separator (U+2028 LINE SEPARATOR only) -/
 | lineSeparator : MinorGeneralCategory .separator
-/-- (Zp) paragraph separator (U+2029 PARAGRAPH SEPARATOR only) -/
+/-- (`Zp`) paragraph separator (U+2029 PARAGRAPH SEPARATOR only) -/
 | paragraphSeparator : MinorGeneralCategory .separator
-/-- (Cc) C0 or C1 control code -/
+/-- (`Cc`) C0 or C1 control code -/
 | control : MinorGeneralCategory .other
-/-- (Cf) format control character -/
+/-- (`Cf`) format control character -/
 | format : MinorGeneralCategory .other
-/-- (Cs) surrogate code point -/
+/-- (`Cs`) surrogate code point -/
 | surrogate : MinorGeneralCategory .other
-/-- (Co) private-use character -/
+/-- (`Co`) private-use character -/
 | privateUse : MinorGeneralCategory .other
-/-- (Cn) reserved unassigned code point or a noncharacter -/
+/-- (`Cn`) reserved unassigned code point or a noncharacter -/
 | unassigned : MinorGeneralCategory .other
 deriving DecidableEq
 
@@ -181,81 +183,81 @@ structure GeneralCategory : Type where
   minor : Option (MinorGeneralCategory major)
 deriving Inhabited, DecidableEq
 
-/-- General category: letter (L) -/
+/-- General category: letter (`L`) -/
 protected def GeneralCategory.L  : GeneralCategory := ⟨.letter, none⟩
-/-- General category: cased letter (LC) -/
+/-- General category: cased letter (`LC`) -/
 protected def GeneralCategory.LC : GeneralCategory := ⟨_, some .casedLetter⟩
-/-- General category: uppercase letter (Lu) -/
+/-- General category: uppercase letter (`Lu`) -/
 protected def GeneralCategory.Lu : GeneralCategory := ⟨_, some .uppercaseLetter⟩
-/-- General category: lowercase letter (Ll) -/
+/-- General category: lowercase letter (`Ll`) -/
 protected def GeneralCategory.Ll : GeneralCategory := ⟨_, some .lowercaseLetter⟩
-/-- General category: titlecase letter (Lt) -/
+/-- General category: titlecase letter (`Lt`) -/
 protected def GeneralCategory.Lt : GeneralCategory := ⟨_, some .titlecaseLetter⟩
-/-- General category: modifier letter (Lm) -/
+/-- General category: modifier letter (`Lm`) -/
 protected def GeneralCategory.Lm : GeneralCategory := ⟨_, some .modifierLetter⟩
-/-- General category: other letter (Lo) -/
+/-- General category: other letter (`Lo`) -/
 protected def GeneralCategory.Lo : GeneralCategory := ⟨_, some .otherLetter⟩
-/-- General category mark (M) -/
+/-- General category mark (`M`) -/
 protected def GeneralCategory.M  : GeneralCategory := ⟨.mark, none⟩
-/-- General category: nonspacing combining mark (Mn) -/
+/-- General category: nonspacing combining mark (`Mn`) -/
 protected def GeneralCategory.Mn : GeneralCategory := ⟨_, some .nonspacingMark⟩
-/-- General category: spacing combining mark (Mc) -/
+/-- General category: spacing combining mark (`Mc`) -/
 protected def GeneralCategory.Mc : GeneralCategory := ⟨_, some .spacingMark⟩
-/-- General category: enclosing combining mark (Me) -/
+/-- General category: enclosing combining mark (`Me`) -/
 protected def GeneralCategory.Me : GeneralCategory := ⟨_, some .enclosingMark⟩
-/-- General category: number (N) -/
+/-- General category: number (`N`) -/
 protected def GeneralCategory.N  : GeneralCategory := ⟨.number, none⟩
-/-- General category: decimal digit (Nd) -/
+/-- General category: decimal digit (`Nd`) -/
 protected def GeneralCategory.Nd : GeneralCategory := ⟨_, some .decimalNumber⟩
-/-- General category: letter number (Nl) -/
+/-- General category: letter number (`Nl`) -/
 protected def GeneralCategory.Nl : GeneralCategory := ⟨_, some .letterNumber⟩
-/-- General category: other number (No) -/
+/-- General category: other number (`No`) -/
 protected def GeneralCategory.No : GeneralCategory := ⟨_, some .otherNumber⟩
-/-- General category: punctuation (P) -/
+/-- General category: punctuation (`P`) -/
 protected def GeneralCategory.P  : GeneralCategory := ⟨.punctuation, none⟩
-/-- General category: connector punctuation (Pc) -/
+/-- General category: connector punctuation (`Pc`) -/
 protected def GeneralCategory.Pc : GeneralCategory := ⟨_, some .connectorPunctuation⟩
-/-- General category: dash punctuation (Pd) -/
+/-- General category: dash punctuation (`Pd`) -/
 protected def GeneralCategory.Pd : GeneralCategory := ⟨_, some .dashPunctuation⟩
-/-- General category: opening punctuation (Ps) -/
+/-- General category: opening punctuation (`Ps`) -/
 protected def GeneralCategory.Ps : GeneralCategory := ⟨_, some .openPunctuation⟩
-/-- General category: closing punctuation (Pe) -/
+/-- General category: closing punctuation (`Pe`) -/
 protected def GeneralCategory.Pe : GeneralCategory := ⟨_, some .closePunctuation⟩
-/-- General category: initial punctuation (Pi) -/
+/-- General category: initial punctuation (`Pi`) -/
 protected def GeneralCategory.Pi : GeneralCategory := ⟨_, some .initialPunctuation⟩
-/-- General category: final punctuation (Pf) -/
+/-- General category: final punctuation (`Pf`) -/
 protected def GeneralCategory.Pf : GeneralCategory := ⟨_, some .finalPunctuation⟩
-/-- General category: other punctuation (Po) -/
+/-- General category: other punctuation (`Po`) -/
 protected def GeneralCategory.Po : GeneralCategory := ⟨_, some .otherPunctuation⟩
-/-- General category: symbol (S) -/
+/-- General category: symbol (`S`) -/
 protected def GeneralCategory.S  : GeneralCategory := ⟨.symbol, none⟩
-/-- General category: math symbol (Sm) -/
+/-- General category: math symbol (`Sm`) -/
 protected def GeneralCategory.Sm : GeneralCategory := ⟨_, some .mathSymbol⟩
-/-- General category: currency symbol (Sc) -/
+/-- General category: currency symbol (`Sc`) -/
 protected def GeneralCategory.Sc : GeneralCategory := ⟨_, some .currencySymbol⟩
-/-- General category: modifier symbol (Sk) -/
+/-- General category: modifier symbol (`Sk`) -/
 protected def GeneralCategory.Sk : GeneralCategory := ⟨_, some .modifierSymbol⟩
-/-- General category: other symbol (So) -/
+/-- General category: other symbol (`So`) -/
 protected def GeneralCategory.So : GeneralCategory := ⟨_, some .otherSymbol⟩
-/-- General category: separator (Z) -/
+/-- General category: separator (`Z`) -/
 protected def GeneralCategory.Z  : GeneralCategory := ⟨.separator, none⟩
-/-- General category: space separator (Zs) -/
+/-- General category: space separator (`Zs`) -/
 protected def GeneralCategory.Zs : GeneralCategory := ⟨_, some .spaceSeparator⟩
-/-- General category: line separator (Zl) -/
+/-- General category: line separator (`Zl`) -/
 protected def GeneralCategory.Zl : GeneralCategory := ⟨_, some .lineSeparator⟩
-/-- General category: paragraph separator (Zp) -/
+/-- General category: paragraph separator (`Zp`) -/
 protected def GeneralCategory.Zp : GeneralCategory := ⟨_, some .paragraphSeparator⟩
-/-- General category: other (C) -/
+/-- General category: other (`C`) -/
 protected def GeneralCategory.C  : GeneralCategory := ⟨.other, none⟩
-/-- General category: control (Cc) -/
+/-- General category: control (`Cc`) -/
 protected def GeneralCategory.Cc : GeneralCategory := ⟨_, some .control⟩
-/-- General category: format (Cf) -/
+/-- General category: format (`Cf`) -/
 protected def GeneralCategory.Cf : GeneralCategory := ⟨_, some .format⟩
-/-- General category: surrogate (Cs) -/
+/-- General category: surrogate (`Cs`) -/
 protected def GeneralCategory.Cs : GeneralCategory := ⟨_, some .surrogate⟩
-/-- General category: private use (Co) -/
+/-- General category: private use (`Co`) -/
 protected def GeneralCategory.Co : GeneralCategory := ⟨_, some .privateUse⟩
-/-- General category: unassigned (Cn) -/
+/-- General category: unassigned (`Cn`) -/
 protected def GeneralCategory.Cn : GeneralCategory := ⟨_, some .unassigned⟩
 
 /-- String abbreviation for general category -/
@@ -350,9 +352,9 @@ def GeneralCategory.ofAbbrev! (s : String) : GeneralCategory :=
 instance : Repr GeneralCategory where
   reprPrec gc _ := s!"Unicode.GeneralCategory.{gc.toAbbrev}"
 
-end GeneralCategory
-
-section NumericType
+/-!
+  ## Numeric Type and Value ##
+-/
 
 /-- Unicode numeric type -/
 inductive NumericType
@@ -391,9 +393,9 @@ def NumericType.value : NumericType → Int ⊕ Int × Nat
 | numeric n none => .inl n
 | numeric n (some d) => .inr (n, d)
 
-end NumericType
-
-section DecompsitionMapping
+/-!
+  ## Decomposition Mapping ##
+-/
 
 /-- Compatibility tag -/
 inductive CompatibilityTag
@@ -456,104 +458,104 @@ structure DecompositionMapping where
   mapping : List Char
 deriving Inhabited, Repr
 
-end DecompsitionMapping
-
-section BidirectionalCategory
+/-!
+  ## Bidirectional Class ##
+-/
 
 inductive BidirectionalCategory
-/-- (L) strong left-to-right character -/
+/-- (`L`) strong left-to-right character -/
 | leftToRight
-/-- (R) strong right-to-left (non-Arabic-type) character -/
+/-- (`R`) strong right-to-left (non-Arabic-type) character -/
 | rightToLeft
-/-- (AL) strong right-to-left (Arabic-type) character -/
+/-- (`AL`) strong right-to-left (Arabic-type) character -/
 | arabicLetter
-/-- (EN) ASCII digit or Eastern Arabic-Indic digit -/
+/-- (`EN`) ASCII digit or Eastern Arabic-Indic digit -/
 | europeanNumber
-/-- (ES) European separator: plus and-/
+/-- (`ES`) European separator: plus and-/
 | europeanSeparator
-/-- (ET) European terminator in a numeric format context, includes currency signs -/
+/-- (`ET`) European terminator in a numeric format context, includes currency signs -/
 | europeanTerminator
-/-- (AN) Arabic-Indic digit -/
+/-- (`AN`) Arabic-Indic digit -/
 | arabicNumber
-/-- (CS) common separator: commas, colons, and slashes -/
+/-- (`CS`) common separator: commas, colons, and slashes -/
 | commonSeparator
-/-- (NSM) nonspacing mark -/
+/-- (`NSM`) nonspacing mark -/
 | nonspacingMark
-/-- (BN) boundary neutral: most format characters, control codes, or noncharacters -/
+/-- (`BN`) boundary neutral: most format characters, control codes, or noncharacters -/
 | boundaryNeutral
-/-- (B)	paragraph separator, various newline characters -/
+/-- (`B`)	paragraph separator, various newline characters -/
 | paragraphSeparator
-/-- (S)	segment separator, various segment-related control codes -/
+/-- (`S`)	segment separator, various segment-related control codes -/
 | segmentSeparator
-/-- (WS) white spaces -/
+/-- (`WS`) white spaces -/
 | whiteSpace
-/-- (ON) other neutral: most other symbols and punctuation marks -/
+/-- (`ON`) other neutral: most other symbols and punctuation marks -/
 | otherNeutral
-/-- (LRE) left to right embedding (U+202A: the LR embedding control) -/
+/-- (`LRE`) left to right embedding (U+202A: the LR embedding control) -/
 | leftToRightEmbedding
-/-- (LRO)	Left_To_Right_Override	(U+202D: the LR override control) -/
+/-- (`LRO`)	Left_To_Right_Override	(U+202D: the LR override control) -/
 | leftToRightOverride
-/-- (RLE) right-to-left embedding (U+202B: the RL embedding control) -/
+/-- (`RLE`) right-to-left embedding (U+202B: the RL embedding control) -/
 | rightToLeftEmbeding
-/-- (RLO) right-to-left override (U+202E: the RL override control) -/
+/-- (`RLO`) right-to-left override (U+202E: the RL override control) -/
 | rightToLeftOverride
-/-- (PDF) pop directional format (U+202C: terminates an embedding or override control) -/
+/-- (`PDF`) pop directional format (U+202C: terminates an embedding or override control) -/
 | popDirectionalFormat
-/-- (LRI) left-to-right isolate (U+2066: the LR isolate control) -/
+/-- (`LRI`) left-to-right isolate (U+2066: the LR isolate control) -/
 | leftToRightIsolate
-/-- (RLI) right-toleft isolate (U+2067: the RL isolate control) -/
+/-- (`RLI`) right-toleft isolate (U+2067: the RL isolate control) -/
 | rightToLeftIsolate
-/-- (FSI)	first strong isolate	U+2068: the first strong isolate control -/
+/-- (`FSI`)	first strong isolate	U+2068: the first strong isolate control -/
 | firstStrongIsolate
-/-- (PDI) pop directional isolate	U+2069: terminates an isolate control -/
+/-- (`PDI`) pop directional isolate	U+2069: terminates an isolate control -/
 | popDirectionalIsolate
 deriving Inhabited, DecidableEq
 
-/-- Bidirectional category strong left-to-right (L) -/
+/-- Bidirectional category strong left-to-right (`L`) -/
 protected def BidirectionalCategory.L := leftToRight
-/-- Bidirectional category strong right-to-left (R) -/
+/-- Bidirectional category strong right-to-left (`R`) -/
 protected def BidirectionalCategory.R := rightToLeft
-/-- Bidirectional category arabic letter (AL) -/
+/-- Bidirectional category arabic letter (`AL`) -/
 protected def BidirectionalCategory.AL := arabicLetter
-/-- Bidirectional category european number (EN) -/
+/-- Bidirectional category european number (`EN`) -/
 protected def BidirectionalCategory.EN := europeanNumber
-/-- Bidirectional category european separator (ES) -/
+/-- Bidirectional category european separator (`ES`) -/
 protected def BidirectionalCategory.ES := europeanSeparator
-/-- Bidirectional category european terminator (ET) -/
+/-- Bidirectional category european terminator (`ET`) -/
 protected def BidirectionalCategory.ET := europeanTerminator
-/-- Bidirectional category arabic number (AN) -/
+/-- Bidirectional category arabic number (`AN`) -/
 protected def BidirectionalCategory.AN := arabicNumber
-/-- Bidirectional category common separator (CS) -/
+/-- Bidirectional category common separator (`CS`) -/
 protected def BidirectionalCategory.CS := commonSeparator
-/-- Bidirectional category nonspacing mark (NSM) -/
+/-- Bidirectional category nonspacing mark (`NSM`) -/
 protected def BidirectionalCategory.NSM := nonspacingMark
-/-- Bidirectional category boundary neutral (BN) -/
+/-- Bidirectional category boundary neutral (`BN`) -/
 protected def BidirectionalCategory.BN := boundaryNeutral
-/-- Bidirectional category paragraph separator (B) -/
+/-- Bidirectional category paragraph separator (`B`) -/
 protected def BidirectionalCategory.B := paragraphSeparator
-/-- Bidirectional category segment separator (S) -/
+/-- Bidirectional category segment separator (`S`) -/
 protected def BidirectionalCategory.S := segmentSeparator
-/-- Bidirectional category white space (WS) -/
+/-- Bidirectional category white space (`WS`) -/
 protected def BidirectionalCategory.WS := whiteSpace
-/-- Bidirectional category other neutral (ON) -/
+/-- Bidirectional category other neutral (`ON`) -/
 protected def BidirectionalCategory.ON := otherNeutral
-/-- Bidirectional category left-to-right embedding (LRE) -/
+/-- Bidirectional category left-to-right embedding (`LRE`) -/
 protected def BidirectionalCategory.LRE := leftToRightEmbedding
-/-- Bidirectional category left-to-right override (LRO) -/
+/-- Bidirectional category left-to-right override (`LRO`) -/
 protected def BidirectionalCategory.LRO := leftToRightOverride
-/-- Bidirectional category right-to-left embedding (RLE) -/
+/-- Bidirectional category right-to-left embedding (`RLE`) -/
 protected def BidirectionalCategory.RLE := rightToLeftEmbeding
-/-- Bidirectional category right-to-left override (RLO) -/
+/-- Bidirectional category right-to-left override (`RLO`) -/
 protected def BidirectionalCategory.RLO := rightToLeftOverride
-/-- Bidirectional category pop directional format (PDF) -/
+/-- Bidirectional category pop directional format (`PDF`) -/
 protected def BidirectionalCategory.PDF := popDirectionalFormat
-/-- Bidirectional category left-to-right isolate (LRI) -/
+/-- Bidirectional category left-to-right isolate (`LRI`) -/
 protected def BidirectionalCategory.LRI := leftToRightIsolate
-/-- Bidirectional category right-to-left isolate (RLI) -/
+/-- Bidirectional category right-to-left isolate (`RLI`) -/
 protected def BidirectionalCategory.RLI := rightToLeftIsolate
-/-- Bidirectional category first strong isolate (FSI) -/
+/-- Bidirectional category first strong isolate (`FSI`) -/
 protected def BidirectionalCategory.FSI := firstStrongIsolate
-/-- Bidirectional category pop directional isolate (PDI) -/
+/-- Bidirectional category pop directional isolate (`PDI`) -/
 protected def BidirectionalCategory.PDI := popDirectionalIsolate
 
 /-- String abbreviation for bidirectional category -/
@@ -616,8 +618,6 @@ def BidirectionalCategory.ofAbbrev! (abbr : String) : BidirectionalCategory :=
   | none => panic! "invalid bidi category abbrev"
 
 instance : Repr BidirectionalCategory where
-  reprPrec bc _ := s!"BidirectionalCategory.{bc.toAbbrev}"
-
-end BidirectionalCategory
+  reprPrec bc _ := s!"Unicode.BidirectionalCategory.{bc.toAbbrev}"
 
 end Unicode
