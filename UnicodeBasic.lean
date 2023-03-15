@@ -75,6 +75,9 @@ def isLetter (char : Char) : Bool :=
   | ⟨.letter, _⟩ => true
   | _ => false
 
+@[inherit_doc isLetter]
+protected abbrev isL := isLetter
+
 /-- Check if lowercase letter character (`Ll`)
 
   Unicode Property: `General_Category=Ll` -/
@@ -83,6 +86,9 @@ def isLowercaseLetter (char : Char) : Bool :=
   match generalCategory char with
   | ⟨_, some .lowercaseLetter⟩ => true
   | _ => false
+
+@[inherit_doc isLowercaseLetter]
+protected abbrev isLl := isLowercaseLetter
 
 /-- Check if titlecase letter character (`Lt`)
 
@@ -93,6 +99,9 @@ def isTitlecaseLetter (char : Char) : Bool :=
   | ⟨_, some .titlecaseLetter⟩ => true
   | _ => false
 
+@[inherit_doc isTitlecaseLetter]
+protected abbrev isLt := isTitlecaseLetter
+
 /-- Check if uppercase letter character (`Lu`)
 
   Unicode Property: `General_Category=Lu` -/
@@ -101,6 +110,9 @@ def isUppercaseLetter (char : Char) : Bool :=
   match generalCategory char with
   | ⟨_, some .uppercaseLetter⟩ => true
   | _ => false
+
+@[inherit_doc isUppercaseLetter]
+protected abbrev isLu := isUppercaseLetter
 
 /-- Check if cased letter character (`LC`)
 
@@ -115,6 +127,9 @@ def isCasedLetter (char : Char) : Bool :=
   | ⟨_, some .uppercaseLetter⟩ => true
   | _ => false
 
+@[inherit_doc isCasedLetter]
+protected abbrev isLC := isCasedLetter
+
 /-- Check if modifier letter character (`Lm`)
 
   Unicode Property: `General_Category=Lm`-/
@@ -124,6 +139,9 @@ def isModifierLetter (char : Char) : Bool :=
   | ⟨_, some .modifierLetter⟩ => true
   | _ => false
 
+@[inherit_doc isModifierLetter]
+protected abbrev isLm := isModifierLetter
+
 /-- Check if other letter character (`Lo`)
 
   Unicode Property: `General_Category=Lo`-/
@@ -132,6 +150,9 @@ def isOtherLetter (char : Char) : Bool :=
   match generalCategory char with
   | ⟨_, some .otherLetter⟩ => true
   | _ => false
+
+@[inherit_doc isOtherLetter]
+protected abbrev isLo := isOtherLetter
 
 /-- Check if mark character (`M`)
 
@@ -144,6 +165,9 @@ def isMark (char : Char) : Bool :=
   | ⟨.mark, _⟩ => true
   | _ => false
 
+@[inherit_doc isMark]
+protected abbrev isM := isMark
+
 /-- Check if nonspacing combining mark character (`Mn`)
 
   Unicode Property: `General_Category=Mn` -/
@@ -152,6 +176,9 @@ def isNonspacingMark (char : Char) : Bool :=
   match generalCategory char with
   | ⟨_, some .nonspacingMark⟩ => true
   | _ => false
+
+@[inherit_doc isNonspacingMark]
+protected abbrev isMn := isNonspacingMark
 
 /-- Check if spacing combining mark character (`Mc`)
 
@@ -162,6 +189,9 @@ def isSpacingMark (char : Char) : Bool :=
   | ⟨_, some .spacingMark⟩ => true
   | _ => false
 
+@[inherit_doc isSpacingMark]
+protected abbrev isMc := isSpacingMark
+
 /-- Check if enclosing combining mark character (`Me`)
 
   Unicode Property: `General_Category=Me` -/
@@ -170,6 +200,9 @@ def isEnclosingMark (char : Char) : Bool :=
   match generalCategory char with
   | ⟨_, some .enclosingMark⟩ => true
   | _ => false
+
+@[inherit_doc isEnclosingMark]
+protected abbrev isMe := isEnclosingMark
 
 /-- Check if number character (`N`)
 
@@ -182,6 +215,9 @@ def isNumber (char : Char) : Bool :=
   | ⟨.number, _⟩ => true
   | _ => false
 
+@[inherit_doc isNumber]
+protected abbrev isN := isNumber
+
 /-- Check if decimal number character (`Nd`)
 
   Unicode Property: `General_Category=Nd` -/
@@ -190,6 +226,9 @@ def isDecimalNumber (char : Char) : Bool :=
   match generalCategory char with
   | ⟨_, some .decimalNumber⟩ => true
   | _ => false
+
+@[inherit_doc isDecimalNumber]
+protected abbrev isNd := isDecimalNumber
 
 /-- Check if letter number character (`Nl`)
 
@@ -200,6 +239,9 @@ def isLetterNumber (char : Char) : Bool :=
   | ⟨_, some .letterNumber⟩ => true
   | _ => false
 
+@[inherit_doc isLetterNumber]
+protected abbrev isNl := isLetterNumber
+
 /-- Check if other number character (`No`)
 
   Unicode Property: `General_Category=No` -/
@@ -208,6 +250,9 @@ def isOtherNumber (char : Char) : Bool :=
   match generalCategory char with
   | ⟨_, some .otherNumber⟩ => true
   | _ => false
+
+@[inherit_doc isOtherNumber]
+protected abbrev isNo := isOtherNumber
 
 /-- Check if punctuation character (`P`)
 
@@ -220,6 +265,9 @@ def isPunctuation (char : Char) : Bool :=
   | ⟨.punctuation, _⟩ => true
   | _ => false
 
+@[inherit_doc isPunctuation]
+protected abbrev isP := isPunctuation
+
 /-- Check if connector punctuation character (`Pc`)
 
   Unicode Property: `General_Category=Pc` -/
@@ -228,6 +276,9 @@ def isConnectorPunctuation (char : Char) : Bool :=
   match generalCategory char with
   | ⟨_, some .connectorPunctuation⟩ => true
   | _ => false
+
+@[inherit_doc isConnectorPunctuation]
+protected abbrev isPc := isConnectorPunctuation
 
 /-- Check if dash punctuation character (`Pd`)
 
@@ -238,6 +289,9 @@ def isDashPunctuation (char : Char) : Bool :=
   | ⟨_, some .dashPunctuation⟩ => true
   | _ => false
 
+@[inherit_doc isDashPunctuation]
+protected abbrev isPd := isDashPunctuation
+
 /-- Check if open punctuation character (`Ps`)
 
   Unicode Property: `General_Category=Ps` -/
@@ -246,6 +300,9 @@ def isOpenPunctuation (char : Char) : Bool :=
   match generalCategory char with
   | ⟨_, some .openPunctuation⟩ => true
   | _ => false
+
+@[inherit_doc isOpenPunctuation]
+protected abbrev isPs := isOpenPunctuation
 
 /-- Check if close punctuation character (`Pe`)
 
@@ -256,6 +313,9 @@ def isClosePunctuation (char : Char) : Bool :=
   | ⟨_, some .closePunctuation⟩ => true
   | _ => false
 
+@[inherit_doc isClosePunctuation]
+protected abbrev isPe := isClosePunctuation
+
 /-- Check if initial punctuation character (`Pi`)
 
   Unicode Property: `General_Category=Pi` -/
@@ -264,6 +324,9 @@ def isInitialPunctuation (char : Char) : Bool :=
   match generalCategory char with
   | ⟨_, some .initialPunctuation⟩ => true
   | _ => false
+
+@[inherit_doc isInitialPunctuation]
+protected abbrev isPi := isInitialPunctuation
 
 /-- Check if initial punctuation character (`Pf`)
 
@@ -274,6 +337,9 @@ def isFinalPunctuation (char : Char) : Bool :=
   | ⟨_, some .finalPunctuation⟩ => true
   | _ => false
 
+@[inherit_doc isFinalPunctuation]
+protected abbrev isPf := isFinalPunctuation
+
 /-- Check if other punctuation character (`Po`)
 
   Unicode Property: `General_Category=Po` -/
@@ -282,6 +348,9 @@ def isOtherPunctuation (char : Char) : Bool :=
   match generalCategory char with
   | ⟨_, some .otherPunctuation⟩ => true
   | _ => false
+
+@[inherit_doc isOtherPunctuation]
+protected abbrev isPo := isOtherPunctuation
 
 /-- Check if symbol character (`S`)
 
@@ -294,6 +363,9 @@ def isSymbol (char : Char) : Bool :=
   | ⟨.symbol, _⟩ => true
   | _ => false
 
+@[inherit_doc isSymbol]
+protected abbrev isS := isSymbol
+
 /-- Check if math symbol character (`Sm`)
 
   Unicode Property: `General_Category=Sm` -/
@@ -303,6 +375,9 @@ def isMathSymbol (char : Char) : Bool :=
   | ⟨_, some .mathSymbol⟩ => true
   | _ => false
 
+@[inherit_doc isMathSymbol]
+protected abbrev isSm := isMathSymbol
+
 /-- Check if currency symbol character (`Sc`)
 
   Unicode Property: `General_Category=Sc` -/
@@ -310,6 +385,9 @@ def isCurrencySymbol (char : Char) : Bool :=
   match generalCategory char with
   | ⟨_, some .currencySymbol⟩ => true
   | _ => false
+
+@[inherit_doc isCurrencySymbol]
+protected abbrev isSc := isCurrencySymbol
 
 /-- Check if modifier symbol character (`Sk`)
 
@@ -320,6 +398,9 @@ def isModifierSymbol (char : Char) : Bool :=
   | ⟨_, some .modifierSymbol⟩ => true
   | _ => false
 
+@[inherit_doc isModifierSymbol]
+protected abbrev isSk := isModifierSymbol
+
 /-- Check if other symbol character (`So`)
 
   Unicode Property: `General_Category=So` -/
@@ -328,6 +409,9 @@ def isOtherSymbol (char : Char) : Bool :=
   match generalCategory char with
   | ⟨_, some .otherSymbol⟩ => true
   | _ => false
+
+@[inherit_doc isOtherSymbol]
+protected abbrev isSo := isOtherSymbol
 
 /-- Check if separator character (`Z`)
 
@@ -340,6 +424,9 @@ def isSeparator (char : Char) : Bool :=
   | ⟨.separator, _⟩ => true
   | _ => false
 
+@[inherit_doc isSeparator]
+protected abbrev isZ := isSeparator
+
 /-- Check if space separator character (`Zs`)
 
   Unicode Property: `General_Category=Zs` -/
@@ -348,6 +435,9 @@ def isSpaceSeparator (char : Char) : Bool :=
   match generalCategory char with
   | ⟨_, some .spaceSeparator⟩ => true
   | _ => false
+
+@[inherit_doc isSpaceSeparator]
+protected abbrev isZs := isSpaceSeparator
 
 /-- Check if line separator character (`Zl`)
 
@@ -358,6 +448,9 @@ def isLineSeparator (char : Char) : Bool :=
   | ⟨_, some .lineSeparator⟩ => true
   | _ => false
 
+@[inherit_doc isLineSeparator]
+protected abbrev isZl := isLineSeparator
+
 /-- Check if paragraph separator character (`Zp`)
 
   Unicode Property: `General_Category=Zp` -/
@@ -366,6 +459,9 @@ def isParagraphSeparator (char : Char) : Bool :=
   match generalCategory char with
   | ⟨_, some .paragraphSeparator⟩ => true
   | _ => false
+
+@[inherit_doc isParagraphSeparator]
+protected abbrev isZp := isParagraphSeparator
 
 /-- Check if other character (`C`)
 
@@ -378,6 +474,9 @@ def isOther (char : Char) : Bool :=
   | ⟨.other, _⟩ => true
   | _ => false
 
+@[inherit_doc isOther]
+protected abbrev isC := isOther
+
 /-- Check if control character (`Cc`)
 
   Unicode Property: `General_Category=Cc` -/
@@ -386,6 +485,9 @@ def isControl (char : Char) : Bool :=
   match generalCategory char with
   | ⟨_, some .control⟩ => true
   | _ => false
+
+@[inherit_doc isControl]
+protected abbrev iscC := isControl
 
 /-- Check if format character (`Cf`)
 
@@ -396,6 +498,9 @@ def isFormat (char : Char) : Bool :=
   | ⟨_, some .format⟩ => true
   | _ => false
 
+@[inherit_doc isFormat]
+protected abbrev isCf := isFormat
+
 /-- Check if surrogate character (`Cs`)
 
   Unicode Property: `General_Category=Cs` -/
@@ -404,6 +509,9 @@ def isSurrogate (char : Char) : Bool :=
   match generalCategory char with
   | ⟨_, some .surrogate⟩ => true
   | _ => false
+
+@[inherit_doc isSurrogate]
+protected abbrev isCs := isSurrogate
 
 /-- Check if private use character (`Co`)
 
@@ -414,6 +522,9 @@ def isPrivateUse (char : Char) : Bool :=
   | ⟨_, some .privateUse⟩ => true
   | _ => false
 
+@[inherit_doc isPrivateUse]
+protected abbrev isCo := isPrivateUse
+
 /-- Check if unassigned character (`Cn`)
 
   Unicode Property: `General_Category=Cn` -/
@@ -422,6 +533,9 @@ def isUnassigned (char : Char) : Bool :=
   match generalCategory char with
   | ⟨_, some .unassigned⟩ => true
   | _ => false
+
+@[inherit_doc isUnassigned]
+protected abbrev isCn := isUnassigned
 
 end GeneralCategory
 
