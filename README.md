@@ -26,7 +26,7 @@ Add the following dependency to your project's `lakefile.lean`:
 
 ```lean
 require UnicodeBasic from git
-  "https://github.com/fgdorais/lean4-unicode-basic" @ "proplist"
+  "https://github.com/fgdorais/lean4-unicode-basic" @ "main"
 ```
 
 Then add `import UnicodeBasic` at the top of any Lean file where you plan to use this library.
