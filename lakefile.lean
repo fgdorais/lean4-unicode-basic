@@ -15,18 +15,11 @@ lean_lib UnicodeBasic {
 
 lean_exe UnicodeTool
 
+/-- Update data files from the Unicode Character Database (UCD) -/
 script UpdateUCD := do
-  let dir : FilePath := "./data"
+  let dataDir : FilePath := "./data"
+  let url := "https://www.unicode.org/Public/UCD/latest/ucd/"
   for file in ["UnicodeData.txt", "PropList.txt"] do
-    IO.println s!"Updating {file}"
-    let url := "https://www.unicode.org/Public/UCD/latest/ucd/" ++ file
-
-    let mut args := #["-sSO", "--remote-time"]
-    if ← System.FilePath.pathExists <| dir/file then
-      args := args ++ #["-z", file]
-    let _ ← IO.Process.run {
-      cmd := "curl"
-      args := args.push url
-      cwd := some dir
-    }
+    IO.println s!"Downloading UCD/{file}"
+    let _ ← LogIO.captureLog <| download file url (dataDir/file)
   return 0
