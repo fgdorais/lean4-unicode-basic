@@ -7,6 +7,41 @@ import UnicodeBasic.Types
 import UnicodeBasic.UnicodeData
 import UnicodeBasic.PropList
 
+/-!
+  # General API #
+
+  As a general rule, for a given a Unicode property `Unicode_Property`.
+
+  * If the property is boolean valued then the implementation is called
+    `Unicode.isUnicodeProperty`.
+
+  * Otherwise, the implementation is called `Unicode.getUnicodeProperty`.
+
+  * If the value is not of standard type (`Bool`, `Char`, `Nat`, `Int`, etc.)
+    or a combination thereof (e.g. `Bool × Option Nat`) then the value type is
+    defined in `UnicodeData.Types`.
+
+  * If the input type needs disambiguation (e.g. `Char` vs `String`) the type
+    name may be appended to the name as in `Unicode.isUnicodePropertyChar` or
+    in `Unicode.getUnicodePropertyString`.
+
+  * If the output type is `Option _` then the suffix `?` may be appended to
+    indicate that this is a partial function. In this case, a companion
+    function with the suffix `!` may be implemented. This function will
+    perform the same calculation as the original but it assumes the user has
+    checked that the input is in the domain, the function may panic if this
+    is not the case.
+
+  There are exceptions and variations on these general rules. For example,
+  `Unicode.isInGeneralCategory` checks whether a character belongs to a given
+  general category. Because of derived general categories, this makes more
+  sense than what the first rule above would give.
+
+  Some properties may be grouped in a namespace. The namespace
+  `Unicode.GeneralCategory` is such. For example, `Unicode.GeneralCategory.isL`
+  checks whether a character belongs to the derived general category `L`.
+-/
+
 namespace Unicode
 
 /-!
@@ -32,7 +67,7 @@ def getName (char : Char) : String :=
 /-- Get character bidirectional class
 
   Unicode property: `Bidi_Class` -/
-def bidiClass (char : Char) : BidiClass :=
+def getBidiClass (char : Char) : BidiClass :=
   getUnicodeData char |>.bidiClass
 
 /-- Check if bidirectional mirrored character
@@ -47,15 +82,20 @@ def isBidiMirrored (char : Char) : Bool :=
 
 /-- Get character general category
 
+  *Caveat*: This function never returns a derived general category. Use
+  `Unicode.isInGeneralCategory` to check whether a character belongs to a
+  general category (derived or not).
+
   Unicode property: `General_Category` -/
 @[inline]
-def generalCategory (char : Char) : GeneralCategory :=
+def getGeneralCategory (char : Char) : GeneralCategory :=
   getUnicodeData char |>.generalCategory
 
-/-- Check if character belongs to the general category -/
-@[specialize]
+/-- Check if character belongs to the general category
+
+  Unicode property: `General_Category` -/
 def isInGeneralCategory (char : Char) (category : GeneralCategory) : Bool :=
-  match category, generalCategory char with
+  match category, getGeneralCategory char with
   | ⟨major, none⟩, ⟨charMajor, _⟩ => major = charMajor
   | ⟨_, some .casedLetter⟩, ⟨_, some .lowercaseLetter⟩ => true
   | ⟨_, some .casedLetter⟩, ⟨_, some .titlecaseLetter⟩ => true
@@ -72,7 +112,7 @@ namespace GeneralCategory
   Unicode Property: `General_Category=L` -/
 @[inline]
 def isLetter (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨.letter, _⟩ => true
   | _ => false
 
@@ -84,7 +124,7 @@ protected abbrev isL := isLetter
   Unicode Property: `General_Category=Ll` -/
 @[inline]
 def isLowercaseLetter (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .lowercaseLetter⟩ => true
   | _ => false
 
@@ -96,7 +136,7 @@ protected abbrev isLl := isLowercaseLetter
   Unicode Property: `General_Category=Lt` -/
 @[inline]
 def isTitlecaseLetter (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .titlecaseLetter⟩ => true
   | _ => false
 
@@ -108,7 +148,7 @@ protected abbrev isLt := isTitlecaseLetter
   Unicode Property: `General_Category=Lu` -/
 @[inline]
 def isUppercaseLetter (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .uppercaseLetter⟩ => true
   | _ => false
 
@@ -122,7 +162,7 @@ protected abbrev isLu := isUppercaseLetter
   Unicode Property: `General_Category=LC` -/
 @[inline]
 def isCasedLetter (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .lowercaseLetter⟩ => true
   | ⟨_, some .titlecaseLetter⟩ => true
   | ⟨_, some .uppercaseLetter⟩ => true
@@ -136,7 +176,7 @@ protected abbrev isLC := isCasedLetter
   Unicode Property: `General_Category=Lm`-/
 @[inline]
 def isModifierLetter (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .modifierLetter⟩ => true
   | _ => false
 
@@ -148,7 +188,7 @@ protected abbrev isLm := isModifierLetter
   Unicode Property: `General_Category=Lo`-/
 @[inline]
 def isOtherLetter (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .otherLetter⟩ => true
   | _ => false
 
@@ -162,7 +202,7 @@ protected abbrev isLo := isOtherLetter
   Unicode Property: `General_Category=M` -/
 @[inline]
 def isMark (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨.mark, _⟩ => true
   | _ => false
 
@@ -174,7 +214,7 @@ protected abbrev isM := isMark
   Unicode Property: `General_Category=Mn` -/
 @[inline]
 def isNonspacingMark (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .nonspacingMark⟩ => true
   | _ => false
 
@@ -186,7 +226,7 @@ protected abbrev isMn := isNonspacingMark
   Unicode Property: `General_Category=Mc` -/
 @[inline]
 def isSpacingMark (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .spacingMark⟩ => true
   | _ => false
 
@@ -198,7 +238,7 @@ protected abbrev isMc := isSpacingMark
   Unicode Property: `General_Category=Me` -/
 @[inline]
 def isEnclosingMark (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .enclosingMark⟩ => true
   | _ => false
 
@@ -212,7 +252,7 @@ protected abbrev isMe := isEnclosingMark
   Unicode Property: `General_Category=N` -/
 @[inline]
 def isNumber (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨.number, _⟩ => true
   | _ => false
 
@@ -224,7 +264,7 @@ protected abbrev isN := isNumber
   Unicode Property: `General_Category=Nd` -/
 @[inline]
 def isDecimalNumber (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .decimalNumber⟩ => true
   | _ => false
 
@@ -236,7 +276,7 @@ protected abbrev isNd := isDecimalNumber
   Unicode Property: `General_Category=Nl` -/
 @[inline]
 def isLetterNumber (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .letterNumber⟩ => true
   | _ => false
 
@@ -248,7 +288,7 @@ protected abbrev isNl := isLetterNumber
   Unicode Property: `General_Category=No` -/
 @[inline]
 def isOtherNumber (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .otherNumber⟩ => true
   | _ => false
 
@@ -262,7 +302,7 @@ protected abbrev isNo := isOtherNumber
   Unicode Property: `General_Category=P` -/
 @[inline]
 def isPunctuation (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨.punctuation, _⟩ => true
   | _ => false
 
@@ -274,7 +314,7 @@ protected abbrev isP := isPunctuation
   Unicode Property: `General_Category=Pc` -/
 @[inline]
 def isConnectorPunctuation (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .connectorPunctuation⟩ => true
   | _ => false
 
@@ -286,7 +326,7 @@ protected abbrev isPc := isConnectorPunctuation
   Unicode Property: `General_Category=Pd` -/
 @[inline]
 def isDashPunctuation (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .dashPunctuation⟩ => true
   | _ => false
 
@@ -298,7 +338,7 @@ protected abbrev isPd := isDashPunctuation
   Unicode Property: `General_Category=Ps` -/
 @[inline]
 def isOpenPunctuation (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .openPunctuation⟩ => true
   | _ => false
 
@@ -310,7 +350,7 @@ protected abbrev isPs := isOpenPunctuation
   Unicode Property: `General_Category=Pe` -/
 @[inline]
 def isClosePunctuation (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .closePunctuation⟩ => true
   | _ => false
 
@@ -322,7 +362,7 @@ protected abbrev isPe := isClosePunctuation
   Unicode Property: `General_Category=Pi` -/
 @[inline]
 def isInitialPunctuation (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .initialPunctuation⟩ => true
   | _ => false
 
@@ -334,7 +374,7 @@ protected abbrev isPi := isInitialPunctuation
   Unicode Property: `General_Category=Pf` -/
 @[inline]
 def isFinalPunctuation (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .finalPunctuation⟩ => true
   | _ => false
 
@@ -346,7 +386,7 @@ protected abbrev isPf := isFinalPunctuation
   Unicode Property: `General_Category=Po` -/
 @[inline]
 def isOtherPunctuation (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .otherPunctuation⟩ => true
   | _ => false
 
@@ -360,7 +400,7 @@ protected abbrev isPo := isOtherPunctuation
   Unicode Property: `General_Category=S` -/
 @[inline]
 def isSymbol (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨.symbol, _⟩ => true
   | _ => false
 
@@ -372,7 +412,7 @@ protected abbrev isS := isSymbol
   Unicode Property: `General_Category=Sm` -/
 @[inline]
 def isMathSymbol (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .mathSymbol⟩ => true
   | _ => false
 
@@ -383,7 +423,7 @@ protected abbrev isSm := isMathSymbol
 
   Unicode Property: `General_Category=Sc` -/
 def isCurrencySymbol (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .currencySymbol⟩ => true
   | _ => false
 
@@ -395,7 +435,7 @@ protected abbrev isSc := isCurrencySymbol
   Unicode Property: `General_Category=Sk` -/
 @[inline]
 def isModifierSymbol (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .modifierSymbol⟩ => true
   | _ => false
 
@@ -407,7 +447,7 @@ protected abbrev isSk := isModifierSymbol
   Unicode Property: `General_Category=So` -/
 @[inline]
 def isOtherSymbol (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .otherSymbol⟩ => true
   | _ => false
 
@@ -421,7 +461,7 @@ protected abbrev isSo := isOtherSymbol
   Unicode Property: `General_Category=Z` -/
 @[inline]
 def isSeparator (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨.separator, _⟩ => true
   | _ => false
 
@@ -433,7 +473,7 @@ protected abbrev isZ := isSeparator
   Unicode Property: `General_Category=Zs` -/
 @[inline]
 def isSpaceSeparator (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .spaceSeparator⟩ => true
   | _ => false
 
@@ -445,7 +485,7 @@ protected abbrev isZs := isSpaceSeparator
   Unicode Property: `General_Category=Zl` -/
 @[inline]
 def isLineSeparator (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .lineSeparator⟩ => true
   | _ => false
 
@@ -457,7 +497,7 @@ protected abbrev isZl := isLineSeparator
   Unicode Property: `General_Category=Zp` -/
 @[inline]
 def isParagraphSeparator (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .paragraphSeparator⟩ => true
   | _ => false
 
@@ -471,7 +511,7 @@ protected abbrev isZp := isParagraphSeparator
   Unicode Property: `General_Category=C` -/
 @[inline]
 def isOther (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨.other, _⟩ => true
   | _ => false
 
@@ -483,7 +523,7 @@ protected abbrev isC := isOther
   Unicode Property: `General_Category=Cc` -/
 @[inline]
 def isControl (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .control⟩ => true
   | _ => false
 
@@ -495,7 +535,7 @@ protected abbrev iscC := isControl
   Unicode Property: `General_Category=Cf` -/
 @[inline]
 def isFormat (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .format⟩ => true
   | _ => false
 
@@ -507,7 +547,7 @@ protected abbrev isCf := isFormat
   Unicode Property: `General_Category=Cs` -/
 @[inline]
 def isSurrogate (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .surrogate⟩ => true
   | _ => false
 
@@ -519,7 +559,7 @@ protected abbrev isCs := isSurrogate
   Unicode Property: `General_Category=Co` -/
 @[inline]
 def isPrivateUse (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .privateUse⟩ => true
   | _ => false
 
@@ -531,7 +571,7 @@ protected abbrev isCo := isPrivateUse
   Unicode Property: `General_Category=Cn` -/
 @[inline]
 def isUnassigned (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨_, some .unassigned⟩ => true
   | _ => false
 
@@ -551,7 +591,7 @@ end GeneralCategory
 
   Unicode property: `Simple_Lowercase_Mapping` -/
 @[inline]
-def toLower (char : Char) : Char :=
+def getLowerChar (char : Char) : Char :=
   match getUnicodeData char |>.lowercaseMapping with
   | some char => char
   | none => char
@@ -563,7 +603,7 @@ def toLower (char : Char) : Char :=
 
   Unicode property: `Simple_Uppercase_Mapping` -/
 @[inline]
-def toUpper (char : Char) : Char :=
+def getUpperChar (char : Char) : Char :=
   match getUnicodeData char |>.uppercaseMapping with
   | some char => char
   | none => char
@@ -575,10 +615,10 @@ def toUpper (char : Char) : Char :=
 
   Unicode property: `Simple_Titlecase_Mapping` -/
 @[inline]
-def toTitle (char : Char) : Char :=
+def getTitleChar (char : Char) : Char :=
   match getUnicodeData char |>.titlecaseMapping with
   | some char => char
-  | none => toUpper char
+  | none => getUpperChar char
 
 /-!
   ## Decomposition Type and Mapping ##
@@ -587,7 +627,7 @@ def toTitle (char : Char) : Char :=
 /-- Get canonical decomposition of character (`NFD`)
 
   Unicode property: `Decomposition_Mapping` -/
-partial def canonicalDecomposition (char : Char) : String :=
+partial def getCanonicalDecomposition (char : Char) : String :=
   /-
     In some instances a canonical mapping or a compatibility mapping may consist of a single
     character. For a canonical mapping, this indicates that the character is a canonical
@@ -627,7 +667,7 @@ def isDigit (char : Char) : Bool :=
 /-- Get value of digit
 
   Unicode properties: `Numeric_Value`, `Numeric_Type=Digit` -/
-def toDigit? (char : Char) : Option (Fin 10) :=
+def getDigit? (char : Char) : Option (Fin 10) :=
   match getUnicodeData char |>.numeric with
   | some (.decimal value) => some value
   | some (.digit value) => some value
@@ -651,7 +691,7 @@ def isDecimal (char : Char) : Bool :=
   last characters from this range.
 
   Unicode property: `Numeric_Type=Decimal` -/
-def decimalRange? (char : Char) : Option (Char × Char) :=
+def getDecimalRange? (char : Char) : Option (Char × Char) :=
   match getUnicodeData char |>.numeric with
   | some (.decimal value) =>
     let first := char.toNat - value.val
@@ -696,11 +736,20 @@ def isMath (char : Char) : Bool :=
 
   Unicode property: `Alphabetic` -/
 def isAlphabetic (char : Char) : Bool :=
-  match generalCategory char with
+  match getGeneralCategory char with
   | ⟨.letter, _⟩ => true
   | ⟨.number, some .letterNumber⟩ => true
   | _ => PropList.isOtherLowercase char.val
       || PropList.isOtherUppercase char.val
       || PropList.isOtherAlphabetic char.val
+
+@[inherit_doc isAlphabetic]
+abbrev isAlpha := isAlphabetic
+
+/-- Check if alphabetic or digit character
+
+  Unicode properties: `Alphabetic`, `Numeric_Type=Digit` -/
+abbrev isAlphanum (char : Char) : Bool :=
+  isAlphabetic char || isDigit char
 
 end Unicode
