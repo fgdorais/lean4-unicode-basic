@@ -10,22 +10,22 @@ import UnicodeBasic.PropList
 /-!
   # General API #
 
-  As a general rule, for a given a Unicode property `Unicode_Property`.
+  As a general rule, for a given a Unicode property called `Unicode_Property`, say:
 
-  * If the property is boolean valued then the implementation is called
+  - If the property is boolean valued then the implementation is called
     `Unicode.isUnicodeProperty`.
 
-  * Otherwise, the implementation is called `Unicode.getUnicodeProperty`.
+  - Otherwise, the implementation is called `Unicode.getUnicodeProperty`.
 
-  * If the value is not of standard type (`Bool`, `Char`, `Nat`, `Int`, etc.)
+  - If the value is not of standard type (`Bool`, `Char`, `Nat`, `Int`, etc.)
     or a combination thereof (e.g. `Bool × Option Nat`) then the value type is
-    defined in `UnicodeData.Types`.
+    defined in `UnicodeBasic.Types`.
 
-  * If the input type needs disambiguation (e.g. `Char` vs `String`) the type
+  - If the input type needs disambiguation (e.g. `Char` vs `String`) the type
     name may be appended to the name as in `Unicode.isUnicodePropertyChar` or
     in `Unicode.getUnicodePropertyString`.
 
-  * If the output type is `Option _` then the suffix `?` may be appended to
+  - If the output type is `Option _` then the suffix `?` may be appended to
     indicate that this is a partial function. In this case, a companion
     function with the suffix `!` may be implemented. This function will
     perform the same calculation as the original but it assumes the user has
