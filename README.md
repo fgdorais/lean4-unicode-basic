@@ -33,5 +33,5 @@ Then add `import UnicodeBasic` at the top of any Lean file where you plan to use
 
 -----
 
-* The Lean 4 Unicode Basic library is copyright © 2023 François G. Dorais. The library is released under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0). See the file LICENSE for additional details.
-* The `UnicodeData.txt` file is copyright © 1991-2023 Unicode, Inc. The file is distributed under the [Unicode® Copyright and Terms of Use](https://www.unicode.org/copyright.html). See the file LICENSE-UNICODE for additional details.
+* The `Lean 4 / Unicode Basic` library is copyright © 2023 François G. Dorais. The library is released under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0). See the file LICENSE for additional details.
+* The `UnicodeData.txt` and `PropList.txt` files are copyright © 1991-2023 Unicode, Inc. The files are distributed under the [Unicode® Copyright and Terms of Use](https://www.unicode.org/copyright.html). See the file LICENSE-UNICODE for additional details.
