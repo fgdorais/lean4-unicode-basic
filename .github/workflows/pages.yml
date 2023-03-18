@@ -10,12 +10,11 @@ jobs:
     name: publish pages
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
+      - name: publish to gh-pages
         uses: actions/checkout@v3
         with:
           ref: "docs"
-
-      - name: publish to gh-pages
+          token: ${{secrets.PAT}}
         run: |
           git checkout -b gh-pages
           git push --set-upstream origin gh-pages --force
