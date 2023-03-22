@@ -9,6 +9,7 @@ Unicode properties that are currently supported are:
 * `Canonical_Combining_Class`
 * `Decomposition_Type` and `Decomposition_Mapping`
 * `General_Category`
+* `Hex_Digit`
 * `Lowercase`
 * `Math`
 * `Name`

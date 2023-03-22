@@ -708,6 +708,45 @@ def getDecimalRange? (char : Char) : Option (Char × Char) :=
     some (Char.ofNat first, Char.ofNat (first + 9))
   | _ => none
 
+/-- Check if character represents a digit in base 16
+
+  Unicode property: `Hex_Digit` -/
+@[inline]
+def isHexDigit (char : Char) : Bool :=
+  -- Extracted from `PropList.txt`
+  char.val <= 0x0039 && char.val >= 0x0030 || -- [10] DIGIT ZERO..DIGIT NINE
+  char.val <= 0x0046 && char.val >= 0x0041 || --  [6] LATIN CAPITAL LETTER A..LATIN CAPITAL LETTER F
+  char.val <= 0x0066 && char.val >= 0x0061 || --  [6] LATIN SMALL LETTER A..LATIN SMALL LETTER F
+  char.val <= 0xFF19 && char.val >= 0xFF10 || -- [10] FULLWIDTH DIGIT ZERO..FULLWIDTH DIGIT NINE
+  char.val <= 0xFF26 && char.val >= 0xFF21 || --  [6] FULLWIDTH LATIN CAPITAL LETTER A..FULLWIDTH LATIN CAPITAL LETTER F
+  char.val <= 0xFF46 && char.val >= 0xFF41    --  [6] FULLWIDTH LATIN SMALL LETTER A..FULLWIDTH LATIN SMALL LETTER F
+
+/-- Get value of digit
+
+  Unicode properties: `Hex_Digit` -/
+@[inline]
+def getHexDigit? (char : Char) : Option (Fin 16) :=
+  if char.toNat < 0x0030 then
+    none
+  else
+    let n := if char.toNat < 0xFF10 then char.toNat - 0x0030 else char.toNat - 0xFF10
+    if h : n < 10 then
+      some ⟨n, Nat.lt_trans h (by decide)⟩
+    else if n >= 17 then
+      let n := n - 7
+      if h : n < 16 then
+        some ⟨n, h⟩
+      else if n >= 32 then
+        let n := n - 32
+        if h : n < 16 then
+          some ⟨n, h⟩
+        else
+          none
+      else
+        none
+    else
+      none
+
 /-!
   ## Other Properties ##
 -/
