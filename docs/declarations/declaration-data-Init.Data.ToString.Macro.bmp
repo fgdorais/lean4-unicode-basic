@@ -1,0 +1,1 @@
+{"name":"Init.Data.ToString.Macro","instances":[],"imports":["Init.Meta","Init.Data.ToString.Basic"],"declarations":[{"sourceLink":"https://github.com/leanprover/lean4/blob/473486eeb9bca08d8557a3cd470c2512557c98ca/src/Init/Data/ToString/Macro.lean#L10-L10","name":"termS!_","kind":"def","docLink":"./Init/Data/ToString/Macro.html#termS!_","doc":""}]}
