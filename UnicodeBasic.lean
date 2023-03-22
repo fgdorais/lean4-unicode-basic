@@ -61,7 +61,7 @@ def getName (char : Char) : String :=
   getUnicodeData char |>.characterName
 
 /-!
-  ## Bidi Class ##
+  ## Bidirectional Properties ##
 -/
 
 /-- Get character bidirectional class
@@ -75,6 +75,16 @@ def getBidiClass (char : Char) : BidiClass :=
   Unicode property: `Bidi_Mirrored` -/
 def isBidiMirrored (char : Char) : Bool :=
   getUnicodeData char |>.bidiMirrored
+
+/-- Check if bidirectional control character
+
+  Unicode property: `Bidi_Control` -/
+def isBidiControl (char : Char) : Bool :=
+  -- Extracted from `PropList.txt`
+  char.val == 0x061C
+  || char.val <= 0x200F && char.val >= 0x200E
+  || char.val <= 0x202E && char.val >= 0x202A
+  || char.val <= 0x2069 && char.val >= 0x2066
 
 /-!
   ## General Category ##

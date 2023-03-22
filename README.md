@@ -5,7 +5,7 @@ Lightweight Unicode support for Lean 4.
 Unicode properties that are currently supported are:
 
 * `Alphabetic`
-* `Bidi_Class` and `Bidi_Mirrored`
+* `Bidi_Class`, `Bidi_Control`, and `Bidi_Mirrored`
 * `Canonical_Combining_Class`
 * `Decomposition_Type` and `Decomposition_Mapping`
 * `General_Category`
