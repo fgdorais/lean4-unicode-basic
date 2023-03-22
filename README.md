@@ -7,15 +7,14 @@ Unicode properties that are currently supported are:
 * `Alphabetic`
 * `Bidi_Class`, `Bidi_Control`, and `Bidi_Mirrored`
 * `Canonical_Combining_Class`
+* `Uppercase`, `Lowercase`, `Cased` and `Case_Ignorable`
 * `Decomposition_Type` and `Decomposition_Mapping`
 * `General_Category`
 * `Hex_Digit`
-* `Lowercase`
 * `Math`
 * `Name`
 * `Numeric_Type` and `Numeric_Value`
 * `Simple_Lowercase_Mapping`, `Simple_Uppercase_Mapping`, and `Simple_Titlecase_Mapping`
-* `Uppercase`
 * `White_Space`
 
 To keep the library lightweight, only properties that can be derived exclusively from `UnicodeData.txt` and `PropList.txt` can be supported.

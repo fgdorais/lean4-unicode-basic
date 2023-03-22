@@ -792,6 +792,51 @@ def isLowercase (char : Char) : Bool :=
 def isUppercase (char : Char) : Bool :=
   GeneralCategory.isLu char || PropList.isOtherUppercase char.val
 
+/-- Check if cased letter character
+
+  Unicode properties: `Cased` -/
+def isCased (char : Char) : Bool :=
+  match getGeneralCategory char with
+  | ⟨_, some .uppercaseLetter⟩ => true
+  | ⟨_, some .lowercaseLetter⟩ => true
+  | ⟨_, some .titlecaseLetter⟩ => true
+  | _ => PropList.isOtherLowercase char.val
+      || PropList.isOtherUppercase char.val
+
+/-- Check if character is ignorable for casing purposes
+
+  Generated from general categories `Lm`, `Mn`, `Me`, `Sk`, `Cf`, and word
+  break properties `MidLetter`, `MidNumLet`, `Single_Quote`.
+
+  Unicode property: `Case_Ignorable` -/
+def isCaseIgnorable (char : Char) : Bool :=
+  -- Extracted from `auxiliary/WordBreakProperty.txt`
+  let other : List UInt32 := [
+    0x0027, -- Single_Quote APOSTROPHE
+    0x002E, -- MidNumLet    FULL STOP
+    0x003A, -- MidLetter    COLON
+    0x00B7, -- MidLetter    MIDDLE DOT
+    0x0387, -- MidLetter    GREEK ANO TELEIA
+    0x055F, -- MidLetter    ARMENIAN ABBREVIATION MARK
+    0x05F4, -- MidLetter    HEBREW PUNCTUATION GERSHAYIM
+    0x2018, -- MidNumLet    LEFT SINGLE QUOTATION MARK
+    0x2019, -- MidNumLet    RIGHT SINGLE QUOTATION MARK
+    0x2027, -- MidLetter    HYPHENATION POINT
+    0x2024, -- MidNumLet    ONE DOT LEADER
+    0xFE13, -- MidLetter    PRESENTATION FORM FOR VERTICAL COLON
+    0xFE55, -- MidLetter    SMALL COLON
+    0xFE52, -- MidNumLet    SMALL FULL STOP
+    0xFF07, -- MidNumLet    FULLWIDTH APOSTROPHE
+    0xFF0E, -- MidNumLet    FULLWIDTH FULL STOP
+    0xFF1A] -- MidLetter    FULLWIDTH COLON
+  match getGeneralCategory char with
+  | ⟨_, some .modifierLetter⟩ => true
+  | ⟨_, some .nonspacingMark⟩ => true
+  | ⟨_, some .enclosingMark⟩ => true
+  | ⟨_, some .modifierSymbol⟩ => true
+  | ⟨_, some .format⟩ => true
+  | _ => other.elem char.val
+
 /-- Check if mathematical symbol character
 
   Unicode property: `Math` -/
