@@ -668,20 +668,37 @@ partial def getCanonicalDecomposition (char : Char) : String :=
 /-- Check if character represents a digit in base 10
 
   Unicode property: `Numeric_Type=Digit` -/
+@[inline]
 def isDigit (char : Char) : Bool :=
-  match getUnicodeData char |>.numeric with
-  | some (.decimal _) => true
-  | some (.digit _) => true
-  | _ => false
+  -- ASCII shortcut
+  if char.val < 0x0080 then
+    char >= '0' && char <= '9'
+  else
+    match getUnicodeData char |>.numeric with
+    | some (.decimal _) => true
+    | some (.digit _) => true
+    | _ => false
 
 /-- Get value of digit
 
   Unicode properties: `Numeric_Value`, `Numeric_Type=Digit` -/
+@[inline]
 def getDigit? (char : Char) : Option (Fin 10) :=
-  match getUnicodeData char |>.numeric with
-  | some (.decimal value) => some value
-  | some (.digit value) => some value
-  | _ => none
+  -- ASCII shortcut
+  if char.val < 0x0080 then
+    if char.toNat < '0'.toNat then
+      none
+    else
+      let n := char.toNat - '0'.toNat
+      if h : n < 10 then
+        some ⟨n, h⟩
+      else
+        none
+  else
+    match getUnicodeData char |>.numeric with
+    | some (.decimal value) => some value
+    | some (.digit value) => some value
+    | _ => none
 
 /-- Check if character represents a decimal digit
 
