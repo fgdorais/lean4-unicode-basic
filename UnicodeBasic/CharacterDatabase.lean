@@ -24,6 +24,10 @@ def ofString (str : String) : UCDStream where
   startPos := 0
   stopPos := str.endPos
 
+/-- Make a `UCDStream` from a file -/
+def ofFile (path : System.FilePath) : IO UCDStream :=
+  ofString <$> IO.FS.readFile path
+
 /-- Get the next line from the `UCDStream`
 
   Line comments are stripped and blank lines are skipped.
