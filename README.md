@@ -31,6 +31,16 @@ require UnicodeBasic from git
 
 Then add `import UnicodeBasic` at the top of any Lean file where you plan to use this library.
 
+Use the branch `"docs"` instead of `"main"` if you need to have local library documentation. ([doc-gen4](https://github.com/leanprover/doc-gen4) cannot be used directly because of a circular dependency.)
+
+## Documentation
+
+Documentation for the library is located at [dorais.org/lean4-unicode-basic/docs/](https://www.dorais.org/lean4-unicode-basic/docs/).
+
+The main entry point is the root file [`UnicodeBasic.lean`](https://www.dorais.org/lean4-unicode-basic/docs/UnicodeBasic.lean). This file contains a description of the main API as well as all primary library functions. The file [`UnicodeBasic/Types.lean`](https://www.dorais.org/lean4-unicode-basic/docs/UnicodeBasic/Types.lean) contains all the primary data types used in the library.
+
+The remaining files are implementation details. Some of these may be of interest for developers. For example [`UnicodeBasic/CharacterDatabase.lean](https://www.dorais.org/lean4-unicode-basic/docs/UnicodeBasic/CharacterDatabase.lean) defines a stream type for parsing files from the [Unicode Character Database](https://www.unicode.org/Public/UCD/latest/ucd/).
+
 -----
 
 * The `Lean 4 / Unicode Basic` library is copyright © 2023 François G. Dorais. The library is released under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0). See the file LICENSE for additional details.

@@ -10,7 +10,8 @@ import UnicodeBasic.PropList
 /-!
   # General API #
 
-  As a general rule, for a given a Unicode property called `Unicode_Property`, say:
+  As a general rule, for a given a Unicode property called `Unicode_Property`,
+  for example:
 
   - If the property is boolean valued then the implementation is called
     `Unicode.isUnicodeProperty`.
@@ -538,7 +539,7 @@ def isControl (char : Char) : Bool :=
   | _ => false
 
 @[inherit_doc isControl]
-protected abbrev iscC := isControl
+protected abbrev isCc := isControl
 
 /-- Check if format character (`Cf`)
 

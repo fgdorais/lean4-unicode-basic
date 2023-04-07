@@ -387,7 +387,7 @@ def NumericType.isDecimal : NumericType → Bool
 
 /-- Digit type
 
-  The character represents a decimal digit 0 through 9, but may need special handling.
+  The character represents a decimal digit 0 through 9.
 
   Unicode property: `Numeric_Type`
 -/
@@ -398,7 +398,8 @@ def NumericType.isDigit : NumericType → Bool
 
 /-- Get the value of a numeric type
 
-  Returns either an integer value or a numerator-denominator pair representing a rational value.
+  Returns either an integer value or a numerator-denominator pair representing
+  a rational value.
 
   Unicode property: `Numeric_Value`
 -/
@@ -485,7 +486,7 @@ deriving Inhabited, Repr
 
 /-- Bidirectional class
 
-  Unicode property: `BIDI_CLASS` -/
+  Unicode property: `Bidi_Class` -/
 inductive BidiClass
 /-- (`L`) strong left-to-right character -/
 | leftToRight
@@ -639,7 +640,7 @@ def BidiClass.ofAbbrev? : String → Option BidiClass
 def BidiClass.ofAbbrev! (abbr : String) : BidiClass :=
   match ofAbbrev? abbr with
   | some bc => bc
-  | none => panic! "invalid bidi category abbrev"
+  | none => panic! "invalid bidi class abbreviation"
 
 instance : Repr BidiClass where
   reprPrec bc _ := s!"Unicode.BidiClass.{bc.toAbbrev}"
