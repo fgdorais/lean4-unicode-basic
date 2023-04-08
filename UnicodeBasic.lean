@@ -6,6 +6,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import UnicodeBasic.Types
 import UnicodeBasic.UnicodeData
 import UnicodeBasic.PropList
+import UnicodeBasic.Normalization
 
 /-!
   # General API #
@@ -635,10 +636,10 @@ def getTitleChar (char : Char) : Char :=
   ## Decomposition Type and Mapping ##
 -/
 
-/-- Get canonical decomposition of character (`NFD`)
+/-- Get canonical decomposition of a character (`NFD`)
 
-  Unicode property: `Decomposition_Mapping` -/
-partial def getCanonicalDecomposition (char : Char) : String :=
+  Unicode property: `Decomposition_Mapping`, `Decomposition_Type` -/
+partial def getCanonicalDecompositionOfChar (char : Char) : String :=
   /-
     In some instances a canonical mapping or a compatibility mapping may consist of a single
     character. For a canonical mapping, this indicates that the character is a canonical
@@ -661,6 +662,26 @@ partial def getCanonicalDecomposition (char : Char) : String :=
     | _ => c :: cs
   | _ => unreachable!
   String.mk <| loop [char]
+
+/-- Get canonical decomposition of a string (NFD)
+
+  Unicode property: `Decomposition_Type`, `Decomposition_Mapping`
+-/
+def getCanonicalDecomposition (str : String) : String :=
+  String.ofStream (σ := CanonicalDecomposition Substring) <| .mk str.toSubstring
+
+@[inherit_doc getCanonicalDecomposition]
+abbrev getNFD := getCanonicalDecomposition
+
+/-- Get compatibility decomposition of a string (NFKD)
+
+  Unicode property: `Decomposition_Type`, `Decomposition_Mapping`
+-/
+def getCompatibilityDecomposition (str : String) : String :=
+  String.ofStream (σ := CompatibilityDecomposition Substring) <| .mk str.toSubstring
+
+@[inherit_doc getCompatibilityDecomposition]
+abbrev getNKFD := getCompatibilityDecomposition
 
 /-!
   ## Numeric Type and Value ##
