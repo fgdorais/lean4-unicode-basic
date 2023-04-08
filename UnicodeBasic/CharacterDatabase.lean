@@ -15,6 +15,7 @@ namespace Unicode
 structure UCDStream extends Substring where
   /-- `isUnihan` is true if the records are tab separated -/
   isUnihan := false
+deriving Inhabited
 
 namespace UCDStream
 

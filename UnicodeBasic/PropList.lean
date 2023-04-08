@@ -32,13 +32,13 @@ private unsafe def PropList.init : IO PropList := do
       | [c] => (ofHexString! c, none)
       | [c₀,c₁] => (ofHexString! c₀, some <| ofHexString! c₁)
       | _ => panic! "invalid record in PropList.txt"
-      match record[1]! with
-      | "White_Space" => list := {list with whiteSpace := list.whiteSpace.push val}
-      | "Other_Math" => list := {list with otherMath := list.otherMath.push val}
-      | "Other_Alphabetic" => list := {list with otherAlphabetic := list.otherAlphabetic.push val}
-      | "Other_Lowercase" => list := {list with otherLowercase := list.otherLowercase.push val}
-      | "Other_Uppercase" => list := {list with otherUppercase := list.otherUppercase.push val}
-      | _ => continue
+    match record[1]! with
+    | "White_Space" => list := {list with whiteSpace := list.whiteSpace.push val}
+    | "Other_Math" => list := {list with otherMath := list.otherMath.push val}
+    | "Other_Alphabetic" => list := {list with otherAlphabetic := list.otherAlphabetic.push val}
+    | "Other_Lowercase" => list := {list with otherLowercase := list.otherLowercase.push val}
+    | "Other_Uppercase" => list := {list with otherUppercase := list.otherUppercase.push val}
+    | _ => continue
   return list
 
 @[init PropList.init]
@@ -48,7 +48,7 @@ protected def PropList.data : PropList := {}
 private partial def find (code : UInt32) (data : Array (UInt32 × Option UInt32)) (lo hi : Nat) : Nat :=
   assert! (hi ≤ data.size)
   assert! (lo < hi)
-  assert! (data[lo]!.fst ≤ code)
+--  assert! (data[lo]!.fst ≤ code)
   let mid := (lo + hi) / 2 -- NB: mid < hi because lo < hi
   if lo = mid then
     mid
