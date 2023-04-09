@@ -48,7 +48,7 @@ protected def PropList.data : PropList := {}
 private partial def find (code : UInt32) (data : Array (UInt32 × Option UInt32)) (lo hi : Nat) : Nat :=
   assert! (hi ≤ data.size)
   assert! (lo < hi)
---  assert! (data[lo]!.fst ≤ code)
+  assert! (data[lo]!.fst ≤ code)
   let mid := (lo + hi) / 2 -- NB: mid < hi because lo < hi
   if lo = mid then
     mid
@@ -62,40 +62,45 @@ private partial def find (code : UInt32) (data : Array (UInt32 × Option UInt32)
 @[inline]
 def PropList.isWhiteSpace (code : UInt32) : Bool :=
   let data := PropList.data.whiteSpace
-  match data[find code data 0 data.size]! with
-  | (val, none) => code == val
-  | (_, some top) => code <= top
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
 
 /-- Check if code point has `Other_Math` property -/
 @[inline]
 def PropList.isOtherMath (code : UInt32) : Bool :=
   let data := PropList.data.otherMath
-  match data[find code data 0 data.size]! with
-  | (val, none) => code == val
-  | (_, some top) => code <= top
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
 
 /-- Check if code point has `Other_Alphabetic` property -/
 @[inline]
 def PropList.isOtherAlphabetic (code : UInt32) : Bool :=
   let data := PropList.data.otherAlphabetic
-  match data[find code data 0 data.size]! with
-  | (val, none) => code == val
-  | (_, some top) => code <= top
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
 
 /-- Check if code point has `Other_Lowercase` property -/
 @[inline]
 def PropList.isOtherLowercase (code : UInt32) : Bool :=
   let data := PropList.data.otherLowercase
-  match data[find code data 0 data.size]! with
-  | (val, none) => code == val
-  | (_, some top) => code <= top
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
 
 /-- Check if code point has `Other_Uppercase` property -/
 @[inline]
 def PropList.isOtherUppercase (code : UInt32) : Bool :=
   let data := PropList.data.otherUppercase
-  match data[find code data 0 data.size]! with
-  | (val, none) => code == val
-  | (_, some top) => code <= top
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
 
 end Unicode

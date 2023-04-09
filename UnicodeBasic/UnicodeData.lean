@@ -217,7 +217,7 @@ def getHangulSyllableName! (code : UInt32) : String :=
 partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
   if code > Unicode.max then
     none
-  else if code < 888 then
+  else if code < 0x0200 then
     /-
       At time of writing, the first unassigned code point is U+0378 (decimal
       888). Also the first code range starts at U+3400. So we can skip testing
@@ -225,7 +225,7 @@ partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
       convenient because the smaller code points include ASCII and other
       common subsets.
     -/
-    let data := UnicodeData.data[find 0 888]!
+    let data := UnicodeData.data[find 0 0x0200]!
     assert! (data.codeValue = code)
     if "<".isPrefixOf data.characterName then
       assert! (data.characterName = "<control>")
@@ -233,7 +233,7 @@ partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
     else
       return data
   else
-    let data := UnicodeData.data[find 888 UnicodeData.data.size]!
+    let data := UnicodeData.data[find 0x0200 UnicodeData.data.size]!
     /-
       For backward compatibility, ranges in the file `UnicodeData.txt` are
       specified by entries for the start and end characters of the range,
