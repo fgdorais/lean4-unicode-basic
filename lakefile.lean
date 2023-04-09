@@ -15,10 +15,20 @@ lean_lib UnicodeBasic {
 
 lean_exe UnicodeTool
 
+lean_lib Test
+
+lean_exe «test» {
+  root := `Test
+}
+
 /-- Update data files from the Unicode Character Database (UCD) -/
 script UpdateUCD := do
   let dataDir : FilePath := "./data"
-  for file in ["UnicodeData.txt", "PropList.txt"] do
+  for file in [
+      "UnicodeData.txt",
+      "PropList.txt",
+      "extracted/DerivedNumericType.txt",
+      "extracted/DerivedGeneralCategory.txt"] do
     let url := "https://www.unicode.org/Public/UCD/latest/ucd/" ++ file
     IO.println s!"Downloading UCD/{file}"
     let _ ← LogIO.captureLog <| download file url (dataDir/file)
