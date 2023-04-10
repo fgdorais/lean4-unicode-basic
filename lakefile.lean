@@ -27,6 +27,7 @@ script UpdateUCD := do
   for file in [
       "UnicodeData.txt",
       "PropList.txt",
+      "DerivedCoreProperties.txt",
       "extracted/DerivedNumericType.txt",
       "extracted/DerivedGeneralCategory.txt"] do
     let url := "https://www.unicode.org/Public/UCD/latest/ucd/" ++ file
