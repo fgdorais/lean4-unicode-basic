@@ -44,7 +44,7 @@ def Data.init : IO Data := do
     let val := match record[0]!.splitOn ".." with
     | [c₀, c₁] => (ofHexString! c₀, some (ofHexString! c₁))
     | [c] => (ofHexString! c, none)
-    | _ => panic! "invalid data"
+    | _ => panic! "invalid record in DerivedGeneralCategory.txt"
     match record[1]! with
     | "Cn" => data := {data with cn := data.cn.push val}
     | "Lu" => data := {data with lu := data.lu.push val}
@@ -76,7 +76,7 @@ def Data.init : IO Data := do
     | "So" => data := {data with so := data.so.push val}
     | "Pi" => data := {data with pi := data.pi.push val}
     | "Pf" => data := {data with pf := data.pf.push val}
-    | _ => panic! "invalid data"
+    | _ => panic! "invalid record in DerivedGeneralCategory.txt"
   return data
 
 @[init Data.init]

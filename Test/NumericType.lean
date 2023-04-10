@@ -17,12 +17,12 @@ def Data.init : IO Data := do
     let val := match record[0]!.splitOn ".." with
     | [c₀, c₁] => (ofHexString! c₀, some (ofHexString! c₁))
     | [c] => (ofHexString! c, none)
-    | _ => panic! "invalid data"
+    | _ => panic! "invalid record in DerivedNumericType.txt"
     match record[1]! with
     | "Decimal" => data := {data with decimal := data.decimal.push val}
     | "Digit" => data := {data with digit := data.digit.push val}
     | "Numeric" => data := {data with numeric := data.numeric.push val}
-    | _ => panic! "invalid data"
+    | _ => panic! "invalid record in DerivedNumericType.txt"
   return data
 
 @[init Data.init]
