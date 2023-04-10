@@ -58,6 +58,7 @@ namespace Unicode
 
   Unicode property: `Name`
 -/
+@[inline]
 def getName (char : Char) : String :=
   getUnicodeData char |>.characterName
 
@@ -68,18 +69,21 @@ def getName (char : Char) : String :=
 /-- Get character bidirectional class
 
   Unicode property: `Bidi_Class` -/
+@[inline]
 def getBidiClass (char : Char) : BidiClass :=
   getUnicodeData char |>.bidiClass
 
 /-- Check if bidirectional mirrored character
 
   Unicode property: `Bidi_Mirrored` -/
+@[inline]
 def isBidiMirrored (char : Char) : Bool :=
   getUnicodeData char |>.bidiMirrored
 
 /-- Check if bidirectional control character
 
   Unicode property: `Bidi_Control` -/
+@[inline]
 def isBidiControl (char : Char) : Bool :=
   -- Extracted from `PropList.txt`
   char.val == 0x061C
@@ -105,6 +109,7 @@ def getGeneralCategory (char : Char) : GeneralCategory :=
 /-- Check if character belongs to the general category
 
   Unicode property: `General_Category` -/
+@[inline]
 def isInGeneralCategory (char : Char) (category : GeneralCategory) : Bool :=
   match category, getGeneralCategory char with
   | ⟨major, none⟩, ⟨charMajor, _⟩ => major = charMajor
@@ -732,6 +737,7 @@ def getDigit? (char : Char) : Option (Fin 10) :=
   representing the ten decimal digits in order from 0 to 9.
 
   Unicode property: `Numeric_Type=Decimal` -/
+@[inline]
 def isDecimal (char : Char) : Bool :=
   match getUnicodeData char |>.numeric with
   | some (.decimal _) => true
@@ -744,6 +750,7 @@ def isDecimal (char : Char) : Bool :=
   last characters from this range.
 
   Unicode property: `Numeric_Type=Decimal` -/
+@[inline]
 def getDecimalRange? (char : Char) : Option (Char × Char) :=
   match getUnicodeData char |>.numeric with
   | some (.decimal value) =>
@@ -809,18 +816,21 @@ def isWhiteSpace (char : Char) : Bool :=
 /-- Check if lowercase letter character
 
   Unicode property: `Lowercase` -/
+@[inline]
 def isLowercase (char : Char) : Bool :=
   GeneralCategory.isLl char || PropList.isOtherLowercase char.val
 
 /-- Check if uppercase letter character
 
   Unicode property: `Uppercase` -/
+@[inline]
 def isUppercase (char : Char) : Bool :=
   GeneralCategory.isLu char || PropList.isOtherUppercase char.val
 
 /-- Check if cased letter character
 
   Unicode properties: `Cased` -/
+@[inline]
 def isCased (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨_, some .uppercaseLetter⟩ => true
@@ -835,6 +845,7 @@ def isCased (char : Char) : Bool :=
   break properties `MidLetter`, `MidNumLet`, `Single_Quote`.
 
   Unicode property: `Case_Ignorable` -/
+@[inline]
 def isCaseIgnorable (char : Char) : Bool :=
   -- Extracted from `auxiliary/WordBreakProperty.txt`
   let other : List UInt32 := [
@@ -866,12 +877,14 @@ def isCaseIgnorable (char : Char) : Bool :=
 /-- Check if mathematical symbol character
 
   Unicode property: `Math` -/
+@[inline]
 def isMath (char : Char) : Bool :=
   GeneralCategory.isSm char || PropList.isOtherMath char.val
 
 /-- Check if alphabetic character
 
   Unicode property: `Alphabetic` -/
+@[inline]
 def isAlphabetic (char : Char) : Bool :=
   match getGeneralCategory char with
   | ⟨.letter, _⟩ => true
@@ -882,11 +895,5 @@ def isAlphabetic (char : Char) : Bool :=
 
 @[inherit_doc isAlphabetic]
 abbrev isAlpha := isAlphabetic
-
-/-- Check if alphabetic or digit character
-
-  Unicode properties: `Alphabetic`, `Numeric_Type=Digit` -/
-abbrev isAlphanum (char : Char) : Bool :=
-  isAlphabetic char || isDigit char
 
 end Unicode
