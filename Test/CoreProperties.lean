@@ -71,17 +71,22 @@ def runTest (data : Array (UInt32 × Option UInt32)) (test : UInt32 → Bool) : 
   return errors
 
 unsafe abbrev runAlphabetic := runTest Data.data.alphabetic fun c => isAlphabetic (Char.mkUnsafe c)
-
 unsafe abbrev runCased := runTest Data.data.cased fun c => isCased (Char.mkUnsafe c)
-
 unsafe abbrev runCaseIgnorable := runTest Data.data.caseIgnorable fun c => isCaseIgnorable (Char.mkUnsafe c)
-
 unsafe abbrev runLowercase := runTest Data.data.lowercase fun c => isLowercase (Char.mkUnsafe c)
-
 unsafe abbrev runMath := runTest Data.data.math fun c => isMath (Char.mkUnsafe c)
-
 unsafe abbrev runUppercase := runTest Data.data.uppercase fun c => isUppercase (Char.mkUnsafe c)
-
 unsafe abbrev runWhiteSpace := runTest Data.data.whiteSpace fun c => isWhiteSpace (Char.mkUnsafe c)
+
+unsafe def run : IO Nat := do
+  let mut errors := 0
+  errors := errors + (← runAlphabetic)
+  errors := errors + (← runCased)
+  errors := errors + (← runCaseIgnorable)
+  errors := errors + (← runLowercase)
+  errors := errors + (← runMath)
+  errors := errors + (← runUppercase)
+  errors := errors + (← runWhiteSpace)
+  return errors
 
 end Test.CoreProperties
