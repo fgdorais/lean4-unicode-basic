@@ -1,9 +1,13 @@
 import UnicodeBasic
+import Test.Utils
 
 def Unicode.ExtractedDerivedGeneralCategory.txt := include_str "../data/extracted/DerivedGeneralCategory.txt"
 
 namespace Test.GeneralCategory
 open Unicode
+
+local instance : Ord (UInt32 × Option UInt32) where
+  compare | ⟨x,_⟩, ⟨y,_⟩ => compare x y
 
 structure Data where
   catC  : Array (UInt32 × Option UInt32) := #[]
@@ -85,6 +89,14 @@ def Data.init : IO Data := do
     | "Zp" => data := {data with catZp := data.catZp.push val}
     | "Zs" => data := {data with catZs := data.catZs.push val}
     | _ => panic! "invalid record in DerivedGeneralCategory.txt"
+  data := {data with catC := Stream.toArray (MergeStream.mkOfList (UInt32 × Option UInt32) <| [data.catCc, data.catCf, data.catCn, data.catCo, data.catCs].map Array.toSubarray)}
+  data := {data with catLC := Stream.toArray (MergeStream.mkOfList (UInt32 × Option UInt32) <| [data.catLl, data.catLt, data.catLu].map Array.toSubarray)}
+  data := {data with catL := Stream.toArray (MergeStream.mkOfList (UInt32 × Option UInt32) <| [data.catLC, data.catLm, data.catLo].map Array.toSubarray)}
+  data := {data with catM := Stream.toArray (MergeStream.mkOfList (UInt32 × Option UInt32) <| [data.catMc, data.catMe, data.catMn].map Array.toSubarray)}
+  data := {data with catN := Stream.toArray (MergeStream.mkOfList (UInt32 × Option UInt32) <| [data.catNd, data.catNl, data.catNo].map Array.toSubarray)}
+  data := {data with catP := Stream.toArray (MergeStream.mkOfList (UInt32 × Option UInt32) <| [data.catPc, data.catPd, data.catPe, data.catPf, data.catPi, data.catPo, data.catPs].map Array.toSubarray)}
+  data := {data with catS := Stream.toArray (MergeStream.mkOfList (UInt32 × Option UInt32) <| [data.catSc, data.catSk, data.catSm, data.catSo].map Array.toSubarray)}
+  data := {data with catZ := Stream.toArray (MergeStream.mkOfList (UInt32 × Option UInt32) <| [data.catZl, data.catZp, data.catZs].map Array.toSubarray)}
   return data
 
 @[init Data.init]
@@ -114,22 +126,28 @@ def runTest (data : Array (UInt32 × Option UInt32)) (test : UInt32 → Bool) : 
     c := c + 1
   return errors
 
+unsafe abbrev runC  : IO Nat := runTest Data.data.catC  fun c => GeneralCategory.isC  (Char.mkUnsafe c)
 unsafe abbrev runCc : IO Nat := runTest Data.data.catCc fun c => GeneralCategory.isCc (Char.mkUnsafe c)
 unsafe abbrev runCf : IO Nat := runTest Data.data.catCf fun c => GeneralCategory.isCf (Char.mkUnsafe c)
 unsafe abbrev runCn : IO Nat := runTest Data.data.catCn fun c => GeneralCategory.isCn (Char.mkUnsafe c)
 unsafe abbrev runCo : IO Nat := runTest Data.data.catCo fun c => GeneralCategory.isCo (Char.mkUnsafe c)
 unsafe abbrev runCs : IO Nat := runTest Data.data.catCs fun c => GeneralCategory.isCs (Char.mkUnsafe c)
+unsafe abbrev runL  : IO Nat := runTest Data.data.catL  fun c => GeneralCategory.isL  (Char.mkUnsafe c)
+unsafe abbrev runLC : IO Nat := runTest Data.data.catLC fun c => GeneralCategory.isLC (Char.mkUnsafe c)
 unsafe abbrev runLl : IO Nat := runTest Data.data.catLl fun c => GeneralCategory.isLl (Char.mkUnsafe c)
 unsafe abbrev runLm : IO Nat := runTest Data.data.catLm fun c => GeneralCategory.isLm (Char.mkUnsafe c)
 unsafe abbrev runLo : IO Nat := runTest Data.data.catLo fun c => GeneralCategory.isLo (Char.mkUnsafe c)
 unsafe abbrev runLt : IO Nat := runTest Data.data.catLt fun c => GeneralCategory.isLt (Char.mkUnsafe c)
 unsafe abbrev runLu : IO Nat := runTest Data.data.catLu fun c => GeneralCategory.isLu (Char.mkUnsafe c)
+unsafe abbrev runM  : IO Nat := runTest Data.data.catM  fun c => GeneralCategory.isM  (Char.mkUnsafe c)
 unsafe abbrev runMc : IO Nat := runTest Data.data.catMc fun c => GeneralCategory.isMc (Char.mkUnsafe c)
 unsafe abbrev runMe : IO Nat := runTest Data.data.catMe fun c => GeneralCategory.isMe (Char.mkUnsafe c)
 unsafe abbrev runMn : IO Nat := runTest Data.data.catMn fun c => GeneralCategory.isMn (Char.mkUnsafe c)
+unsafe abbrev runN  : IO Nat := runTest Data.data.catN  fun c => GeneralCategory.isN  (Char.mkUnsafe c)
 unsafe abbrev runNd : IO Nat := runTest Data.data.catNd fun c => GeneralCategory.isNd (Char.mkUnsafe c)
 unsafe abbrev runNl : IO Nat := runTest Data.data.catNl fun c => GeneralCategory.isNl (Char.mkUnsafe c)
 unsafe abbrev runNo : IO Nat := runTest Data.data.catNo fun c => GeneralCategory.isNo (Char.mkUnsafe c)
+unsafe abbrev runP  : IO Nat := runTest Data.data.catP  fun c => GeneralCategory.isP  (Char.mkUnsafe c)
 unsafe abbrev runPc : IO Nat := runTest Data.data.catPc fun c => GeneralCategory.isPc (Char.mkUnsafe c)
 unsafe abbrev runPd : IO Nat := runTest Data.data.catPd fun c => GeneralCategory.isPd (Char.mkUnsafe c)
 unsafe abbrev runPe : IO Nat := runTest Data.data.catPe fun c => GeneralCategory.isPe (Char.mkUnsafe c)
@@ -137,32 +155,40 @@ unsafe abbrev runPf : IO Nat := runTest Data.data.catPf fun c => GeneralCategory
 unsafe abbrev runPi : IO Nat := runTest Data.data.catPi fun c => GeneralCategory.isPi (Char.mkUnsafe c)
 unsafe abbrev runPo : IO Nat := runTest Data.data.catPo fun c => GeneralCategory.isPo (Char.mkUnsafe c)
 unsafe abbrev runPs : IO Nat := runTest Data.data.catPs fun c => GeneralCategory.isPs (Char.mkUnsafe c)
+unsafe abbrev runS  : IO Nat := runTest Data.data.catS  fun c => GeneralCategory.isS  (Char.mkUnsafe c)
 unsafe abbrev runSc : IO Nat := runTest Data.data.catSc fun c => GeneralCategory.isSc (Char.mkUnsafe c)
 unsafe abbrev runSk : IO Nat := runTest Data.data.catSk fun c => GeneralCategory.isSk (Char.mkUnsafe c)
 unsafe abbrev runSm : IO Nat := runTest Data.data.catSm fun c => GeneralCategory.isSm (Char.mkUnsafe c)
 unsafe abbrev runSo : IO Nat := runTest Data.data.catSo fun c => GeneralCategory.isSo (Char.mkUnsafe c)
+unsafe abbrev runZ  : IO Nat := runTest Data.data.catZ  fun c => GeneralCategory.isZ  (Char.mkUnsafe c)
 unsafe abbrev runZl : IO Nat := runTest Data.data.catZl fun c => GeneralCategory.isZl (Char.mkUnsafe c)
 unsafe abbrev runZp : IO Nat := runTest Data.data.catZp fun c => GeneralCategory.isZp (Char.mkUnsafe c)
 unsafe abbrev runZs : IO Nat := runTest Data.data.catZs fun c => GeneralCategory.isZs (Char.mkUnsafe c)
 
 unsafe def run : IO Nat := do
   let mut error := 0
+  error := error + (← runC)
   error := error + (← runCc)
   error := error + (← runCf)
   error := error + (← runCn)
   error := error + (← runCo)
   error := error + (← runCs)
+  error := error + (← runL)
+  error := error + (← runLC)
   error := error + (← runLl)
   error := error + (← runLm)
   error := error + (← runLo)
   error := error + (← runLt)
   error := error + (← runLu)
+  error := error + (← runM)
   error := error + (← runMc)
   error := error + (← runMe)
   error := error + (← runMn)
+  error := error + (← runN)
   error := error + (← runNd)
   error := error + (← runNl)
   error := error + (← runNo)
+  error := error + (← runP)
   error := error + (← runPc)
   error := error + (← runPd)
   error := error + (← runPe)
@@ -170,10 +196,12 @@ unsafe def run : IO Nat := do
   error := error + (← runPi)
   error := error + (← runPo)
   error := error + (← runPs)
+  error := error + (← runS)
   error := error + (← runSc)
   error := error + (← runSk)
   error := error + (← runSm)
   error := error + (← runSo)
+  error := error + (← runZ)
   error := error + (← runZl)
   error := error + (← runZp)
   error := error + (← runZs)
