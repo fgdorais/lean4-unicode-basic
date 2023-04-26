@@ -6,36 +6,44 @@ namespace Test.GeneralCategory
 open Unicode
 
 structure Data where
-  cc : Array (UInt32 × Option UInt32) := #[]
-  cf : Array (UInt32 × Option UInt32) := #[]
-  cn : Array (UInt32 × Option UInt32) := #[]
-  co : Array (UInt32 × Option UInt32) := #[]
-  cs : Array (UInt32 × Option UInt32) := #[]
-  ll : Array (UInt32 × Option UInt32) := #[]
-  lm : Array (UInt32 × Option UInt32) := #[]
-  lo : Array (UInt32 × Option UInt32) := #[]
-  lt : Array (UInt32 × Option UInt32) := #[]
-  lu : Array (UInt32 × Option UInt32) := #[]
-  mc : Array (UInt32 × Option UInt32) := #[]
-  me : Array (UInt32 × Option UInt32) := #[]
-  mn : Array (UInt32 × Option UInt32) := #[]
-  nd : Array (UInt32 × Option UInt32) := #[]
-  nl : Array (UInt32 × Option UInt32) := #[]
-  no : Array (UInt32 × Option UInt32) := #[]
-  pc : Array (UInt32 × Option UInt32) := #[]
-  pd : Array (UInt32 × Option UInt32) := #[]
-  pe : Array (UInt32 × Option UInt32) := #[]
-  pf : Array (UInt32 × Option UInt32) := #[]
-  pi : Array (UInt32 × Option UInt32) := #[]
-  po : Array (UInt32 × Option UInt32) := #[]
-  ps : Array (UInt32 × Option UInt32) := #[]
-  sc : Array (UInt32 × Option UInt32) := #[]
-  sk : Array (UInt32 × Option UInt32) := #[]
-  sm : Array (UInt32 × Option UInt32) := #[]
-  so : Array (UInt32 × Option UInt32) := #[]
-  zl : Array (UInt32 × Option UInt32) := #[]
-  zp : Array (UInt32 × Option UInt32) := #[]
-  zs : Array (UInt32 × Option UInt32) := #[]
+  catC  : Array (UInt32 × Option UInt32) := #[]
+  catCc : Array (UInt32 × Option UInt32) := #[]
+  catCf : Array (UInt32 × Option UInt32) := #[]
+  catCn : Array (UInt32 × Option UInt32) := #[]
+  catCo : Array (UInt32 × Option UInt32) := #[]
+  catCs : Array (UInt32 × Option UInt32) := #[]
+  catL  : Array (UInt32 × Option UInt32) := #[]
+  catLC : Array (UInt32 × Option UInt32) := #[]
+  catLl : Array (UInt32 × Option UInt32) := #[]
+  catLm : Array (UInt32 × Option UInt32) := #[]
+  catLo : Array (UInt32 × Option UInt32) := #[]
+  catLt : Array (UInt32 × Option UInt32) := #[]
+  catLu : Array (UInt32 × Option UInt32) := #[]
+  catM  : Array (UInt32 × Option UInt32) := #[]
+  catMc : Array (UInt32 × Option UInt32) := #[]
+  catMe : Array (UInt32 × Option UInt32) := #[]
+  catMn : Array (UInt32 × Option UInt32) := #[]
+  catN  : Array (UInt32 × Option UInt32) := #[]
+  catNd : Array (UInt32 × Option UInt32) := #[]
+  catNl : Array (UInt32 × Option UInt32) := #[]
+  catNo : Array (UInt32 × Option UInt32) := #[]
+  catP  : Array (UInt32 × Option UInt32) := #[]
+  catPc : Array (UInt32 × Option UInt32) := #[]
+  catPd : Array (UInt32 × Option UInt32) := #[]
+  catPe : Array (UInt32 × Option UInt32) := #[]
+  catPf : Array (UInt32 × Option UInt32) := #[]
+  catPi : Array (UInt32 × Option UInt32) := #[]
+  catPo : Array (UInt32 × Option UInt32) := #[]
+  catPs : Array (UInt32 × Option UInt32) := #[]
+  catS  : Array (UInt32 × Option UInt32) := #[]
+  catSc : Array (UInt32 × Option UInt32) := #[]
+  catSk : Array (UInt32 × Option UInt32) := #[]
+  catSm : Array (UInt32 × Option UInt32) := #[]
+  catSo : Array (UInt32 × Option UInt32) := #[]
+  catZ  : Array (UInt32 × Option UInt32) := #[]
+  catZl : Array (UInt32 × Option UInt32) := #[]
+  catZp : Array (UInt32 × Option UInt32) := #[]
+  catZs : Array (UInt32 × Option UInt32) := #[]
 
 def Data.init : IO Data := do
   let stream := UCDStream.ofString ExtractedDerivedGeneralCategory.txt
@@ -46,36 +54,36 @@ def Data.init : IO Data := do
     | [c] => (ofHexString! c, none)
     | _ => panic! "invalid record in DerivedGeneralCategory.txt"
     match record[1]! with
-    | "Cc" => data := {data with cc := data.cc.push val}
-    | "Cf" => data := {data with cf := data.cf.push val}
-    | "Cn" => data := {data with cn := data.cn.push val}
-    | "Co" => data := {data with co := data.co.push val}
-    | "Cs" => data := {data with cs := data.cs.push val}
-    | "Ll" => data := {data with ll := data.ll.push val}
-    | "Lm" => data := {data with lm := data.lm.push val}
-    | "Lo" => data := {data with lo := data.lo.push val}
-    | "Lt" => data := {data with lt := data.lt.push val}
-    | "Lu" => data := {data with lu := data.lu.push val}
-    | "Mc" => data := {data with mc := data.mc.push val}
-    | "Me" => data := {data with me := data.me.push val}
-    | "Mn" => data := {data with mn := data.mn.push val}
-    | "Nd" => data := {data with nd := data.nd.push val}
-    | "Nl" => data := {data with nl := data.nl.push val}
-    | "No" => data := {data with no := data.no.push val}
-    | "Pc" => data := {data with pc := data.pc.push val}
-    | "Pd" => data := {data with pd := data.pd.push val}
-    | "Pe" => data := {data with pe := data.pe.push val}
-    | "Pi" => data := {data with pi := data.pi.push val}
-    | "Pf" => data := {data with pf := data.pf.push val}
-    | "Po" => data := {data with po := data.po.push val}
-    | "Ps" => data := {data with ps := data.ps.push val}
-    | "Sc" => data := {data with sc := data.sc.push val}
-    | "Sk" => data := {data with sk := data.sk.push val}
-    | "Sm" => data := {data with sm := data.sm.push val}
-    | "So" => data := {data with so := data.so.push val}
-    | "Zl" => data := {data with zl := data.zl.push val}
-    | "Zp" => data := {data with zp := data.zp.push val}
-    | "Zs" => data := {data with zs := data.zs.push val}
+    | "Cc" => data := {data with catCc := data.catCc.push val}
+    | "Cf" => data := {data with catCf := data.catCf.push val}
+    | "Cn" => data := {data with catCn := data.catCn.push val}
+    | "Co" => data := {data with catCo := data.catCo.push val}
+    | "Cs" => data := {data with catCs := data.catCs.push val}
+    | "Ll" => data := {data with catLl := data.catLl.push val}
+    | "Lm" => data := {data with catLm := data.catLm.push val}
+    | "Lo" => data := {data with catLo := data.catLo.push val}
+    | "Lt" => data := {data with catLt := data.catLt.push val}
+    | "Lu" => data := {data with catLu := data.catLu.push val}
+    | "Mc" => data := {data with catMc := data.catMc.push val}
+    | "Me" => data := {data with catMe := data.catMe.push val}
+    | "Mn" => data := {data with catMn := data.catMn.push val}
+    | "Nd" => data := {data with catNd := data.catNd.push val}
+    | "Nl" => data := {data with catNl := data.catNl.push val}
+    | "No" => data := {data with catNo := data.catNo.push val}
+    | "Pc" => data := {data with catPc := data.catPc.push val}
+    | "Pd" => data := {data with catPd := data.catPd.push val}
+    | "Pe" => data := {data with catPe := data.catPe.push val}
+    | "Pi" => data := {data with catPi := data.catPi.push val}
+    | "Pf" => data := {data with catPf := data.catPf.push val}
+    | "Po" => data := {data with catPo := data.catPo.push val}
+    | "Ps" => data := {data with catPs := data.catPs.push val}
+    | "Sc" => data := {data with catSc := data.catSc.push val}
+    | "Sk" => data := {data with catSk := data.catSk.push val}
+    | "Sm" => data := {data with catSm := data.catSm.push val}
+    | "So" => data := {data with catSo := data.catSo.push val}
+    | "Zl" => data := {data with catZl := data.catZl.push val}
+    | "Zp" => data := {data with catZp := data.catZp.push val}
+    | "Zs" => data := {data with catZs := data.catZs.push val}
     | _ => panic! "invalid record in DerivedGeneralCategory.txt"
   return data
 
@@ -106,36 +114,36 @@ def runTest (data : Array (UInt32 × Option UInt32)) (test : UInt32 → Bool) : 
     c := c + 1
   return errors
 
-unsafe abbrev runCc : IO Nat := runTest Data.data.cc fun c => GeneralCategory.isCc (Char.mkUnsafe c)
-unsafe abbrev runCf : IO Nat := runTest Data.data.cf fun c => GeneralCategory.isCf (Char.mkUnsafe c)
-unsafe abbrev runCn : IO Nat := runTest Data.data.cn fun c => GeneralCategory.isCn (Char.mkUnsafe c)
-unsafe abbrev runCo : IO Nat := runTest Data.data.co fun c => GeneralCategory.isCo (Char.mkUnsafe c)
-unsafe abbrev runCs : IO Nat := runTest Data.data.cs fun c => GeneralCategory.isCs (Char.mkUnsafe c)
-unsafe abbrev runLl : IO Nat := runTest Data.data.ll fun c => GeneralCategory.isLl (Char.mkUnsafe c)
-unsafe abbrev runLm : IO Nat := runTest Data.data.lm fun c => GeneralCategory.isLm (Char.mkUnsafe c)
-unsafe abbrev runLo : IO Nat := runTest Data.data.lo fun c => GeneralCategory.isLo (Char.mkUnsafe c)
-unsafe abbrev runLt : IO Nat := runTest Data.data.lt fun c => GeneralCategory.isLt (Char.mkUnsafe c)
-unsafe abbrev runLu : IO Nat := runTest Data.data.lu fun c => GeneralCategory.isLu (Char.mkUnsafe c)
-unsafe abbrev runMc : IO Nat := runTest Data.data.mc fun c => GeneralCategory.isMc (Char.mkUnsafe c)
-unsafe abbrev runMe : IO Nat := runTest Data.data.me fun c => GeneralCategory.isMe (Char.mkUnsafe c)
-unsafe abbrev runMn : IO Nat := runTest Data.data.mn fun c => GeneralCategory.isMn (Char.mkUnsafe c)
-unsafe abbrev runNd : IO Nat := runTest Data.data.nd fun c => GeneralCategory.isNd (Char.mkUnsafe c)
-unsafe abbrev runNl : IO Nat := runTest Data.data.nl fun c => GeneralCategory.isNl (Char.mkUnsafe c)
-unsafe abbrev runNo : IO Nat := runTest Data.data.no fun c => GeneralCategory.isNo (Char.mkUnsafe c)
-unsafe abbrev runPc : IO Nat := runTest Data.data.pc fun c => GeneralCategory.isPc (Char.mkUnsafe c)
-unsafe abbrev runPd : IO Nat := runTest Data.data.pd fun c => GeneralCategory.isPd (Char.mkUnsafe c)
-unsafe abbrev runPe : IO Nat := runTest Data.data.pe fun c => GeneralCategory.isPe (Char.mkUnsafe c)
-unsafe abbrev runPf : IO Nat := runTest Data.data.pf fun c => GeneralCategory.isPf (Char.mkUnsafe c)
-unsafe abbrev runPi : IO Nat := runTest Data.data.pi fun c => GeneralCategory.isPi (Char.mkUnsafe c)
-unsafe abbrev runPo : IO Nat := runTest Data.data.po fun c => GeneralCategory.isPo (Char.mkUnsafe c)
-unsafe abbrev runPs : IO Nat := runTest Data.data.ps fun c => GeneralCategory.isPs (Char.mkUnsafe c)
-unsafe abbrev runSc : IO Nat := runTest Data.data.sc fun c => GeneralCategory.isSc (Char.mkUnsafe c)
-unsafe abbrev runSk : IO Nat := runTest Data.data.sk fun c => GeneralCategory.isSk (Char.mkUnsafe c)
-unsafe abbrev runSm : IO Nat := runTest Data.data.sm fun c => GeneralCategory.isSm (Char.mkUnsafe c)
-unsafe abbrev runSo : IO Nat := runTest Data.data.so fun c => GeneralCategory.isSo (Char.mkUnsafe c)
-unsafe abbrev runZl : IO Nat := runTest Data.data.zl fun c => GeneralCategory.isZl (Char.mkUnsafe c)
-unsafe abbrev runZp : IO Nat := runTest Data.data.zp fun c => GeneralCategory.isZp (Char.mkUnsafe c)
-unsafe abbrev runZs : IO Nat := runTest Data.data.zs fun c => GeneralCategory.isZs (Char.mkUnsafe c)
+unsafe abbrev runCc : IO Nat := runTest Data.data.catCc fun c => GeneralCategory.isCc (Char.mkUnsafe c)
+unsafe abbrev runCf : IO Nat := runTest Data.data.catCf fun c => GeneralCategory.isCf (Char.mkUnsafe c)
+unsafe abbrev runCn : IO Nat := runTest Data.data.catCn fun c => GeneralCategory.isCn (Char.mkUnsafe c)
+unsafe abbrev runCo : IO Nat := runTest Data.data.catCo fun c => GeneralCategory.isCo (Char.mkUnsafe c)
+unsafe abbrev runCs : IO Nat := runTest Data.data.catCs fun c => GeneralCategory.isCs (Char.mkUnsafe c)
+unsafe abbrev runLl : IO Nat := runTest Data.data.catLl fun c => GeneralCategory.isLl (Char.mkUnsafe c)
+unsafe abbrev runLm : IO Nat := runTest Data.data.catLm fun c => GeneralCategory.isLm (Char.mkUnsafe c)
+unsafe abbrev runLo : IO Nat := runTest Data.data.catLo fun c => GeneralCategory.isLo (Char.mkUnsafe c)
+unsafe abbrev runLt : IO Nat := runTest Data.data.catLt fun c => GeneralCategory.isLt (Char.mkUnsafe c)
+unsafe abbrev runLu : IO Nat := runTest Data.data.catLu fun c => GeneralCategory.isLu (Char.mkUnsafe c)
+unsafe abbrev runMc : IO Nat := runTest Data.data.catMc fun c => GeneralCategory.isMc (Char.mkUnsafe c)
+unsafe abbrev runMe : IO Nat := runTest Data.data.catMe fun c => GeneralCategory.isMe (Char.mkUnsafe c)
+unsafe abbrev runMn : IO Nat := runTest Data.data.catMn fun c => GeneralCategory.isMn (Char.mkUnsafe c)
+unsafe abbrev runNd : IO Nat := runTest Data.data.catNd fun c => GeneralCategory.isNd (Char.mkUnsafe c)
+unsafe abbrev runNl : IO Nat := runTest Data.data.catNl fun c => GeneralCategory.isNl (Char.mkUnsafe c)
+unsafe abbrev runNo : IO Nat := runTest Data.data.catNo fun c => GeneralCategory.isNo (Char.mkUnsafe c)
+unsafe abbrev runPc : IO Nat := runTest Data.data.catPc fun c => GeneralCategory.isPc (Char.mkUnsafe c)
+unsafe abbrev runPd : IO Nat := runTest Data.data.catPd fun c => GeneralCategory.isPd (Char.mkUnsafe c)
+unsafe abbrev runPe : IO Nat := runTest Data.data.catPe fun c => GeneralCategory.isPe (Char.mkUnsafe c)
+unsafe abbrev runPf : IO Nat := runTest Data.data.catPf fun c => GeneralCategory.isPf (Char.mkUnsafe c)
+unsafe abbrev runPi : IO Nat := runTest Data.data.catPi fun c => GeneralCategory.isPi (Char.mkUnsafe c)
+unsafe abbrev runPo : IO Nat := runTest Data.data.catPo fun c => GeneralCategory.isPo (Char.mkUnsafe c)
+unsafe abbrev runPs : IO Nat := runTest Data.data.catPs fun c => GeneralCategory.isPs (Char.mkUnsafe c)
+unsafe abbrev runSc : IO Nat := runTest Data.data.catSc fun c => GeneralCategory.isSc (Char.mkUnsafe c)
+unsafe abbrev runSk : IO Nat := runTest Data.data.catSk fun c => GeneralCategory.isSk (Char.mkUnsafe c)
+unsafe abbrev runSm : IO Nat := runTest Data.data.catSm fun c => GeneralCategory.isSm (Char.mkUnsafe c)
+unsafe abbrev runSo : IO Nat := runTest Data.data.catSo fun c => GeneralCategory.isSo (Char.mkUnsafe c)
+unsafe abbrev runZl : IO Nat := runTest Data.data.catZl fun c => GeneralCategory.isZl (Char.mkUnsafe c)
+unsafe abbrev runZp : IO Nat := runTest Data.data.catZp fun c => GeneralCategory.isZp (Char.mkUnsafe c)
+unsafe abbrev runZs : IO Nat := runTest Data.data.catZs fun c => GeneralCategory.isZs (Char.mkUnsafe c)
 
 unsafe def run : IO Nat := do
   let mut error := 0
