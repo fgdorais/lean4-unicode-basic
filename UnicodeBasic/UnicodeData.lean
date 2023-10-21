@@ -42,7 +42,7 @@ def UnicodeData.mkNoncharacter (code : UInt32) : UnicodeData where
     -- Extracted from `PropLists.txt`
     let isReserved := (code &&& 0xFFFFFFF0 == 0x0000FDD0) ||
                       (code &&& 0xFFFFFFF0 == 0x0000FDE0) ||
-                      (code &&& 0x0000FFFE) == 0x0000FFFE
+                      (code &&& 0x0000FFFE == 0x0000FFFE)
     (if isReserved then "<reserved-" else "<noncharacter-") ++ toHexStringAux code ++ ">"
   canonicalCombiningClass := 0
   bidiClass := .BN
@@ -118,8 +118,8 @@ where
           | "<vertical>" => some CompatibilityTag.vertical
           | "<wide>" => some CompatibilityTag.wide
           | "<narrow>" => some CompatibilityTag.narrow
-          | "<small>" => some CompatibilityTag.narrow
-          | "<square>" => some CompatibilityTag.narrow
+          | "<small>" => some CompatibilityTag.small
+          | "<square>" => some CompatibilityTag.square
           | "<fraction>" => some CompatibilityTag.fraction
           | "<compat>"=> some CompatibilityTag.compat
           | _ => panic! "invalid compatibility tag"
