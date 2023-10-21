@@ -308,46 +308,69 @@ def GeneralCategory.toAbbrev : GeneralCategory → String
 | ⟨_, some .unassigned⟩ => "Cn"
 
 /-- Get general category from string abbreviation -/
-def GeneralCategory.ofAbbrev? : String → Option GeneralCategory
-| "L"  => some ⟨.letter, none⟩
-| "LC" => some ⟨_, some .casedLetter⟩
-| "Lu" => some ⟨_, some .uppercaseLetter⟩
-| "Ll" => some ⟨_, some .lowercaseLetter⟩
-| "Lt" => some ⟨_, some .titlecaseLetter⟩
-| "Lm" => some ⟨_, some .modifierLetter⟩
-| "Lo" => some ⟨_, some .otherLetter⟩
-| "M"  => some ⟨.mark, none⟩
-| "Mn" => some ⟨_, some .nonspacingMark⟩
-| "Mc" => some ⟨_, some .spacingMark⟩
-| "Me" => some ⟨_, some .enclosingMark⟩
-| "N"  => some ⟨.number, none⟩
-| "Nd" => some ⟨_, some .decimalNumber⟩
-| "Nl" => some ⟨_, some .letterNumber⟩
-| "No" => some ⟨_, some .otherNumber⟩
-| "P"  => some ⟨.punctuation, none⟩
-| "Pc" => some ⟨_, some .connectorPunctuation⟩
-| "Pd" => some ⟨_, some .dashPunctuation⟩
-| "Ps" => some ⟨_, some .openPunctuation⟩
-| "Pe" => some ⟨_, some .closePunctuation⟩
-| "Pi" => some ⟨_, some .initialPunctuation⟩
-| "Pf" => some ⟨_, some .finalPunctuation⟩
-| "Po" => some ⟨_, some .otherPunctuation⟩
-| "S"  => some ⟨.symbol, none⟩
-| "Sm" => some ⟨_, some .mathSymbol⟩
-| "Sc" => some ⟨_, some .currencySymbol⟩
-| "Sk" => some ⟨_, some .modifierSymbol⟩
-| "So" => some ⟨_, some .otherSymbol⟩
-| "Z"  => some ⟨.separator, none⟩
-| "Zs" => some ⟨_, some .spaceSeparator⟩
-| "Zl" => some ⟨_, some .lineSeparator⟩
-| "Zp" => some ⟨_, some .paragraphSeparator⟩
-| "C"  => some ⟨.other, none⟩
-| "Cc" => some ⟨_, some .control⟩
-| "Cf" => some ⟨_, some .format⟩
-| "Cs" => some ⟨_, some .surrogate⟩
-| "Co" => some ⟨_, some .privateUse⟩
-| "Cn" => some ⟨_, some .unassigned⟩
-| _ => none
+def GeneralCategory.ofAbbrev? (s : String) : Option GeneralCategory :=
+  if s.length > 2 then none else
+    match s.get? 0 with
+    | some 'C' =>
+      match s.get? (s.next 0) with
+      | none => some ⟨.other, none⟩
+      | some 'c' => some ⟨_, some .control⟩
+      | some 'f' => some ⟨_, some .format⟩
+      | some 's' => some ⟨_, some .surrogate⟩
+      | some 'o' => some ⟨_, some .privateUse⟩
+      | some 'n' => some ⟨_, some .unassigned⟩
+      | _ => none
+    | some 'L' =>
+      match s.get? (s.next 0) with
+      | none => some ⟨.letter, none⟩
+      | some 'C' => some ⟨_, some .casedLetter⟩
+      | some 'u' => some ⟨_, some .uppercaseLetter⟩
+      | some 'l' => some ⟨_, some .lowercaseLetter⟩
+      | some 't' => some ⟨_, some .titlecaseLetter⟩
+      | some 'm' => some ⟨_, some .modifierLetter⟩
+      | some 'o' => some ⟨_, some .otherLetter⟩
+      | _ => none
+    | some 'M' =>
+      match s.get? (s.next 0) with
+      | none => some ⟨.mark, none⟩
+      | some 'n' => some ⟨_, some .nonspacingMark⟩
+      | some 'c' => some ⟨_, some .spacingMark⟩
+      | some 'e' => some ⟨_, some .enclosingMark⟩
+      | _ => none
+    | some 'N' =>
+      match s.get? (s.next 0) with
+      | none => some ⟨.number, none⟩
+      | some 'd' => some ⟨_, some .decimalNumber⟩
+      | some 'l' => some ⟨_, some .letterNumber⟩
+      | some 'o' => some ⟨_, some .otherNumber⟩
+      | _ => none
+    | some 'P' =>
+      match s.get? (s.next 0) with
+      | none  => some ⟨.punctuation, none⟩
+      | some 'c' => some ⟨_, some .connectorPunctuation⟩
+      | some 'd' => some ⟨_, some .dashPunctuation⟩
+      | some 's' => some ⟨_, some .openPunctuation⟩
+      | some 'e' => some ⟨_, some .closePunctuation⟩
+      | some 'i' => some ⟨_, some .initialPunctuation⟩
+      | some 'f' => some ⟨_, some .finalPunctuation⟩
+      | some 'o' => some ⟨_, some .otherPunctuation⟩
+      | _ => none
+    | some 'S' =>
+      match s.get? (s.next 0) with
+      | none => some ⟨.symbol, none⟩
+      | some 'm' => some ⟨_, some .mathSymbol⟩
+      | some 'c' => some ⟨_, some .currencySymbol⟩
+      | some 'k' => some ⟨_, some .modifierSymbol⟩
+      | some 'o' => some ⟨_, some .otherSymbol⟩
+      | _ => none
+    | some 'Z' =>
+      match s.get? (s.next 0) with
+      | none => some ⟨.separator, none⟩
+      | some 's' => some ⟨_, some .spaceSeparator⟩
+      | some 'l' => some ⟨_, some .lineSeparator⟩
+      | some 'p' => some ⟨_, some .paragraphSeparator⟩
+      | _ => none
+    | _ => none
 
 @[inherit_doc GeneralCategory.ofAbbrev?]
 def GeneralCategory.ofAbbrev! (s : String) : GeneralCategory :=
