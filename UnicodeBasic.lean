@@ -60,7 +60,7 @@ namespace Unicode
 -/
 @[inline]
 def getName (char : Char) : String :=
-  getUnicodeData char |>.characterName
+  getUnicodeData char |>.characterName.toString
 
 /-!
   ## Bidirectional Properties ##
