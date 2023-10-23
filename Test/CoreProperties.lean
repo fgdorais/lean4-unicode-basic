@@ -23,7 +23,7 @@ private unsafe def Data.init : IO Data := do
       | [c] => (ofHexString! c, none)
       | [c₀,c₁] => (ofHexString! c₀, some <| ofHexString! c₁)
       | _ => panic! "invalid record in DerivedCoreProperties.txt"
-    match record[1]! with
+    match record[1]!.toString with
     | "Math" => data := {data with math := data.math.push val}
     | "Alphabetic" => data := {data with alphabetic := data.alphabetic.push val}
     | "Lowercase" => data := {data with lowercase := data.lowercase.push val}
@@ -38,7 +38,7 @@ private unsafe def Data.init : IO Data := do
       | [c] => (ofHexString! c, none)
       | [c₀,c₁] => (ofHexString! c₀, some <| ofHexString! c₁)
       | _ => panic! "invalid record in PropList.txt"
-    match record[1]! with
+    match record[1]!.toString with
     | "White_Space" => data := {data with whiteSpace := data.whiteSpace.push val}
     | _ => continue
   return data

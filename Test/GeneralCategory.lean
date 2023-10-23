@@ -57,7 +57,7 @@ def Data.init : IO Data := do
     | [c₀, c₁] => (ofHexString! c₀, some (ofHexString! c₁))
     | [c] => (ofHexString! c, none)
     | _ => panic! "invalid record in DerivedGeneralCategory.txt"
-    match record[1]! with
+    match record[1]!.toString with
     | "Cc" => data := {data with catCc := data.catCc.push val}
     | "Cf" => data := {data with catCf := data.catCf.push val}
     | "Cn" => data := {data with catCn := data.catCn.push val}
