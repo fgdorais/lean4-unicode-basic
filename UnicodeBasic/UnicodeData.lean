@@ -13,7 +13,7 @@ structure UnicodeData where
   /-- Code Value -/
   codeValue : UInt32
   /-- Character Name -/
-  characterName : String
+  characterName : Substring
   /-- General Category -/
   generalCategory : GeneralCategory
   /-- Canonical Combining Class -/
@@ -60,7 +60,7 @@ private unsafe def UnicodeData.init : IO (Array UnicodeData) := do
       codeValue := ofHexString! record[0]!
       characterName := record[1]!
       generalCategory := GeneralCategory.ofAbbrev! record[2]!
-      canonicalCombiningClass := record[3]!.toNat!
+      canonicalCombiningClass := record[3]!.toString.toNat! -- TODO: don't use toString
       bidiClass := BidiClass.ofAbbrev! record[4]!
       decompositionMapping := getDecompositionMapping? record[5]!
       numeric := getNumericType? record[6]! record[7]! record[8]!
@@ -74,7 +74,7 @@ private unsafe def UnicodeData.init : IO (Array UnicodeData) := do
 where
 
   /-- Get decomposition mapping -/
-  getDecompositionMapping? (s : String) : Option DecompositionMapping := do
+  getDecompositionMapping? (s : Substring) : Option DecompositionMapping := do
     /-
       The value of the `Decomposition_Mapping` property for a character is
       provided in field 5 of `UnicodeData.txt`. This is a string-valued
@@ -103,9 +103,9 @@ where
       | t :: cs =>
         let mut tag := none
         let mut cs := cs.map fun c => Char.mkUnsafe <| ofHexString! c
-        if "<".isPrefixOf t then
+        if t.get 0 == '<' then
           -- compatibility mapping
-          tag := match t with
+          tag := match t.toString with -- TODO: don't use toString
           | "<font>" => some CompatibilityTag.font
           | "<noBreak>" => some CompatibilityTag.noBreak
           | "<initial>" => some CompatibilityTag.initial
@@ -130,7 +130,7 @@ where
       | [] => unreachable!
 
   /-- Get numeric type -/
-  getNumericType? (s₁ s₂ s₃ : String) : Option NumericType := do
+  getNumericType? (s₁ s₂ s₃ : Substring) : Option NumericType := do
     /-
       If the character has the property value `Numeric_Type=Decimal`, then the
       `Numeric_Value` of that digit is represented with an integer value
@@ -165,14 +165,14 @@ where
         else
           match s₃.splitOn "/" with
           | [s] => -- integer value
-            return .numeric s.toInt! none
+            return .numeric s.toString.toInt! none -- TODO: don't use toString
           | [sn,sd] => -- rational value
-            return .numeric sn.toInt! (some sd.toNat!)
+            return .numeric sn.toString.toInt! (some sd.toString.toNat!) -- TODO: don't use toString
           | _ => panic! "invalid numeric value"
       else
-        return .digit <| getDigitUnsafe <| s₂.get! 0
+        return .digit <| getDigitUnsafe <| s₂.get 0
     else
-      return .decimal <| getDigitUnsafe <| s₁.get! 0
+      return .decimal <| getDigitUnsafe <| s₁.get 0
 
   /-- Get decimal digit -/
   @[inline]
@@ -227,8 +227,7 @@ partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
     -/
     let data := UnicodeData.data[find 0 0x0200]!
     assert! (data.codeValue = code)
-    if "<".isPrefixOf data.characterName then
-      assert! (data.characterName = "<control>")
+    if data.characterName == "<control>" then
       return {data with characterName := "<control-" ++ toHexStringAux code ++ ">"}
     else
       return data
@@ -252,19 +251,19 @@ partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
       Unicode Standard for more information on derivation of character names
       for such ranges.
     -/
-    if "<".isPrefixOf data.characterName then
-      if code = data.codeValue || data.characterName.endsWith ", First>" then
-        if "<Hangul Syllable".isPrefixOf data.characterName then
+    if data.characterName.get 0 == '<' then
+      if code = data.codeValue || data.characterName.takeRight 8 == ", First>" then
+        if data.characterName.take 16 == "<Hangul Syllable" then
           return {data with
             codeValue := code
             characterName := getHangulSyllableName! code
           }
-        else if "<CJK Ideograph".isPrefixOf data.characterName then
+        else if data.characterName.take 14 == "<CJK Ideograph" then
           return {data with
             codeValue := code
             characterName := "CJK UNIFIED IDEOGRAPH-" ++ toHexStringAux code
           }
-        else if "<Tangut Ideograph".isPrefixOf data.characterName then
+        else if data.characterName.take 17 == "<Tangut Ideograph" then
           return {data with
             codeValue := code
             characterName := "TANGUT IDEOGRAPH-" ++ toHexStringAux code

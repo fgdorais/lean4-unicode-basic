@@ -12,6 +12,14 @@ protected unsafe def Char.mkUnsafe : UInt32 → Char := unsafeCast
 
 namespace Unicode
 
+/-- Coercion from `String` to `Substring`
+
+  This coercion is in Std but not in Lean core. It is scoped to `Unicode` here to avoid issues
+  in low-level packages that don't use Std.
+-/
+scoped instance : Coe String Substring where
+  coe := String.toSubstring
+
 /-- Maximum valid code point value -/
 protected def max : UInt32 := 0x10FFFF
 
@@ -44,11 +52,11 @@ def toHexString (code : UInt32) : String :=
   For convenience, the `U+` prefix may be omitted and lowercase hexadecimal
   digits are accepted.
 -/
-def ofHexString? (str : String) : Option UInt32 := do
-  let str := if "U+".isPrefixOf str then str.drop 2 else str
-  if str.isEmpty || str.length > 8 then none else
+def ofHexString? (str : Substring) : Option UInt32 := do
+  let str := if str.take 2 == "U+" then str.drop 2 else str
+  if str.isEmpty || str.bsize > 8 then none else
     let mut val : UInt32 := 0
-    for dgt in str.toSubstring do
+    for dgt in str do
       val := (val <<< 4) + (← hexValue? dgt)
     some val
 
@@ -72,7 +80,7 @@ where
             none
 
 @[inherit_doc ofHexString?]
-def ofHexString! (str : String) : UInt32 :=
+def ofHexString! (str : Substring) : UInt32 :=
   match ofHexString? str with
   | some val => val
   | none => panic! "invalid unicode hexadecimal string representation"
@@ -308,11 +316,11 @@ def GeneralCategory.toAbbrev : GeneralCategory → String
 | ⟨_, some .unassigned⟩ => "Cn"
 
 /-- Get general category from string abbreviation -/
-def GeneralCategory.ofAbbrev? (s : String) : Option GeneralCategory :=
-  if s.length > 2 then none else
-    match s.get? 0 with
+def GeneralCategory.ofAbbrev? (s : Substring) : Option GeneralCategory :=
+  if s.bsize > 2 then none else
+    match s.str.get? s.startPos with
     | some 'C' =>
-      match s.get? (s.next 0) with
+      match s.str.get? (s.str.next s.startPos) with
       | none => some ⟨.other, none⟩
       | some 'c' => some ⟨_, some .control⟩
       | some 'f' => some ⟨_, some .format⟩
@@ -321,7 +329,7 @@ def GeneralCategory.ofAbbrev? (s : String) : Option GeneralCategory :=
       | some 'n' => some ⟨_, some .unassigned⟩
       | _ => none
     | some 'L' =>
-      match s.get? (s.next 0) with
+      match s.str.get? (s.str.next s.startPos) with
       | none => some ⟨.letter, none⟩
       | some 'C' => some ⟨_, some .casedLetter⟩
       | some 'u' => some ⟨_, some .uppercaseLetter⟩
@@ -331,21 +339,21 @@ def GeneralCategory.ofAbbrev? (s : String) : Option GeneralCategory :=
       | some 'o' => some ⟨_, some .otherLetter⟩
       | _ => none
     | some 'M' =>
-      match s.get? (s.next 0) with
+      match s.str.get? (s.str.next s.startPos) with
       | none => some ⟨.mark, none⟩
       | some 'n' => some ⟨_, some .nonspacingMark⟩
       | some 'c' => some ⟨_, some .spacingMark⟩
       | some 'e' => some ⟨_, some .enclosingMark⟩
       | _ => none
     | some 'N' =>
-      match s.get? (s.next 0) with
+      match s.str.get? (s.str.next s.startPos) with
       | none => some ⟨.number, none⟩
       | some 'd' => some ⟨_, some .decimalNumber⟩
       | some 'l' => some ⟨_, some .letterNumber⟩
       | some 'o' => some ⟨_, some .otherNumber⟩
       | _ => none
     | some 'P' =>
-      match s.get? (s.next 0) with
+      match s.str.get? (s.str.next s.startPos) with
       | none  => some ⟨.punctuation, none⟩
       | some 'c' => some ⟨_, some .connectorPunctuation⟩
       | some 'd' => some ⟨_, some .dashPunctuation⟩
@@ -356,7 +364,7 @@ def GeneralCategory.ofAbbrev? (s : String) : Option GeneralCategory :=
       | some 'o' => some ⟨_, some .otherPunctuation⟩
       | _ => none
     | some 'S' =>
-      match s.get? (s.next 0) with
+      match s.str.get? (s.str.next s.startPos) with
       | none => some ⟨.symbol, none⟩
       | some 'm' => some ⟨_, some .mathSymbol⟩
       | some 'c' => some ⟨_, some .currencySymbol⟩
@@ -364,7 +372,7 @@ def GeneralCategory.ofAbbrev? (s : String) : Option GeneralCategory :=
       | some 'o' => some ⟨_, some .otherSymbol⟩
       | _ => none
     | some 'Z' =>
-      match s.get? (s.next 0) with
+      match s.str.get? (s.str.next s.startPos) with
       | none => some ⟨.separator, none⟩
       | some 's' => some ⟨_, some .spaceSeparator⟩
       | some 'l' => some ⟨_, some .lineSeparator⟩
@@ -373,7 +381,7 @@ def GeneralCategory.ofAbbrev? (s : String) : Option GeneralCategory :=
     | _ => none
 
 @[inherit_doc GeneralCategory.ofAbbrev?]
-def GeneralCategory.ofAbbrev! (s : String) : GeneralCategory :=
+def GeneralCategory.ofAbbrev! (s : Substring) : GeneralCategory :=
   match ofAbbrev? s with
   | some gc => gc
   | none => panic! "invalid general category abbreviation"
@@ -633,34 +641,35 @@ def BidiClass.toAbbrev : BidiClass → String
 | popDirectionalIsolate => "PDI"
 
 /-- Get bidi class from abbreviation -/
-def BidiClass.ofAbbrev? : String → Option BidiClass
-| "L" => some leftToRight
-| "R" => some rightToLeft
-| "AL" => some arabicLetter
-| "EN" => some europeanNumber
-| "ES" => some europeanSeparator
-| "ET" => some europeanTerminator
-| "AN" => some arabicNumber
-| "CS" => some commonSeparator
-| "NSM" => some nonspacingMark
-| "BN" => some boundaryNeutral
-| "B" => some paragraphSeparator
-| "S" => some segmentSeparator
-| "WS" => some whiteSpace
-| "ON" => some otherNeutral
-| "LRE" => some leftToRightEmbedding
-| "LRO" => some leftToRightOverride
-| "RLE" => some rightToLeftEmbeding
-| "RLO" => some rightToLeftOverride
-| "PDF" => some popDirectionalFormat
-| "LRI" => some leftToRightIsolate
-| "RLI" => some rightToLeftIsolate
-| "FSI" => some firstStrongIsolate
-| "PDI" => some popDirectionalIsolate
-| _ => none
+def BidiClass.ofAbbrev? (abbr : Substring) : Option BidiClass :=
+  match abbr.toString with -- TODO: don't use toString
+  | "L" => some leftToRight
+  | "R" => some rightToLeft
+  | "AL" => some arabicLetter
+  | "EN" => some europeanNumber
+  | "ES" => some europeanSeparator
+  | "ET" => some europeanTerminator
+  | "AN" => some arabicNumber
+  | "CS" => some commonSeparator
+  | "NSM" => some nonspacingMark
+  | "BN" => some boundaryNeutral
+  | "B" => some paragraphSeparator
+  | "S" => some segmentSeparator
+  | "WS" => some whiteSpace
+  | "ON" => some otherNeutral
+  | "LRE" => some leftToRightEmbedding
+  | "LRO" => some leftToRightOverride
+  | "RLE" => some rightToLeftEmbeding
+  | "RLO" => some rightToLeftOverride
+  | "PDF" => some popDirectionalFormat
+  | "LRI" => some leftToRightIsolate
+  | "RLI" => some rightToLeftIsolate
+  | "FSI" => some firstStrongIsolate
+  | "PDI" => some popDirectionalIsolate
+  | _ => none
 
 @[inherit_doc BidiClass.ofAbbrev?]
-def BidiClass.ofAbbrev! (abbr : String) : BidiClass :=
+def BidiClass.ofAbbrev! (abbr : Substring) : BidiClass :=
   match ofAbbrev? abbr with
   | some bc => bc
   | none => panic! "invalid bidi class abbreviation"
