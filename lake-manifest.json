@@ -1,1 +1,4 @@
-{"version": 4, "packagesDir": "lake-packages", "packages": []}
+{"version": 6,
+ "packagesDir": "lake-packages",
+ "packages": [],
+ "name": "«lean4-unicode-basic»"}
