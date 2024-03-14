@@ -677,4 +677,44 @@ def BidiClass.ofAbbrev! (abbr : Substring) : BidiClass :=
 instance : Repr BidiClass where
   reprPrec bc _ := s!"Unicode.BidiClass.{bc.toAbbrev}"
 
+/-- Structure for data from `UnicodeData.txt` -/
+structure UnicodeData where
+  /-- Code Value -/
+  codeValue : UInt32
+  /-- Character Name -/
+  characterName : Substring
+  /-- General Category -/
+  generalCategory : GeneralCategory
+  /-- Canonical Combining Class -/
+  canonicalCombiningClass : Nat
+  /-- Bidirectional Class -/
+  bidiClass : BidiClass
+  /-- Bidirectional Mirrored -/
+  bidiMirrored : Bool
+  /-- Character Decomposition Mapping -/
+  decompositionMapping : Option DecompositionMapping := none
+  /-- Numeric Value -/
+  numeric : Option NumericType := none
+  /-- Uppercase Mapping -/
+  uppercaseMapping : Option Char := none
+  /-- Lowercase Mapping -/
+  lowercaseMapping : Option Char := none
+  /-- Titlecase Mapping -/
+  titlecaseMapping : Option Char := none
+deriving Repr, Inhabited
+
+/-- Make `UnicodeData` for noncharacter code point -/
+def UnicodeData.mkNoncharacter (code : UInt32) : UnicodeData where
+  codeValue := code
+  generalCategory := .Cn
+  characterName :=
+    -- Extracted from `PropLists.txt`
+    let isReserved := (code &&& 0xFFFFFFF0 == 0x0000FDD0) ||
+                      (code &&& 0xFFFFFFF0 == 0x0000FDE0) ||
+                      (code &&& 0x0000FFFE == 0x0000FFFE)
+    (if isReserved then "<reserved-" else "<noncharacter-") ++ toHexStringAux code ++ ">"
+  canonicalCombiningClass := 0
+  bidiClass := .BN
+  bidiMirrored := false
+
 end Unicode
