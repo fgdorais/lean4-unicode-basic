@@ -24,7 +24,7 @@ export class DeclarationDataCenter {
   /**
    * Used to implement the singleton, in case we need to fetch data mutiple times in the same page.
    */
-  static singleton = null;
+  static requestSingleton = null;
 
   /**
    * Construct a DeclarationDataCenter with given data.
@@ -41,33 +41,43 @@ export class DeclarationDataCenter {
    * @returns {Promise<DeclarationDataCenter>}
    */
   static async init() {
-    if (!DeclarationDataCenter.singleton) {
-      const dataListUrl = new URL(
-        `${SITE_ROOT}/declarations/declaration-data.bmp`,
-        window.location
-      );
-
-      // try to use cache first
-      const data = await fetchCachedDeclarationData().catch(_e => null);
-      if (data) {
-        // if data is defined, use the cached one.
-        DeclarationDataCenter.singleton = new DeclarationDataCenter(data);
-      } else {
-        // undefined. then fetch the data from the server.
-        const dataListRes = await fetch(dataListUrl);
-        const data = await dataListRes.json();
-        await cacheDeclarationData(data);
-        DeclarationDataCenter.singleton = new DeclarationDataCenter(data);
-      }
+    if (DeclarationDataCenter.requestSingleton === null) {
+      DeclarationDataCenter.requestSingleton = DeclarationDataCenter.getData();
     }
-    return DeclarationDataCenter.singleton;
+    return await DeclarationDataCenter.requestSingleton;
+  }
+
+  static async getData() {
+    const dataListUrl = new URL(
+      `${SITE_ROOT}/declarations/declaration-data.bmp`,
+      window.location
+    );
+
+    // try to use cache first
+    // TODO: This API is not thought 100% through. If we have a DB cached
+    // already it will not even ask the remote for a new one so we end up
+    // with outdated declaration-data. This has to have some form of cache
+    // invalidation: https://github.com/leanprover/doc-gen4/issues/133
+    // const data = await fetchCachedDeclarationData().catch(_e => null);
+    const data = null;
+    if (data) {
+      // if data is defined, use the cached one.
+      return new DeclarationDataCenter(data);
+    } else {
+      // undefined. then fetch the data from the server.
+      const dataListRes = await fetch(dataListUrl);
+      const data = await dataListRes.json();
+      // TODO https://github.com/leanprover/doc-gen4/issues/133
+      // await cacheDeclarationData(data);
+      return new DeclarationDataCenter(data);
+    }
   }
 
   /**
    * Search for a declaration.
    * @returns {Array<any>}
    */
-  search(pattern, strict = true, allowedKinds=undefined, maxResults=undefined) {
+  search(pattern, strict = true, allowedKinds = undefined, maxResults = undefined) {
     if (!pattern) {
       return [];
     }
@@ -118,7 +128,7 @@ export class DeclarationDataCenter {
    * @returns {Array<String>}
    */
   moduleImportedBy(moduleName) {
-    return this.declarationData.importedBy[moduleName];
+    return this.declarationData.modules[moduleName].importedBy;
   }
 
   /**
@@ -126,11 +136,11 @@ export class DeclarationDataCenter {
    * @returns {String}
    */
   moduleNameToLink(moduleName) {
-    return this.declarationData.modules[moduleName];
+    return this.declarationData.modules[moduleName].url;
   }
 }
 
-function isSeparater(char) {
+function isSeparator(char) {
   return char === "." || char === "_";
 }
 
@@ -143,11 +153,11 @@ function matchCaseSensitive(declName, lowerDeclName, pattern) {
     lastMatch = 0;
   while (i < declName.length && j < pattern.length) {
     if (pattern[j] === declName[i] || pattern[j] === lowerDeclName[i]) {
-      err += (isSeparater(pattern[j]) ? 0.125 : 1) * (i - lastMatch);
+      err += (isSeparator(pattern[j]) ? 0.125 : 1) * (i - lastMatch);
       if (pattern[j] !== declName[i]) err += 0.5;
       lastMatch = i + 1;
       j++;
-    } else if (isSeparater(declName[i])) {
+    } else if (isSeparator(declName[i])) {
       err += 0.125 * (i + 1 - lastMatch);
       lastMatch = i + 1;
     }
@@ -163,12 +173,9 @@ function getMatches(declarations, pattern, allowedKinds = undefined, maxResults 
   const lowerPats = pattern.toLowerCase().split(/\s/g);
   const patNoSpaces = pattern.replace(/\s/g, "");
   const results = [];
-  for (const [_, {
-    name,
+  for (const [name, {
     kind,
-    doc,
     docLink,
-    sourceLink,
   }] of Object.entries(declarations)) {
     // Apply "kind" filter
     if (allowedKinds !== undefined) {
@@ -177,26 +184,14 @@ function getMatches(declarations, pattern, allowedKinds = undefined, maxResults 
       }
     }
     const lowerName = name.toLowerCase();
-    const lowerDoc = doc.toLowerCase();
     let err = matchCaseSensitive(name, lowerName, patNoSpaces);
-    // match all words as substrings of docstring
-    if (
-      err >= 3 &&
-      pattern.length > 3 &&
-      lowerPats.every((l) => lowerDoc.indexOf(l) != -1)
-    ) {
-      err = 3;
-    }
     if (err !== undefined) {
       results.push({
         name,
         kind,
-        doc,
         err,
         lowerName,
-        lowerDoc,
         docLink,
-        sourceLink,
       });
     }
   }
@@ -268,7 +263,7 @@ async function fetchCachedDeclarationData() {
   return new Promise((resolve, reject) => {
     let transactionRequest = store.get(CACHE_DB_KEY);
     transactionRequest.onsuccess = function (event) {
-      resolve(event.result);
+      resolve(event.target.result);
     };
     transactionRequest.onerror = function (event) {
       reject(new Error(`fail to store declaration data`));

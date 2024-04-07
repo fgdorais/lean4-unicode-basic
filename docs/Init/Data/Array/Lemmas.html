@@ -1,0 +1,651 @@
+<html lang="en"><head><meta charset="UTF-8"></meta><meta name="viewport" content="width=device-width, initial-scale=1"></meta><link rel="stylesheet" href="../../.././style.css"></link><link rel="stylesheet" href="../../.././src/pygments.css"></link><link rel="shortcut icon" href="../../.././favicon.ico"></link><link rel="prefetch" href="../../.././/declarations/declaration-data.bmp" as="image"></link><title>Init.Data.Array.Lemmas</title><script defer="true" src="../../.././mathjax-config.js"></script><script defer="true" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script defer="true" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script>const SITE_ROOT="../../.././";</script><script>const MODULE_NAME="Init.Data.Array.Lemmas";</script><script type="module" src="../../.././jump-src.js"></script><script type="module" src="../../.././search.js"></script><script type="module" src="../../.././expand-nav.js"></script><script type="module" src="../../.././how-about.js"></script><script type="module" src="../../.././instances.js"></script><script type="module" src="../../.././importedBy.js"></script></head><body><input id="nav_toggle" type="checkbox"></input><header><h1><label for="nav_toggle"></label><span>Documentation</span></h1><h2 class="header_filename break_within"><span class="name">Init</span>.<span class="name">Data</span>.<span class="name">Array</span>.<span class="name">Lemmas</span></h2><form action="https://google.com/search" method="get" id="search_form"><input type="hidden" name="sitesearch" value="https://leanprover-community.github.io/mathlib4_docs"></input><input type="text" name="q" autocomplete="off"></input>&#32;
+            <button id="search_button" onclick="javascript: form.action='../../.././search.html';">Search</button><button>Google site search</button></form></header><nav class="internal_nav"><p><a href="#top">return to top</a></p><p class="gh_nav_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean">source</a></p><div class="imports"><details><summary>Imports</summary><ul><li><a href="../../.././Init/Data/Array/Mem.html">Init.Data.Array.Mem</a></li><li><a href="../../.././Init/Data/Fin/Basic.html">Init.Data.Fin.Basic</a></li><li><a href="../../.././Init/Data/List/Lemmas.html">Init.Data.List.Lemmas</a></li><li><a href="../../.././Init/Data/Nat/MinMax.html">Init.Data.Nat.MinMax</a></li></ul></details><details><summary>Imported by</summary><ul id="imported-by-Init.Data.Array.Lemmas" class="imported-by-list"></ul></details></div><div class="nav_link"><a class="break_within" href="#Array.mkEmpty_eq"><span class="name">Array</span>.<span class="name">mkEmpty_eq</span></a></div><div class="nav_link"><a class="break_within" href="#Array.size_toArray"><span class="name">Array</span>.<span class="name">size_toArray</span></a></div><div class="nav_link"><a class="break_within" href="#Array.size_mk"><span class="name">Array</span>.<span class="name">size_mk</span></a></div><div class="nav_link"><a class="break_within" href="#Array.getElem_eq_data_get"><span class="name">Array</span>.<span class="name">getElem_eq_data_get</span></a></div><div class="nav_link"><a class="break_within" href="#Array.foldlM_eq_foldlM_data.aux"><span class="name">Array</span>.<span class="name">foldlM_eq_foldlM_data</span>.<span class="name">aux</span></a></div><div class="nav_link"><a class="break_within" href="#Array.foldlM_eq_foldlM_data"><span class="name">Array</span>.<span class="name">foldlM_eq_foldlM_data</span></a></div><div class="nav_link"><a class="break_within" href="#Array.foldl_eq_foldl_data"><span class="name">Array</span>.<span class="name">foldl_eq_foldl_data</span></a></div><div class="nav_link"><a class="break_within" href="#Array.foldrM_eq_reverse_foldlM_data.aux"><span class="name">Array</span>.<span class="name">foldrM_eq_reverse_foldlM_data</span>.<span class="name">aux</span></a></div><div class="nav_link"><a class="break_within" href="#Array.foldrM_eq_reverse_foldlM_data"><span class="name">Array</span>.<span class="name">foldrM_eq_reverse_foldlM_data</span></a></div><div class="nav_link"><a class="break_within" href="#Array.foldrM_eq_foldrM_data"><span class="name">Array</span>.<span class="name">foldrM_eq_foldrM_data</span></a></div><div class="nav_link"><a class="break_within" href="#Array.foldr_eq_foldr_data"><span class="name">Array</span>.<span class="name">foldr_eq_foldr_data</span></a></div><div class="nav_link"><a class="break_within" href="#Array.push_data"><span class="name">Array</span>.<span class="name">push_data</span></a></div><div class="nav_link"><a class="break_within" href="#Array.foldrM_push"><span class="name">Array</span>.<span class="name">foldrM_push</span></a></div><div class="nav_link"><a class="break_within" href="#Array.foldrM_push'"><span class="name">Array</span>.<span class="name">foldrM_push'</span></a></div><div class="nav_link"><a class="break_within" href="#Array.foldr_push"><span class="name">Array</span>.<span class="name">foldr_push</span></a></div><div class="nav_link"><a class="break_within" href="#Array.foldr_push'"><span class="name">Array</span>.<span class="name">foldr_push'</span></a></div><div class="nav_link"><a class="break_within" href="#Array.toListAppend_eq"><span class="name">Array</span>.<span class="name">toListAppend_eq</span></a></div><div class="nav_link"><a class="break_within" href="#Array.toList_eq"><span class="name">Array</span>.<span class="name">toList_eq</span></a></div><div class="nav_link"><a class="break_within" href="#Array.toListRev"><span class="name">Array</span>.<span class="name">toListRev</span></a></div><div class="nav_link"><a class="break_within" href="#Array.toListRev_eq"><span class="name">Array</span>.<span class="name">toListRev_eq</span></a></div><div class="nav_link"><a class="break_within" href="#Array.get_push_lt"><span class="name">Array</span>.<span class="name">get_push_lt</span></a></div><div class="nav_link"><a class="break_within" href="#Array.get_push_eq"><span class="name">Array</span>.<span class="name">get_push_eq</span></a></div><div class="nav_link"><a class="break_within" href="#Array.get_push"><span class="name">Array</span>.<span class="name">get_push</span></a></div><div class="nav_link"><a class="break_within" href="#Array.mapM_eq_foldlM"><span class="name">Array</span>.<span class="name">mapM_eq_foldlM</span></a></div><div class="nav_link"><a class="break_within" href="#Array.mapM_eq_foldlM.aux"><span class="name">Array</span>.<span class="name">mapM_eq_foldlM</span>.<span class="name">aux</span></a></div><div class="nav_link"><a class="break_within" href="#Array.map_data"><span class="name">Array</span>.<span class="name">map_data</span></a></div><div class="nav_link"><a class="break_within" href="#Array.size_map"><span class="name">Array</span>.<span class="name">size_map</span></a></div><div class="nav_link"><a class="break_within" href="#Array.pop_data"><span class="name">Array</span>.<span class="name">pop_data</span></a></div><div class="nav_link"><a class="break_within" href="#Array.append_eq_append"><span class="name">Array</span>.<span class="name">append_eq_append</span></a></div><div class="nav_link"><a class="break_within" href="#Array.append_data"><span class="name">Array</span>.<span class="name">append_data</span></a></div><div class="nav_link"><a class="break_within" href="#Array.appendList_eq_append"><span class="name">Array</span>.<span class="name">appendList_eq_append</span></a></div><div class="nav_link"><a class="break_within" href="#Array.appendList_data"><span class="name">Array</span>.<span class="name">appendList_data</span></a></div><div class="nav_link"><a class="break_within" href="#Array.appendList_nil"><span class="name">Array</span>.<span class="name">appendList_nil</span></a></div><div class="nav_link"><a class="break_within" href="#Array.appendList_cons"><span class="name">Array</span>.<span class="name">appendList_cons</span></a></div><div class="nav_link"><a class="break_within" href="#Array.foldl_data_eq_bind"><span class="name">Array</span>.<span class="name">foldl_data_eq_bind</span></a></div><div class="nav_link"><a class="break_within" href="#Array.foldl_data_eq_map"><span class="name">Array</span>.<span class="name">foldl_data_eq_map</span></a></div><div class="nav_link"><a class="break_within" href="#Array.size_uset"><span class="name">Array</span>.<span class="name">size_uset</span></a></div><div class="nav_link"><a class="break_within" href="#Array.anyM_eq_anyM_loop"><span class="name">Array</span>.<span class="name">anyM_eq_anyM_loop</span></a></div><div class="nav_link"><a class="break_within" href="#Array.anyM_stop_le_start"><span class="name">Array</span>.<span class="name">anyM_stop_le_start</span></a></div><div class="nav_link"><a class="break_within" href="#Array.mem_def"><span class="name">Array</span>.<span class="name">mem_def</span></a></div><div class="nav_link"><a class="break_within" href="#Array.get_eq_getElem"><span class="name">Array</span>.<span class="name">get_eq_getElem</span></a></div><div class="nav_link"><a class="break_within" href="#Array.getElem?_lt"><span class="name">Array</span>.<span class="name">getElem?_lt</span></a></div><div class="nav_link"><a class="break_within" href="#Array.getElem?_ge"><span class="name">Array</span>.<span class="name">getElem?_ge</span></a></div><div class="nav_link"><a class="break_within" href="#Array.get?_eq_getElem?"><span class="name">Array</span>.<span class="name">get?_eq_getElem?</span></a></div><div class="nav_link"><a class="break_within" href="#Array.getElem?_len_le"><span class="name">Array</span>.<span class="name">getElem?_len_le</span></a></div><div class="nav_link"><a class="break_within" href="#Array.getD_get?"><span class="name">Array</span>.<span class="name">getD_get?</span></a></div><div class="nav_link"><a class="break_within" href="#Array.getD_eq_get?"><span class="name">Array</span>.<span class="name">getD_eq_get?</span></a></div><div class="nav_link"><a class="break_within" href="#Array.get!_eq_getD"><span class="name">Array</span>.<span class="name">get!_eq_getD</span></a></div><div class="nav_link"><a class="break_within" href="#Array.get!_eq_getElem?"><span class="name">Array</span>.<span class="name">get!_eq_getElem?</span></a></div><div class="nav_link"><a class="break_within" href="#Array.getElem_set_eq"><span class="name">Array</span>.<span class="name">getElem_set_eq</span></a></div><div class="nav_link"><a class="break_within" href="#Array.getElem_set_ne"><span class="name">Array</span>.<span class="name">getElem_set_ne</span></a></div><div class="nav_link"><a class="break_within" href="#Array.getElem_set"><span class="name">Array</span>.<span class="name">getElem_set</span></a></div><div class="nav_link"><a class="break_within" href="#Array.getElem?_set_eq"><span class="name">Array</span>.<span class="name">getElem?_set_eq</span></a></div><div class="nav_link"><a class="break_within" href="#Array.getElem?_set_ne"><span class="name">Array</span>.<span class="name">getElem?_set_ne</span></a></div><div class="nav_link"><a class="break_within" href="#Array.set!_is_setD"><span class="name">Array</span>.<span class="name">set!_is_setD</span></a></div><div class="nav_link"><a class="break_within" href="#Array.size_setD"><span class="name">Array</span>.<span class="name">size_setD</span></a></div><div class="nav_link"><a class="break_within" href="#Array.getElem_setD_eq"><span class="name">Array</span>.<span class="name">getElem_setD_eq</span></a></div><div class="nav_link"><a class="break_within" href="#Array.getElem?_setD_eq"><span class="name">Array</span>.<span class="name">getElem?_setD_eq</span></a></div><div class="nav_link"><a class="break_within" href="#Array.getD_get?_setD"><span class="name">Array</span>.<span class="name">getD_get?_setD</span></a></div></nav><main>
+<div class="mod_doc"><h2 class="markdown-heading" id="Bootstrapping-theorems-about-arrays">Bootstrapping theorems about arrays <a class="hover-link" href="#Bootstrapping-theorems-about-arrays">#</a></h2><p>This file contains some theorems about <code><a href="../../.././Init/Prelude.html#Array">Array</a></code> and <code><a href="../../.././Init/Prelude.html#List">List</a></code> needed for <code>Std.List.Basic</code>.</p></div><div class="decl" id="Array.mkEmpty_eq"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L22-L22">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.mkEmpty_eq"><span class="name">Array</span>.<span class="name">mkEmpty_eq</span></a></span><span class="decl_args">
+<span class="fn">(α : <a href="../../.././foundational_types.html">Type</a> u_1)</span></span>
+<span class="decl_args">
+<span class="fn">(n : <a href="../../.././Init/Prelude.html#Nat">Nat</a>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Array.mkEmpty">Array.mkEmpty</a> <span class="fn">n</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn">#[]</span></span></div></div></div></div><div class="decl" id="Array.size_toArray"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L24-L24">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.size_toArray"><span class="name">Array</span>.<span class="name">size_toArray</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(as : <span class="fn"><a href="../../.././Init/Prelude.html#List">List</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#List.toArray">List.toArray</a> <span class="fn">as</span></span>)</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Prelude.html#List.length">List.length</a> <span class="fn">as</span></span></span></div></div></div></div><div class="decl" id="Array.size_mk"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L26-L26">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.size_mk"><span class="name">Array</span>.<span class="name">size_mk</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(as : <span class="fn"><a href="../../.././Init/Prelude.html#List">List</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">{ <span class="fn">data</span> := <span class="fn">as</span> }</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Prelude.html#List.length">List.length</a> <span class="fn">as</span></span></span></div></div></div></div><div class="decl" id="Array.getElem_eq_data_get"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L28-L29">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.getElem_eq_data_get"><span class="name">Array</span>.<span class="name">getElem_eq_data_get</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{i : <a href="../../.././Init/Prelude.html#Nat">Nat</a>}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(h : <span class="fn"><span class="fn">i</span> <a href="../../.././Init/Prelude.html#LT.lt">&lt;</a> <span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">a</span></span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">a</span>[<span class="fn">i</span>]</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Prelude.html#List.get">List.get</a> <span class="fn"><span class="fn">a</span>.data</span> <span class="fn">{ <span class="fn">val</span> := <span class="fn">i</span>, <span class="fn">isLt</span> := <span class="fn">h</span> }</span></span></span></div></div></div></div><div class="decl" id="Array.foldlM_eq_foldlM_data.aux"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L31-L41">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.foldlM_eq_foldlM_data.aux"><span class="name">Array</span>.<span class="name">foldlM_eq_foldlM_data</span>.<span class="name">aux</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{m : <span class="fn"><a href="../../.././foundational_types.html">Type</a> u_1 → <a href="../../.././foundational_types.html">Type</a> u_2</span>}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{β : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_3}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">[<span class="fn"><a href="../../.././Init/Prelude.html#Monad">Monad</a> <span class="fn">m</span></span>]</span></span>
+</span><span class="decl_args">
+<span class="fn">(f : <span class="fn"><span class="fn">β</span> → <span class="fn"><span class="fn">α</span> → <span class="fn"><span class="fn">m</span> <span class="fn">β</span></span></span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(i : <a href="../../.././Init/Prelude.html#Nat">Nat</a>)</span></span>
+<span class="decl_args">
+<span class="fn">(j : <a href="../../.././Init/Prelude.html#Nat">Nat</a>)</span></span>
+<span class="decl_args">
+<span class="fn">(H : <span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">arr</span></span> <a href="../../.././Init/Prelude.html#LE.le">≤</a> <span class="fn"><span class="fn">i</span> <a href="../../.././Init/Prelude.html#HAdd.hAdd">+</a> <span class="fn">j</span></span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(b : <span class="fn">β</span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.foldlM.loop">Array.foldlM.loop</a> <span class="fn">f</span> <span class="fn">arr</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">arr</span></span>)</span> <span class="fn">⋯</span> <span class="fn">i</span> <span class="fn">j</span> <span class="fn">b</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Data/List/Control.html#List.foldlM">List.foldlM</a> <span class="fn">f</span> <span class="fn">b</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Data/List/Basic.html#List.drop">List.drop</a> <span class="fn">j</span> <span class="fn"><span class="fn">arr</span>.data</span></span>)</span></span></span></div></div></div></div><div class="decl" id="Array.foldlM_eq_foldlM_data"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L43-L46">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.foldlM_eq_foldlM_data"><span class="name">Array</span>.<span class="name">foldlM_eq_foldlM_data</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{m : <span class="fn"><a href="../../.././foundational_types.html">Type</a> u_1 → <a href="../../.././foundational_types.html">Type</a> u_2</span>}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{β : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_3}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">[<span class="fn"><a href="../../.././Init/Prelude.html#Monad">Monad</a> <span class="fn">m</span></span>]</span></span>
+</span><span class="decl_args">
+<span class="fn">(f : <span class="fn"><span class="fn">β</span> → <span class="fn"><span class="fn">α</span> → <span class="fn"><span class="fn">m</span> <span class="fn">β</span></span></span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(init : <span class="fn">β</span>)</span></span>
+<span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.foldlM">Array.foldlM</a> <span class="fn">f</span> <span class="fn">init</span> <span class="fn">arr</span> <span class="fn">0</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Data/List/Control.html#List.foldlM">List.foldlM</a> <span class="fn">f</span> <span class="fn">init</span> <span class="fn"><span class="fn">arr</span>.data</span></span></span></div></div></div></div><div class="decl" id="Array.foldl_eq_foldl_data"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L48-L50">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.foldl_eq_foldl_data"><span class="name">Array</span>.<span class="name">foldl_eq_foldl_data</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{β : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_2}</span></span>
+</span><span class="decl_args">
+<span class="fn">(f : <span class="fn"><span class="fn">β</span> → <span class="fn"><span class="fn">α</span> → <span class="fn">β</span></span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(init : <span class="fn">β</span>)</span></span>
+<span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.foldl">Array.foldl</a> <span class="fn">f</span> <span class="fn">init</span> <span class="fn">arr</span> <span class="fn">0</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Prelude.html#List.foldl">List.foldl</a> <span class="fn">f</span> <span class="fn">init</span> <span class="fn"><span class="fn">arr</span>.data</span></span></span></div></div></div></div><div class="decl" id="Array.foldrM_eq_reverse_foldlM_data.aux"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L52-L58">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.foldrM_eq_reverse_foldlM_data.aux"><span class="name">Array</span>.<span class="name">foldrM_eq_reverse_foldlM_data</span>.<span class="name">aux</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{m : <span class="fn"><a href="../../.././foundational_types.html">Type</a> u_1 → <a href="../../.././foundational_types.html">Type</a> u_2</span>}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_3}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{β : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">[<span class="fn"><a href="../../.././Init/Prelude.html#Monad">Monad</a> <span class="fn">m</span></span>]</span></span>
+</span><span class="decl_args">
+<span class="fn">(f : <span class="fn"><span class="fn">α</span> → <span class="fn"><span class="fn">β</span> → <span class="fn"><span class="fn">m</span> <span class="fn">β</span></span></span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(init : <span class="fn">β</span>)</span></span>
+<span class="decl_args">
+<span class="fn">(i : <a href="../../.././Init/Prelude.html#Nat">Nat</a>)</span></span>
+<span class="decl_args">
+<span class="fn">(h : <span class="fn"><span class="fn">i</span> <a href="../../.././Init/Prelude.html#LE.le">≤</a> <span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">arr</span></span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/List/Control.html#List.foldlM">List.foldlM</a> <span class="fn">(<span class="fn">fun (<span class="fn">x</span> : <span class="fn">β</span>) (<span class="fn">y</span> : <span class="fn">α</span>) =&gt; <span class="fn"><span class="fn">f</span> <span class="fn">y</span> <span class="fn">x</span></span></span>)</span> <span class="fn">init</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Data/List/Basic.html#List.reverse">List.reverse</a> <span class="fn">(<span class="fn"><a href="../../.././Init/Data/List/Basic.html#List.take">List.take</a> <span class="fn">i</span> <span class="fn"><span class="fn">arr</span>.data</span></span>)</span></span>)</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a>   <span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.foldrM.fold">Array.foldrM.fold</a> <span class="fn">f</span> <span class="fn">arr</span> <span class="fn">0</span> <span class="fn">i</span> <span class="fn">h</span> <span class="fn">init</span></span></span></div></div></div></div><div class="decl" id="Array.foldrM_eq_reverse_foldlM_data"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L60-L65">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.foldrM_eq_reverse_foldlM_data"><span class="name">Array</span>.<span class="name">foldrM_eq_reverse_foldlM_data</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{m : <span class="fn"><a href="../../.././foundational_types.html">Type</a> u_1 → <a href="../../.././foundational_types.html">Type</a> u_2</span>}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_3}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{β : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">[<span class="fn"><a href="../../.././Init/Prelude.html#Monad">Monad</a> <span class="fn">m</span></span>]</span></span>
+</span><span class="decl_args">
+<span class="fn">(f : <span class="fn"><span class="fn">α</span> → <span class="fn"><span class="fn">β</span> → <span class="fn"><span class="fn">m</span> <span class="fn">β</span></span></span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(init : <span class="fn">β</span>)</span></span>
+<span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.foldrM">Array.foldrM</a> <span class="fn">f</span> <span class="fn">init</span> <span class="fn">arr</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">arr</span></span>)</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Data/List/Control.html#List.foldlM">List.foldlM</a> <span class="fn">(<span class="fn">fun (<span class="fn">x</span> : <span class="fn">β</span>) (<span class="fn">y</span> : <span class="fn">α</span>) =&gt; <span class="fn"><span class="fn">f</span> <span class="fn">y</span> <span class="fn">x</span></span></span>)</span> <span class="fn">init</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Data/List/Basic.html#List.reverse">List.reverse</a> <span class="fn"><span class="fn">arr</span>.data</span></span>)</span></span></span></div></div></div></div><div class="decl" id="Array.foldrM_eq_foldrM_data"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L67-L70">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.foldrM_eq_foldrM_data"><span class="name">Array</span>.<span class="name">foldrM_eq_foldrM_data</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{m : <span class="fn"><a href="../../.././foundational_types.html">Type</a> u_1 → <a href="../../.././foundational_types.html">Type</a> u_2</span>}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_3}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{β : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">[<span class="fn"><a href="../../.././Init/Prelude.html#Monad">Monad</a> <span class="fn">m</span></span>]</span></span>
+</span><span class="decl_args">
+<span class="fn">(f : <span class="fn"><span class="fn">α</span> → <span class="fn"><span class="fn">β</span> → <span class="fn"><span class="fn">m</span> <span class="fn">β</span></span></span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(init : <span class="fn">β</span>)</span></span>
+<span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.foldrM">Array.foldrM</a> <span class="fn">f</span> <span class="fn">init</span> <span class="fn">arr</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">arr</span></span>)</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Data/List/Control.html#List.foldrM">List.foldrM</a> <span class="fn">f</span> <span class="fn">init</span> <span class="fn"><span class="fn">arr</span>.data</span></span></span></div></div></div></div><div class="decl" id="Array.foldr_eq_foldr_data"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L72-L74">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.foldr_eq_foldr_data"><span class="name">Array</span>.<span class="name">foldr_eq_foldr_data</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{β : <a href="../../.././foundational_types.html">Type</a> u_2}</span></span>
+</span><span class="decl_args">
+<span class="fn">(f : <span class="fn"><span class="fn">α</span> → <span class="fn"><span class="fn">β</span> → <span class="fn">β</span></span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(init : <span class="fn">β</span>)</span></span>
+<span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.foldr">Array.foldr</a> <span class="fn">f</span> <span class="fn">init</span> <span class="fn">arr</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">arr</span></span>)</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Data/List/Basic.html#List.foldr">List.foldr</a> <span class="fn">f</span> <span class="fn">init</span> <span class="fn"><span class="fn">arr</span>.data</span></span></span></div></div></div></div><div class="decl" id="Array.push_data"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L76-L77">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.push_data"><span class="name">Array</span>.<span class="name">push_data</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(a : <span class="fn">α</span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.push">Array.push</a> <span class="fn">arr</span> <span class="fn">a</span></span>)</span>.data</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><span class="fn"><span class="fn">arr</span>.data</span> <a href="../../.././Init/Prelude.html#HAppend.hAppend">++</a> <span class="fn">[<span class="fn">a</span>]</span></span></span></div></div></div></div><div class="decl" id="Array.foldrM_push"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L79-L81">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.foldrM_push"><span class="name">Array</span>.<span class="name">foldrM_push</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{m : <span class="fn"><a href="../../.././foundational_types.html">Type</a> u_1 → <a href="../../.././foundational_types.html">Type</a> u_2</span>}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_3}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{β : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">[<span class="fn"><a href="../../.././Init/Prelude.html#Monad">Monad</a> <span class="fn">m</span></span>]</span></span>
+</span><span class="decl_args">
+<span class="fn">(f : <span class="fn"><span class="fn">α</span> → <span class="fn"><span class="fn">β</span> → <span class="fn"><span class="fn">m</span> <span class="fn">β</span></span></span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(init : <span class="fn">β</span>)</span></span>
+<span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(a : <span class="fn">α</span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.foldrM">Array.foldrM</a> <span class="fn">f</span> <span class="fn">init</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.push">Array.push</a> <span class="fn">arr</span> <span class="fn">a</span></span>)</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.push">Array.push</a> <span class="fn">arr</span> <span class="fn">a</span></span>)</span></span>)</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn">do
+  let init ← <span class="fn"><span class="fn">f</span> <span class="fn">a</span> <span class="fn">init</span></span>
+  <span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.foldrM">Array.foldrM</a> <span class="fn">f</span> <span class="fn">init</span> <span class="fn">arr</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">arr</span></span>)</span></span></span></span></div></div></div></div><div class="decl" id="Array.foldrM_push'"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L83-L85">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.foldrM_push'"><span class="name">Array</span>.<span class="name">foldrM_push'</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{m : <span class="fn"><a href="../../.././foundational_types.html">Type</a> u_1 → <a href="../../.././foundational_types.html">Type</a> u_2</span>}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_3}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{β : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">[<span class="fn"><a href="../../.././Init/Prelude.html#Monad">Monad</a> <span class="fn">m</span></span>]</span></span>
+</span><span class="decl_args">
+<span class="fn">(f : <span class="fn"><span class="fn">α</span> → <span class="fn"><span class="fn">β</span> → <span class="fn"><span class="fn">m</span> <span class="fn">β</span></span></span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(init : <span class="fn">β</span>)</span></span>
+<span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(a : <span class="fn">α</span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.foldrM">Array.foldrM</a> <span class="fn">f</span> <span class="fn">init</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.push">Array.push</a> <span class="fn">arr</span> <span class="fn">a</span></span>)</span> <span class="fn">(<span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">arr</span></span> <a href="../../.././Init/Prelude.html#HAdd.hAdd">+</a> <span class="fn">1</span></span>)</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn">do
+  let init ← <span class="fn"><span class="fn">f</span> <span class="fn">a</span> <span class="fn">init</span></span>
+  <span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.foldrM">Array.foldrM</a> <span class="fn">f</span> <span class="fn">init</span> <span class="fn">arr</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">arr</span></span>)</span></span></span></span></div></div></div></div><div class="decl" id="Array.foldr_push"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L87-L88">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.foldr_push"><span class="name">Array</span>.<span class="name">foldr_push</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{β : <a href="../../.././foundational_types.html">Type</a> u_2}</span></span>
+</span><span class="decl_args">
+<span class="fn">(f : <span class="fn"><span class="fn">α</span> → <span class="fn"><span class="fn">β</span> → <span class="fn">β</span></span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(init : <span class="fn">β</span>)</span></span>
+<span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(a : <span class="fn">α</span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.foldr">Array.foldr</a> <span class="fn">f</span> <span class="fn">init</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.push">Array.push</a> <span class="fn">arr</span> <span class="fn">a</span></span>)</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.push">Array.push</a> <span class="fn">arr</span> <span class="fn">a</span></span>)</span></span>)</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.foldr">Array.foldr</a> <span class="fn">f</span> <span class="fn">(<span class="fn"><span class="fn">f</span> <span class="fn">a</span> <span class="fn">init</span></span>)</span> <span class="fn">arr</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">arr</span></span>)</span></span></span></div></div></div></div><div class="decl" id="Array.foldr_push'"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L90-L91">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.foldr_push'"><span class="name">Array</span>.<span class="name">foldr_push'</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{β : <a href="../../.././foundational_types.html">Type</a> u_2}</span></span>
+</span><span class="decl_args">
+<span class="fn">(f : <span class="fn"><span class="fn">α</span> → <span class="fn"><span class="fn">β</span> → <span class="fn">β</span></span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(init : <span class="fn">β</span>)</span></span>
+<span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(a : <span class="fn">α</span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.foldr">Array.foldr</a> <span class="fn">f</span> <span class="fn">init</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.push">Array.push</a> <span class="fn">arr</span> <span class="fn">a</span></span>)</span> <span class="fn">(<span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">arr</span></span> <a href="../../.././Init/Prelude.html#HAdd.hAdd">+</a> <span class="fn">1</span></span>)</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.foldr">Array.foldr</a> <span class="fn">f</span> <span class="fn">(<span class="fn"><span class="fn">f</span> <span class="fn">a</span> <span class="fn">init</span></span>)</span> <span class="fn">arr</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">arr</span></span>)</span></span></span></div></div></div></div><div class="decl" id="Array.toListAppend_eq"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L93-L94">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.toListAppend_eq"><span class="name">Array</span>.<span class="name">toListAppend_eq</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(l : <span class="fn"><a href="../../.././Init/Prelude.html#List">List</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.toListAppend">Array.toListAppend</a> <span class="fn">arr</span> <span class="fn">l</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><span class="fn"><span class="fn">arr</span>.data</span> <a href="../../.././Init/Prelude.html#HAppend.hAppend">++</a> <span class="fn">l</span></span></span></div></div></div></div><div class="decl" id="Array.toList_eq"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L96-L97">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.toList_eq"><span class="name">Array</span>.<span class="name">toList_eq</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.toList">Array.toList</a> <span class="fn">arr</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><span class="fn">arr</span>.data</span></span></div></div></div></div><div class="decl" id="Array.toListRev"><div class="def"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L100-L100">source</a></div><div class="attributes">@[inline]</div>
+<div class="decl_header"><span class="decl_kind">def</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.toListRev"><span class="name">Array</span>.<span class="name">toListRev</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><a href="../../.././Init/Prelude.html#List">List</a> <span class="fn">α</span></span></div></div><p>A more efficient version of <code>arr.toList.reverse</code>.</p><details><summary>Equations</summary><ul class="equations"><li class="equation"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Lemmas.html#Array.toListRev">Array.toListRev</a> <span class="fn">arr</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.foldl">Array.foldl</a> <span class="fn">(<span class="fn">fun (<span class="fn">l</span> : <span class="fn"><a href="../../.././Init/Prelude.html#List">List</a> <span class="fn">α</span></span>) (<span class="fn">t</span> : <span class="fn">α</span>) =&gt; <span class="fn"><span class="fn">t</span> <a href="../../.././Init/Prelude.html#List.cons">::</a> <span class="fn">l</span></span></span>)</span> <span class="fn">[]</span> <span class="fn">arr</span> <span class="fn">0</span></span></span></li></ul></details><details id="instances-for-list-Array.toListRev" class="instances-for-list"><summary>Instances For</summary><ul class="instances-for-enum"></ul></details></div></div><div class="decl" id="Array.toListRev_eq"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L102-L103">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.toListRev_eq"><span class="name">Array</span>.<span class="name">toListRev_eq</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Lemmas.html#Array.toListRev">Array.toListRev</a> <span class="fn">arr</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Data/List/Basic.html#List.reverse">List.reverse</a> <span class="fn"><span class="fn">arr</span>.data</span></span></span></div></div></div></div><div class="decl" id="Array.get_push_lt"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L105-L108">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.get_push_lt"><span class="name">Array</span>.<span class="name">get_push_lt</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(x : <span class="fn">α</span>)</span></span>
+<span class="decl_args">
+<span class="fn">(i : <a href="../../.././Init/Prelude.html#Nat">Nat</a>)</span></span>
+<span class="decl_args">
+<span class="fn">(h : <span class="fn"><span class="fn">i</span> <a href="../../.././Init/Prelude.html#LT.lt">&lt;</a> <span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">a</span></span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn">let_fun this := <span class="fn">⋯</span>;
+<span class="fn"><span class="fn"><span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.push">Array.push</a> <span class="fn">a</span> <span class="fn">x</span></span>)</span>[<span class="fn">i</span>]</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><span class="fn">a</span>[<span class="fn">i</span>]</span></span></span></div></div></div></div><div class="decl" id="Array.get_push_eq"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L110-L112">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.get_push_eq"><span class="name">Array</span>.<span class="name">get_push_eq</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(x : <span class="fn">α</span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.push">Array.push</a> <span class="fn">a</span> <span class="fn">x</span></span>)</span>[<span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">a</span></span>]</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn">x</span></span></div></div></div></div><div class="decl" id="Array.get_push"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L114-L119">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.get_push"><span class="name">Array</span>.<span class="name">get_push</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(x : <span class="fn">α</span>)</span></span>
+<span class="decl_args">
+<span class="fn">(i : <a href="../../.././Init/Prelude.html#Nat">Nat</a>)</span></span>
+<span class="decl_args">
+<span class="fn">(h : <span class="fn"><span class="fn">i</span> <a href="../../.././Init/Prelude.html#LT.lt">&lt;</a> <span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.push">Array.push</a> <span class="fn">a</span> <span class="fn">x</span></span>)</span></span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.push">Array.push</a> <span class="fn">a</span> <span class="fn">x</span></span>)</span>[<span class="fn">i</span>]</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn">if h : <span class="fn"><span class="fn">i</span> <a href="../../.././Init/Prelude.html#LT.lt">&lt;</a> <span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">a</span></span></span> then <span class="fn"><span class="fn">a</span>[<span class="fn">i</span>]</span> else <span class="fn">x</span></span></span></div></div></div></div><div class="decl" id="Array.mapM_eq_foldlM"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L121-L131">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.mapM_eq_foldlM"><span class="name">Array</span>.<span class="name">mapM_eq_foldlM</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{m : <span class="fn"><a href="../../.././foundational_types.html">Type</a> u_1 → <a href="../../.././foundational_types.html">Type</a> u_2</span>}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_3}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{β : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">[<span class="fn"><a href="../../.././Init/Prelude.html#Monad">Monad</a> <span class="fn">m</span></span>]</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">[<span class="fn"><a href="../../.././Init/Control/Lawful.html#LawfulMonad">LawfulMonad</a> <span class="fn">m</span></span>]</span></span>
+</span><span class="decl_args">
+<span class="fn">(f : <span class="fn"><span class="fn">α</span> → <span class="fn"><span class="fn">m</span> <span class="fn">β</span></span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.mapM">Array.mapM</a> <span class="fn">f</span> <span class="fn">arr</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.foldlM">Array.foldlM</a> <span class="fn">(<span class="fn">fun (<span class="fn">bs</span> : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">β</span></span>) (<span class="fn">a</span> : <span class="fn">α</span>) =&gt; <span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Array.push">Array.push</a> <span class="fn">bs</span></span> <a href="../../.././Init/Prelude.html#Functor.map">&lt;$&gt;</a> <span class="fn"><span class="fn">f</span> <span class="fn">a</span></span></span></span>)</span> <span class="fn">#[]</span> <span class="fn">arr</span> <span class="fn">0</span></span></span></div></div></div></div><div class="decl" id="Array.mapM_eq_foldlM.aux"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L125-L130">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.mapM_eq_foldlM.aux"><span class="name">Array</span>.<span class="name">mapM_eq_foldlM</span>.<span class="name">aux</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{m : <span class="fn"><a href="../../.././foundational_types.html">Type</a> u_1 → <a href="../../.././foundational_types.html">Type</a> u_2</span>}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_3}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{β : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">[<span class="fn"><a href="../../.././Init/Prelude.html#Monad">Monad</a> <span class="fn">m</span></span>]</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">[<span class="fn"><a href="../../.././Init/Control/Lawful.html#LawfulMonad">LawfulMonad</a> <span class="fn">m</span></span>]</span></span>
+</span><span class="decl_args">
+<span class="fn">(f : <span class="fn"><span class="fn">α</span> → <span class="fn"><span class="fn">m</span> <span class="fn">β</span></span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(i : <a href="../../.././Init/Prelude.html#Nat">Nat</a>)</span></span>
+<span class="decl_args">
+<span class="fn">(r : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">β</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.mapM.map">Array.mapM.map</a> <span class="fn">f</span> <span class="fn">arr</span> <span class="fn">i</span> <span class="fn">r</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Data/List/Control.html#List.foldlM">List.foldlM</a> <span class="fn">(<span class="fn">fun (<span class="fn">bs</span> : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">β</span></span>) (<span class="fn">a</span> : <span class="fn">α</span>) =&gt; <span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Array.push">Array.push</a> <span class="fn">bs</span></span> <a href="../../.././Init/Prelude.html#Functor.map">&lt;$&gt;</a> <span class="fn"><span class="fn">f</span> <span class="fn">a</span></span></span></span>)</span> <span class="fn">r</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Data/List/Basic.html#List.drop">List.drop</a> <span class="fn">i</span> <span class="fn"><span class="fn">arr</span>.data</span></span>)</span></span></span></div></div></div></div><div class="decl" id="Array.map_data"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L133-L138">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.map_data"><span class="name">Array</span>.<span class="name">map_data</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{β : <a href="../../.././foundational_types.html">Type</a> u_2}</span></span>
+</span><span class="decl_args">
+<span class="fn">(f : <span class="fn"><span class="fn">α</span> → <span class="fn">β</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">(<span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.map">Array.map</a> <span class="fn">f</span> <span class="fn">arr</span></span>)</span>.data</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Data/List/Basic.html#List.map">List.map</a> <span class="fn">f</span> <span class="fn"><span class="fn">arr</span>.data</span></span></span></div></div></div></div><div class="decl" id="Array.size_map"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L140-L141">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.size_map"><span class="name">Array</span>.<span class="name">size_map</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{β : <a href="../../.././foundational_types.html">Type</a> u_2}</span></span>
+</span><span class="decl_args">
+<span class="fn">(f : <span class="fn"><span class="fn">α</span> → <span class="fn">β</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">(<span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.map">Array.map</a> <span class="fn">f</span> <span class="fn">arr</span></span>)</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">arr</span></span></span></div></div></div></div><div class="decl" id="Array.pop_data"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L143-L143">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.pop_data"><span class="name">Array</span>.<span class="name">pop_data</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">(<span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.pop">Array.pop</a> <span class="fn">arr</span></span>)</span>.data</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Data/List/Basic.html#List.dropLast">List.dropLast</a> <span class="fn"><span class="fn">arr</span>.data</span></span></span></div></div></div></div><div class="decl" id="Array.append_eq_append"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L145-L145">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.append_eq_append"><span class="name">Array</span>.<span class="name">append_eq_append</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(arr' : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.append">Array.append</a> <span class="fn">arr</span> <span class="fn">arr'</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><span class="fn">arr</span> <a href="../../.././Init/Prelude.html#HAppend.hAppend">++</a> <span class="fn">arr'</span></span></span></div></div></div></div><div class="decl" id="Array.append_data"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L147-L151">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.append_data"><span class="name">Array</span>.<span class="name">append_data</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(arr' : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">(<span class="fn"><span class="fn">arr</span> <a href="../../.././Init/Prelude.html#HAppend.hAppend">++</a> <span class="fn">arr'</span></span>)</span>.data</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><span class="fn"><span class="fn">arr</span>.data</span> <a href="../../.././Init/Prelude.html#HAppend.hAppend">++</a> <span class="fn"><span class="fn">arr'</span>.data</span></span></span></div></div></div></div><div class="decl" id="Array.appendList_eq_append"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L153-L154">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.appendList_eq_append"><span class="name">Array</span>.<span class="name">appendList_eq_append</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(l : <span class="fn"><a href="../../.././Init/Prelude.html#List">List</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.appendList">Array.appendList</a> <span class="fn">arr</span> <span class="fn">l</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><span class="fn">arr</span> <a href="../../.././Init/Prelude.html#HAppend.hAppend">++</a> <span class="fn">l</span></span></span></div></div></div></div><div class="decl" id="Array.appendList_data"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L156-L159">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.appendList_data"><span class="name">Array</span>.<span class="name">appendList_data</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(l : <span class="fn"><a href="../../.././Init/Prelude.html#List">List</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">(<span class="fn"><span class="fn">arr</span> <a href="../../.././Init/Prelude.html#HAppend.hAppend">++</a> <span class="fn">l</span></span>)</span>.data</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><span class="fn"><span class="fn">arr</span>.data</span> <a href="../../.././Init/Prelude.html#HAppend.hAppend">++</a> <span class="fn">l</span></span></span></div></div></div></div><div class="decl" id="Array.appendList_nil"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L161-L161">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.appendList_nil"><span class="name">Array</span>.<span class="name">appendList_nil</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">arr</span> <a href="../../.././Init/Prelude.html#HAppend.hAppend">++</a> <span class="fn">[]</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn">arr</span></span></div></div></div></div><div class="decl" id="Array.appendList_cons"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L163-L164">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.appendList_cons"><span class="name">Array</span>.<span class="name">appendList_cons</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(arr : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(a : <span class="fn">α</span>)</span></span>
+<span class="decl_args">
+<span class="fn">(l : <span class="fn"><a href="../../.././Init/Prelude.html#List">List</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">arr</span> <a href="../../.././Init/Prelude.html#HAppend.hAppend">++</a> <span class="fn"><span class="fn">a</span> <a href="../../.././Init/Prelude.html#List.cons">::</a> <span class="fn">l</span></span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Array.push">Array.push</a> <span class="fn">arr</span> <span class="fn">a</span></span> <a href="../../.././Init/Prelude.html#HAppend.hAppend">++</a> <span class="fn">l</span></span></span></div></div></div></div><div class="decl" id="Array.foldl_data_eq_bind"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L166-L170">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.foldl_data_eq_bind"><span class="name">Array</span>.<span class="name">foldl_data_eq_bind</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{β : <a href="../../.././foundational_types.html">Type</a> u_2}</span></span>
+</span><span class="decl_args">
+<span class="fn">(l : <span class="fn"><a href="../../.././Init/Prelude.html#List">List</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(acc : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">β</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(F : <span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">β</span></span> → <span class="fn"><span class="fn">α</span> → <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">β</span></span></span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(G : <span class="fn"><span class="fn">α</span> → <span class="fn"><a href="../../.././Init/Prelude.html#List">List</a> <span class="fn">β</span></span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(H : <span class="fn">∀ (<span class="fn">acc</span> : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">β</span></span>) (<span class="fn">a</span> : <span class="fn">α</span>), <span class="fn"><span class="fn"><span class="fn">(<span class="fn"><span class="fn">F</span> <span class="fn">acc</span> <span class="fn">a</span></span>)</span>.data</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><span class="fn"><span class="fn">acc</span>.data</span> <a href="../../.././Init/Prelude.html#HAppend.hAppend">++</a> <span class="fn"><span class="fn">G</span> <span class="fn">a</span></span></span></span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#List.foldl">List.foldl</a> <span class="fn">F</span> <span class="fn">acc</span> <span class="fn">l</span></span>)</span>.data</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><span class="fn"><span class="fn">acc</span>.data</span> <a href="../../.././Init/Prelude.html#HAppend.hAppend">++</a> <span class="fn"><a href="../../.././Init/Data/List/Basic.html#List.bind">List.bind</a> <span class="fn">l</span> <span class="fn">G</span></span></span></span></div></div></div></div><div class="decl" id="Array.foldl_data_eq_map"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L172-L174">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.foldl_data_eq_map"><span class="name">Array</span>.<span class="name">foldl_data_eq_map</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{β : <a href="../../.././foundational_types.html">Type</a> u_2}</span></span>
+</span><span class="decl_args">
+<span class="fn">(l : <span class="fn"><a href="../../.././Init/Prelude.html#List">List</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(acc : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">β</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(G : <span class="fn"><span class="fn">α</span> → <span class="fn">β</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#List.foldl">List.foldl</a> <span class="fn">(<span class="fn">fun (<span class="fn">acc</span> : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">β</span></span>) (<span class="fn">a</span> : <span class="fn">α</span>) =&gt; <span class="fn"><a href="../../.././Init/Prelude.html#Array.push">Array.push</a> <span class="fn">acc</span> <span class="fn">(<span class="fn"><span class="fn">G</span> <span class="fn">a</span></span>)</span></span></span>)</span> <span class="fn">acc</span> <span class="fn">l</span></span>)</span>.data</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><span class="fn"><span class="fn">acc</span>.data</span> <a href="../../.././Init/Prelude.html#HAppend.hAppend">++</a> <span class="fn"><a href="../../.././Init/Data/List/Basic.html#List.map">List.map</a> <span class="fn">G</span> <span class="fn">l</span></span></span></span></div></div></div></div><div class="decl" id="Array.size_uset"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L176-L176">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.size_uset"><span class="name">Array</span>.<span class="name">size_uset</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(v : <span class="fn">α</span>)</span></span>
+<span class="decl_args">
+<span class="fn">(i : <a href="../../.././Init/Prelude.html#USize">USize</a>)</span></span>
+<span class="decl_args">
+<span class="fn">(h : <span class="fn"><span class="fn"><a href="../../.././Init/Data/UInt/Basic.html#USize.toNat">USize.toNat</a> <span class="fn">i</span></span> <a href="../../.././Init/Prelude.html#LT.lt">&lt;</a> <span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">a</span></span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">(<span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.uset">Array.uset</a> <span class="fn">a</span> <span class="fn">i</span> <span class="fn">v</span> <span class="fn">h</span></span>)</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">a</span></span></span></div></div></div></div><div class="decl" id="Array.anyM_eq_anyM_loop"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L178-L180">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.anyM_eq_anyM_loop"><span class="name">Array</span>.<span class="name">anyM_eq_anyM_loop</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{m : <span class="fn"><a href="../../.././foundational_types.html">Type</a> → <a href="../../.././foundational_types.html">Type</a> u_1</span>}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_2}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">[<span class="fn"><a href="../../.././Init/Prelude.html#Monad">Monad</a> <span class="fn">m</span></span>]</span></span>
+</span><span class="decl_args">
+<span class="fn">(p : <span class="fn"><span class="fn">α</span> → <span class="fn"><span class="fn">m</span> <a href="../../.././Init/Prelude.html#Bool">Bool</a></span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(as : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(start : <a href="../../.././Init/Prelude.html#Nat">Nat</a>)</span></span>
+<span class="decl_args">
+<span class="fn">(stop : <a href="../../.././Init/Prelude.html#Nat">Nat</a>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.anyM">Array.anyM</a> <span class="fn">p</span> <span class="fn">as</span> <span class="fn">start</span> <span class="fn">stop</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.anyM.loop">Array.anyM.loop</a> <span class="fn">p</span> <span class="fn">as</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Min.min">min</a> <span class="fn">stop</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">as</span></span>)</span></span>)</span> <span class="fn">⋯</span> <span class="fn">start</span></span></span></div></div></div></div><div class="decl" id="Array.anyM_stop_le_start"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L182-L184">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.anyM_stop_le_start"><span class="name">Array</span>.<span class="name">anyM_stop_le_start</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{m : <span class="fn"><a href="../../.././foundational_types.html">Type</a> → <a href="../../.././foundational_types.html">Type</a> u_1</span>}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_2}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">[<span class="fn"><a href="../../.././Init/Prelude.html#Monad">Monad</a> <span class="fn">m</span></span>]</span></span>
+</span><span class="decl_args">
+<span class="fn">(p : <span class="fn"><span class="fn">α</span> → <span class="fn"><span class="fn">m</span> <a href="../../.././Init/Prelude.html#Bool">Bool</a></span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(as : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(start : <a href="../../.././Init/Prelude.html#Nat">Nat</a>)</span></span>
+<span class="decl_args">
+<span class="fn">(stop : <a href="../../.././Init/Prelude.html#Nat">Nat</a>)</span></span>
+<span class="decl_args">
+<span class="fn">(h : <span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Min.min">min</a> <span class="fn">stop</span> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">as</span></span>)</span></span> <a href="../../.././Init/Prelude.html#LE.le">≤</a> <span class="fn">start</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.anyM">Array.anyM</a> <span class="fn">p</span> <span class="fn">as</span> <span class="fn">start</span> <span class="fn">stop</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Prelude.html#Pure.pure">pure</a> <a href="../../.././Init/Prelude.html#Bool.false">false</a></span></span></div></div></div></div><div class="decl" id="Array.mem_def"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L186-L187">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.mem_def"><span class="name">Array</span>.<span class="name">mem_def</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn">α</span>)</span></span>
+<span class="decl_args">
+<span class="fn">(as : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">a</span> <a href="../../.././Init/Prelude.html#Membership.mem">∈</a> <span class="fn">as</span></span> <a href="../../.././Init/Core.html#Iff">↔</a> <span class="fn"><span class="fn">a</span> <a href="../../.././Init/Prelude.html#Membership.mem">∈</a> <span class="fn"><span class="fn">as</span>.data</span></span></span></div></div></div></div><div class="decl" id="Array.get_eq_getElem"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L190-L190">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.get_eq_getElem"><span class="name">Array</span>.<span class="name">get_eq_getElem</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(i : <span class="fn"><a href="../../.././Init/Prelude.html#Fin">Fin</a> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">a</span></span>)</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Array.get">Array.get</a> <span class="fn">a</span> <span class="fn">i</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><span class="fn">a</span>[<span class="fn">↑<span class="fn">i</span></span>]</span></span></div></div><h1 class="markdown-heading" id="get">get <a class="hover-link" href="#get">#</a></h1></div></div><div class="decl" id="Array.getElem?_lt"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L192-L193">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.getElem?_lt"><span class="name">Array</span>.<span class="name">getElem?_lt</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="impl_arg"><span class="decl_args">
+<span class="fn">{i : <a href="../../.././Init/Prelude.html#Nat">Nat</a>}</span></span>
+</span><span class="decl_args">
+<span class="fn">(h : <span class="fn"><span class="fn">i</span> <a href="../../.././Init/Prelude.html#LT.lt">&lt;</a> <span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">a</span></span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">a</span>[<span class="fn">i</span>]?</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Prelude.html#Option.some">some</a> <span class="fn"><span class="fn">a</span>[<span class="fn">i</span>]</span></span></span></div></div></div></div><div class="decl" id="Array.getElem?_ge"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L195-L196">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.getElem?_ge"><span class="name">Array</span>.<span class="name">getElem?_ge</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="impl_arg"><span class="decl_args">
+<span class="fn">{i : <a href="../../.././Init/Prelude.html#Nat">Nat</a>}</span></span>
+</span><span class="decl_args">
+<span class="fn">(h : <span class="fn"><span class="fn">i</span> <a href="../../.././Init/Prelude.html#GE.ge">≥</a> <span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">a</span></span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">a</span>[<span class="fn">i</span>]?</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn">none</span></span></div></div></div></div><div class="decl" id="Array.get?_eq_getElem?"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L198-L198">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.get?_eq_getElem?"><span class="name">Array</span>.<span class="name">get?_eq_getElem?</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(i : <a href="../../.././Init/Prelude.html#Nat">Nat</a>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.get?">Array.get?</a> <span class="fn">a</span> <span class="fn">i</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><span class="fn">a</span>[<span class="fn">i</span>]?</span></span></div></div></div></div><div class="decl" id="Array.getElem?_len_le"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L200-L201">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.getElem?_len_le"><span class="name">Array</span>.<span class="name">getElem?_len_le</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="impl_arg"><span class="decl_args">
+<span class="fn">{i : <a href="../../.././Init/Prelude.html#Nat">Nat</a>}</span></span>
+</span><span class="decl_args">
+<span class="fn">(h : <span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">a</span></span> <a href="../../.././Init/Prelude.html#LE.le">≤</a> <span class="fn">i</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">a</span>[<span class="fn">i</span>]?</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn">none</span></span></div></div></div></div><div class="decl" id="Array.getD_get?"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L203-L209">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.getD_get?"><span class="name">Array</span>.<span class="name">getD_get?</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(i : <a href="../../.././Init/Prelude.html#Nat">Nat</a>)</span></span>
+<span class="decl_args">
+<span class="fn">(d : <span class="fn">α</span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Option.getD">Option.getD</a> <span class="fn"><span class="fn">a</span>[<span class="fn">i</span>]?</span> <span class="fn">d</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn">if p : <span class="fn"><span class="fn">i</span> <a href="../../.././Init/Prelude.html#LT.lt">&lt;</a> <span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">a</span></span></span> then <span class="fn"><span class="fn">a</span>[<span class="fn">i</span>]</span> else <span class="fn">d</span></span></span></div></div></div></div><div class="decl" id="Array.getD_eq_get?"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L211-L212">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.getD_eq_get?"><span class="name">Array</span>.<span class="name">getD_eq_get?</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(n : <a href="../../.././Init/Prelude.html#Nat">Nat</a>)</span></span>
+<span class="decl_args">
+<span class="fn">(d : <span class="fn">α</span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Array.getD">Array.getD</a> <span class="fn">a</span> <span class="fn">n</span> <span class="fn">d</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Prelude.html#Option.getD">Option.getD</a> <span class="fn"><span class="fn">a</span>[<span class="fn">n</span>]?</span> <span class="fn">d</span></span></span></div></div></div></div><div class="decl" id="Array.get!_eq_getD"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L214-L214">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.get!_eq_getD"><span class="name">Array</span>.<span class="name">get!_eq_getD</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{n : <a href="../../.././Init/Prelude.html#Nat">Nat</a>}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">[<span class="fn"><a href="../../.././Init/Prelude.html#Inhabited">Inhabited</a> <span class="fn">α</span></span>]</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Array.get!">Array.get!</a> <span class="fn">a</span> <span class="fn">n</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Prelude.html#Array.getD">Array.getD</a> <span class="fn">a</span> <span class="fn">n</span> <span class="fn">default</span></span></span></div></div></div></div><div class="decl" id="Array.get!_eq_getElem?"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L216-L217">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.get!_eq_getElem?"><span class="name">Array</span>.<span class="name">get!_eq_getElem?</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="impl_arg"><span class="decl_args">
+<span class="fn">[<span class="fn"><a href="../../.././Init/Prelude.html#Inhabited">Inhabited</a> <span class="fn">α</span></span>]</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(i : <a href="../../.././Init/Prelude.html#Nat">Nat</a>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Array.get!">Array.get!</a> <span class="fn">a</span> <span class="fn">i</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Prelude.html#Option.getD">Option.getD</a> <span class="fn">(<span class="fn"><a href="../../.././Init/Data/Array/Basic.html#Array.get?">Array.get?</a> <span class="fn">a</span> <span class="fn">i</span></span>)</span> <span class="fn">default</span></span></span></div></div></div></div><div class="decl" id="Array.getElem_set_eq"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L221-L224">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.getElem_set_eq"><span class="name">Array</span>.<span class="name">getElem_set_eq</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(i : <span class="fn"><a href="../../.././Init/Prelude.html#Fin">Fin</a> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">a</span></span>)</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(v : <span class="fn">α</span>)</span></span>
+<span class="impl_arg"><span class="decl_args">
+<span class="fn">{j : <a href="../../.././Init/Prelude.html#Nat">Nat</a>}</span></span>
+</span><span class="decl_args">
+<span class="fn">(eq : <span class="fn"><span class="fn">↑<span class="fn">i</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn">j</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(p : <span class="fn"><span class="fn">j</span> <a href="../../.././Init/Prelude.html#LT.lt">&lt;</a> <span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.set">Array.set</a> <span class="fn">a</span> <span class="fn">i</span> <span class="fn">v</span></span>)</span></span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.set">Array.set</a> <span class="fn">a</span> <span class="fn">i</span> <span class="fn">v</span></span>)</span>[<span class="fn">j</span>]</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn">v</span></span></div></div><h1 class="markdown-heading" id="set">set <a class="hover-link" href="#set">#</a></h1></div></div><div class="decl" id="Array.getElem_set_ne"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L226-L228">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.getElem_set_ne"><span class="name">Array</span>.<span class="name">getElem_set_ne</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(i : <span class="fn"><a href="../../.././Init/Prelude.html#Fin">Fin</a> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">a</span></span>)</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(v : <span class="fn">α</span>)</span></span>
+<span class="impl_arg"><span class="decl_args">
+<span class="fn">{j : <a href="../../.././Init/Prelude.html#Nat">Nat</a>}</span></span>
+</span><span class="decl_args">
+<span class="fn">(pj : <span class="fn"><span class="fn">j</span> <a href="../../.././Init/Prelude.html#LT.lt">&lt;</a> <span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.set">Array.set</a> <span class="fn">a</span> <span class="fn">i</span> <span class="fn">v</span></span>)</span></span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(h : <span class="fn"><span class="fn">↑<span class="fn">i</span></span> <a href="../../.././Init/Core.html#Ne">≠</a> <span class="fn">j</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.set">Array.set</a> <span class="fn">a</span> <span class="fn">i</span> <span class="fn">v</span></span>)</span>[<span class="fn">j</span>]</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><span class="fn">a</span>[<span class="fn">j</span>]</span></span></div></div></div></div><div class="decl" id="Array.getElem_set"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L230-L233">source</a></div><div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.getElem_set"><span class="name">Array</span>.<span class="name">getElem_set</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(i : <span class="fn"><a href="../../.././Init/Prelude.html#Fin">Fin</a> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">a</span></span>)</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(v : <span class="fn">α</span>)</span></span>
+<span class="decl_args">
+<span class="fn">(j : <a href="../../.././Init/Prelude.html#Nat">Nat</a>)</span></span>
+<span class="decl_args">
+<span class="fn">(h : <span class="fn"><span class="fn">j</span> <a href="../../.././Init/Prelude.html#LT.lt">&lt;</a> <span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.set">Array.set</a> <span class="fn">a</span> <span class="fn">i</span> <span class="fn">v</span></span>)</span></span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.set">Array.set</a> <span class="fn">a</span> <span class="fn">i</span> <span class="fn">v</span></span>)</span>[<span class="fn">j</span>]</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn">if <span class="fn"><span class="fn">↑<span class="fn">i</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn">j</span></span> then <span class="fn">v</span> else <span class="fn"><span class="fn">a</span>[<span class="fn">j</span>]</span></span></span></div></div></div></div><div class="decl" id="Array.getElem?_set_eq"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L235-L236">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.getElem?_set_eq"><span class="name">Array</span>.<span class="name">getElem?_set_eq</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(i : <span class="fn"><a href="../../.././Init/Prelude.html#Fin">Fin</a> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">a</span></span>)</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(v : <span class="fn">α</span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.set">Array.set</a> <span class="fn">a</span> <span class="fn">i</span> <span class="fn">v</span></span>)</span>[<span class="fn">↑<span class="fn">i</span></span>]?</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Prelude.html#Option.some">some</a> <span class="fn">v</span></span></span></div></div></div></div><div class="decl" id="Array.getElem?_set_ne"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L238-L240">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.getElem?_set_ne"><span class="name">Array</span>.<span class="name">getElem?_set_ne</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(i : <span class="fn"><a href="../../.././Init/Prelude.html#Fin">Fin</a> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">a</span></span>)</span></span>)</span></span>
+<span class="impl_arg"><span class="decl_args">
+<span class="fn">{j : <a href="../../.././Init/Prelude.html#Nat">Nat</a>}</span></span>
+</span><span class="decl_args">
+<span class="fn">(v : <span class="fn">α</span>)</span></span>
+<span class="decl_args">
+<span class="fn">(ne : <span class="fn"><span class="fn">↑<span class="fn">i</span></span> <a href="../../.././Init/Core.html#Ne">≠</a> <span class="fn">j</span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.set">Array.set</a> <span class="fn">a</span> <span class="fn">i</span> <span class="fn">v</span></span>)</span>[<span class="fn">j</span>]?</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><span class="fn">a</span>[<span class="fn">j</span>]?</span></span></div></div></div></div><div class="decl" id="Array.set!_is_setD"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L244-L244">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.set!_is_setD"><span class="name">Array</span>.<span class="name">set!_is_setD</span></a></span><span class="decl_args"> :</span><div class="decl_type"><span class="fn"><a href="../../.././Init/Prelude.html#Array.set!">@<a href="../../.././Init/Prelude.html#Array.set!">Array.set!</a></a> <a href="../../.././Init/Prelude.html#Eq">=</a> <a href="../../.././Init/Prelude.html#Array.setD">@<a href="../../.././Init/Prelude.html#Array.setD">Array.setD</a></a></span></div></div></div></div><div class="decl" id="Array.size_setD"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L246-L251">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.size_setD"><span class="name">Array</span>.<span class="name">size_setD</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(index : <a href="../../.././Init/Prelude.html#Nat">Nat</a>)</span></span>
+<span class="decl_args">
+<span class="fn">(val : <span class="fn">α</span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.setD">Array.setD</a> <span class="fn">a</span> <span class="fn">index</span> <span class="fn">val</span></span>)</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">a</span></span></span></div></div></div></div><div class="decl" id="Array.getElem_setD_eq"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L253-L256">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.getElem_setD_eq"><span class="name">Array</span>.<span class="name">getElem_setD_eq</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="impl_arg"><span class="decl_args">
+<span class="fn">{i : <a href="../../.././Init/Prelude.html#Nat">Nat</a>}</span></span>
+</span><span class="decl_args">
+<span class="fn">(v : <span class="fn">α</span>)</span></span>
+<span class="decl_args">
+<span class="fn">(h : <span class="fn"><span class="fn">i</span> <a href="../../.././Init/Prelude.html#LT.lt">&lt;</a> <span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.setD">Array.setD</a> <span class="fn">a</span> <span class="fn">i</span> <span class="fn">v</span></span>)</span></span></span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.setD">Array.setD</a> <span class="fn">a</span> <span class="fn">i</span> <span class="fn">v</span></span>)</span>[<span class="fn">i</span>]</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn">v</span></span></div></div></div></div><div class="decl" id="Array.getElem?_setD_eq"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L259-L260">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.getElem?_setD_eq"><span class="name">Array</span>.<span class="name">getElem?_setD_eq</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="impl_arg"><span class="decl_args">
+<span class="fn">{i : <a href="../../.././Init/Prelude.html#Nat">Nat</a>}</span></span>
+</span><span class="decl_args">
+<span class="fn">(p : <span class="fn"><span class="fn">i</span> <a href="../../.././Init/Prelude.html#LT.lt">&lt;</a> <span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">a</span></span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(v : <span class="fn">α</span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.setD">Array.setD</a> <span class="fn">a</span> <span class="fn">i</span> <span class="fn">v</span></span>)</span>[<span class="fn">i</span>]?</span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn"><a href="../../.././Init/Prelude.html#Option.some">some</a> <span class="fn">v</span></span></span></div></div></div></div><div class="decl" id="Array.getD_get?_setD"><div class="theorem"><div class="gh_link"><a href="https://github.com/leanprover/lean4/blob/6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a/src/Init/Data/Array/Lemmas.lean#L263-L266">source</a></div><div class="attributes">@[simp]</div>
+<div class="decl_header"><span class="decl_kind">theorem</span>
+<span class="decl_name"><a class="break_within" href="../../.././Init/Data/Array/Lemmas.html#Array.getD_get?_setD"><span class="name">Array</span>.<span class="name">getD_get?_setD</span></a></span><span class="impl_arg"><span class="decl_args">
+<span class="fn">{α : <a href="../../.././foundational_types.html">Type</a> u_1}</span></span>
+</span><span class="decl_args">
+<span class="fn">(a : <span class="fn"><a href="../../.././Init/Prelude.html#Array">Array</a> <span class="fn">α</span></span>)</span></span>
+<span class="decl_args">
+<span class="fn">(i : <a href="../../.././Init/Prelude.html#Nat">Nat</a>)</span></span>
+<span class="decl_args">
+<span class="fn">(v : <span class="fn">α</span>)</span></span>
+<span class="decl_args">
+<span class="fn">(d : <span class="fn">α</span>)</span></span>
+<span class="decl_args"> :</span><div class="decl_type"><span class="fn"><span class="fn"><a href="../../.././Init/Prelude.html#Option.getD">Option.getD</a> <span class="fn"><span class="fn">(<span class="fn"><a href="../../.././Init/Prelude.html#Array.setD">Array.setD</a> <span class="fn">a</span> <span class="fn">i</span> <span class="fn">v</span></span>)</span>[<span class="fn">i</span>]?</span> <span class="fn">d</span></span> <a href="../../.././Init/Prelude.html#Eq">=</a> <span class="fn">if <span class="fn"><span class="fn">i</span> <a href="../../.././Init/Prelude.html#LT.lt">&lt;</a> <span class="fn"><a href="../../.././Init/Prelude.html#Array.size">Array.size</a> <span class="fn">a</span></span></span> then <span class="fn">v</span> else <span class="fn">d</span></span></span></div></div><p>Simplifies a normal form from <code>get!</code></p></div></div></main>
+<nav class="nav"><iframe src="../../.././navbar.html" class="navframe" frameBorder="0"></iframe></nav></body></html>

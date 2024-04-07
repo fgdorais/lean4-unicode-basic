@@ -1,1 +1,1 @@
-{"name":"Lean.Elab.PreDefinition.WF","instances":[],"imports":["Init","Lean.Elab.PreDefinition.WF.Main"],"declarations":[]}
+{"name":"Lean.Elab.PreDefinition.WF","instances":[],"imports":["Lean.Elab.PreDefinition.WF.Main"],"declarations":[]}
