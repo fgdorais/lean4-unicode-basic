@@ -19,6 +19,10 @@ deriving Inhabited
 
 namespace UCDStream
 
+/-- Make a `UCDStream` from a substring -/
+def ofSubstring (str : Substring) : UCDStream where
+  toSubstring := str
+
 /-- Make a `UCDStream` from a string -/
 def ofString (str : String) : UCDStream where
   str := str
@@ -47,15 +51,15 @@ protected partial def nextLine? (stream : UCDStream) : Option (Substring × UCDS
 
   Spaces around field values are trimmed.
 -/
-protected def next? (stream : UCDStream) : Option (Array String × UCDStream) := do
+protected def next? (stream : UCDStream) : Option (Array Substring × UCDStream) := do
     let sep := if stream.isUnihan then "\t" else ";"
     let mut arr := #[]
     let (line, table) ← stream.nextLine?
     for item in line.splitOn sep do
-      arr := arr.push item.trim.toString
+      arr := arr.push item.trim
     return (arr, table)
 
-instance : Stream UCDStream (Array String) where
+instance : Stream UCDStream (Array Substring) where
   next? := UCDStream.next?
 
 end UCDStream

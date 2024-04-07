@@ -1,1 +1,5 @@
-{"version": 4, "packagesDir": "lake-packages", "packages": []}
+{"version": 7,
+ "packagesDir": ".lake/packages",
+ "packages": [],
+ "name": "UnicodeBasic",
+ "lakeDir": ".lake"}

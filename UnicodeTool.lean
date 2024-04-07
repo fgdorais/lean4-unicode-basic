@@ -5,6 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 import UnicodeBasic
 
+open Unicode
+
 def main (args : List String) : IO Unit := do
   for a in args do
     match getArg? a with
@@ -44,7 +46,7 @@ def main (args : List String) : IO Unit := do
 where
 
   getArg? (a : String) : Option UInt32 := do
-    if "U+".isPrefixOf a then
+    if a.take 2 == "U+" then
       Unicode.ofHexString? a
     else if a.length == 1 then
       Char.val <$> a.get? 0
