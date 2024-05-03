@@ -21,5 +21,5 @@ script UpdateUCD := do
   for file in ["UnicodeData.txt", "PropList.txt"] do
     let url := "https://www.unicode.org/Public/UCD/latest/ucd/" ++ file
     IO.println s!"Downloading UCD/{file}"
-    let _ ← LogIO.captureLog <| download file url (dataDir/file)
+    let _ ← download url (dataDir/file) |>.captureLog
   return 0
