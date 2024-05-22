@@ -1,4 +1,4 @@
-name: test build
+name: CI
 
 on:
   workflow_dispatch:
@@ -9,19 +9,11 @@ on:
 
 jobs:
   build:
-    name: test build
     runs-on: ubuntu-latest
+
     steps:
-      - name: checkout
-        uses: actions/checkout@v3
-
-      - name: elan install
-        run: |
-          set -o pipefail
-          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain none -y
-          ~/.elan/bin/lean --version
-          echo "$HOME/.elan/bin" >> $GITHUB_PATH
-
-      - name: lake build
-        run: |
-          lake build
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1-beta
+        with:
+          test: false
+          use-mathlib-cache: false
