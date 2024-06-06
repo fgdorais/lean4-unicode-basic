@@ -787,9 +787,8 @@ def getHexDigit? (char : Char) : Option (Fin 16) :=
       if h : n < 16 then
         some ⟨n, h⟩
       else if n >= 32 then
-        let n := n - 32
-        if h : n < 16 then
-          some ⟨n, h⟩
+        if h : n - 32 < 16 then
+          some ⟨n - 32, h⟩
         else
           none
       else
