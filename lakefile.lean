@@ -15,11 +15,17 @@ lean_lib UnicodeBasic {
 
 lean_exe UnicodeTool
 
+-- Download datafile from the Unicode Character Database (UCD)
+script downloadUCD (args) do
+  let dir : FilePath := "./data"
+  let url := "https://www.unicode.org/Public/UCD/latest/ucd/"
+  let mut err : ExitCode := 0
+  for file in args do
+    IO.print s!"Downloading UCD/{file} ... "
+    match ← download (url ++ file) (dir/file) |>.run with
+    | .ok _ _ => IO.println "Done."
+    | .error _ _ => IO.println "Failed!"; err := err + 1
+  return err
+
 -- Update data files from the Unicode Character Database (UCD)
--- script UpdateUCD := do
---   let dataDir : FilePath := "./data"
---   for file in ["UnicodeData.txt", "PropList.txt"] do
---     let url := "https://www.unicode.org/Public/UCD/latest/ucd/" ++ file
---     IO.println s!"Downloading UCD/{file}"
---     let _ ← liftM <| ELogT.run <| download url (dataDir/file)
---   return 0
+script updateUCD do downloadUCD ["UnicodeData.txt", "PropList.txt"]
