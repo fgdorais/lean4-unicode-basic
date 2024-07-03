@@ -151,10 +151,14 @@ inductive MinorGeneralCategory : MajorGeneralCategory → Type
 | connectorPunctuation : MinorGeneralCategory .punctuation
 /-- (`Pd`) dash or hyphen punctuation mark -/
 | dashPunctuation : MinorGeneralCategory .punctuation
+/-- (`PG`) grouping punctuation mark (derived from `Ps | Pe`) -/
+| groupPunctuation : MinorGeneralCategory .punctuation
 /-- (`Ps`) opening punctuation mark (of a pair) -/
 | openPunctuation : MinorGeneralCategory .punctuation
 /-- (`Pe`) closing punctuation mark (of a pair) -/
 | closePunctuation : MinorGeneralCategory .punctuation
+/-- (`PQ`) quoting punctuation mark (derived from `Pi | Pf`) -/
+| quotePunctuation : MinorGeneralCategory .punctuation
 /-- (`Pi`) initial quotation mark -/
 | initialPunctuation : MinorGeneralCategory .punctuation
 /-- (`Pf`) final quotation mark -/
@@ -233,10 +237,14 @@ protected def GeneralCategory.P  : GeneralCategory := ⟨.punctuation, none⟩
 protected def GeneralCategory.Pc : GeneralCategory := ⟨_, some .connectorPunctuation⟩
 /-- General category: dash punctuation (`Pd`) -/
 protected def GeneralCategory.Pd : GeneralCategory := ⟨_, some .dashPunctuation⟩
+/-- General category: grouping punctuation (`PG`) -/
+protected def GeneralCategory.PG : GeneralCategory := ⟨_, some .groupPunctuation⟩
 /-- General category: opening punctuation (`Ps`) -/
 protected def GeneralCategory.Ps : GeneralCategory := ⟨_, some .openPunctuation⟩
 /-- General category: closing punctuation (`Pe`) -/
 protected def GeneralCategory.Pe : GeneralCategory := ⟨_, some .closePunctuation⟩
+/-- General category: quoting punctuation (`PQ`) -/
+protected def GeneralCategory.PQ : GeneralCategory := ⟨_, some .quotePunctuation⟩
 /-- General category: initial punctuation (`Pi`) -/
 protected def GeneralCategory.Pi : GeneralCategory := ⟨_, some .initialPunctuation⟩
 /-- General category: final punctuation (`Pf`) -/
@@ -294,8 +302,10 @@ def GeneralCategory.toAbbrev : GeneralCategory → String
 | ⟨.punctuation, none⟩ => "P"
 | ⟨_, some .connectorPunctuation⟩ => "Pc"
 | ⟨_, some .dashPunctuation⟩ => "Pd"
+| ⟨_, some .groupPunctuation⟩ => "PG"
 | ⟨_, some .openPunctuation⟩ => "Ps"
 | ⟨_, some .closePunctuation⟩ => "Pe"
+| ⟨_, some .quotePunctuation⟩ => "PQ"
 | ⟨_, some .initialPunctuation⟩ => "Pi"
 | ⟨_, some .finalPunctuation⟩ => "Pf"
 | ⟨_, some .otherPunctuation⟩ => "Po"
@@ -357,8 +367,10 @@ def GeneralCategory.ofAbbrev? (s : Substring) : Option GeneralCategory :=
       | none  => some ⟨.punctuation, none⟩
       | some 'c' => some ⟨_, some .connectorPunctuation⟩
       | some 'd' => some ⟨_, some .dashPunctuation⟩
+      | some 'G' => some ⟨_, some .groupPunctuation⟩
       | some 's' => some ⟨_, some .openPunctuation⟩
       | some 'e' => some ⟨_, some .closePunctuation⟩
+      | some 'Q' => some ⟨_, some .quotePunctuation⟩
       | some 'i' => some ⟨_, some .initialPunctuation⟩
       | some 'f' => some ⟨_, some .finalPunctuation⟩
       | some 'o' => some ⟨_, some .otherPunctuation⟩
