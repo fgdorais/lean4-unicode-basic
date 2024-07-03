@@ -9,6 +9,8 @@ import UnicodeBasic.CharacterDatabase
 namespace Unicode
 
 structure PropList where
+  /-- property `Noncharacter_Code_Point` -/
+  noncharacterCodePoint : Array (UInt32 × Option UInt32) := #[]
   /-- property `White_Space` -/
   whiteSpace : Array (UInt32 × Option UInt32) := #[]
   /-- property `Other_Math` -/
@@ -33,6 +35,7 @@ private unsafe def PropList.init : IO PropList := do
       | [c₀,c₁] => (ofHexString! c₀.toString, some <| ofHexString! c₁.toString)
       | _ => panic! "invalid record in PropList.txt"
     match record[1]!.toString with -- TODO: don't use toString
+    | "Noncharacter_Code_Point" => list := {list with noncharacterCodePoint := list.noncharacterCodePoint.push val}
     | "White_Space" => list := {list with whiteSpace := list.whiteSpace.push val}
     | "Other_Math" => list := {list with otherMath := list.otherMath.push val}
     | "Other_Alphabetic" => list := {list with otherAlphabetic := list.otherAlphabetic.push val}

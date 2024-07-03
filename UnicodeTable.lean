@@ -257,6 +257,11 @@ def mkNumericValue : IO <| Array (UInt32 × UInt32 × NumericType) := do
     | _ => continue
   return t
 
+def mkNoncharacterCodePoint : Array (UInt32 × UInt32) :=
+  PropList.data.noncharacterCodePoint.map fun
+    | (c₀, some c₁) => (c₀, c₁)
+    | (c₀, none) => (c₀, c₀)
+
 def mkOtherAlphabetic : Array (UInt32 × UInt32) :=
   PropList.data.otherAlphabetic.map fun
     | (c₀, some c₁) => (c₀, c₁)
@@ -476,6 +481,16 @@ def main (args : List String) : IO UInt32 := do
           else
             file.putStrLn <| ";".intercalate [toHexStringAux c₀, toHexStringAux c₁, n]
       IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
+    | "Noncharacter_Code_Point" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkNoncharacterCodePoint
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| toHexStringAux c₀ ++ ";"
+          else
+            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+      IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "Numeric_Value" =>
       IO.println s!"Generating table {arg}"
       let table ← mkNumericValue
