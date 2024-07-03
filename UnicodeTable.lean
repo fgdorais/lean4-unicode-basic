@@ -184,21 +184,42 @@ def mkGeneralCategory : IO <| Array (UInt32 × UInt32 × GeneralCategory) := do
           t := t.push (c, c, k)
   return t
 
+def mkNoncharacterCodePoint : Array (UInt32 × UInt32) :=
+  PropList.data.noncharacterCodePoint.map fun
+    | (c₀, some c₁) => (c₀, c₁)
+    | (c₀, none) => (c₀, c₀)
+
 def mkName : IO <| Array (UInt32 × UInt32 × String) := do
-  let mut t := #[(0,0,"<control>")]
+  let mut t := #[(0,0,"<Control>")]
   for i in [1:UnicodeData.data.size] do
     let data := UnicodeData.data[i]!
     let c := data.codeValue
     let n := data.characterName.toString
     if n.takeRight 8 == ", First>" then
-      if "<CJK Ideograph Extension".isPrefixOf n then
+      if "<CJK Ideograph".isPrefixOf n then
         t := t.push (c, c, "<CJK Unified Ideograph>")
+      else if n.takeRight 17 == "Surrogate, First>" then
+        match t.back with
+        | (c₀, c₁, n₀) =>
+          if c == c₁ + 1 && n₀ == "<Surrogate>" then
+            t := t.pop.push (c₀, c, "<Surrogate>")
+          else
+            t := t.push (c, c, "<Surrogate>")
+      else if n.takeRight 19 == "Private Use, First>" then
+        t := t.push (c, c, "<Private Use>")
       else
         t := t.push (c, c, n.dropRight 8 ++ ">")
     else if n.takeRight 7 == ", Last>" then
       match t.back with
-      | (c₀, _, n) =>
-        t := t.pop.push (c₀, c, n)
+      | (c₀, _, n₀) =>
+        t := t.pop.push (c₀, c, n₀)
+    else if n == "<control>" then
+      match t.back with
+      | (c₀, _, n₀) =>
+        if n₀ == "<Control>" then
+          t := t.pop.push (c₀, c, n₀)
+        else
+          t := t.push (c, c, "<Control>")
     else if "CJK COMPATIBILITY IDEOGRAPH-".isPrefixOf n then
       match t.back with
       | (c₀, c₁, n) =>
@@ -234,7 +255,7 @@ def mkName : IO <| Array (UInt32 × UInt32 × String) := do
           t := t.pop.push (c₀, c, n)
         else
           t := t.push (c, c, n)
-  return t
+  return mergeData #[t, mkNoncharacterCodePoint.map fun (c₀, c₁) => (c₀, c₁, "<Reserved>")]
 
 def mkNumericValue : IO <| Array (UInt32 × UInt32 × NumericType) := do
   let mut t := #[]
@@ -256,11 +277,6 @@ def mkNumericValue : IO <| Array (UInt32 × UInt32 × NumericType) := do
       t := t.push (d.codeValue, d.codeValue, n)
     | _ => continue
   return t
-
-def mkNoncharacterCodePoint : Array (UInt32 × UInt32) :=
-  PropList.data.noncharacterCodePoint.map fun
-    | (c₀, some c₁) => (c₀, c₁)
-    | (c₀, none) => (c₀, c₀)
 
 def mkOtherAlphabetic : Array (UInt32 × UInt32) :=
   PropList.data.otherAlphabetic.map fun
