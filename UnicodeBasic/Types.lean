@@ -1,5 +1,5 @@
 /-
-Copyright © 2023 François G. Dorais. All rights reserved.
+Copyright © 2023-2024 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
@@ -14,8 +14,8 @@ namespace Unicode
 
 /-- Coercion from `String` to `Substring`
 
-  This coercion is in Std but not in Lean core. It is scoped to `Unicode` here to avoid issues
-  in low-level packages that don't use Std.
+  This coercion is in Batteries but not in Lean. It is scoped to `Unicode` here to avoid issues in
+  low-level packages that don't use Batteries.
 -/
 scoped instance : Coe String Substring where
   coe := String.toSubstring
@@ -151,10 +151,14 @@ inductive MinorGeneralCategory : MajorGeneralCategory → Type
 | connectorPunctuation : MinorGeneralCategory .punctuation
 /-- (`Pd`) dash or hyphen punctuation mark -/
 | dashPunctuation : MinorGeneralCategory .punctuation
+/-- (`PG`) grouping punctuation mark (derived from `Ps | Pe`) -/
+| groupPunctuation : MinorGeneralCategory .punctuation
 /-- (`Ps`) opening punctuation mark (of a pair) -/
 | openPunctuation : MinorGeneralCategory .punctuation
 /-- (`Pe`) closing punctuation mark (of a pair) -/
 | closePunctuation : MinorGeneralCategory .punctuation
+/-- (`PQ`) quoting punctuation mark (derived from `Pi | Pf`) -/
+| quotePunctuation : MinorGeneralCategory .punctuation
 /-- (`Pi`) initial quotation mark -/
 | initialPunctuation : MinorGeneralCategory .punctuation
 /-- (`Pf`) final quotation mark -/
@@ -233,10 +237,14 @@ protected def GeneralCategory.P  : GeneralCategory := ⟨.punctuation, none⟩
 protected def GeneralCategory.Pc : GeneralCategory := ⟨_, some .connectorPunctuation⟩
 /-- General category: dash punctuation (`Pd`) -/
 protected def GeneralCategory.Pd : GeneralCategory := ⟨_, some .dashPunctuation⟩
+/-- General category: grouping punctuation (`PG`) -/
+protected def GeneralCategory.PG : GeneralCategory := ⟨_, some .groupPunctuation⟩
 /-- General category: opening punctuation (`Ps`) -/
 protected def GeneralCategory.Ps : GeneralCategory := ⟨_, some .openPunctuation⟩
 /-- General category: closing punctuation (`Pe`) -/
 protected def GeneralCategory.Pe : GeneralCategory := ⟨_, some .closePunctuation⟩
+/-- General category: quoting punctuation (`PQ`) -/
+protected def GeneralCategory.PQ : GeneralCategory := ⟨_, some .quotePunctuation⟩
 /-- General category: initial punctuation (`Pi`) -/
 protected def GeneralCategory.Pi : GeneralCategory := ⟨_, some .initialPunctuation⟩
 /-- General category: final punctuation (`Pf`) -/
@@ -294,8 +302,10 @@ def GeneralCategory.toAbbrev : GeneralCategory → String
 | ⟨.punctuation, none⟩ => "P"
 | ⟨_, some .connectorPunctuation⟩ => "Pc"
 | ⟨_, some .dashPunctuation⟩ => "Pd"
+| ⟨_, some .groupPunctuation⟩ => "PG"
 | ⟨_, some .openPunctuation⟩ => "Ps"
 | ⟨_, some .closePunctuation⟩ => "Pe"
+| ⟨_, some .quotePunctuation⟩ => "PQ"
 | ⟨_, some .initialPunctuation⟩ => "Pi"
 | ⟨_, some .finalPunctuation⟩ => "Pf"
 | ⟨_, some .otherPunctuation⟩ => "Po"
@@ -357,8 +367,10 @@ def GeneralCategory.ofAbbrev? (s : Substring) : Option GeneralCategory :=
       | none  => some ⟨.punctuation, none⟩
       | some 'c' => some ⟨_, some .connectorPunctuation⟩
       | some 'd' => some ⟨_, some .dashPunctuation⟩
+      | some 'G' => some ⟨_, some .groupPunctuation⟩
       | some 's' => some ⟨_, some .openPunctuation⟩
       | some 'e' => some ⟨_, some .closePunctuation⟩
+      | some 'Q' => some ⟨_, some .quotePunctuation⟩
       | some 'i' => some ⟨_, some .initialPunctuation⟩
       | some 'f' => some ⟨_, some .finalPunctuation⟩
       | some 'o' => some ⟨_, some .otherPunctuation⟩
@@ -561,9 +573,9 @@ inductive BidiClass
 | leftToRightIsolate
 /-- (`RLI`) right-toleft isolate (U+2067: the RL isolate control) -/
 | rightToLeftIsolate
-/-- (`FSI`)	first strong isolate	U+2068: the first strong isolate control -/
+/-- (`FSI`)	first strong isolate (U+2068: the first strong isolate control) -/
 | firstStrongIsolate
-/-- (`PDI`) pop directional isolate	U+2069: terminates an isolate control -/
+/-- (`PDI`) pop directional isolate (U+2069: terminates an isolate control) -/
 | popDirectionalIsolate
 deriving Inhabited, DecidableEq
 
@@ -701,20 +713,16 @@ structure UnicodeData where
   lowercaseMapping : Option Char := none
   /-- Titlecase Mapping -/
   titlecaseMapping : Option Char := none
-deriving Inhabited, BEq, Repr
+deriving BEq, Repr
 
-/-- Make `UnicodeData` for noncharacter code point -/
-def UnicodeData.mkNoncharacter (code : UInt32) : UnicodeData where
-  codeValue := code
-  generalCategory := .Cn
-  characterName :=
-    -- Extracted from `PropLists.txt`
-    let isReserved := (code &&& 0xFFFFFFF0 == 0x0000FDD0) ||
-                      (code &&& 0xFFFFFFF0 == 0x0000FDE0) ||
-                      (code &&& 0x0000FFFE == 0x0000FFFE)
-    (if isReserved then "<reserved-" else "<noncharacter-") ++ toHexStringAux code ++ ">"
-  canonicalCombiningClass := 0
-  bidiClass := .BN
-  bidiMirrored := false
+instance : Inhabited UnicodeData where
+  default := {
+    codeValue := 0
+    characterName := "<control-0000>"
+    generalCategory := .Cc
+    canonicalCombiningClass := 0
+    bidiClass := .BN
+    bidiMirrored := false
+  }
 
 end Unicode

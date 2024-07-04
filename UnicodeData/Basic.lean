@@ -1,12 +1,125 @@
 /-
-Copyright © 2023 François G. Dorais. All rights reserved.
+Copyright © 2023-2024 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
 import UnicodeBasic.CharacterDatabase
+import UnicodeBasic.Hangul
 import UnicodeBasic.Types
 
 namespace Unicode
+
+-- /-- Extracted from `Jamo.txt` -/
+-- private def jamoL := #["G", "GG", "N", "D", "DD", "R", "M", "B", "BB", "S", "SS", "", "J", "JJ", "C", "K", "T", "P", "H"]
+-- private def jamoV := #["A", "AE", "YA", "YAE", "EO", "E", "YEO", "YE", "O", "WA", "WAE", "OE", "YO", "U", "WEO", "WE", "WI", "YU", "EU", "YI", "I"]
+-- private def jamoT := #["", "G", "GG", "GS", "N", "NJ", "NH", "D", "L", "LG", "LM", "LB", "LS", "LT", "LP", "LH", "M", "B", "BS", "S", "SS", "NG", "J", "C", "K", "T", "P", "H"]
+
+-- private def getHangulSyllableLVT? (code : UInt32) : Option (Nat × Nat × Nat) :=
+--   -- See Unicode Standard 3.12
+--   if code < 0xAC00 then none else
+--     let sIndex := (code - 0xAC00).toNat
+--     if sIndex ≥ jamoL.size * jamoV.size * jamoT.size then none else
+--       -- NB: sIndex < jamoL.size * jamoV.size * jamoT.size
+--       let lIndex := sIndex / (jamoV.size * jamoT.size) -- NB: lIndex < jamoL.size
+--       let nIndex := sIndex % (jamoV.size * jamoT.size) -- NB: nIndex < jamoV.size * jamoT.size
+--       let vIndex := nIndex / jamoT.size -- NB: vIndex < jamoV.size
+--       let tIndex := nIndex % jamoT.size -- NB: tIndex < jamoT.size
+--       return (lIndex, vIndex, tIndex)
+
+-- /-- Get Hangul syllable name -/
+-- def getHangulSyllableName? (code : UInt32) : Option String :=
+--   getHangulSyllableLVT? code >>= fun
+--   | (l, v, t) => jamoL[l]! ++ jamoV[v]! ++ jamoT[t]!
+
+-- @[inherit_doc getHangulSyllableName?]
+-- def getHangulSyllableName! (code : UInt32) : String :=
+--   match getHangulSyllableName? code with
+--   | some str => str
+--   | none => panic! "invalid Hangul syllable code point"
+
+/-- Make `UnicodeData` for noncharacter code point -/
+def UnicodeData.mkNoncharacter (code : UInt32) : UnicodeData where
+  codeValue := code
+  generalCategory := .Cn
+  characterName :=
+    -- Extracted from property `Noncharacter_Code_Point`
+    let isReserved := (code &&& 0xFFFFFFF0 == 0x0000FDD0) ||
+                      (code &&& 0xFFFFFFF0 == 0x0000FDE0) ||
+                      (code &&& 0x0000FFFE == 0x0000FFFE)
+    (if isReserved then "<reserved-" else "<noncharacter-") ++ toHexStringAux code ++ ">"
+  canonicalCombiningClass := 0
+  bidiClass := .BN
+  bidiMirrored := false
+
+/-- Make `UnicodeData` for generic control code point -/
+def UnicodeData.mkControl (c : UInt32) : UnicodeData where
+  codeValue := c
+  characterName := s!"<control-{toHexStringAux c}>"
+  generalCategory := .Cc
+  canonicalCombiningClass := 0
+  bidiClass := .BN
+  bidiMirrored := false
+
+/-- Make `UnicodeData` for generic surrogate code point -/
+def UnicodeData.mkSurrogate (c : UInt32) : UnicodeData where
+  codeValue := c
+  characterName := s!"<surrogate-{toHexStringAux c}>"
+  generalCategory := .Cs
+  canonicalCombiningClass := 0
+  bidiClass := .L
+  bidiMirrored := false
+
+/-- Make `UnicodeData` for generic private use code point -/
+def UnicodeData.mkPrivateUse (c : UInt32) : UnicodeData where
+  codeValue := c
+  characterName := s!"<private-use-{toHexStringAux c}>"
+  generalCategory := .Co
+  canonicalCombiningClass := 0
+  bidiClass := .L
+  bidiMirrored := false
+
+/-- Make `UnicodeData` for CJK compatibilty ideograph code point -/
+def UnicodeData.mkCJKCompatibilityIdeograph (c : UInt32) : UnicodeData where
+  codeValue := c
+  characterName := s!"CJK COMPATIBILITY IDEOGRAPH-{toHexStringAux c}"
+  generalCategory := .Lo
+  canonicalCombiningClass := 0
+  bidiClass := .L
+  bidiMirrored := false
+
+/-- Make `UnicodeData` for CJK unified ideograph code point -/
+def UnicodeData.mkCJKUnifiedIdeograph (c : UInt32) : UnicodeData where
+  codeValue := c
+  characterName := s!"CJK UNIFIED IDEOGRAPH-{toHexStringAux c}"
+  generalCategory := .Lo
+  canonicalCombiningClass := 0
+  bidiClass := .L
+  bidiMirrored := false
+
+/-- Make `UnicodeData` for Hangul syllable code point -/
+def UnicodeData.mkHangulSyllable (c : UInt32) : UnicodeData :=
+  let s := Hangul.getSyllable! c
+  let m : DecompositionMapping :=
+    match s.getTChar? with
+    | some t => ⟨none, [s.getLVChar, t]⟩
+    | none => ⟨none, [s.getLChar, s.getVChar]⟩
+  { codeValue := c
+    characterName := s!"HANGUL SYLLABLE {s.getShortName}"
+    generalCategory := .Lo
+    canonicalCombiningClass := 0
+    decompositionMapping := m
+    bidiClass := .L
+    bidiMirrored := false
+  }
+
+/-- Make `UnicodeData` for Tangut ideograph code point -/
+def UnicodeData.mkTangutIdeograph (c : UInt32) : UnicodeData where
+  codeValue := c
+  characterName := s!"TANGUT IDEOGRAPH-{toHexStringAux c}"
+  generalCategory := .Lo
+  canonicalCombiningClass := 0
+  bidiClass := .L
+  bidiMirrored := false
 
 /-- Raw string from file `UnicodeData.txt` -/
 protected def UnicodeData.txt := include_str "../data/UnicodeData.txt"
@@ -143,41 +256,11 @@ where
 @[init UnicodeData.init]
 protected def UnicodeData.data : Array UnicodeData := #[]
 
-/-- Get Hangul syllable name -/
-def getHangulSyllableName? (code : UInt32) : Option String :=
-    -- See Unicode Standard 3.12
-    if code < 0xAC00 then none else
-      let SIndex := (code - 0xAC00).toNat
-      if SIndex ≥ JamoL.size * JamoV.size * JamoT.size then none else
-        -- NB: SIndex < JamoL.size * JamoV.size * JamoT.size
-        let LIndex := SIndex / (JamoV.size * JamoT.size) -- NB: LIndex < JamoL.size
-        let NIndex := SIndex % (JamoV.size * JamoT.size) -- NB: NIndex < JamoV.size * JamoT.size
-        let VIndex := NIndex / JamoT.size -- NB: VIndex < JamoV.size
-        let TIndex := NIndex % JamoT.size -- NB: TIndex < JamoT.size
-        return "HANGUL SYLLABLE " ++ JamoL[LIndex]! ++ JamoV[VIndex]! ++ JamoT[TIndex]!
-
-where
-
-  /-- Extracted from `Jamo.txt` -/
-  JamoL := #["G", "GG", "N", "D", "DD", "R", "M", "B", "BB", "S", "SS", "", "J", "JJ", "C", "K", "T", "P", "H"]
-
-  /-- Extracted from `Jamo.txt` -/
-  JamoV := #["A", "AE", "YA", "YAE", "EO", "E", "YEO", "YE", "O", "WA", "WAE", "OE", "YO", "U", "WEO", "WE", "WI", "YU", "EU", "YI", "I"]
-
-  /-- Extracted from `Jamo.txt` -/
-  JamoT := #["", "G", "GG", "GS", "N", "NJ", "NH", "D", "L", "LG", "LM", "LB", "LS", "LT", "LP", "LH", "M", "B", "BS", "S", "SS", "NG", "J", "C", "K", "T", "P", "H"]
-
-@[inherit_doc getHangulSyllableName?]
-def getHangulSyllableName! (code : UInt32) : String :=
-  match getHangulSyllableName? code with
-  | some str => str
-  | none => panic! "invalid Hangul syllable code point"
-
 /-- Get code point data from `UnicodeData.txt` -/
 partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
   if code > Unicode.max then
     none
-  else if code < 0x0200 then
+  else if code ≤ 0x0377 then
     /-
       At time of writing, the first unassigned code point is U+0378 (decimal
       888). Also the first code range starts at U+3400. So we can skip testing
@@ -185,14 +268,15 @@ partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
       convenient because the smaller code points include ASCII and other
       common subsets.
     -/
-    let data := UnicodeData.data[find 0 0x0200]!
-    assert! (data.codeValue = code)
+    let data := UnicodeData.data[code.toUSize]!
+    assert! (data.codeValue == code)
     if data.characterName == "<control>" then
-      return {data with characterName := "<control-" ++ toHexStringAux code ++ ">"}
+      return {data with
+        characterName := s!"<control-{toHexStringAux code}>"}
     else
       return data
   else
-    let data := UnicodeData.data[find 0x0200 UnicodeData.data.size]!
+    let data := UnicodeData.data[find 0x0377 UnicodeData.data.size]!
     /-
       For backward compatibility, ranges in the file `UnicodeData.txt` are
       specified by entries for the start and end characters of the range,
@@ -214,32 +298,16 @@ partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
     if data.characterName.get 0 == '<' then
       if code = data.codeValue || data.characterName.takeRight 8 == ", First>" then
         if data.characterName.take 16 == "<Hangul Syllable" then
-          return {data with
-            codeValue := code
-            characterName := getHangulSyllableName! code
-          }
+          UnicodeData.mkHangulSyllable code
         else if data.characterName.take 14 == "<CJK Ideograph" then
-          return {data with
-            codeValue := code
-            characterName := "CJK UNIFIED IDEOGRAPH-" ++ toHexStringAux code
-          }
+          UnicodeData.mkCJKUnifiedIdeograph code
         else if data.characterName.take 17 == "<Tangut Ideograph" then
-          return {data with
-            codeValue := code
-            characterName := "TANGUT IDEOGRAPH-" ++ toHexStringAux code
-          }
+          UnicodeData.mkTangutIdeograph code
         else
           match data.generalCategory with
-          | ⟨.other, some .privateUse⟩ =>
-            return {data with
-              codeValue := code
-              characterName := "<private-use-" ++ toHexStringAux code ++ ">"
-            }
-          | ⟨.other, some .surrogate⟩ =>
-            return {data with
-              codeValue := code
-              characterName := "<surrogate-" ++ toHexStringAux code ++ ">"
-            }
+          | ⟨.other, some .control⟩ => UnicodeData.mkControl code
+          | ⟨.other, some .privateUse⟩ => UnicodeData.mkPrivateUse code
+          | ⟨.other, some .surrogate⟩ => UnicodeData.mkSurrogate code
           | _ => panic! "unexpected character name value"
       else
         return .mkNoncharacter code
@@ -250,6 +318,7 @@ partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
 
 where
 
+  -- TODO: stop reinventing the wheel!
   /-- Binary search -/
   find (lo hi : Nat) : Nat :=
     assert! (hi ≤ UnicodeData.data.size)
@@ -275,5 +344,53 @@ def getUnicodeData (char : Char) : UnicodeData :=
   match getUnicodeData? char.val with
   | some data => data
   | none => unreachable!
+
+/-- Stream type to roll through all code points up to `Unicode.max`, yielding `UnicodeData` -/
+structure UnicodeDataStream where
+  code : UInt32 := 0
+  index : USize := 0
+  default : UInt32 → UnicodeData := UnicodeData.mkNoncharacter
+  deriving Inhabited
+
+private def UnicodeDataStream.next? (s : UnicodeDataStream) : Option (UnicodeData × UnicodeDataStream) := do
+  let c := s.code
+  let i := s.index
+  if c > Unicode.max then
+    none
+  else if h : i < UnicodeData.data.size.toUSize then
+    let d := UnicodeData.data[i]
+    let n := d.characterName
+    if c < d.codeValue then
+      return (s.default c, {s with code := c+1})
+    else if n == "<control>" then
+      let d := {d with characterName := s!"<control-{toHexStringAux c}>"}
+      return (d, {s with code := c+1, index := i+1})
+    else if n.get 0 == '<' then
+      if n.takeRight 8 == ", First>" then
+        let mut default := UnicodeData.mkNoncharacter
+        if (n.dropRight 8).takeRight 11 == "Private Use" then
+          default := UnicodeData.mkPrivateUse
+        else if (n.dropRight 8).takeRight 9 == "Surrogate" then
+          default := UnicodeData.mkSurrogate
+        else if n.take 14 == "<CJK Ideograph" then
+          default := UnicodeData.mkCJKUnifiedIdeograph
+        else if n.take 16 == "<Hangul Syllable" then
+          default := UnicodeData.mkHangulSyllable
+        else if n.take 17 == "<Tangut Ideograph" then
+          default := UnicodeData.mkTangutIdeograph
+        else
+          panic! "invalid Unicode data"
+        return (default c, {s with code := c+1, index := i+1, default})
+      else if n.takeRight 7 == ", Last>" then
+        return (s.default c, {s with code := c+1, index := i+1, default := UnicodeData.mkNoncharacter})
+      else
+        panic! "invalid Unicode data"
+    else
+      return (d, {s with code := c+1, index := i+1})
+  else
+    return (.mkNoncharacter c, {s with code := c+1})
+
+instance : Stream UnicodeDataStream UnicodeData where
+  next? := UnicodeDataStream.next?
 
 end Unicode

@@ -1,5 +1,5 @@
 /-
-Copyright © 2023 François G. Dorais. All rights reserved.
+Copyright © 2023-2024 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
@@ -9,11 +9,18 @@ open Lake DSL
 package UnicodeBasic
 
 @[default_target]
-lean_lib UnicodeBasic {
+lean_lib UnicodeBasic
+
+lean_lib UnicodeData {
   precompileModules := true
 }
 
-lean_exe UnicodeTool
+lean_exe lookup
+
+lean_exe makeTables
+
+@[test_driver]
+lean_exe testTables
 
 -- Download datafile from the Unicode Character Database (UCD)
 script downloadUCD (args) do
