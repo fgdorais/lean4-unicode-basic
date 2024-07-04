@@ -241,7 +241,7 @@ def mkNumericValue : IO <| Array (UInt32 × UInt32 × NumericType) := do
   for d in UnicodeData.data do
     match d.numeric with
     | some (.decimal 0) =>
-      t := t.push (d.codeValue, d.codeValue + 10, .decimal 0)
+      t := t.push (d.codeValue, d.codeValue + 9, .decimal 0)
     | some (.digit v) =>
       match t.back with
       | (c₀, c₁, n@(NumericType.digit x)) =>
