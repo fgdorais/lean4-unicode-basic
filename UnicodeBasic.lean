@@ -1,11 +1,10 @@
 /-
-Copyright © 2023 François G. Dorais. All rights reserved.
+Copyright © 2023-2024 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
 import UnicodeBasic.Types
-import UnicodeBasic.UnicodeData
-import UnicodeBasic.PropList
+import UnicodeBasic.TableLookup
 
 /-!
   # General API #
@@ -59,8 +58,7 @@ namespace Unicode
   Unicode property: `Name`
 -/
 @[inline]
-def getName (char : Char) : String :=
-  getUnicodeData char |>.characterName.toString
+def getName (char : Char) : String := lookupName char.val
 
 /-!
   ## Bidirectional Properties ##
@@ -70,15 +68,13 @@ def getName (char : Char) : String :=
 
   Unicode property: `Bidi_Class` -/
 @[inline]
-def getBidiClass (char : Char) : BidiClass :=
-  getUnicodeData char |>.bidiClass
+def getBidiClass (char : Char) : BidiClass := lookupBidiClass char.val
 
 /-- Check if bidirectional mirrored character
 
   Unicode property: `Bidi_Mirrored` -/
 @[inline]
-def isBidiMirrored (char : Char) : Bool :=
-  getUnicodeData char |>.bidiMirrored
+def isBidiMirrored (char : Char) : Bool := lookupBidiMirrored char.val
 
 /-- Check if bidirectional control character
 
@@ -103,8 +99,7 @@ def isBidiControl (char : Char) : Bool :=
 
   Unicode property: `General_Category` -/
 @[inline]
-def getGeneralCategory (char : Char) : GeneralCategory :=
-  getUnicodeData char |>.generalCategory
+def getGeneralCategory (char : Char) : GeneralCategory := lookupGeneralCategory char.val
 
 /-- Check if character belongs to the general category
 
@@ -608,9 +603,8 @@ end GeneralCategory
   Unicode property: `Simple_Lowercase_Mapping` -/
 @[inline]
 def getLowerChar (char : Char) : Char :=
-  match getUnicodeData char |>.lowercaseMapping with
-  | some char => char
-  | none => char
+  match lookupCaseMapping char.val with
+  | (_, lc, _) => Char.ofNat lc.toNat
 
 /-- Map character to uppercase
 
@@ -620,9 +614,8 @@ def getLowerChar (char : Char) : Char :=
   Unicode property: `Simple_Uppercase_Mapping` -/
 @[inline]
 def getUpperChar (char : Char) : Char :=
-  match getUnicodeData char |>.uppercaseMapping with
-  | some char => char
-  | none => char
+  match lookupCaseMapping char.val with
+  | (uc, _, _) => Char.ofNat uc.toNat
 
 /-- Map character to titlecase
 
@@ -632,9 +625,8 @@ def getUpperChar (char : Char) : Char :=
   Unicode property: `Simple_Titlecase_Mapping` -/
 @[inline]
 def getTitleChar (char : Char) : Char :=
-  match getUnicodeData char |>.titlecaseMapping with
-  | some char => char
-  | none => getUpperChar char
+  match lookupCaseMapping char.val with
+  | (_, _, tc) => Char.ofNat tc.toNat
 
 /-!
   ## Decomposition Type and Mapping ##
@@ -655,17 +647,16 @@ partial def getCanonicalDecomposition (char : Char) : String :=
     itself be a character with a decomposition mapping, but the second character never has a
     decomposition mapping.
   -/
-  let rec loop : List Char → List Char
+  String.mk <| loop [char.val] |>.map fun c => Char.ofNat c.toNat
+where
+  loop : List UInt32 → List UInt32
   | c :: cs =>
-    match getUnicodeData c |>.decompositionMapping with
-    | some ⟨none, ds⟩ =>
-      match ds with
-      | [c] => loop (c :: cs)
-      | [c₀, c₁] => loop (c₀ :: c₁ :: cs)
-      | _ => panic! "invalid canonical decomposition mapping"
-    | _ => c :: cs
+    match lookupCanonicalDecompositionMapping c with
+    | #[] => c :: cs
+    | #[c] => loop (c :: cs)
+    | #[c₀, c₁] => loop (c₀ :: c₁ :: cs)
+    | _ => panic! "invalid canonical decomposition mapping"
   | _ => unreachable!
-  String.mk <| loop [char]
 
 /-!
   ## Numeric Type and Value ##
@@ -677,10 +668,10 @@ partial def getCanonicalDecomposition (char : Char) : String :=
 @[inline]
 def isNumeric (char : Char) : Bool :=
   -- ASCII shortcut
-  if char.val < 0x0080 then
+  if char.val < 0x80 then
     char >= '0' && char <= '9'
   else
-    match getUnicodeData char |>.numeric with
+    match lookupNumericValue char.val with
     | some _ => true
     | _ => otherNumeric.elem char.val
 where
@@ -702,10 +693,10 @@ where
 @[inline]
 def isDigit (char : Char) : Bool :=
   -- ASCII shortcut
-  if char.val < 0x0080 then
+  if char.val < 0x80 then
     char >= '0' && char <= '9'
   else
-    match getUnicodeData char |>.numeric with
+    match lookupNumericValue char.val with
     | some (.decimal _) => true
     | some (.digit _) => true
     | _ => false
@@ -716,7 +707,7 @@ def isDigit (char : Char) : Bool :=
 @[inline]
 def getDigit? (char : Char) : Option (Fin 10) :=
   -- ASCII shortcut
-  if char.val < 0x0080 then
+  if char.val < 0x80 then
     if char.toNat < '0'.toNat then
       none
     else
@@ -726,7 +717,7 @@ def getDigit? (char : Char) : Option (Fin 10) :=
       else
         none
   else
-    match getUnicodeData char |>.numeric with
+    match lookupNumericValue char.val with
     | some (.decimal value) => some value
     | some (.digit value) => some value
     | _ => none
@@ -739,9 +730,13 @@ def getDigit? (char : Char) : Option (Fin 10) :=
   Unicode property: `Numeric_Type=Decimal` -/
 @[inline]
 def isDecimal (char : Char) : Bool :=
-  match getUnicodeData char |>.numeric with
-  | some (.decimal _) => true
-  | _ => false
+  -- ASCII shortcut
+  if char.val < 0x80 then
+    char >= '0' && char <= '9'
+  else
+    match lookupNumericValue char.val with
+    | some (.decimal _) => true
+    | _ => false
 
 /-- Get decimal digit range
 
@@ -752,11 +747,18 @@ def isDecimal (char : Char) : Bool :=
   Unicode property: `Numeric_Type=Decimal` -/
 @[inline]
 def getDecimalRange? (char : Char) : Option (Char × Char) :=
-  match getUnicodeData char |>.numeric with
-  | some (.decimal value) =>
-    let first := char.toNat - value.val
-    some (Char.ofNat first, Char.ofNat (first + 9))
-  | _ => none
+  -- ASCII shortcut
+  if char.val < 0x80 then
+    if char >= '0' && char <= '9' then
+      some ('0', '9')
+    else
+      none
+  else
+    match lookupNumericValue char.val with
+    | some (.decimal value) =>
+      let first := char.toNat - value.val
+      some (Char.ofNat first, Char.ofNat (first + 9))
+    | _ => none
 
 /-- Check if character represents a digit in base 16
 
@@ -776,7 +778,7 @@ def isHexDigit (char : Char) : Bool :=
   Unicode properties: `Hex_Digit` -/
 @[inline]
 def getHexDigit? (char : Char) : Option (Fin 16) :=
-  if char.toNat < 0x0030 then
+  if char.toNat < 0x30 then
     none
   else
     let n := if char.toNat < 0xFF10 then char.toNat - 0x0030 else char.toNat - 0xFF10
@@ -806,7 +808,7 @@ def getHexDigit? (char : Char) : Option (Fin 16) :=
 -/
 @[inline]
 def isWhiteSpace (char : Char) : Bool :=
-  if char.val < 256 then
+  if char.val < 0x100 then
     char == ' ' || char >= '\t' && char <= '\r'
       || char.val == 0x85 || char.val == 0xA0
   else
@@ -817,26 +819,33 @@ def isWhiteSpace (char : Char) : Bool :=
   Unicode property: `Lowercase` -/
 @[inline]
 def isLowercase (char : Char) : Bool :=
-  GeneralCategory.isLl char || PropList.isOtherLowercase char.val
+  -- ASCII shortcut
+  if char.val < 0x80 then
+    'a' ≤ char && char ≤ 'z'
+  else
+    lookupLowercase char.val
 
 /-- Check if uppercase letter character
 
   Unicode property: `Uppercase` -/
 @[inline]
 def isUppercase (char : Char) : Bool :=
-  GeneralCategory.isLu char || PropList.isOtherUppercase char.val
+  -- ASCII shortcut
+  if char.val < 0x80 then
+    'A' ≤ char && char ≤ 'Z'
+  else
+    lookupUppercase char.val
 
 /-- Check if cased letter character
 
-  Unicode properties: `Cased` -/
+  Unicode property: `Cased` -/
 @[inline]
 def isCased (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .uppercaseLetter⟩ => true
-  | ⟨_, some .lowercaseLetter⟩ => true
-  | ⟨_, some .titlecaseLetter⟩ => true
-  | _ => PropList.isOtherLowercase char.val
-      || PropList.isOtherUppercase char.val
+  -- ASCII shortcut
+  if char.val < 0x80 then
+    'A' ≤ char && char ≤ 'Z' || 'a' ≤ char && char ≤ 'z'
+  else
+    lookupCased char.val
 
 /-- Check if character is ignorable for casing purposes
 
@@ -877,20 +886,18 @@ def isCaseIgnorable (char : Char) : Bool :=
 
   Unicode property: `Math` -/
 @[inline]
-def isMath (char : Char) : Bool :=
-  GeneralCategory.isSm char || PropList.isOtherMath char.val
+def isMath (char : Char) : Bool := lookupMath char.val
 
 /-- Check if alphabetic character
 
   Unicode property: `Alphabetic` -/
 @[inline]
 def isAlphabetic (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨.letter, _⟩ => true
-  | ⟨.number, some .letterNumber⟩ => true
-  | _ => PropList.isOtherLowercase char.val
-      || PropList.isOtherUppercase char.val
-      || PropList.isOtherAlphabetic char.val
+  -- ASCII shortcut
+  if char.val < 0x80 then
+    'A' ≤ char && char ≤ 'Z' || 'a' ≤ char && char ≤ 'z'
+  else
+    lookupAlphabetic char.val
 
 @[inherit_doc isAlphabetic]
 abbrev isAlpha := isAlphabetic

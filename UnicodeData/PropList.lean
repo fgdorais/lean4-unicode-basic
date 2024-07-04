@@ -1,5 +1,5 @@
 /-
-Copyright © 2023 François G. Dorais. All rights reserved.
+Copyright © 2023-2024 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
@@ -9,6 +9,8 @@ import UnicodeBasic.CharacterDatabase
 namespace Unicode
 
 structure PropList where
+  /-- property `Noncharacter_Code_Point` -/
+  noncharacterCodePoint : Array (UInt32 × Option UInt32) := #[]
   /-- property `White_Space` -/
   whiteSpace : Array (UInt32 × Option UInt32) := #[]
   /-- property `Other_Math` -/
@@ -30,9 +32,10 @@ private unsafe def PropList.init : IO PropList := do
     let val : UInt32 × Option UInt32 :=
       match record[0]!.splitOn ".." with
       | [c] => (ofHexString! c.toString, none)
-      | [c₀,c₁] => (ofHexString! c₀.toString, some <| ofHexString! c₁.toString)
+      | [c₀, c₁] => (ofHexString! c₀.toString, some <| ofHexString! c₁.toString)
       | _ => panic! "invalid record in PropList.txt"
     match record[1]!.toString with -- TODO: don't use toString
+    | "Noncharacter_Code_Point" => list := {list with noncharacterCodePoint := list.noncharacterCodePoint.push val}
     | "White_Space" => list := {list with whiteSpace := list.whiteSpace.push val}
     | "Other_Math" => list := {list with otherMath := list.otherMath.push val}
     | "Other_Alphabetic" => list := {list with otherAlphabetic := list.otherAlphabetic.push val}
