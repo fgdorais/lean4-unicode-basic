@@ -364,6 +364,7 @@ def main (args : List String) : IO UInt32 := do
     "Bidi_Class",
     "Bidi_Mirrored",
     "Canonical_Combining_Class",
+    "Canonical_Decomposition_Mapping",
     "Case_Mapping",
     "Cased",
     "Lowercase",
@@ -418,6 +419,14 @@ def main (args : List String) : IO UInt32 := do
           else
             file.putStrLn <| ";".intercalate [toHexStringAux c₀, toHexStringAux c₁, toString cc]
       IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
+    | "Canonical_Decomposition_Mapping" =>
+      IO.println s!"Generating table {arg}"
+      let table ← mkDecompositionMapping
+      let table := table.filter fun x => ! "<".isPrefixOf x.2
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c, s) in table do
+          file.putStrLn <| ";".intercalate [toHexStringAux c, s]
+      IO.println s!"Size: {table.size}"
     | "Case_Mapping" =>
       IO.println s!"Generating table {arg}"
       let table ← mkCaseMapping

@@ -18,7 +18,7 @@ private partial def find (c : UInt32) (t : USize → UInt32) (lo hi : USize) : U
   else
     find c t mid hi
 
-private def parseDataTable (s : String) (f : UInt32 → UInt32 → Array Substring → α) : Id <| Array (UInt32 × UInt32 × α) := do
+private def parseDataTable (s : String) (f : UInt32 → UInt32 → Array Substring → α) : Thunk <| Array (UInt32 × UInt32 × α) := Id.run do
   let mut r := #[]
   let mut stream := UCDStream.ofString s
   for record in stream do
@@ -28,7 +28,7 @@ private def parseDataTable (s : String) (f : UInt32 → UInt32 → Array Substri
     r := r.push (start, stop, val)
   return r
 
-private def parsePropTable (s : String) : Id <| Array (UInt32 × UInt32) := do
+private def parsePropTable (s : String) : Thunk <| Array (UInt32 × UInt32) := Id.run do
   let mut r := #[]
   let mut stream := UCDStream.ofString s
   for record in stream do
@@ -47,23 +47,37 @@ def lookupBidiClass (c : UInt32) : BidiClass :=
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
     | (_, v, bc) => if c ≤ v then bc else .BN
 where
-  str : String := include_str "../data/table/Canonical_Combining_Class.txt"
+  str : String := include_str "../data/table/Bidi_Class.txt"
   table : Thunk <| Array (UInt32 × UInt32 × BidiClass) :=
-    .mk fun _ => parseDataTable str fun _ _ x => BidiClass.ofAbbrev! x[0]!
+    parseDataTable str fun _ _ x => BidiClass.ofAbbrev! x[0]!
 
 /-- Get canonical combining class using lookup table
 
   Unicode property: `Canonical_Combining_Class`
 -/
 def lookupCanonicalCombiningClass (c : UInt32) : Nat :=
-  let t := table
+  let t := table.get
   if c < t[0]!.1 then 0 else
     match t[find c (fun i => t[i]!.1) 0 t.size.toUSize]! with
     | (_, v, n) => if c ≤ v then n else 0
 where
   str : String := include_str "../data/table/Canonical_Combining_Class.txt"
-  table : Array (UInt32 × UInt32 × Nat) :=
+  table : Thunk <| Array (UInt32 × UInt32 × Nat) :=
     parseDataTable str fun _ _ x => (x.get! 0).toNat?.get!
+
+/-- Get canonical decomposition mapping using lookup table
+
+  Unicode property: `Decomposition_Mapping`
+-/
+def lookupCanonicalDecompositionMapping (c : UInt32) : Array UInt32 :=
+  let table := table.get
+  if c < table[0]!.1 then #[] else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v, l) => if c ≤ v then l else #[]
+where
+  str : String := include_str "../data/table/Canonical_Combining_Class.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × Array UInt32) :=
+    parseDataTable str fun _ _ x => x.map ofHexString!
 
 /-- Get simple case mappings of a code point using lookup table
 
@@ -77,7 +91,7 @@ def lookupCaseMapping (c : UInt32) : UInt32 × UInt32 × UInt32 :=
 where
   str : String := include_str "../data/table/Case_Mapping.txt"
   table : Thunk <| Array (UInt32 × UInt32 × Option UInt32 × Option UInt32 × Option UInt32) :=
-    .mk fun _ => parseDataTable str fun _ _ a =>
+    parseDataTable str fun _ _ a =>
       match a with
       | #[mu, ml, mt] =>
         let mu := if mu.isEmpty then none else some <| ofHexString! mu
@@ -107,7 +121,7 @@ def lookupGeneralCategory (c : UInt32) : GeneralCategory :=
 where
   str : String := include_str "../data/table/General_Category.txt"
   table : Thunk <| Array (UInt32 × UInt32 × GeneralCategory) :=
-    .mk fun _ => parseDataTable str fun _ _ x => GeneralCategory.ofAbbrev! x[0]!
+    parseDataTable str fun _ _ x => GeneralCategory.ofAbbrev! x[0]!
 
 /-- Get name of a code point using lookup table
 
@@ -166,7 +180,7 @@ where
         jamoL[LIndex]! ++ jamoV[VIndex]! ++ jamoT[TIndex]!
   str : String := include_str "../data/table/Name.txt"
   table : Thunk <| Array (UInt32 × UInt32 × Substring) :=
-    .mk fun _ => parseDataTable str fun _ _ x => x[0]!
+    parseDataTable str fun _ _ x => x[0]!
 
 /-- Get numeric value of a code point using lookup table
 
@@ -193,19 +207,19 @@ def lookupNumericValue (c : UInt32) : Option NumericType :=
 where
   str : String := include_str "../data/table/Numeric_Value.txt"
   table : Thunk <| Array (UInt32 × UInt32 × NumericType) :=
-    .mk fun _ => parseDataTable str fun _ _ a =>
+    parseDataTable str fun _ _ a =>
       let s := a[0]!.toString
       if s == "decimal" then
         .decimal 0
       else if "digit".isPrefixOf s then
-        let d := (s.get ⟨7⟩).toNat
+        let d := (s.get ⟨6⟩).toNat
         if h : d - '0'.toNat < 10 then
           if d < '0'.toNat then
-            panic! "invalid table data"
+            panic! s!"invalid table data {d} {s}"
           else
             .digit ⟨d - '0'.toNat, h⟩
         else
-          panic! "invalid table data"
+          panic! s!"invalid table data {d} {s}"
       else if "numeric".isPrefixOf s then
         let s := s.drop 8
         match String.splitOn s "/" with
@@ -227,8 +241,7 @@ def lookupAlphabetic (c : UInt32 ) : Bool :=
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Alphabetic.txt"
-  table : Thunk <| Array (UInt32 × UInt32) :=
-    .mk fun _ => parsePropTable str
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
 
 /-- Check if code point is bidi mirrored using lookup table
 
@@ -241,8 +254,7 @@ def lookupBidiMirrored (c : UInt32) : Bool :=
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Bidi_Mirrored.txt"
-  table : Thunk <| Array (UInt32 × UInt32) :=
-    .mk fun _ => parsePropTable str
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
 
 /-- Check if code point is a cased letter using lookup table
 
@@ -255,8 +267,7 @@ def lookupCased (c : UInt32 ) : Bool :=
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Cased.txt"
-  table : Thunk <| Array (UInt32 × UInt32) :=
-    .mk fun _ => parsePropTable str
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
 
 /-- Check if code point is a lowercase letter using lookup table
 
@@ -269,8 +280,7 @@ def lookupLowercase (c : UInt32) : Bool :=
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Lowercase.txt"
-  table : Thunk <| Array (UInt32 × UInt32) :=
-    .mk fun _ => parsePropTable str
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
 
 /-- Check if code point is a mathematical symbol using lookup table
 
@@ -283,8 +293,7 @@ def lookupMath (c : UInt32) : Bool :=
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Math.txt"
-  table : Thunk <| Array (UInt32 × UInt32) :=
-    .mk fun _ => parsePropTable str
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
 
 /-- Check if code point is a titlecase letter using lookup table
 
@@ -297,8 +306,7 @@ def lookupTitlecase (c : UInt32) : Bool :=
     | (_, v) => c ≤ v
  where
   str : String := include_str "../data/table/Titlecase.txt"
-  table : Thunk <| Array (UInt32 × UInt32) :=
-    .mk fun _ => parsePropTable str
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
 
 /-- Check if code point is a uppercase letter using lookup table
 
@@ -311,8 +319,7 @@ def lookupUppercase (c : UInt32) : Bool :=
     | (_, v) => c ≤ v
  where
   str : String := include_str "../data/table/Uppercase.txt"
-  table : Thunk <| Array (UInt32 × UInt32) :=
-    .mk fun _ => parsePropTable str
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
 
 /-- Check if code point is a white space character using lookup table
 
@@ -325,7 +332,6 @@ def lookupWhiteSpace (c : UInt32) : Bool :=
     | (_, v) => c ≤ v
  where
   str : String := include_str "../data/table/White_Space.txt"
-  table : Thunk <| Array (UInt32 × UInt32) :=
-    .mk fun _ => parsePropTable str
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
 
 end Unicode
