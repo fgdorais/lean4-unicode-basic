@@ -1,5 +1,5 @@
 /-
-Copyright © 2023 François G. Dorais. All rights reserved.
+Copyright © 2023-2024 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
@@ -14,8 +14,8 @@ namespace Unicode
 
 /-- Coercion from `String` to `Substring`
 
-  This coercion is in Std but not in Lean core. It is scoped to `Unicode` here to avoid issues
-  in low-level packages that don't use Std.
+  This coercion is in Batteries but not in Lean. It is scoped to `Unicode` here to avoid issues in
+  low-level packages that don't use Batteries.
 -/
 scoped instance : Coe String Substring where
   coe := String.toSubstring
@@ -573,9 +573,9 @@ inductive BidiClass
 | leftToRightIsolate
 /-- (`RLI`) right-toleft isolate (U+2067: the RL isolate control) -/
 | rightToLeftIsolate
-/-- (`FSI`)	first strong isolate	U+2068: the first strong isolate control -/
+/-- (`FSI`)	first strong isolate (U+2068: the first strong isolate control) -/
 | firstStrongIsolate
-/-- (`PDI`) pop directional isolate	U+2069: terminates an isolate control -/
+/-- (`PDI`) pop directional isolate (U+2069: terminates an isolate control) -/
 | popDirectionalIsolate
 deriving Inhabited, DecidableEq
 
@@ -720,7 +720,7 @@ def UnicodeData.mkNoncharacter (code : UInt32) : UnicodeData where
   codeValue := code
   generalCategory := .Cn
   characterName :=
-    -- Extracted from `PropLists.txt`
+    -- Extracted from property `Noncharacter_Code_Point`
     let isReserved := (code &&& 0xFFFFFFF0 == 0x0000FDD0) ||
                       (code &&& 0xFFFFFFF0 == 0x0000FDE0) ||
                       (code &&& 0x0000FFFE == 0x0000FFFE)
