@@ -13,6 +13,10 @@ lean_lib UnicodeBasic {
   precompileModules := true
 }
 
+lean_lib UnicodeData {
+  precompileModules := true
+}
+
 lean_exe UnicodeTable
 
 lean_exe UnicodeTool

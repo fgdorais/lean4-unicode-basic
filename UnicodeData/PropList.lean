@@ -32,7 +32,7 @@ private unsafe def PropList.init : IO PropList := do
     let val : UInt32 × Option UInt32 :=
       match record[0]!.splitOn ".." with
       | [c] => (ofHexString! c.toString, none)
-      | [c₀,c₁] => (ofHexString! c₀.toString, some <| ofHexString! c₁.toString)
+      | [c₀, c₁] => (ofHexString! c₀.toString, some <| ofHexString! c₁.toString)
       | _ => panic! "invalid record in PropList.txt"
     match record[1]!.toString with -- TODO: don't use toString
     | "Noncharacter_Code_Point" => list := {list with noncharacterCodePoint := list.noncharacterCodePoint.push val}
