@@ -3,7 +3,6 @@ Copyright © 2024 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
-import UnicodeBasic
 import UnicodeData
 
 open Unicode
@@ -61,14 +60,20 @@ def statsProp (array : Array (UInt32 × UInt32)) : Id <| Nat × Nat := do
 def mkBidiClass : IO <| Array (UInt32 × UInt32 × BidiClass) := do
   let mut t := #[]
   for d in UnicodeData.data do
-    match t.back? with
-    | some (c₀, c₁, bc) =>
-      if d.codeValue = c₁ + 1 && d.bidiClass == bc then
-        t := t.pop.push (c₀, c₁+1, bc)
-      else
+    if d.characterName.takeRight 7 == ", Last>" then
+      match t.back? with
+      | some (c₀, _, bc) =>
+        t := t.pop.push (c₀, d.codeValue, bc)
+      | none => unreachable!
+    else
+      match t.back? with
+      | some (c₀, c₁, bc) =>
+        if d.codeValue = c₁ + 1 && d.bidiClass == bc then
+          t := t.pop.push (c₀, c₁+1, bc)
+        else
+          t := t.push (d.codeValue, d.codeValue, d.bidiClass)
+      | none =>
         t := t.push (d.codeValue, d.codeValue, d.bidiClass)
-    | none =>
-      t := t.push (d.codeValue, d.codeValue, d.bidiClass)
   return t
 
 def mkBidiMirrored : IO <| Array (UInt32 × UInt32) := do
@@ -99,14 +104,21 @@ def mkCanonicalCombiningClass : IO <| Array (UInt32 × UInt32 × Nat) := do
         t := t.push (d.codeValue, d.codeValue, d.canonicalCombiningClass)
   return t
 
-def mkCanonicalDecomposition : IO <| Array (UInt32 × List UInt32) := do
+partial def mkCanonicalDecompositionMapping : IO <| Array (UInt32 × List Char) := do
   let mut t := #[]
   for data in UnicodeData.data do
     match data.decompositionMapping with
     | some ⟨none, l⟩ =>
-      t := t.push (data.codeValue, l.map Char.val)
+      t := t.push (data.codeValue, fullDecomposition l)
     | _ => continue
   return t
+where
+  fullDecomposition : List Char → List Char
+  | [] => unreachable!
+  | h :: t =>
+    match (getUnicodeData h).decompositionMapping with
+    | some ⟨none, l⟩ => fullDecomposition (l ++ t)
+    | _ => h :: t
 
 def mkCaseMapping : IO <| Array (UInt32 × UInt32 × UInt32 × UInt32 × UInt32) := do
   let mut t := #[]
@@ -132,9 +144,9 @@ def mkDecompositionMapping : IO <| Array (UInt32 × String) := do
   for data in UnicodeData.data do
     match data.decompositionMapping with
     | some ⟨none, l⟩ =>
-      t := t.push (data.codeValue, " ".intercalate <| l.map (toHexStringAux <| Char.val .))
+      t := t.push (data.codeValue, ";" ++ ";".intercalate (l.map (toHexStringAux <| Char.val .)))
     | some ⟨some k, l⟩ =>
-      t := t.push (data.codeValue, s!"{k} " ++ " ".intercalate (l.map (toHexStringAux <| Char.val ·)))
+      t := t.push (data.codeValue, s!"{k};" ++ ";".intercalate (l.map (toHexStringAux <| Char.val ·)))
     | _ => continue
   return t
 
@@ -199,6 +211,8 @@ def mkName : IO <| Array (UInt32 × UInt32 × String) := do
     if n.takeRight 8 == ", First>" then
       if "<CJK Ideograph".isPrefixOf n then
         t := t.push (c, c, "<CJK Unified Ideograph>")
+      else if "<Tangut Ideograph".isPrefixOf n then
+        t := t.push (c, c, "<Tangut Ideograph>")
       else if n.takeRight 17 == "Surrogate, First>" then
         match t.back with
         | (c₀, c₁, n₀) =>
@@ -300,12 +314,20 @@ def mkOtherUppercase : Array (UInt32 × UInt32) :=
     | (c₀, none) => (c₀, c₀)
 
 def mkAlphabetic : IO <| Array (UInt32 × UInt32) := do
-  let t := (← mkGeneralCategory).filterMap fun d =>
-    if d.2.2 ∈ [.LC, .Ll, .Lu, .Lt, .Lm, .Lo, .Nl] then
-      some (d.1, d.2.1)
-    else
-      none
-  return mergeProp #[t, mkOtherAlphabetic, mkOtherLowercase, mkOtherUppercase]
+  let mut t := #[]
+  for (c₀, c₁, gc) in ← mkGeneralCategory do
+    match gc with
+    | .LC | .Ll | .Lu | .Lt | .Lm | .Lo | .Nl =>
+      match t.back? with
+      | some (a₀, a₁) =>
+        if c₀ == a₁ + 1 then
+          t := t.pop.push (a₀, c₁)
+        else
+          t := t.push (c₀, c₁)
+      | none =>
+        t := t.push (c₀, c₁)
+    | _ => continue
+  return mergeProp #[t, mkOtherAlphabetic]
 
 def mkCased : IO <| Array (UInt32 × UInt32) := do
   let t := (← mkGeneralCategory).filterMap fun d =>
@@ -368,6 +390,7 @@ def main (args : List String) : IO UInt32 := do
     "Canonical_Decomposition_Mapping",
     "Case_Mapping",
     "Cased",
+    "Decomposition_Mapping",
     "Lowercase",
     "Math",
     "Name",
@@ -422,11 +445,10 @@ def main (args : List String) : IO UInt32 := do
       IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
     | "Canonical_Decomposition_Mapping" =>
       IO.println s!"Generating table {arg}"
-      let table ← mkDecompositionMapping
-      let table := table.filter fun x => ! "<".isPrefixOf x.2
+      let table ← mkCanonicalDecompositionMapping
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
-        for (c, s) in table do
-          file.putStrLn <| ";".intercalate [toHexStringAux c, s]
+        for (c, l) in table do
+          file.putStrLn <| toHexStringAux c ++ ";" ++ ";".intercalate (l.map fun c => toHexStringAux c.val)
       IO.println s!"Size: {table.size}"
     | "Case_Mapping" =>
       IO.println s!"Generating table {arg}"
@@ -465,7 +487,7 @@ def main (args : List String) : IO UInt32 := do
       let table ← mkDecompositionMapping
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c, s) in table do
-          file.putStrLn <| ";".intercalate [toHexStringAux c, s]
+          file.putStrLn <| toHexStringAux c ++ ";" ++ s
       IO.println s!"Size: {table.size}"
     | "General_Category" =>
       IO.println s!"Generating table {arg}"

@@ -9,17 +9,17 @@ open Lake DSL
 package UnicodeBasic
 
 @[default_target]
-lean_lib UnicodeBasic {
-  precompileModules := true
-}
+lean_lib UnicodeBasic
 
 lean_lib UnicodeData {
   precompileModules := true
 }
 
-lean_exe UnicodeTable
+lean_exe makeTables
 
-lean_exe UnicodeTool
+lean_exe testTables
+
+lean_exe lookup
 
 -- Download datafile from the Unicode Character Database (UCD)
 script downloadUCD (args) do

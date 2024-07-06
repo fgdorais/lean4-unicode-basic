@@ -713,20 +713,16 @@ structure UnicodeData where
   lowercaseMapping : Option Char := none
   /-- Titlecase Mapping -/
   titlecaseMapping : Option Char := none
-deriving Inhabited, BEq, Repr
+deriving BEq, Repr
 
-/-- Make `UnicodeData` for noncharacter code point -/
-def UnicodeData.mkNoncharacter (code : UInt32) : UnicodeData where
-  codeValue := code
-  generalCategory := .Cn
-  characterName :=
-    -- Extracted from property `Noncharacter_Code_Point`
-    let isReserved := (code &&& 0xFFFFFFF0 == 0x0000FDD0) ||
-                      (code &&& 0xFFFFFFF0 == 0x0000FDE0) ||
-                      (code &&& 0x0000FFFE == 0x0000FFFE)
-    (if isReserved then "<reserved-" else "<noncharacter-") ++ toHexStringAux code ++ ">"
-  canonicalCombiningClass := 0
-  bidiClass := .BN
-  bidiMirrored := false
+instance : Inhabited UnicodeData where
+  default := {
+    codeValue := 0
+    characterName := "<control-0000>"
+    generalCategory := .Cc
+    canonicalCombiningClass := 0
+    bidiClass := .BN
+    bidiMirrored := false
+  }
 
 end Unicode
