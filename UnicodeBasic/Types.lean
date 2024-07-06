@@ -480,7 +480,7 @@ inductive CompatibilityTag
 | fraction
 /-- Otherwise unspecified compatibility character -/
 | compat
-deriving Inhabited, Repr
+deriving Inhabited, DecidableEq, Repr
 
 instance : ToString CompatibilityTag where
   toString
@@ -509,7 +509,7 @@ structure DecompositionMapping where
   tag : Option CompatibilityTag
   /-- Decomposition mapping -/
   mapping : List Char
-deriving Inhabited, Repr
+deriving Inhabited, DecidableEq, Repr
 
 /-!
   ## Bidirectional Class ##
@@ -701,7 +701,7 @@ structure UnicodeData where
   lowercaseMapping : Option Char := none
   /-- Titlecase Mapping -/
   titlecaseMapping : Option Char := none
-deriving Repr, Inhabited
+deriving Inhabited, BEq, Repr
 
 /-- Make `UnicodeData` for noncharacter code point -/
 def UnicodeData.mkNoncharacter (code : UInt32) : UnicodeData where
