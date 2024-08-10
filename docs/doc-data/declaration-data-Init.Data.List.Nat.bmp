@@ -1,0 +1,1 @@
+{"name":"Init.Data.List.Nat","instances":[],"imports":["Init.Data.List.Nat.Basic","Init.Data.List.Nat.Pairwise","Init.Data.List.Nat.Range","Init.Data.List.Nat.TakeDrop"],"declarations":[]}
