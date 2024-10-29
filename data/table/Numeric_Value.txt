@@ -616,6 +616,7 @@ FF10;FF19;decimal
 10CFE;;numeric 100
 10CFF;;numeric 1000
 10D30;10D39;decimal
+10D40;10D49;decimal
 10E60;10E68;digit 1-9
 10E69;;numeric 10
 10E6A;;numeric 20
@@ -701,6 +702,8 @@ FF10;FF19;decimal
 114D0;114D9;decimal
 11650;11659;decimal
 116C0;116C9;decimal
+116D0;116D9;decimal
+116DA;116E3;decimal
 11730;11739;decimal
 1173A;;numeric 10
 1173B;;numeric 20
@@ -715,6 +718,7 @@ FF10;FF19;decimal
 118F1;;numeric 80
 118F2;;numeric 90
 11950;11959;decimal
+11BF0;11BF9;decimal
 11C50;11C59;decimal
 11C5A;;numeric 1
 11C5B;;numeric 2
@@ -870,6 +874,7 @@ FF10;FF19;decimal
 1246C;;numeric 7
 1246D;;numeric 8
 1246E;;numeric 9
+16130;16139;decimal
 16A60;16A69;decimal
 16AC0;16AC9;decimal
 16B50;16B59;decimal
@@ -880,6 +885,7 @@ FF10;FF19;decimal
 16B5F;;numeric 100000000
 16B60;;numeric 10000000000
 16B61;;numeric 1000000000000
+16D70;16D79;decimal
 16E80;;numeric 0
 16E81;;numeric 1
 16E82;;numeric 2
@@ -903,6 +909,7 @@ FF10;FF19;decimal
 16E94;;numeric 1
 16E95;;numeric 2
 16E96;;numeric 3
+1CCF0;1CCF9;decimal
 1D2C0;;numeric 0
 1D2C1;;numeric 1
 1D2C2;;numeric 2
@@ -976,6 +983,7 @@ FF10;FF19;decimal
 1E140;1E149;decimal
 1E2F0;1E2F9;decimal
 1E4F0;1E4F9;decimal
+1E5F1;1E5FA;decimal
 1E8C7;;numeric 1
 1E8C8;;numeric 2
 1E8C9;;numeric 3

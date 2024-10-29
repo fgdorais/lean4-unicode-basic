@@ -35,4 +35,4 @@ script downloadUCD (args) do
   return err
 
 -- Update data files from the Unicode Character Database (UCD)
-script updateUCD do downloadUCD ["UnicodeData.txt", "PropList.txt"]
+script updateUCD do downloadUCD ["ReadMe.txt", "UnicodeData.txt", "PropList.txt"]
