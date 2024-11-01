@@ -24,7 +24,7 @@ lean_exe testTables
 
 -- Download datafile from the Unicode Character Database (UCD)
 script downloadUCD (args) do
-  let dir : FilePath := "./data"
+  let dir : System.FilePath := "./data"
   let url := "https://www.unicode.org/Public/UCD/latest/ucd/"
   let mut err : ExitCode := 0
   for file in args do
