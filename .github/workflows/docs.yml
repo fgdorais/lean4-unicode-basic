@@ -13,16 +13,18 @@ jobs:
       - name: Checkout Release
         uses: actions/checkout@v4
 
-      - name: Generate Docs
+      - name: Install Lean
         uses: leanprover/lean-action@v1
         with:
-          build: true
+          build: false
           test: false
           lint: false
-          use-mathlib-cache: false
-          use-github-cache: false
-          build-args: "--update UnicodeDocs:docs"
-          lake-package-directory: "docs"
+
+      - name: Build Docs
+        working-directory: "docs"
+        run: |
+          lake update
+          lake build UnicodeDocs:docs
 
       - name: Publish Docs
         working-directory: "docs"
