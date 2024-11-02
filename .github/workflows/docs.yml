@@ -1,0 +1,37 @@
+name: Publish Docs
+
+on:
+  workflow_dispatch:
+  release:
+    types: ["released"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout Release
+        uses: actions/checkout@v4
+
+      - name: Generate Docs
+        uses: leanprover/lean-action@v1
+        with:
+          build: true
+          test: false
+          lint: false
+          use-mathlib-cache: false
+          use-github-cache: false
+          build-args: "UnicodeDocs:docs"
+          lake-package-directory: "docs"
+
+      - name: Publish Docs
+        working-directory: "docs"
+        run: |
+          git checkout -b gh-pages
+          mv .lake/build/doc .
+          mv .lake/build/doc-data .
+          git add doc
+          git add doc-data
+          git commit -m 'chore: generate docs'
+          git push --force --set-upstream origin gh-pages
+

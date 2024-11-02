@@ -1,0 +1,16 @@
+name = "UnicodeDocs"
+reservoir = false
+defaultTargets = ["UnicodeDocs"]
+
+[[require]]
+name = "doc-gen4"
+git = "https://github.com/leanprover/doc-gen4"
+rev = "main"
+
+[[require]]
+name = "UnicodeBasic"
+path = ".."
+
+[[lean_lib]]
+name = "UnicodeDocs"
+srcDir = ".."
