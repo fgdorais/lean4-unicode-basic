@@ -21,7 +21,7 @@ jobs:
           lint: false
           use-mathlib-cache: false
           use-github-cache: false
-          build-args: "UnicodeDocs:docs"
+          build-args: "--update UnicodeDocs:docs"
           lake-package-directory: "docs"
 
       - name: Publish Docs
