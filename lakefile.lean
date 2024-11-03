@@ -6,7 +6,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Lake
 open Lake DSL
 
-package «lean4-unicode-basic» where
+package UnicodeBasic where
   version := v!"1.1.0"
   description := "Basic Unicode support for Lean 4"
   keywords := #["unicode"]
