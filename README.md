@@ -1,6 +1,6 @@
 # Lean 4 / Unicode Basic
 
-Unicode support for Lean 4.
+Basic Unicode support for Lean 4.
 
 Unicode properties that are currently supported by `UnicodeBasic` include:
 
@@ -26,7 +26,7 @@ Unicode properties that are currently supported by `UnicodeBasic` include:
 * `Uppercase`
 * `White_Space`
 
-To keep the `UnicodeLibrary` library lightweight, only commonly used properties can be supported. If you need a property not yet in the list above, please submit a feature request!
+To keep the `UnicodeBasic` library lightweight, only commonly used properties can be supported. If you need a property not yet in the list above, please submit a feature request!
 
 ## Installation
 
@@ -34,29 +34,30 @@ Add the following dependency to your project's `lakefile.toml`:
 
 ```toml
 [[require]]
-name = "UnicodeBasic"
+name = "lean4-unicode-basic"
 git = "https://github.com/fgdorais/lean4-unicode-basic.git"
-rev = "main"
-```
-
-Or your project's `lakefile.lean`:
-
-```lean
-require UnicodeBasic from git
-  "https://github.com/fgdorais/lean4-unicode-basic" @ "main"
+rev = "main" # or any specific revision
 ```
 
 Then add `import UnicodeBasic` at the top of any Lean file where you plan to use this library.
 
-Use the branch `"docs"` instead of `"main"` if you need to have local library documentation. ([doc-gen4](https://github.com/leanprover/doc-gen4) cannot be used directly because of a circular dependency.)
+## Usage
+
+The main entry point is the root file `UnicodeBasic`. This file contains a description of the main API as well as all primary library functions. The file `UnicodeBasic.Types` contains all the primary data types used in the library.
+
+The remaining files are implementation details. Some of these may be of interest for developers. For example `UnicodeBasic.CharacterDatabase` defines a stream type for parsing files from the [Unicode Character Database](https://www.unicode.org/Public/UCD/latest/ucd/).
 
 ## Documentation
 
-Documentation for the library is located at [dorais.org/lean4-unicode-basic/docs/](https://www.dorais.org/lean4-unicode-basic/docs/).
+Since [doc-gen4](https://github.com/leanprover/doc-gen4) depends on this library, it cannot be used to generate documentation for this library in the usual manner. For this reason, documentation are provided for each release since version 1.1.0.
 
-The main entry point is the root file [`UnicodeBasic`](https://www.dorais.org/lean4-unicode-basic/docs/UnicodeBasic.html). This file contains a description of the main API as well as all primary library functions. The file [`UnicodeBasic.Types`](https://www.dorais.org/lean4-unicode-basic/docs/UnicodeBasic/Types.html) contains all the primary data types used in the library.
+Users can still generate local documentation using these instructions:
 
-The remaining files are implementation details. Some of these may be of interest for developers. For example [`UnicodeBasic.CharacterDatabase`](https://www.dorais.org/lean4-unicode-basic/docs/UnicodeBasic/CharacterDatabase.html) defines a stream type for parsing files from the [Unicode Character Database](https://www.unicode.org/Public/UCD/latest/ucd/).
+1. Change to the `docs` directory
+2. Run `lake update`
+3. Run `lake build UnicodeDocs:docs`
+
+The doc-gen4 documentation will then be found in the `docs/.lake/build/doc` and `docs/.lake/build/doc-data` directories.
 
 -----
 
