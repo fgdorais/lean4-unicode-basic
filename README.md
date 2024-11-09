@@ -49,15 +49,16 @@ The remaining files are implementation details. Some of these may be of interest
 
 ## Documentation
 
+Documentation can be found at [www.dorais.org/lean4-unicode-basic/doc/](https://www.dorais.org/lean4-unicode-basic/doc/).
+
 Since [doc-gen4](https://github.com/leanprover/doc-gen4) depends on this library, it cannot be used to generate documentation for this library in the usual manner. For this reason, documentation are provided for each release since version 1.1.0.
 
 Users can still generate local documentation using these instructions:
 
 1. Change to the `docs` directory
-2. Run `lake update`
-3. Run `lake build UnicodeDocs:docs`
+2. Run `lake build`
 
-The doc-gen4 documentation will then be found in the `docs/.lake/build/doc` and `docs/.lake/build/doc-data` directories.
+The doc-gen4 documentation will then be found in the `docs/doc` and `docs/doc-data` directories.
 
 -----
 
