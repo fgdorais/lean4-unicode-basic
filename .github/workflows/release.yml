@@ -44,3 +44,12 @@ jobs:
             docs/docs-${{ github.ref_name }}.tar.gz
             docs/docs-${{ github.ref_name }}.zip
           fail_on_unmatched_files: true
+
+      - name: Deploy Docs
+        run: |
+          git config user.name 'Unicode Basic Bot'
+          git config user.email 'unicode-basic-bot@users.noreply.github.com'
+          git checkout docs
+          git add docs/doc docs/doc-data
+          git commit -m 'chore: generate docs'
+          git push origin docs --force
