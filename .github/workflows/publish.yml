@@ -1,0 +1,35 @@
+name: Publish Docs
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy-docs:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Lean
+        uses: leanprover/lean-action@v1
+        with:
+          test: false
+          lint: false
+          use-github-cache: true
+
+      - name: Build Docs
+        working-directory: docs
+        run: lake build UnicodeBasic:docs UnicodeData:docs
+
+      - name: Deploy Docs
+        run: |
+          git config user.name "unicode-basic-bot"
+          git config user.email "unicode-basic-bot@users.noreply.github.com"
+          git checkout -b docs
+          git add docs/doc docs/doc-data
+          git commit -m "chore: generate docs"
+          git push origin docs --force

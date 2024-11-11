@@ -1,7 +1,6 @@
-name = "UnicodeDocs"
+name = "docs"
 reservoir = false
 buildDir = "."
-defaultTargets = ["UnicodeDocs"]
 
 [[require]]
 name = "doc-gen4"
@@ -11,8 +10,3 @@ rev = "main"
 [[require]]
 name = "UnicodeBasic"
 path = ".."
-
-[[lean_lib]]
-name = "UnicodeDocs"
-srcDir = ".."
-defaultFacets = ["docs"]

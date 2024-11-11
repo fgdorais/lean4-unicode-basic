@@ -25,9 +25,7 @@ jobs:
 
       - name: Build Docs
         working-directory: docs
-        run: |
-          lake update
-          lake build
+        run: lake build UnicodeBasic:docs UnicodeData:docs
 
       - name: Compress Docs
         working-directory: docs
