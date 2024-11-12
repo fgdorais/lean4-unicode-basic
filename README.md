@@ -34,9 +34,16 @@ Add the following dependency to your project's `lakefile.toml`:
 
 ```toml
 [[require]]
-name = "lean4-unicode-basic"
+name = "UnicodeBasic"
 git = "https://github.com/fgdorais/lean4-unicode-basic.git"
 rev = "main" # or any specific revision
+```
+
+Or this dependency to your project's `lakefile.lean`:
+
+```lean4
+require UnicodeBasic from git
+  "https://github.com/fgdorais/lean4-unicode-basic.git" @ "main"
 ```
 
 Then add `import UnicodeBasic` at the top of any Lean file where you plan to use this library.
