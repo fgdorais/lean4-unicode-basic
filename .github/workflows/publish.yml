@@ -23,7 +23,7 @@ jobs:
 
       - name: Build Docs
         working-directory: docs
-        run: lake build UnicodeBasic:docs UnicodeData:docs
+        run: lake build --keep-toolchain UnicodeBasic:docs UnicodeData:docs
 
       - name: Deploy Docs
         run: |
