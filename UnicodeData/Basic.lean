@@ -132,7 +132,7 @@ private unsafe def UnicodeData.init : IO (Array UnicodeData) := do
     arr := arr.push {
       codeValue := ofHexString! record[0]!
       characterName := record[1]!
-      generalCategory := GeneralCategory.ofAbbrev! record[2]!
+      generalCategory := GC.ofAbbrev! record[2]!
       canonicalCombiningClass := record[3]!.toString.toNat! -- TODO: don't use toString
       bidiClass := BidiClass.ofAbbrev! record[4]!
       decompositionMapping := getDecompositionMapping? record[5]!
@@ -303,12 +303,14 @@ partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
           UnicodeData.mkCJKUnifiedIdeograph code
         else if data.characterName.take 17 == "<Tangut Ideograph" then
           UnicodeData.mkTangutIdeograph code
+        else if data.generalCategory == .Cc then
+          UnicodeData.mkControl code
+        else if data.generalCategory == .Co then
+          UnicodeData.mkPrivateUse code
+        else if data.generalCategory == .Cs then
+          UnicodeData.mkSurrogate code
         else
-          match data.generalCategory with
-          | ⟨.other, some .control⟩ => UnicodeData.mkControl code
-          | ⟨.other, some .privateUse⟩ => UnicodeData.mkPrivateUse code
-          | ⟨.other, some .surrogate⟩ => UnicodeData.mkSurrogate code
-          | _ => panic! "unexpected character name value"
+          panic! "unexpected character name value"
       else
         return .mkNoncharacter code
     else if code = data.codeValue then

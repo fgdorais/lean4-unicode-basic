@@ -150,8 +150,8 @@ def mkDecompositionMapping : IO <| Array (UInt32 × String) := do
     | _ => continue
   return t
 
-def mkGeneralCategory : IO <| Array (UInt32 × UInt32 × GeneralCategory) := do
-  let mut t := #[(0,0,GeneralCategory.Cc)]
+def mkGeneralCategory : IO <| Array (UInt32 × UInt32 × GC) := do
+  let mut t := #[(0,0,.Cc)]
   for i in [1:UnicodeData.data.size] do
     let data := UnicodeData.data[i]!
     let c := data.codeValue
@@ -159,7 +159,7 @@ def mkGeneralCategory : IO <| Array (UInt32 × UInt32 × GeneralCategory) := do
     if data.characterName.takeRight 8 == ", First>" then
       t := t.push (c, c, k)
     else if data.characterName.takeRight 7 == ", Last>" then
-      match t.back with
+      match t.back! with
       | (c₀, _, k) =>
         t := t.pop.push (c₀, c, k)
     else
@@ -189,7 +189,7 @@ def mkGeneralCategory : IO <| Array (UInt32 × UInt32 × GeneralCategory) := do
           then .PQ
           else k
         else k
-      match t.back with
+      match t.back! with
       | (c₀, c₁, k₁) =>
         if c == c₁ + 1 && k == k₁ then
           t := t.pop.push (c₀, c, k)
@@ -214,7 +214,7 @@ def mkName : IO <| Array (UInt32 × UInt32 × String) := do
       else if "<Tangut Ideograph".isPrefixOf n then
         t := t.push (c, c, "<Tangut Ideograph>")
       else if n.takeRight 17 == "Surrogate, First>" then
-        match t.back with
+        match t.back! with
         | (c₀, c₁, n₀) =>
           if c == c₁ + 1 && n₀ == "<Surrogate>" then
             t := t.pop.push (c₀, c, "<Surrogate>")
@@ -225,46 +225,46 @@ def mkName : IO <| Array (UInt32 × UInt32 × String) := do
       else
         t := t.push (c, c, n.dropRight 8 ++ ">")
     else if n.takeRight 7 == ", Last>" then
-      match t.back with
+      match t.back! with
       | (c₀, _, n₀) =>
         t := t.pop.push (c₀, c, n₀)
     else if n == "<control>" then
-      match t.back with
+      match t.back! with
       | (c₀, _, n₀) =>
         if n₀ == "<Control>" then
           t := t.pop.push (c₀, c, n₀)
         else
           t := t.push (c, c, "<Control>")
     else if "CJK COMPATIBILITY IDEOGRAPH-".isPrefixOf n then
-      match t.back with
+      match t.back! with
       | (c₀, c₁, n) =>
         if c == c₁ + 1 && n == "<CJK Compatibility Ideograph>" then
           t := t.pop.push (c₀, c, n)
         else
           t := t.push (c, c, "<CJK Compatibility Ideograph>")
     else if "KHITAN SMALL SCRIPT CHARACTER-".isPrefixOf n then
-      match t.back with
+      match t.back! with
       | (c₀, c₁, n) =>
         if c == c₁ + 1 && n == "<Khitan Small Script Character>" then
           t := t.pop.push (c₀, c, n)
         else
           t := t.push (c, c, "<Khitan Small Script Character>")
     else if "NUSHU CHARACTER-".isPrefixOf n then
-      match t.back with
+      match t.back! with
       | (c₀, c₁, n) =>
         if c == c₁ + 1 && n == "<Nushu Character>" then
           t := t.pop.push (c₀, c, n)
         else
           t := t.push (c, c, "<Nushu Character>")
     else if "TANGUT COMPONENT-".isPrefixOf n then
-      match t.back with
+      match t.back! with
       | (c₀, c₁, n) =>
         if c == c₁ + 1 && n == "<Tangut Component>" then
           t := t.pop.push (c₀, c, n)
         else
           t := t.push (c, c, "<Tangut Component>")
     else
-      match t.back with
+      match t.back! with
       | (c₀, c₁, n₀) =>
         if c == c₁ + 1 && n == n₀ then
           t := t.pop.push (c₀, c, n)
@@ -279,7 +279,7 @@ def mkNumericValue : IO <| Array (UInt32 × UInt32 × NumericType) := do
     | some (.decimal 0) =>
       t := t.push (d.codeValue, d.codeValue + 9, .decimal 0)
     | some (.digit v) =>
-      match t.back with
+      match t.back! with
       | (c₀, c₁, n@(NumericType.digit x)) =>
         let last := x.val + c₁.val - c₀.val
         if d.codeValue == c₁ + 1 && v.val == last + 1 then
@@ -495,9 +495,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁, gc) in table do
           if c₀ == c₁ then
-            file.putStrLn <| ";".intercalate [toHexStringAux c₀, "", gc.toAbbrev]
+            file.putStrLn <| ";".intercalate [toHexStringAux c₀, "", gc.toAbbrev!]
           else
-            file.putStrLn <| ";".intercalate [toHexStringAux c₀, toHexStringAux c₁, gc.toAbbrev]
+            file.putStrLn <| ";".intercalate [toHexStringAux c₀, toHexStringAux c₁, gc.toAbbrev!]
       IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
     | "Lowercase" =>
       IO.println s!"Generating table {arg}"

@@ -58,7 +58,7 @@ def testDecompositionMapping (d : UnicodeData) : Bool :=
   d.decompositionMapping == lookupDecompositionMapping? d.codeValue
 
 def testGeneralCategory (d : UnicodeData) : Bool :=
-  d.generalCategory == lookupGeneralCategory d.codeValue
+  d.generalCategory == lookupGC d.codeValue
 
 def testLowercase (d : UnicodeData) : Bool :=
   let v :=
