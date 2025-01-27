@@ -1,5 +1,5 @@
 /-
-Copyright © 2023-2024 François G. Dorais. All rights reserved.
+Copyright © 2023-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
@@ -9,92 +9,52 @@ import UnicodeBasic.Types
 
 namespace Unicode
 
--- /-- Extracted from `Jamo.txt` -/
--- private def jamoL := #["G", "GG", "N", "D", "DD", "R", "M", "B", "BB", "S", "SS", "", "J", "JJ", "C", "K", "T", "P", "H"]
--- private def jamoV := #["A", "AE", "YA", "YAE", "EO", "E", "YEO", "YE", "O", "WA", "WAE", "OE", "YO", "U", "WEO", "WE", "WI", "YU", "EU", "YI", "I"]
--- private def jamoT := #["", "G", "GG", "GS", "N", "NJ", "NH", "D", "L", "LG", "LM", "LB", "LS", "LT", "LP", "LH", "M", "B", "BS", "S", "SS", "NG", "J", "C", "K", "T", "P", "H"]
-
--- private def getHangulSyllableLVT? (code : UInt32) : Option (Nat × Nat × Nat) :=
---   -- See Unicode Standard 3.12
---   if code < 0xAC00 then none else
---     let sIndex := (code - 0xAC00).toNat
---     if sIndex ≥ jamoL.size * jamoV.size * jamoT.size then none else
---       -- NB: sIndex < jamoL.size * jamoV.size * jamoT.size
---       let lIndex := sIndex / (jamoV.size * jamoT.size) -- NB: lIndex < jamoL.size
---       let nIndex := sIndex % (jamoV.size * jamoT.size) -- NB: nIndex < jamoV.size * jamoT.size
---       let vIndex := nIndex / jamoT.size -- NB: vIndex < jamoV.size
---       let tIndex := nIndex % jamoT.size -- NB: tIndex < jamoT.size
---       return (lIndex, vIndex, tIndex)
-
--- /-- Get Hangul syllable name -/
--- def getHangulSyllableName? (code : UInt32) : Option String :=
---   getHangulSyllableLVT? code >>= fun
---   | (l, v, t) => jamoL[l]! ++ jamoV[v]! ++ jamoT[t]!
-
--- @[inherit_doc getHangulSyllableName?]
--- def getHangulSyllableName! (code : UInt32) : String :=
---   match getHangulSyllableName? code with
---   | some str => str
---   | none => panic! "invalid Hangul syllable code point"
-
 /-- Make `UnicodeData` for noncharacter code point -/
 def UnicodeData.mkNoncharacter (code : UInt32) : UnicodeData where
-  codeValue := code
-  generalCategory := .Cn
-  characterName :=
+  code := code
+  name :=
     -- Extracted from property `Noncharacter_Code_Point`
     let isReserved := (code &&& 0xFFFFFFF0 == 0x0000FDD0) ||
                       (code &&& 0xFFFFFFF0 == 0x0000FDE0) ||
                       (code &&& 0x0000FFFE == 0x0000FFFE)
     (if isReserved then "<reserved-" else "<noncharacter-") ++ toHexStringAux code ++ ">"
-  canonicalCombiningClass := 0
-  bidiClass := .BN
-  bidiMirrored := false
+  bidi := .BN
+  gc := .Cn
 
 /-- Make `UnicodeData` for generic control code point -/
 def UnicodeData.mkControl (c : UInt32) : UnicodeData where
-  codeValue := c
-  characterName := s!"<control-{toHexStringAux c}>"
-  generalCategory := .Cc
-  canonicalCombiningClass := 0
-  bidiClass := .BN
-  bidiMirrored := false
+  code := c
+  name := s!"<control-{toHexStringAux c}>"
+  bidi := .BN
+  gc := .Cc
 
 /-- Make `UnicodeData` for generic surrogate code point -/
 def UnicodeData.mkSurrogate (c : UInt32) : UnicodeData where
-  codeValue := c
-  characterName := s!"<surrogate-{toHexStringAux c}>"
-  generalCategory := .Cs
-  canonicalCombiningClass := 0
-  bidiClass := .L
-  bidiMirrored := false
+  code := c
+  name := s!"<surrogate-{toHexStringAux c}>"
+  bidi := .L
+  gc := .Cs
 
 /-- Make `UnicodeData` for generic private use code point -/
 def UnicodeData.mkPrivateUse (c : UInt32) : UnicodeData where
-  codeValue := c
-  characterName := s!"<private-use-{toHexStringAux c}>"
-  generalCategory := .Co
-  canonicalCombiningClass := 0
-  bidiClass := .L
-  bidiMirrored := false
+  code := c
+  name := s!"<private-use-{toHexStringAux c}>"
+  bidi := .L
+  gc := .Co
 
 /-- Make `UnicodeData` for CJK compatibilty ideograph code point -/
 def UnicodeData.mkCJKCompatibilityIdeograph (c : UInt32) : UnicodeData where
-  codeValue := c
-  characterName := s!"CJK COMPATIBILITY IDEOGRAPH-{toHexStringAux c}"
-  generalCategory := .Lo
-  canonicalCombiningClass := 0
-  bidiClass := .L
-  bidiMirrored := false
+  code := c
+  name := s!"CJK COMPATIBILITY IDEOGRAPH-{toHexStringAux c}"
+  bidi := .L
+  gc := .Lo
 
 /-- Make `UnicodeData` for CJK unified ideograph code point -/
 def UnicodeData.mkCJKUnifiedIdeograph (c : UInt32) : UnicodeData where
-  codeValue := c
-  characterName := s!"CJK UNIFIED IDEOGRAPH-{toHexStringAux c}"
-  generalCategory := .Lo
-  canonicalCombiningClass := 0
-  bidiClass := .L
-  bidiMirrored := false
+  code := c
+  name := s!"CJK UNIFIED IDEOGRAPH-{toHexStringAux c}"
+  bidi := .L
+  gc := .Lo
 
 /-- Make `UnicodeData` for Hangul syllable code point -/
 def UnicodeData.mkHangulSyllable (c : UInt32) : UnicodeData :=
@@ -103,23 +63,19 @@ def UnicodeData.mkHangulSyllable (c : UInt32) : UnicodeData :=
     match s.getTChar? with
     | some t => ⟨none, [s.getLVChar, t]⟩
     | none => ⟨none, [s.getLChar, s.getVChar]⟩
-  { codeValue := c
-    characterName := s!"HANGUL SYLLABLE {s.getShortName}"
-    generalCategory := .Lo
-    canonicalCombiningClass := 0
-    decompositionMapping := m
-    bidiClass := .L
-    bidiMirrored := false
+  { code := c
+    name := s!"HANGUL SYLLABLE {s.getShortName}"
+    bidi := .L
+    gc := .Lo
+    decomp := m
   }
 
 /-- Make `UnicodeData` for Tangut ideograph code point -/
 def UnicodeData.mkTangutIdeograph (c : UInt32) : UnicodeData where
-  codeValue := c
-  characterName := s!"TANGUT IDEOGRAPH-{toHexStringAux c}"
-  generalCategory := .Lo
-  canonicalCombiningClass := 0
-  bidiClass := .L
-  bidiMirrored := false
+  code := c
+  name := s!"TANGUT IDEOGRAPH-{toHexStringAux c}"
+  bidi := .L
+  gc := .Lo
 
 /-- Raw string from file `UnicodeData.txt` -/
 protected def UnicodeData.txt := include_str "../data/UnicodeData.txt"
@@ -130,17 +86,17 @@ private unsafe def UnicodeData.init : IO (Array UnicodeData) := do
   let mut arr := #[]
   for record in stream do
     arr := arr.push {
-      codeValue := ofHexString! record[0]!
-      characterName := record[1]!
-      generalCategory := GeneralCategory.ofAbbrev! record[2]!
-      canonicalCombiningClass := record[3]!.toString.toNat! -- TODO: don't use toString
-      bidiClass := BidiClass.ofAbbrev! record[4]!
-      decompositionMapping := getDecompositionMapping? record[5]!
+      code := ofHexString! record[0]!
+      name := record[1]!
+      gc := GC.ofAbbrev! record[2]!
+      cc := record[3]!.toString.toNat! -- TODO: don't use toString
+      bidi := BidiClass.ofAbbrev! record[4]!
+      decomp := getDecompositionMapping? record[5]!
       numeric := getNumericType? record[6]! record[7]! record[8]!
       bidiMirrored := record[9]! == "Y"
-      uppercaseMapping := if record[12]!.isEmpty then none else some <| Char.mkUnsafe <| ofHexString! record[12]!
-      lowercaseMapping := if record[13]!.isEmpty then none else some <| Char.mkUnsafe <| ofHexString! record[13]!
-      titlecaseMapping := if record[14]!.isEmpty then none else some <| Char.mkUnsafe <| ofHexString! record[14]!
+      uppercase := if record[12]!.isEmpty then none else some <| Char.mkUnsafe <| ofHexString! record[12]!
+      lowercase := if record[13]!.isEmpty then none else some <| Char.mkUnsafe <| ofHexString! record[13]!
+      titlecase := if record[14]!.isEmpty then none else some <| Char.mkUnsafe <| ofHexString! record[14]!
     }
   return arr
 
@@ -269,10 +225,10 @@ partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
       common subsets.
     -/
     let data := UnicodeData.data[code.toUSize]!
-    assert! (data.codeValue == code)
-    if data.characterName == "<control>" then
+    assert! (data.code == code)
+    if data.name == "<control>" then
       return {data with
-        characterName := s!"<control-{toHexStringAux code}>"}
+        name := s!"<control-{toHexStringAux code}>"}
     else
       return data
   else
@@ -295,23 +251,25 @@ partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
       Unicode Standard for more information on derivation of character names
       for such ranges.
     -/
-    if data.characterName.get 0 == '<' then
-      if code = data.codeValue || data.characterName.takeRight 8 == ", First>" then
-        if data.characterName.take 16 == "<Hangul Syllable" then
+    if data.name.get 0 == '<' then
+      if code = data.code || data.name.takeRight 8 == ", First>" then
+        if data.name.take 16 == "<Hangul Syllable" then
           UnicodeData.mkHangulSyllable code
-        else if data.characterName.take 14 == "<CJK Ideograph" then
+        else if data.name.take 14 == "<CJK Ideograph" then
           UnicodeData.mkCJKUnifiedIdeograph code
-        else if data.characterName.take 17 == "<Tangut Ideograph" then
+        else if data.name.take 17 == "<Tangut Ideograph" then
           UnicodeData.mkTangutIdeograph code
+        else if data.gc == .Cc then
+          UnicodeData.mkControl code
+        else if data.gc == .Co then
+          UnicodeData.mkPrivateUse code
+        else if data.gc == .Cs then
+          UnicodeData.mkSurrogate code
         else
-          match data.generalCategory with
-          | ⟨.other, some .control⟩ => UnicodeData.mkControl code
-          | ⟨.other, some .privateUse⟩ => UnicodeData.mkPrivateUse code
-          | ⟨.other, some .surrogate⟩ => UnicodeData.mkSurrogate code
-          | _ => panic! "unexpected character name value"
+          panic! "unexpected character name value"
       else
         return .mkNoncharacter code
-    else if code = data.codeValue then
+    else if code = data.code then
       return data
     else
       return .mkNoncharacter code
@@ -323,12 +281,12 @@ where
   find (lo hi : Nat) : Nat :=
     assert! (hi ≤ UnicodeData.data.size)
     assert! (lo < hi)
-    assert! (UnicodeData.data[lo]!.codeValue ≤ code)
+    assert! (UnicodeData.data[lo]!.code ≤ code)
     let mid := (lo + hi) / 2 -- NB: mid < hi because lo < hi
     if lo = mid then
       mid
     else
-      if code < UnicodeData.data[mid]!.codeValue then
+      if code < UnicodeData.data[mid]!.code then
         find lo mid
       else
         find mid hi
@@ -359,11 +317,11 @@ private def UnicodeDataStream.next? (s : UnicodeDataStream) : Option (UnicodeDat
     none
   else if h : i < UnicodeData.data.size.toUSize then
     let d := UnicodeData.data[i]
-    let n := d.characterName
-    if c < d.codeValue then
+    let n := d.name
+    if c < d.code then
       return (s.default c, {s with code := c+1})
     else if n == "<control>" then
-      let d := {d with characterName := s!"<control-{toHexStringAux c}>"}
+      let d := {d with name := s!"<control-{toHexStringAux c}>"}
       return (d, {s with code := c+1, index := i+1})
     else if n.get 0 == '<' then
       if n.takeRight 8 == ", First>" then

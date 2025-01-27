@@ -1,5 +1,5 @@
 /-
-Copyright © 2023-2024 François G. Dorais. All rights reserved.
+Copyright © 2023-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
@@ -32,14 +32,12 @@ import UnicodeBasic.TableLookup
     checked that the input is in the domain, the function may panic if this
     is not the case.
 
-  There are exceptions and variations on these general rules. For example,
-  `Unicode.isInGeneralCategory` checks whether a character belongs to a given
-  general category. Because of derived general categories, this makes more
-  sense than what the first rule above would give.
-
-  Some properties may be grouped in a namespace. The namespace
-  `Unicode.GeneralCategory` is such. For example, `Unicode.GeneralCategory.isL`
-  checks whether a character belongs to the derived general category `L`.
+  Unicode general categories are encoded using the type `GC`. This type has
+  a boolean algebra structure with inclusion `⊆`, meet/intersection `&&&`,
+  join/union `|||` and complement `~~~`. The relation `∈` is provided to
+  check whether a character belongs to a given category. For example,
+  `c ∈ (GC.L &&& ~~~GC.Lt) ||| GC.Z` checks whether `c` is a either a
+  non-titlecase letter or a separator.
 -/
 
 namespace Unicode
@@ -99,32 +97,35 @@ def isBidiControl (char : Char) : Bool :=
 
   Unicode property: `General_Category` -/
 @[inline]
-def getGeneralCategory (char : Char) : GeneralCategory :=
+def getGC (char : Char) : GC :=
   -- ASCII shortcut
   if h : char.toNat < table.size then
     table[char.toNat]
   else
-    lookupGeneralCategory char.val
+    lookupGC char.val
 where
-  str :=
-    "Cc;Cc;Cc;Cc;Cc;Cc;Cc;Cc;Cc;Cc;Cc;Cc;Cc;Cc;Cc;Cc\
-    ;Cc;Cc;Cc;Cc;Cc;Cc;Cc;Cc;Cc;Cc;Cc;Cc;Cc;Cc;Cc;Cc\
-    ;Zs;Po;Po;Po;Sc;Po;Po;Po;Ps;Pe;Po;Sm;Po;Pd;Po;Po\
-    ;Nd;Nd;Nd;Nd;Nd;Nd;Nd;Nd;Nd;Nd;Po;Po;Sm;Sm;Sm;Po\
-    ;Po;Lu;Lu;Lu;Lu;Lu;Lu;Lu;Lu;Lu;Lu;Lu;Lu;Lu;Lu;Lu\
-    ;Lu;Lu;Lu;Lu;Lu;Lu;Lu;Lu;Lu;Lu;Lu;Ps;Po;Pe;Sk;Pc\
-    ;Sk;Ll;Ll;Ll;Ll;Ll;Ll;Ll;Ll;Ll;Ll;Ll;Ll;Ll;Ll;Ll\
-    ;Ll;Ll;Ll;Ll;Ll;Ll;Ll;Ll;Ll;Ll;Ll;Ps;Sm;Pe;Sm;Cc"
-  table : Array GeneralCategory := Id.run do
-    let mut r := #[]
-    for gc in str.splitOn ";" do
-      r := r.push <| .ofAbbrev! gc
-    return r
+  table : Array GC :=
+    #[.Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc,
+      .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc,
+      .Zs, .Po, .Po, .Po, .Sc, .Po, .Po, .Po, .Ps, .Po, .Po, .Sm, .Po, .Pd, .Po, .Po,
+      .Nd, .Nd, .Nd, .Nd, .Nd, .Nd, .Nd, .Nd, .Nd, .Nd, .Po, .Po, .Sm, .Sm, .Sm, .Po,
+      .Po, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu,
+      .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Ps, .Po, .Po, .Sk, .Pc,
+      .Sk, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll,
+      .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ps, .Sm, .Po, .Sm, .Cc]
 
-/-- Check if character belongs to the general category
+set_option linter.deprecated false in
+@[deprecated Unicode.getGC (since := "1.3.0")]
+def getGeneralCategory (char : Char) : GeneralCategory :=
+  .ofGC! (getGC char)
 
-  Unicode property: `General_Category` -/
-@[inline]
+instance : Membership Char GC where
+  mem cat char := getGC char ⊆ cat
+
+instance (char : Char) (cat : GC) : Decidable (char ∈ cat) := inferInstanceAs (Decidable (_ ⊆ _))
+
+set_option linter.deprecated false in
+@[deprecated "use `char ∈ category` instead" (since := "1.3.0")]
 def isInGeneralCategory (char : Char) (category : GeneralCategory) : Bool :=
   match category, getGeneralCategory char with
   | ⟨major, none⟩, ⟨charMajor, _⟩ => major == charMajor
@@ -147,49 +148,33 @@ namespace GeneralCategory
   This is a derived category (`L = Lu | Ll | Lt | Lm | Lo`).
 
   Unicode Property: `General_Category=L` -/
-@[inline]
-def isLetter (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨.letter, _⟩ => true
-  | _ => false
+abbrev isLetter (char : Char) : Bool := char ∈ Unicode.GC.L
 
-@[inherit_doc isLetter]
+@[deprecated "c ∈ Unicode.GC.L" (since := "1.3.0")]
 protected abbrev isL := isLetter
 
 /-- Check if lowercase letter character (`Ll`)
 
   Unicode Property: `General_Category=Ll` -/
-@[inline]
-def isLowercaseLetter (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .lowercaseLetter⟩ => true
-  | _ => false
+abbrev isLowercaseLetter (char : Char) : Bool := char ∈ Unicode.GC.Ll
 
-@[inherit_doc isLowercaseLetter]
+@[deprecated "c ∈ Unicode.GC.Ll" (since := "1.3.0")]
 protected abbrev isLl := isLowercaseLetter
 
 /-- Check if titlecase letter character (`Lt`)
 
   Unicode Property: `General_Category=Lt` -/
-@[inline]
-def isTitlecaseLetter (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .titlecaseLetter⟩ => true
-  | _ => false
+abbrev isTitlecaseLetter (char : Char) : Bool := char ∈ Unicode.GC.Lt
 
-@[inherit_doc isTitlecaseLetter]
+@[deprecated "c ∈ Unicode.GC.Lt" (since := "1.3.0")]
 protected abbrev isLt := isTitlecaseLetter
 
 /-- Check if uppercase letter character (`Lu`)
 
   Unicode Property: `General_Category=Lu` -/
-@[inline]
-def isUppercaseLetter (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .uppercaseLetter⟩ => true
-  | _ => false
+abbrev isUppercaseLetter (char : Char) : Bool := char ∈ Unicode.GC.Lu
 
-@[inherit_doc isUppercaseLetter]
+@[deprecated "c ∈ Unicode.GC.Lu" (since := "1.3.0")]
 protected abbrev isLu := isUppercaseLetter
 
 /-- Check if cased letter character (`LC`)
@@ -197,39 +182,25 @@ protected abbrev isLu := isUppercaseLetter
   This is a derived category (`L = Lu | Ll | Lt`).
 
   Unicode Property: `General_Category=LC` -/
-@[inline]
-def isCasedLetter (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .lowercaseLetter⟩ => true
-  | ⟨_, some .titlecaseLetter⟩ => true
-  | ⟨_, some .uppercaseLetter⟩ => true
-  | _ => false
+abbrev isCasedLetter (char : Char) : Bool := char ∈ Unicode.GC.LC
 
-@[inherit_doc isCasedLetter]
+@[deprecated "c ∈ Unicode.GC.LC" (since := "1.3.0")]
 protected abbrev isLC := isCasedLetter
 
 /-- Check if modifier letter character (`Lm`)
 
   Unicode Property: `General_Category=Lm`-/
-@[inline]
-def isModifierLetter (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .modifierLetter⟩ => true
-  | _ => false
+abbrev isModifierLetter (char : Char) : Bool := char ∈ Unicode.GC.Lm
 
-@[inherit_doc isModifierLetter]
+@[deprecated "c ∈ Unicode.GC.Lm" (since := "1.3.0")]
 protected abbrev isLm := isModifierLetter
 
 /-- Check if other letter character (`Lo`)
 
   Unicode Property: `General_Category=Lo`-/
-@[inline]
-def isOtherLetter (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .otherLetter⟩ => true
-  | _ => false
+abbrev isOtherLetter (char : Char) : Bool := char ∈ Unicode.GC.Lo
 
-@[inherit_doc isOtherLetter]
+@[deprecated "c ∈ Unicode.GC.Lo" (since := "1.3.0")]
 protected abbrev isLo := isOtherLetter
 
 /-- Check if mark character (`M`)
@@ -237,49 +208,33 @@ protected abbrev isLo := isOtherLetter
   This is a derived category (`M = Mn | Mc | Me`).
 
   Unicode Property: `General_Category=M` -/
-@[inline]
-def isMark (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨.mark, _⟩ => true
-  | _ => false
+abbrev isMark (char : Char) : Bool := char ∈ Unicode.GC.M
 
-@[inherit_doc isMark]
+@[deprecated "c ∈ Unicode.GC.M" (since := "1.3.0")]
 protected abbrev isM := isMark
 
 /-- Check if nonspacing combining mark character (`Mn`)
 
   Unicode Property: `General_Category=Mn` -/
-@[inline]
-def isNonspacingMark (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .nonspacingMark⟩ => true
-  | _ => false
+abbrev isNonspacingMark (char : Char) : Bool := char ∈ Unicode.GC.Mn
 
-@[inherit_doc isNonspacingMark]
+@[deprecated "c ∈ Unicode.GC.Mn" (since := "1.3.0")]
 protected abbrev isMn := isNonspacingMark
 
 /-- Check if spacing combining mark character (`Mc`)
 
   Unicode Property: `General_Category=Mc` -/
-@[inline]
-def isSpacingMark (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .spacingMark⟩ => true
-  | _ => false
+abbrev isSpacingMark (char : Char) : Bool := char ∈ Unicode.GC.Mc
 
-@[inherit_doc isSpacingMark]
+@[deprecated "c ∈ Unicode.GC.Mc" (since := "1.3.0")]
 protected abbrev isMc := isSpacingMark
 
 /-- Check if enclosing combining mark character (`Me`)
 
   Unicode Property: `General_Category=Me` -/
-@[inline]
-def isEnclosingMark (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .enclosingMark⟩ => true
-  | _ => false
+abbrev isEnclosingMark (char : Char) : Bool := char ∈ Unicode.GC.Me
 
-@[inherit_doc isEnclosingMark]
+@[deprecated "c ∈ Unicode.GC.Me" (since := "1.3.0")]
 protected abbrev isMe := isEnclosingMark
 
 /-- Check if number character (`N`)
@@ -287,49 +242,33 @@ protected abbrev isMe := isEnclosingMark
   This is a derived category (`N = Nd | Nl | No`).
 
   Unicode Property: `General_Category=N` -/
-@[inline]
-def isNumber (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨.number, _⟩ => true
-  | _ => false
+abbrev isNumber (char : Char) : Bool := char ∈ Unicode.GC.N
 
-@[inherit_doc isNumber]
+@[deprecated "c ∈ Unicode.GC.N" (since := "1.3.0")]
 protected abbrev isN := isNumber
 
 /-- Check if decimal number character (`Nd`)
 
   Unicode Property: `General_Category=Nd` -/
-@[inline]
-def isDecimalNumber (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .decimalNumber⟩ => true
-  | _ => false
+abbrev isDecimalNumber (char : Char) : Bool := char ∈ Unicode.GC.Nd
 
-@[inherit_doc isDecimalNumber]
+@[deprecated "c ∈ Unicode.GC.Nd" (since := "1.3.0")]
 protected abbrev isNd := isDecimalNumber
 
 /-- Check if letter number character (`Nl`)
 
   Unicode Property: `General_Category=Nl` -/
-@[inline]
-def isLetterNumber (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .letterNumber⟩ => true
-  | _ => false
+abbrev isLetterNumber (char : Char) : Bool := char ∈ Unicode.GC.Nl
 
-@[inherit_doc isLetterNumber]
+@[deprecated "c ∈ Unicode.GC.Nl" (since := "1.3.0")]
 protected abbrev isNl := isLetterNumber
 
 /-- Check if other number character (`No`)
 
   Unicode Property: `General_Category=No` -/
-@[inline]
-def isOtherNumber (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .otherNumber⟩ => true
-  | _ => false
+abbrev isOtherNumber (char : Char) : Bool := char ∈ Unicode.GC.No
 
-@[inherit_doc isOtherNumber]
+@[deprecated "c ∈ Unicode.GC.No" (since := "1.3.0")]
 protected abbrev isNo := isOtherNumber
 
 /-- Check if punctuation character (`P`)
@@ -337,37 +276,25 @@ protected abbrev isNo := isOtherNumber
   This is a derived category (`P = Pc | Pd | Ps | Pe | Pi | Pf | Po`).
 
   Unicode Property: `General_Category=P` -/
-@[inline]
-def isPunctuation (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨.punctuation, _⟩ => true
-  | _ => false
+abbrev isPunctuation (char : Char) : Bool := char ∈ Unicode.GC.P
 
-@[inherit_doc isPunctuation]
+@[deprecated "c ∈ Unicode.GC.P" (since := "1.3.0")]
 protected abbrev isP := isPunctuation
 
 /-- Check if connector punctuation character (`Pc`)
 
   Unicode Property: `General_Category=Pc` -/
-@[inline]
-def isConnectorPunctuation (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .connectorPunctuation⟩ => true
-  | _ => false
+abbrev isConnectorPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pc
 
-@[inherit_doc isConnectorPunctuation]
+@[deprecated "c ∈ Unicode.GC.Pc" (since := "1.3.0")]
 protected abbrev isPc := isConnectorPunctuation
 
 /-- Check if dash punctuation character (`Pd`)
 
   Unicode Property: `General_Category=Pd` -/
-@[inline]
-def isDashPunctuation (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .dashPunctuation⟩ => true
-  | _ => false
+abbrev isDashPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pd
 
-@[inherit_doc isDashPunctuation]
+@[deprecated "c ∈ Unicode.GC.Pd" (since := "1.3.0")]
 protected abbrev isPd := isDashPunctuation
 
 /-- Check if grouping punctuation character (`PG`)
@@ -375,38 +302,25 @@ protected abbrev isPd := isDashPunctuation
   This is a derived category (`PG = Ps | Pe`).
 
   Unicode Property: `General_Category=PG` -/
-@[inline]
-def isGroupPunctuation (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .openPunctuation⟩ => true
-  | ⟨_, some .closePunctuation⟩ => true
-  | _ => false
+abbrev isGroupPunctuation (char : Char) : Bool := char ∈ Unicode.GC.PG
 
-@[inherit_doc isGroupPunctuation]
+@[deprecated "c ∈ Unicode.GC.PG" (since := "1.3.0")]
 protected abbrev isPG := isGroupPunctuation
 
 /-- Check if open punctuation character (`Ps`)
 
   Unicode Property: `General_Category=Ps` -/
-@[inline]
-def isOpenPunctuation (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .openPunctuation⟩ => true
-  | _ => false
+abbrev isOpenPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Ps
 
-@[inherit_doc isOpenPunctuation]
+@[deprecated "c ∈ Unicode.GC.Ps" (since := "1.3.0")]
 protected abbrev isPs := isOpenPunctuation
 
 /-- Check if close punctuation character (`Pe`)
 
   Unicode Property: `General_Category=Pe` -/
-@[inline]
-def isClosePunctuation (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .closePunctuation⟩ => true
-  | _ => false
+abbrev isClosePunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pe
 
-@[inherit_doc isClosePunctuation]
+@[deprecated "c ∈ Unicode.GC.Pe" (since := "1.3.0")]
 protected abbrev isPe := isClosePunctuation
 
 /-- Check if quoting punctuation character (`PQ`)
@@ -414,50 +328,33 @@ protected abbrev isPe := isClosePunctuation
   This is a derived category (`PQ = Pi | Pf`).
 
   Unicode Property: `General_Category=PQ` -/
-@[inline]
-def isQuotePunctuation (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .initialPunctuation⟩ => true
-  | ⟨_, some .finalPunctuation⟩ => true
-  | _ => false
+abbrev isQuotePunctuation (char : Char) : Bool := char ∈ Unicode.GC.PQ
 
-@[inherit_doc isQuotePunctuation]
+@[deprecated "c ∈ Unicode.GC.PQ" (since := "1.3.0")]
 protected abbrev isPQ := isQuotePunctuation
 
 /-- Check if initial punctuation character (`Pi`)
 
   Unicode Property: `General_Category=Pi` -/
-@[inline]
-def isInitialPunctuation (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .initialPunctuation⟩ => true
-  | _ => false
+abbrev isInitialPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pi
 
-@[inherit_doc isInitialPunctuation]
+@[deprecated "c ∈ Unicode.GC.Pi" (since := "1.3.0")]
 protected abbrev isPi := isInitialPunctuation
 
 /-- Check if initial punctuation character (`Pf`)
 
   Unicode Property: `General_Category=Pf` -/
-@[inline]
-def isFinalPunctuation (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .finalPunctuation⟩ => true
-  | _ => false
+abbrev isFinalPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pf
 
-@[inherit_doc isFinalPunctuation]
+@[deprecated "c ∈ Unicode.GC.Pf" (since := "1.3.0")]
 protected abbrev isPf := isFinalPunctuation
 
 /-- Check if other punctuation character (`Po`)
 
   Unicode Property: `General_Category=Po` -/
-@[inline]
-def isOtherPunctuation (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .otherPunctuation⟩ => true
-  | _ => false
+abbrev isOtherPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Po
 
-@[inherit_doc isOtherPunctuation]
+@[deprecated "c ∈ Unicode.GC.Po" (since := "1.3.0")]
 protected abbrev isPo := isOtherPunctuation
 
 /-- Check if symbol character (`S`)
@@ -465,60 +362,41 @@ protected abbrev isPo := isOtherPunctuation
   This is a derived category (`S = Sm | Sc | Sk | So`).
 
   Unicode Property: `General_Category=S` -/
-@[inline]
-def isSymbol (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨.symbol, _⟩ => true
-  | _ => false
+abbrev isSymbol (char : Char) : Bool := char ∈ Unicode.GC.S
 
-@[inherit_doc isSymbol]
+@[deprecated "c ∈ Unicode.GC.S" (since := "1.3.0")]
 protected abbrev isS := isSymbol
 
 /-- Check if math symbol character (`Sm`)
 
   Unicode Property: `General_Category=Sm` -/
-@[inline]
-def isMathSymbol (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .mathSymbol⟩ => true
-  | _ => false
+abbrev isMathSymbol (char : Char) : Bool := char ∈ Unicode.GC.Sm
 
-@[inherit_doc isMathSymbol]
+@[deprecated "c ∈ Unicode.GC.Sm" (since := "1.3.0")]
 protected abbrev isSm := isMathSymbol
 
 /-- Check if currency symbol character (`Sc`)
 
   Unicode Property: `General_Category=Sc` -/
-def isCurrencySymbol (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .currencySymbol⟩ => true
-  | _ => false
+abbrev isCurrencySymbol (char : Char) : Bool := char ∈ Unicode.GC.Sc
 
-@[inherit_doc isCurrencySymbol]
+@[deprecated "c ∈ Unicode.GC.Sc" (since := "1.3.0")]
 protected abbrev isSc := isCurrencySymbol
 
 /-- Check if modifier symbol character (`Sk`)
 
   Unicode Property: `General_Category=Sk` -/
-@[inline]
-def isModifierSymbol (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .modifierSymbol⟩ => true
-  | _ => false
+abbrev isModifierSymbol (char : Char) : Bool := char ∈ Unicode.GC.Sk
 
-@[inherit_doc isModifierSymbol]
+@[deprecated "c ∈ Unicode.GC.Sk" (since := "1.3.0")]
 protected abbrev isSk := isModifierSymbol
 
 /-- Check if other symbol character (`So`)
 
   Unicode Property: `General_Category=So` -/
-@[inline]
-def isOtherSymbol (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .otherSymbol⟩ => true
-  | _ => false
+abbrev isOtherSymbol (char : Char) : Bool := char ∈ Unicode.GC.So
 
-@[inherit_doc isOtherSymbol]
+@[deprecated "c ∈ Unicode.GC.So" (since := "1.3.0")]
 protected abbrev isSo := isOtherSymbol
 
 /-- Check if separator character (`Z`)
@@ -526,49 +404,33 @@ protected abbrev isSo := isOtherSymbol
   This is a derived property (`Z = Zs | Zl | Zp`).
 
   Unicode Property: `General_Category=Z` -/
-@[inline]
-def isSeparator (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨.separator, _⟩ => true
-  | _ => false
+abbrev isSeparator (char : Char) : Bool := char ∈ Unicode.GC.Z
 
-@[inherit_doc isSeparator]
+@[deprecated "c ∈ Unicode.GC.Z" (since := "1.3.0")]
 protected abbrev isZ := isSeparator
 
 /-- Check if space separator character (`Zs`)
 
   Unicode Property: `General_Category=Zs` -/
-@[inline]
-def isSpaceSeparator (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .spaceSeparator⟩ => true
-  | _ => false
+abbrev isSpaceSeparator (char : Char) : Bool := char ∈ Unicode.GC.Zs
 
-@[inherit_doc isSpaceSeparator]
+@[deprecated "c ∈ Unicode.GC.Zs" (since := "1.3.0")]
 protected abbrev isZs := isSpaceSeparator
 
 /-- Check if line separator character (`Zl`)
 
   Unicode Property: `General_Category=Zl` -/
-@[inline]
-def isLineSeparator (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .lineSeparator⟩ => true
-  | _ => false
+abbrev isLineSeparator (char : Char) : Bool := char ∈ Unicode.GC.Zl
 
-@[inherit_doc isLineSeparator]
+@[deprecated "c ∈ Unicode.GC.Zl" (since := "1.3.0")]
 protected abbrev isZl := isLineSeparator
 
 /-- Check if paragraph separator character (`Zp`)
 
   Unicode Property: `General_Category=Zp` -/
-@[inline]
-def isParagraphSeparator (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .paragraphSeparator⟩ => true
-  | _ => false
+abbrev isParagraphSeparator (char : Char) : Bool := char ∈ Unicode.GC.Zp
 
-@[inherit_doc isParagraphSeparator]
+@[deprecated "c ∈ Unicode.GC.Zp" (since := "1.3.0")]
 protected abbrev isZp := isParagraphSeparator
 
 /-- Check if other character (`C`)
@@ -576,73 +438,51 @@ protected abbrev isZp := isParagraphSeparator
   This is a derived category (`C = Cc | Cf | Cs | Co | Cn`).
 
   Unicode Property: `General_Category=C` -/
-@[inline]
-def isOther (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨.other, _⟩ => true
-  | _ => false
+abbrev isOther (char : Char) : Bool := char ∈ Unicode.GC.C
 
-@[inherit_doc isOther]
+@[deprecated "c ∈ Unicode.GC.C" (since := "1.3.0")]
 protected abbrev isC := isOther
 
 /-- Check if control character (`Cc`)
 
   Unicode Property: `General_Category=Cc` -/
-@[inline]
-def isControl (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .control⟩ => true
-  | _ => false
+abbrev isControl (char : Char) : Bool := char ∈ Unicode.GC.Cc
 
-@[inherit_doc isControl]
+@[deprecated "c ∈ Unicode.GC.Cc" (since := "1.3.0")]
 protected abbrev isCc := isControl
 
 /-- Check if format character (`Cf`)
 
   Unicode Property: `General_Category=Cf` -/
-@[inline]
-def isFormat (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .format⟩ => true
-  | _ => false
+abbrev isFormat (char : Char) : Bool := char ∈ Unicode.GC.Cf
 
-@[inherit_doc isFormat]
+@[deprecated "c ∈ Unicode.GC.Cf" (since := "1.3.0")]
 protected abbrev isCf := isFormat
 
 /-- Check if surrogate character (`Cs`)
 
-  Unicode Property: `General_Category=Cs` -/
-@[inline]
-def isSurrogate (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .surrogate⟩ => true
-  | _ => false
+  Does not actually occur since Lean does not regard surrogate code points as characters.
 
-@[inherit_doc isSurrogate]
+  Unicode Property: `General_Category=Cs` -/
+abbrev isSurrogate (char : Char) : Bool := char ∈ Unicode.GC.Cs
+
+@[deprecated "c ∈ Unicode.GC.Cs" (since := "1.3.0")]
 protected abbrev isCs := isSurrogate
 
 /-- Check if private use character (`Co`)
 
   Unicode Property: `General_Category=Co` -/
-@[inline]
-def isPrivateUse (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .privateUse⟩ => true
-  | _ => false
+abbrev isPrivateUse (char : Char) : Bool := char ∈ Unicode.GC.Co
 
-@[inherit_doc isPrivateUse]
+@[deprecated "c ∈ Unicode.GC.Co" (since := "1.3.0")]
 protected abbrev isCo := isPrivateUse
 
 /-- Check if unassigned character (`Cn`)
 
   Unicode Property: `General_Category=Cn` -/
-@[inline]
-def isUnassigned (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | ⟨_, some .unassigned⟩ => true
-  | _ => false
+abbrev isUnassigned (char : Char) : Bool := char ∈ Unicode.GC.Cn
 
-@[inherit_doc isUnassigned]
+@[deprecated "c ∈ Unicode.GC.Cn" (since := "1.3.0")]
 protected abbrev isCn := isUnassigned
 
 end GeneralCategory
@@ -698,9 +538,7 @@ def isCased (char : Char) : Bool :=
   Unicode property: `Case_Ignorable` -/
 @[inline]
 def isCaseIgnorable (char : Char) : Bool :=
-  match getGeneralCategory char with
-  | .Lm | .Mn | .Me | .Sk | .Cf => true
-  | _ => other.elem char.val
+  char ∈ Unicode.GC.Lm ||| GC.Mn ||| GC.Sk ||| GC.Cf || other.elem char.val
 where
   /-- Auxiliary data for `isCaseIgnorable`
 
@@ -922,7 +760,7 @@ def getDecimalRange? (char : Char) : Option (Char × Char) :=
       some (Char.ofNat first, Char.ofNat (first + 9))
     | _ => none
 
-/-- Check if character represents a digit in base 16
+/-- Check if character represents a hexadecimal digit
 
   Unicode property: `Hex_Digit` -/
 @[inline]
@@ -935,7 +773,7 @@ def isHexDigit (char : Char) : Bool :=
   char.val <= 0xFF26 && char.val >= 0xFF21 || --  [6] FULLWIDTH LATIN CAPITAL LETTER A..FULLWIDTH LATIN CAPITAL LETTER F
   char.val <= 0xFF46 && char.val >= 0xFF41    --  [6] FULLWIDTH LATIN SMALL LETTER A..FULLWIDTH LATIN SMALL LETTER F
 
-/-- Get value of digit
+/-- Get value of a hexadecimal digit
 
   Unicode property: `Hex_Digit` -/
 @[inline]

@@ -1,5 +1,5 @@
 /-
-Copyright © 2023-2024 François G. Dorais. All rights reserved.
+Copyright © 2023-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
@@ -16,13 +16,13 @@ def main (args : List String) : IO Unit := do
       match Unicode.getUnicodeData? n with
       | none => IO.println s!"invalid code point: {a}"
       | some data =>
-        IO.println s!"Code Value ...........: {Unicode.toHexString data.codeValue} (decimal {data.codeValue})"
-        IO.println s!"Character Name .......: {data.characterName}"
-        IO.println s!"General Category .....: {data.generalCategory.toAbbrev}"
-        IO.println s!"Combining Class ......: {data.canonicalCombiningClass}"
-        IO.println s!"Bidi Class ...........: {data.bidiClass.toAbbrev}"
+        IO.println s!"Code Value ...........: {Unicode.toHexString data.code} (decimal {data.code})"
+        IO.println s!"Character Name .......: {data.name}"
+        IO.println s!"General Category .....: {data.gc}"
+        IO.println s!"Combining Class ......: {data.cc}"
+        IO.println s!"Bidi Class ...........: {data.bidi.toAbbrev}"
         IO.println s!"Bidi Mirrored ........: {data.bidiMirrored}"
-        match data.decompositionMapping with
+        match data.decomp with
         | some ⟨none, m⟩ =>
         IO.println s!"Decomposition Mapping : \"{String.mk m}\" (canonical)"
         | some ⟨some t, m⟩ => IO.println s!"Decomposition Mapping : {t} \"{String.mk m}\" (compatibility)"
@@ -34,13 +34,13 @@ def main (args : List String) : IO Unit := do
         | some (.numeric n none) => IO.println s!"Numeric Value ........: \"{n}\" (numeric)"
         | some (.numeric n (some d)) => IO.println s!"Numeric Value ........: \"{n}/{d}\" (numeric)"
         | none => pure ()
-        match data.uppercaseMapping with
+        match data.uppercase with
         | some l => IO.println s!"Uppercase Mapping ....: \'{l}\'"
         | none => pure ()
-        match data.lowercaseMapping with
+        match data.lowercase with
         | some l => IO.println s!"Lowercase Mapping ....: \'{l}\'"
         | none => pure ()
-        match data.titlecaseMapping with
+        match data.titlecase with
         | some l => IO.println s!"Titlecase Mapping ....: \'{l}\'"
         | none => pure ()
 
