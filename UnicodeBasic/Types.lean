@@ -327,69 +327,69 @@ def GeneralCategory.toAbbrev : GeneralCategory → String
 
 /-- Get general category from string abbreviation -/
 def GeneralCategory.ofAbbrev? (s : Substring) : Option GeneralCategory :=
-  if s.bsize > 2 then none else
-    match s.str.get? s.startPos with
-    | some 'C' =>
-      match s.str.get? (s.str.next s.startPos) with
-      | none => some ⟨.other, none⟩
-      | some 'c' => some ⟨_, some .control⟩
-      | some 'f' => some ⟨_, some .format⟩
-      | some 's' => some ⟨_, some .surrogate⟩
-      | some 'o' => some ⟨_, some .privateUse⟩
-      | some 'n' => some ⟨_, some .unassigned⟩
-      | _ => none
-    | some 'L' =>
-      match s.str.get? (s.str.next s.startPos) with
-      | none => some ⟨.letter, none⟩
-      | some 'C' => some ⟨_, some .casedLetter⟩
-      | some 'u' => some ⟨_, some .uppercaseLetter⟩
-      | some 'l' => some ⟨_, some .lowercaseLetter⟩
-      | some 't' => some ⟨_, some .titlecaseLetter⟩
-      | some 'm' => some ⟨_, some .modifierLetter⟩
-      | some 'o' => some ⟨_, some .otherLetter⟩
-      | _ => none
-    | some 'M' =>
-      match s.str.get? (s.str.next s.startPos) with
-      | none => some ⟨.mark, none⟩
-      | some 'n' => some ⟨_, some .nonspacingMark⟩
-      | some 'c' => some ⟨_, some .spacingMark⟩
-      | some 'e' => some ⟨_, some .enclosingMark⟩
-      | _ => none
-    | some 'N' =>
-      match s.str.get? (s.str.next s.startPos) with
-      | none => some ⟨.number, none⟩
-      | some 'd' => some ⟨_, some .decimalNumber⟩
-      | some 'l' => some ⟨_, some .letterNumber⟩
-      | some 'o' => some ⟨_, some .otherNumber⟩
-      | _ => none
-    | some 'P' =>
-      match s.str.get? (s.str.next s.startPos) with
-      | none  => some ⟨.punctuation, none⟩
-      | some 'c' => some ⟨_, some .connectorPunctuation⟩
-      | some 'd' => some ⟨_, some .dashPunctuation⟩
-      | some 'G' => some ⟨_, some .groupPunctuation⟩
-      | some 's' => some ⟨_, some .openPunctuation⟩
-      | some 'e' => some ⟨_, some .closePunctuation⟩
-      | some 'Q' => some ⟨_, some .quotePunctuation⟩
-      | some 'i' => some ⟨_, some .initialPunctuation⟩
-      | some 'f' => some ⟨_, some .finalPunctuation⟩
-      | some 'o' => some ⟨_, some .otherPunctuation⟩
-      | _ => none
-    | some 'S' =>
-      match s.str.get? (s.str.next s.startPos) with
-      | none => some ⟨.symbol, none⟩
-      | some 'm' => some ⟨_, some .mathSymbol⟩
-      | some 'c' => some ⟨_, some .currencySymbol⟩
-      | some 'k' => some ⟨_, some .modifierSymbol⟩
-      | some 'o' => some ⟨_, some .otherSymbol⟩
-      | _ => none
-    | some 'Z' =>
-      match s.str.get? (s.str.next s.startPos) with
-      | none => some ⟨.separator, none⟩
-      | some 's' => some ⟨_, some .spaceSeparator⟩
-      | some 'l' => some ⟨_, some .lineSeparator⟩
-      | some 'p' => some ⟨_, some .paragraphSeparator⟩
-      | _ => none
+  if s.bsize = 0 || s.bsize > 2 then none else
+    match s.get 0 with
+    | 'C' =>
+      if s.bsize = 1 then some ⟨.other, none⟩ else
+        match s.get ⟨1⟩ with
+        | 'c' => some ⟨_, some .control⟩
+        | 'f' => some ⟨_, some .format⟩
+        | 's' => some ⟨_, some .surrogate⟩
+        | 'o' => some ⟨_, some .privateUse⟩
+        | 'n' => some ⟨_, some .unassigned⟩
+        | _ => none
+    | 'L' =>
+      if s.bsize = 1 then some ⟨.letter, none⟩ else
+        match s.get ⟨1⟩ with
+        | 'C' => some ⟨_, some .casedLetter⟩
+        | 'u' => some ⟨_, some .uppercaseLetter⟩
+        | 'l' => some ⟨_, some .lowercaseLetter⟩
+        | 't' => some ⟨_, some .titlecaseLetter⟩
+        | 'm' => some ⟨_, some .modifierLetter⟩
+        | 'o' => some ⟨_, some .otherLetter⟩
+        | _ => none
+    | 'M' =>
+      if s.bsize = 1 then some ⟨.mark, none⟩ else
+        match s.get ⟨1⟩ with
+        | 'n' => some ⟨_, some .nonspacingMark⟩
+        | 'c' => some ⟨_, some .spacingMark⟩
+        | 'e' => some ⟨_, some .enclosingMark⟩
+        | _ => none
+    | 'N' =>
+      if s.bsize = 1 then some ⟨.number, none⟩ else
+        match s.get ⟨1⟩ with
+        | 'd' => some ⟨_, some .decimalNumber⟩
+        | 'l' => some ⟨_, some .letterNumber⟩
+        | 'o' => some ⟨_, some .otherNumber⟩
+        | _ => none
+    | 'P' =>
+      if s.bsize = 1 then some ⟨.punctuation, none⟩ else
+        match s.get ⟨1⟩ with
+        | 'G' => some ⟨_, some .groupPunctuation⟩
+        | 'Q' => some ⟨_, some .quotePunctuation⟩
+        | 'c' => some ⟨_, some .connectorPunctuation⟩
+        | 'd' => some ⟨_, some .dashPunctuation⟩
+        | 's' => some ⟨_, some .openPunctuation⟩
+        | 'e' => some ⟨_, some .closePunctuation⟩
+        | 'i' => some ⟨_, some .initialPunctuation⟩
+        | 'f' => some ⟨_, some .finalPunctuation⟩
+        | 'o' => some ⟨_, some .otherPunctuation⟩
+        | _ => none
+    | 'S' =>
+      if s.bsize = 1 then some ⟨.symbol, none⟩ else
+        match s.get ⟨1⟩ with
+        | 'm' => some ⟨_, some .mathSymbol⟩
+        | 'c' => some ⟨_, some .currencySymbol⟩
+        | 'k' => some ⟨_, some .modifierSymbol⟩
+        | 'o' => some ⟨_, some .otherSymbol⟩
+        | _ => none
+    | 'Z' =>
+      if s.bsize = 1 then some ⟨.separator, none⟩ else
+        match s.get ⟨1⟩ with
+        | 's' => some ⟨_, some .spaceSeparator⟩
+        | 'l' => some ⟨_, some .lineSeparator⟩
+        | 'p' => some ⟨_, some .paragraphSeparator⟩
+        | _ => none
     | _ => none
 
 @[inherit_doc GeneralCategory.ofAbbrev?]
