@@ -75,7 +75,7 @@ def lookupCanonicalCombiningClass (c : UInt32) : Nat :=
 where
   str : String := include_str "../data/table/Canonical_Combining_Class.txt"
   table : Thunk <| Array (UInt32 × UInt32 × Nat) :=
-    parseDataTable str fun _ _ x => (x.get! 0).toNat?.get!
+    parseDataTable str fun _ _ x => x[0]!.toNat?.get!
 
 /-- Get canonical decomposition mapping using lookup table
 
