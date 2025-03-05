@@ -18,20 +18,20 @@ jobs:
         uses: dcarbone/install-jq-action@v3
 
       - name: update lean-toolchain
-        id: update-toolchain
+        id: toolchain-tag
         run: |
           LEAN_TAG=$(curl -s "https://api.github.com/repos/leanprover/lean4/releases" | jq -r '.[0].tag_name')
-          echo "LEAN_TAG=$LEAN_TAG" >> $GITHUB_ENV
+          echo "lean_tag=$LEAN_TAG" >> $GITHUB_OUTPUT
           echo "leanprover/lean4:$LEAN_TAG" > lean-toolchain
 
       - name: create pull request
         uses: peter-evans/create-pull-request@v7
         with:
-          commit-message: "chore: update toolchain ${{ env.LEAN_TAG }}"
+          commit-message: "chore: update toolchain $"
           committer: GitHub <noreply@github.com>
           author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
           signoff: false
-          branch: update-toolchain-${{ env.LEAN_TAG }}
+          branch: update-toolchain-${{ steps.toolchain-tag.outputs.lean_tag }}
           delete-branch: true
-          title: 'chore: update toolchain ${{ env.LEAN_TAG }}'
+          title: 'chore: update toolchain ${{ steps.toolchain-tag.outputs.lean_tag }}'
           draft: false
