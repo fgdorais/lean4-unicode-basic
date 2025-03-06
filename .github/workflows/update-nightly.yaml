@@ -21,6 +21,7 @@ jobs:
 
       - name: merge main
         run: |
+          git fetch origin
           git merge main --strategy-option ours --no-commit --allow-unrelated-histories
 
       - name: update lean-toolchain
