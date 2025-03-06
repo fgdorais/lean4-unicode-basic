@@ -28,8 +28,8 @@ jobs:
 
       - name: commit and push
         run: |
-          git config user.name "unicode-basic-bot"
-          git config user.email "unicode-basic-bot@users.noreply.github.com"
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor_id}}+${{ github.actor }}@users.noreply.github.com"
           git add lean-toolchain
           git commit -m "chore: update toolchain ${{ steps.toolchain-tag.outputs.lean_tag }}"
           git push origin nightly

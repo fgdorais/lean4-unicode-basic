@@ -13,8 +13,6 @@ jobs:
 
       - name: checkout
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.UNICODE_BASIC_TOKEN }}
 
       - name: install jq
         uses: dcarbone/install-jq-action@v3
@@ -29,11 +27,7 @@ jobs:
       - name: create pull request
         uses: peter-evans/create-pull-request@v7
         with:
-          commit-message: "chore: update toolchain $"
-          committer: GitHub <noreply@github.com>
-          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
-          signoff: false
+          commit-message: "chore: update toolchain ${{ steps.toolchain-tag.outputs.lean_tag }}"
           branch: update-toolchain-${{ steps.toolchain-tag.outputs.lean_tag }}
           delete-branch: true
-          title: 'chore: update toolchain ${{ steps.toolchain-tag.outputs.lean_tag }}'
-          draft: false
+          title: "chore: update toolchain ${{ steps.toolchain-tag.outputs.lean_tag }}"
