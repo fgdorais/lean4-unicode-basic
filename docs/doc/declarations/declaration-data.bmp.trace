@@ -1,0 +1,21 @@
+{"log":
+ [{"message": "Documentation indexing", "level": "info"},
+  {"message":
+   ".> /home/runner/work/lean4-unicode-basic/lean4-unicode-basic/.lake/packages/doc-gen4/.lake/build/bin/doc-gen4 index --build /home/runner/work/lean4-unicode-basic/lean4-unicode-basic/docs",
+   "level": "trace"}],
+ "inputs":
+ [["/home/runner/work/lean4-unicode-basic/lean4-unicode-basic/.lake/packages/doc-gen4/.lake/build/bin/doc-gen4",
+   "10424093955549186568"],
+  ["<nil>", "14590866244655749218"],
+  ["<collection>",
+   [["/home/runner/work/lean4-unicode-basic/lean4-unicode-basic/docs/doc/UnicodeBasic/Types.html",
+     "8411792197007512730"],
+    ["/home/runner/work/lean4-unicode-basic/lean4-unicode-basic/docs/doc/UnicodeBasic/CharacterDatabase.html",
+     "11771287468679890131"],
+    ["/home/runner/work/lean4-unicode-basic/lean4-unicode-basic/docs/doc/UnicodeBasic/Hangul.html",
+     "8994899127363079086"],
+    ["/home/runner/work/lean4-unicode-basic/lean4-unicode-basic/docs/doc/UnicodeBasic/TableLookup.html",
+     "10238735844640480380"],
+    ["/home/runner/work/lean4-unicode-basic/lean4-unicode-basic/docs/doc/UnicodeBasic.html",
+     "5974075049276021777"]]]],
+ "depHash": "13211444407136761371"}
