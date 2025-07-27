@@ -9,6 +9,68 @@ import UnicodeBasic.Types
 
 namespace Unicode
 
+/-- Structure for data from `UnicodeData.txt` -/
+structure UnicodeData where
+  /-- Code Value -/
+  code : UInt32
+  /-- Character Name -/
+  name : Substring
+  /-- General Category -/
+  gc : GC
+  /-- Bidirectional Class -/
+  bidi : BidiClass
+  /-- Canonical Combining Class -/
+  cc : Nat := 0
+  /-- Bidirectional Mirrored -/
+  bidiMirrored : Bool := false
+  /-- Character Decomposition Mapping -/
+  decomp : Option DecompositionMapping := none
+  /-- Numeric Value -/
+  numeric : Option NumericType := none
+  /-- Uppercase Mapping -/
+  uppercase : Option Char := none
+  /-- Lowercase Mapping -/
+  lowercase : Option Char := none
+  /-- Titlecase Mapping -/
+  titlecase : Option Char := none
+deriving BEq, Repr
+
+@[deprecated UnicodeData.code (since := "1.3.0")]
+abbrev UnicodeData.codeValue := @UnicodeData.code
+
+@[deprecated UnicodeData.name (since := "1.3.0")]
+abbrev UnicodeData.characterName := @UnicodeData.name
+
+set_option linter.deprecated false in
+@[deprecated UnicodeData.gc (since := "1.3.0")]
+def UnicodeData.generalCategory (d : UnicodeData) : GeneralCategory := .ofGC! d.gc
+
+@[deprecated UnicodeData.bidi (since := "1.3.0")]
+abbrev UnicodeData.bidiClass := @UnicodeData.bidi
+
+@[deprecated UnicodeData.cc (since := "1.3.0")]
+abbrev UnicodeData.canonicalCombiningClass := @UnicodeData.cc
+
+@[deprecated UnicodeData.cc (since := "1.3.0")]
+abbrev UnicodeData.decompositionMapping := @UnicodeData.decomp
+
+@[deprecated UnicodeData.lowercase (since := "1.3.0")]
+abbrev UnicodeData.lowercaseMapping := @UnicodeData.lowercase
+
+@[deprecated UnicodeData.uppercase (since := "1.3.0")]
+abbrev UnicodeData.uppercaseMapping := @UnicodeData.uppercase
+
+@[deprecated UnicodeData.titlecase (since := "1.3.0")]
+abbrev UnicodeData.titlecaseMapping := @UnicodeData.titlecase
+
+instance : Inhabited UnicodeData where
+  default := {
+    code := 0
+    name := "<control-0000>"
+    bidi := .BN
+    gc := .Cc
+  }
+
 /-- Make `UnicodeData` for noncharacter code point -/
 def UnicodeData.mkNoncharacter (code : UInt32) : UnicodeData where
   code := code
