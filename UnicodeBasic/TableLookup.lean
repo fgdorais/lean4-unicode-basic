@@ -1,5 +1,5 @@
 /-
-Copyright © 2024 François G. Dorais. All rights reserved.
+Copyright © 2024-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
@@ -171,7 +171,7 @@ where
 /-- Get general category of a code point using lookup table
 
   Unicode property: `General_Category` -/
-def lookupGeneralCategory (c : UInt32) : GeneralCategory :=
+def lookupGC (c : UInt32) : GC :=
   let table := table.get
   if c < table[0]!.1 then .Cn else
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
@@ -184,11 +184,16 @@ def lookupGeneralCategory (c : UInt32) : GeneralCategory :=
         else if gc == .PQ then
           if c &&& 1 == 0 then .Pi else .Pf
         else gc
-      else GeneralCategory.Cn
+      else .Cn
 where
   str : String := include_str "../data/table/General_Category.txt"
-  table : Thunk <| Array (UInt32 × UInt32 × GeneralCategory) :=
-    parseDataTable str fun _ _ x => GeneralCategory.ofAbbrev! x[0]!
+  table : Thunk <| Array (UInt32 × UInt32 × GC) :=
+    parseDataTable str fun _ _ x => GC.ofAbbrev! x[0]!
+
+set_option linter.deprecated false in
+@[deprecated Unicode.lookupGC (since := "v1.3.0")]
+def lookupGeneralCategory (c : UInt32) : GeneralCategory :=
+  .ofGC! (lookupGC c)
 
 /-- Get name of a code point using lookup table
 

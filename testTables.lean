@@ -1,5 +1,5 @@
 /-
-Copyright © 2024 François G. Dorais. All rights reserved.
+Copyright © 2024-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
@@ -10,92 +10,92 @@ open Unicode
 
 def testAlphabetic (d : UnicodeData) : Bool :=
   let v :=
-    match d.generalCategory with
+    match d.gc with
     | .Lu | .Ll | .Lt | .Lm | .Lo | .Nl => true
-    | _ => PropList.isOtherAlphabetic d.codeValue
-  v == lookupAlphabetic d.codeValue
+    | _ => PropList.isOtherAlphabetic d.code
+  v == lookupAlphabetic d.code
 
 def testBidiClass (d : UnicodeData) : Bool :=
-  d.bidiClass == lookupBidiClass d.codeValue
+  d.bidi == lookupBidiClass d.code
 
 def testBidiMirrored (d : UnicodeData) : Bool :=
-  d.bidiMirrored == lookupBidiMirrored d.codeValue
+  d.bidiMirrored == lookupBidiMirrored d.code
 
 def testCanonicalCombiningClass (d : UnicodeData) : Bool :=
-  d.canonicalCombiningClass == lookupCanonicalCombiningClass d.codeValue
+  d.cc == lookupCanonicalCombiningClass d.code
 
 partial def testCanonicalDecompositionMapping (d : UnicodeData) : Bool :=
-  let m := lookupCanonicalDecompositionMapping d.codeValue
-  let l := match d.decompositionMapping with
+  let m := lookupCanonicalDecompositionMapping d.code
+  let l := match d.decomp with
     | some ⟨none, l⟩ => mapping (l.map Char.val)
-    | _ => [d.codeValue]
+    | _ => [d.code]
   m == l
 where
   mapping : List UInt32 → List UInt32
   | [] => unreachable!
   | c :: cs =>
     let d := getUnicodeData! c
-    match d.decompositionMapping with
+    match d.decomp with
     | some ⟨none, l⟩ => mapping <| l.map Char.val ++ cs
     | _ => c :: cs
 
 def testCased (d : UnicodeData) : Bool :=
   let v :=
-    match d.generalCategory with
+    match d.gc with
     | .Lu | .Ll | .Lt => true
     | _ =>
-      PropList.isOtherLowercase d.codeValue
-        || PropList.isOtherUppercase d.codeValue
-  v == lookupCased d.codeValue
+      PropList.isOtherLowercase d.code
+        || PropList.isOtherUppercase d.code
+  v == lookupCased d.code
 
 def testCaseMapping (d : UnicodeData) : Bool :=
-  let (mu, ml, mt) := lookupCaseMapping d.codeValue
-  mu == (d.uppercaseMapping.map Char.val).getD d.codeValue
-    && ml == (d.lowercaseMapping.map Char.val).getD d.codeValue
-      && mt == (d.titlecaseMapping.map Char.val).getD d.codeValue
+  let (mu, ml, mt) := lookupCaseMapping d.code
+  mu == (d.uppercase.map Char.val).getD d.code
+    && ml == (d.lowercase.map Char.val).getD d.code
+      && mt == (d.titlecase.map Char.val).getD d.code
 
 def testDecompositionMapping (d : UnicodeData) : Bool :=
-  d.decompositionMapping == lookupDecompositionMapping? d.codeValue
+  d.decomp == lookupDecompositionMapping? d.code
 
 def testGeneralCategory (d : UnicodeData) : Bool :=
-  d.generalCategory == lookupGeneralCategory d.codeValue
+  d.gc == lookupGC d.code
 
 def testLowercase (d : UnicodeData) : Bool :=
   let v :=
-    match d.generalCategory with
+    match d.gc with
     | .Ll => true
-    | _ => PropList.isOtherLowercase d.codeValue
-  v == lookupLowercase d.codeValue
+    | _ => PropList.isOtherLowercase d.code
+  v == lookupLowercase d.code
 
 def testMath (d : UnicodeData) : Bool :=
   let v :=
-    match d.generalCategory with
+    match d.gc with
     | .Sm => true
-    | _ => PropList.isOtherMath d.codeValue
-  v == lookupMath d.codeValue
+    | _ => PropList.isOtherMath d.code
+  v == lookupMath d.code
 
 def testName (d : UnicodeData) : Bool :=
-  d.characterName == lookupName d.codeValue
+  d.name == lookupName d.code
 
 def testNumericValue (d : UnicodeData) : Bool :=
-  d.numeric == lookupNumericValue d.codeValue
+  d.numeric == lookupNumericValue d.code
 
 def testTitlecase (d : UnicodeData) : Bool :=
   let v :=
-    match d.generalCategory with
+    match d.gc with
     | .Lt => true
     | _ => false
-  v == lookupTitlecase d.codeValue
+  v == lookupTitlecase d.code
 
 def testUppercase (d : UnicodeData) : Bool :=
   let v :=
-    match d.generalCategory with
+    match d.gc with
     | .Lu => true
-    | _ => PropList.isOtherUppercase d.codeValue
-  v == lookupUppercase d.codeValue
+    | _ => PropList.isOtherUppercase d.code
+  v == lookupUppercase d.code
 
 def testWhiteSpace (d : UnicodeData) : Bool :=
-  PropList.isWhiteSpace d.codeValue == lookupWhiteSpace d.codeValue
+  PropList.isWhiteSpace d.code == lookupWhiteSpace d.code
 
 def tests : Array (String × (UnicodeData → Bool)) := #[
   ("Bidi_Class", testBidiClass),
@@ -124,5 +124,5 @@ def main (args : List String) : IO UInt32 := do
     for t in tests do
       if t.1 ∈ args && !t.2 d then
         err := 1
-        IO.println s!"Error: {t.1} {toHexStringAux d.codeValue}"
+        IO.println s!"Error: {t.1} {toHexStringAux d.code}"
   return err

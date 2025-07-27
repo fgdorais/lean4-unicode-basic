@@ -1,5 +1,5 @@
 /-
-Copyright © 2024 François G. Dorais. All rights reserved.
+Copyright © 2024-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
@@ -60,20 +60,20 @@ def statsProp (array : Array (UInt32 × UInt32)) : Id <| Nat × Nat := do
 def mkBidiClass : IO <| Array (UInt32 × UInt32 × BidiClass) := do
   let mut t := #[]
   for d in UnicodeData.data do
-    if d.characterName.takeRight 7 == ", Last>" then
+    if d.name.takeRight 7 == ", Last>" then
       match t.back? with
       | some (c₀, _, bc) =>
-        t := t.pop.push (c₀, d.codeValue, bc)
+        t := t.pop.push (c₀, d.code, bc)
       | none => unreachable!
     else
       match t.back? with
       | some (c₀, c₁, bc) =>
-        if d.codeValue = c₁ + 1 && d.bidiClass == bc then
+        if d.code = c₁ + 1 && d.bidi == bc then
           t := t.pop.push (c₀, c₁+1, bc)
         else
-          t := t.push (d.codeValue, d.codeValue, d.bidiClass)
+          t := t.push (d.code, d.code, d.bidi)
       | none =>
-        t := t.push (d.codeValue, d.codeValue, d.bidiClass)
+        t := t.push (d.code, d.code, d.bidi)
   return t
 
 def mkBidiMirrored : IO <| Array (UInt32 × UInt32) := do
@@ -82,41 +82,41 @@ def mkBidiMirrored : IO <| Array (UInt32 × UInt32) := do
     if d.bidiMirrored then
       match t.back? with
       | some (c₀, c₁) =>
-        if d.codeValue == c₁ + 1 then
-          t := t.pop.push (c₀, d.codeValue)
+        if d.code == c₁ + 1 then
+          t := t.pop.push (c₀, d.code)
         else
-          t := t.push (d.codeValue, d.codeValue)
+          t := t.push (d.code, d.code)
       | none =>
-        t := t.push (d.codeValue, d.codeValue)
+        t := t.push (d.code, d.code)
   return t
 
 def mkCanonicalCombiningClass : IO <| Array (UInt32 × UInt32 × Nat) := do
   let mut t := #[]
   for d in UnicodeData.data do
-    if d.canonicalCombiningClass > 0 then
+    if d.cc > 0 then
       match t.back? with
       | some (c₀, c₁, cc) =>
-        if t.size != 0 && d.codeValue == c₁ + 1 && d.canonicalCombiningClass == cc then
+        if t.size != 0 && d.code == c₁ + 1 && d.cc == cc then
           t := t.pop.push (c₀, c₁+1, cc)
         else
-          t := t.push (d.codeValue, d.codeValue, d.canonicalCombiningClass)
+          t := t.push (d.code, d.code, d.cc)
       | none =>
-        t := t.push (d.codeValue, d.codeValue, d.canonicalCombiningClass)
+        t := t.push (d.code, d.code, d.cc)
   return t
 
 partial def mkCanonicalDecompositionMapping : IO <| Array (UInt32 × List Char) := do
   let mut t := #[]
   for data in UnicodeData.data do
-    match data.decompositionMapping with
+    match data.decomp with
     | some ⟨none, l⟩ =>
-      t := t.push (data.codeValue, fullDecomposition l)
+      t := t.push (data.code, fullDecomposition l)
     | _ => continue
   return t
 where
   fullDecomposition : List Char → List Char
   | [] => unreachable!
   | h :: t =>
-    match (getUnicodeData h).decompositionMapping with
+    match (getUnicodeData h).decomp with
     | some ⟨none, l⟩ => fullDecomposition (l ++ t)
     | _ => h :: t
 
@@ -142,54 +142,54 @@ def mkCaseMapping : IO <| Array (UInt32 × UInt32 × UInt32 × UInt32 × UInt32)
 def mkDecompositionMapping : IO <| Array (UInt32 × String) := do
   let mut t := #[]
   for data in UnicodeData.data do
-    match data.decompositionMapping with
+    match data.decomp with
     | some ⟨none, l⟩ =>
-      t := t.push (data.codeValue, ";" ++ ";".intercalate (l.map (toHexStringAux <| Char.val .)))
+      t := t.push (data.code, ";" ++ ";".intercalate (l.map (toHexStringAux <| Char.val .)))
     | some ⟨some k, l⟩ =>
-      t := t.push (data.codeValue, s!"{k};" ++ ";".intercalate (l.map (toHexStringAux <| Char.val ·)))
+      t := t.push (data.code, s!"{k};" ++ ";".intercalate (l.map (toHexStringAux <| Char.val ·)))
     | _ => continue
   return t
 
-def mkGeneralCategory : IO <| Array (UInt32 × UInt32 × GeneralCategory) := do
-  let mut t := #[(0,0,GeneralCategory.Cc)]
+def mkGeneralCategory : IO <| Array (UInt32 × UInt32 × GC) := do
+  let mut t := #[(0,0,.Cc)]
   for i in [1:UnicodeData.data.size] do
     let data := UnicodeData.data[i]!
-    let c := data.codeValue
-    let k := data.generalCategory
-    if data.characterName.takeRight 8 == ", First>" then
+    let c := data.code
+    let k := data.gc
+    if data.name.takeRight 8 == ", First>" then
       t := t.push (c, c, k)
-    else if data.characterName.takeRight 7 == ", Last>" then
-      match t.back with
+    else if data.name.takeRight 7 == ", Last>" then
+      match t.back! with
       | (c₀, _, k) =>
         t := t.pop.push (c₀, c, k)
     else
       let k :=
-        if k == .Lu && (c &&& 1) == 0 && UnicodeData.data[i+1]!.codeValue == c+1 then
-          if UnicodeData.data[i+1]!.generalCategory == .Ll
+        if k == .Lu && (c &&& 1) == 0 && UnicodeData.data[i+1]!.code == c+1 then
+          if UnicodeData.data[i+1]!.gc == .Ll
           then .LC
           else k
-        else if k == .Ll && (c &&& 1) != 0 && UnicodeData.data[i-1]!.codeValue == c-1 then
-          if UnicodeData.data[i-1]!.generalCategory == .Lu
+        else if k == .Ll && (c &&& 1) != 0 && UnicodeData.data[i-1]!.code == c-1 then
+          if UnicodeData.data[i-1]!.gc == .Lu
           then .LC
           else k
-        else if k == .Ps && (c &&& 1) == 0 && UnicodeData.data[i+1]!.codeValue == c+1 then
-          if UnicodeData.data[i+1]!.generalCategory == .Pe
+        else if k == .Ps && (c &&& 1) == 0 && UnicodeData.data[i+1]!.code == c+1 then
+          if UnicodeData.data[i+1]!.gc == .Pe
           then .PG
           else k
-        else if k == .Pe && (c &&& 1) != 0 && UnicodeData.data[i-1]!.codeValue == c-1 then
-          if UnicodeData.data[i-1]!.generalCategory == .Ps
+        else if k == .Pe && (c &&& 1) != 0 && UnicodeData.data[i-1]!.code == c-1 then
+          if UnicodeData.data[i-1]!.gc == .Ps
           then .PG
           else k
-        else if k == .Pi && (c &&& 1) == 0 && UnicodeData.data[i+1]!.codeValue == c+1 then
-          if UnicodeData.data[i+1]!.generalCategory == .Pf
+        else if k == .Pi && (c &&& 1) == 0 && UnicodeData.data[i+1]!.code == c+1 then
+          if UnicodeData.data[i+1]!.gc == .Pf
           then .PQ
           else k
-        else if k == .Pf && (c &&& 1) != 0 && UnicodeData.data[i-1]!.codeValue == c-1 then
-          if UnicodeData.data[i-1]!.generalCategory == .Pi
+        else if k == .Pf && (c &&& 1) != 0 && UnicodeData.data[i-1]!.code == c-1 then
+          if UnicodeData.data[i-1]!.gc == .Pi
           then .PQ
           else k
         else k
-      match t.back with
+      match t.back! with
       | (c₀, c₁, k₁) =>
         if c == c₁ + 1 && k == k₁ then
           t := t.pop.push (c₀, c, k)
@@ -206,15 +206,15 @@ def mkName : IO <| Array (UInt32 × UInt32 × String) := do
   let mut t := #[(0,0,"<Control>")]
   for i in [1:UnicodeData.data.size] do
     let data := UnicodeData.data[i]!
-    let c := data.codeValue
-    let n := data.characterName.toString
+    let c := data.code
+    let n := data.name.toString
     if n.takeRight 8 == ", First>" then
       if "<CJK Ideograph".isPrefixOf n then
         t := t.push (c, c, "<CJK Unified Ideograph>")
       else if "<Tangut Ideograph".isPrefixOf n then
         t := t.push (c, c, "<Tangut Ideograph>")
       else if n.takeRight 17 == "Surrogate, First>" then
-        match t.back with
+        match t.back! with
         | (c₀, c₁, n₀) =>
           if c == c₁ + 1 && n₀ == "<Surrogate>" then
             t := t.pop.push (c₀, c, "<Surrogate>")
@@ -225,46 +225,46 @@ def mkName : IO <| Array (UInt32 × UInt32 × String) := do
       else
         t := t.push (c, c, n.dropRight 8 ++ ">")
     else if n.takeRight 7 == ", Last>" then
-      match t.back with
+      match t.back! with
       | (c₀, _, n₀) =>
         t := t.pop.push (c₀, c, n₀)
     else if n == "<control>" then
-      match t.back with
+      match t.back! with
       | (c₀, _, n₀) =>
         if n₀ == "<Control>" then
           t := t.pop.push (c₀, c, n₀)
         else
           t := t.push (c, c, "<Control>")
     else if "CJK COMPATIBILITY IDEOGRAPH-".isPrefixOf n then
-      match t.back with
+      match t.back! with
       | (c₀, c₁, n) =>
         if c == c₁ + 1 && n == "<CJK Compatibility Ideograph>" then
           t := t.pop.push (c₀, c, n)
         else
           t := t.push (c, c, "<CJK Compatibility Ideograph>")
     else if "KHITAN SMALL SCRIPT CHARACTER-".isPrefixOf n then
-      match t.back with
+      match t.back! with
       | (c₀, c₁, n) =>
         if c == c₁ + 1 && n == "<Khitan Small Script Character>" then
           t := t.pop.push (c₀, c, n)
         else
           t := t.push (c, c, "<Khitan Small Script Character>")
     else if "NUSHU CHARACTER-".isPrefixOf n then
-      match t.back with
+      match t.back! with
       | (c₀, c₁, n) =>
         if c == c₁ + 1 && n == "<Nushu Character>" then
           t := t.pop.push (c₀, c, n)
         else
           t := t.push (c, c, "<Nushu Character>")
     else if "TANGUT COMPONENT-".isPrefixOf n then
-      match t.back with
+      match t.back! with
       | (c₀, c₁, n) =>
         if c == c₁ + 1 && n == "<Tangut Component>" then
           t := t.pop.push (c₀, c, n)
         else
           t := t.push (c, c, "<Tangut Component>")
     else
-      match t.back with
+      match t.back! with
       | (c₀, c₁, n₀) =>
         if c == c₁ + 1 && n == n₀ then
           t := t.pop.push (c₀, c, n)
@@ -277,19 +277,19 @@ def mkNumericValue : IO <| Array (UInt32 × UInt32 × NumericType) := do
   for d in UnicodeData.data do
     match d.numeric with
     | some (.decimal 0) =>
-      t := t.push (d.codeValue, d.codeValue + 9, .decimal 0)
+      t := t.push (d.code, d.code + 9, .decimal 0)
     | some (.digit v) =>
-      match t.back with
+      match t.back! with
       | (c₀, c₁, n@(NumericType.digit x)) =>
-        let last := x.val + c₁.val - c₀.val
-        if d.codeValue == c₁ + 1 && v.val == last + 1 then
-          t := t.pop.push (c₀, d.codeValue, n)
+        let last := x.val + c₁.toNat - c₀.toNat
+        if d.code == c₁ + 1 && v.val == last + 1 then
+          t := t.pop.push (c₀, d.code, n)
         else
-          t := t.push (d.codeValue, d.codeValue, .digit v)
+          t := t.push (d.code, d.code, .digit v)
       | _ =>
-        t := t.push (d.codeValue, d.codeValue, .digit v)
+        t := t.push (d.code, d.code, .digit v)
     | some n@(.numeric _ _) =>
-      t := t.push (d.codeValue, d.codeValue, n)
+      t := t.push (d.code, d.code, n)
     | _ => continue
   return t
 
@@ -495,9 +495,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁, gc) in table do
           if c₀ == c₁ then
-            file.putStrLn <| ";".intercalate [toHexStringAux c₀, "", gc.toAbbrev]
+            file.putStrLn <| ";".intercalate [toHexStringAux c₀, "", gc.toAbbrev!]
           else
-            file.putStrLn <| ";".intercalate [toHexStringAux c₀, toHexStringAux c₁, gc.toAbbrev]
+            file.putStrLn <| ";".intercalate [toHexStringAux c₀, toHexStringAux c₁, gc.toAbbrev!]
       IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
     | "Lowercase" =>
       IO.println s!"Generating table {arg}"
