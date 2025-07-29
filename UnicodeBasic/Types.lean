@@ -210,55 +210,55 @@ instance : HasSubset GC where
 
 instance (x y : GC) : Decidable (x ⊆ y) := inferInstanceAs (Decidable (_ == _))
 
-protected def empty : GC := (0x00000000 : UInt32)
-protected def total : GC := (0x3FFFFFFF : UInt32)
+protected def none : GC := (0x00000000 : UInt32)
+protected def univ : GC := (0x3FFFFFFF : UInt32)
 
-protected def C   : GC := (0x0000001F : UInt32)
-protected def Cc  : GC := (0x00000001 : UInt32)
-protected def Cf  : GC := (0x00000002 : UInt32)
-protected def Cs  : GC := (0x00000004 : UInt32)
-protected def Co  : GC := (0x00000008 : UInt32)
-protected def Cn  : GC := (0x00000010 : UInt32)
+protected def Lu  : GC := (0x00000001 : UInt32)
+protected def Ll  : GC := (0x00000002 : UInt32)
+protected def Lt  : GC := (0x00000004 : UInt32)
+protected def Lm  : GC := (0x00000008 : UInt32)
+protected def Lo  : GC := (0x00000010 : UInt32)
+protected def LC  : GC := .Lu ||| .Ll ||| .Lt
+protected def L   : GC := .Lu ||| .Ll ||| .Lt ||| .Lm ||| .Lo
 
-protected def L   : GC := (0x000003E0 : UInt32)
-protected def LC  : GC := (0x000000E0 : UInt32)
-protected def Lu  : GC := (0x00000020 : UInt32)
-protected def Ll  : GC := (0x00000040 : UInt32)
-protected def Lt  : GC := (0x00000080 : UInt32)
-protected def Lm  : GC := (0x00000100 : UInt32)
-protected def Lo  : GC := (0x00000200 : UInt32)
+protected def Mn  : GC := (0x00000020 : UInt32)
+protected def Mc  : GC := (0x00000040 : UInt32)
+protected def Me  : GC := (0x00000080 : UInt32)
+protected def M   : GC := .Mn ||| .Mc ||| .Me
 
-protected def M   : GC := (0x00001C00 : UInt32)
-protected def Mn  : GC := (0x00000400 : UInt32)
-protected def Mc  : GC := (0x00000800 : UInt32)
-protected def Me  : GC := (0x00001000 : UInt32)
+protected def Nd  : GC := (0x00000100 : UInt32)
+protected def Nl  : GC := (0x00000200 : UInt32)
+protected def No  : GC := (0x00000400 : UInt32)
+protected def N   : GC := .Nd ||| .Nl ||| .No
 
-protected def N   : GC := (0x0000C000 : UInt32)
-protected def Nd  : GC := (0x00002000 : UInt32)
-protected def Nl  : GC := (0x00004000 : UInt32)
-protected def No  : GC := (0x00008000 : UInt32)
+protected def Pc  : GC := (0x00000800 : UInt32)
+protected def Pd  : GC := (0x00001000 : UInt32)
+protected def Ps  : GC := (0x00002000 : UInt32)
+protected def Pe  : GC := (0x00004000 : UInt32)
+protected def Pi  : GC := (0x00008000 : UInt32)
+protected def Pf  : GC := (0x00010000 : UInt32)
+protected def Po  : GC := (0x00020000 : UInt32)
+protected def PG  : GC := .Ps ||| .Pe
+protected def PQ  : GC := .Pi ||| .Pf
+protected def P   : GC := .Pc ||| .Pd ||| .Ps ||| .Pe ||| .Pi ||| .Pf ||| .Po
 
-protected def P   : GC := (0x007F0000 : UInt32)
-protected def PG  : GC := (0x000C0000 : UInt32)
-protected def PQ  : GC := (0x00300000 : UInt32)
-protected def Pc  : GC := (0x00010000 : UInt32)
-protected def Pd  : GC := (0x00020000 : UInt32)
-protected def Ps  : GC := (0x00040000 : UInt32)
-protected def Pe  : GC := (0x00080000 : UInt32)
-protected def Pi  : GC := (0x00100000 : UInt32)
-protected def Pf  : GC := (0x00200000 : UInt32)
-protected def Po  : GC := (0x00400000 : UInt32)
+protected def Sm  : GC := (0x00040000 : UInt32)
+protected def Sc  : GC := (0x00080000 : UInt32)
+protected def Sk  : GC := (0x0010000 : UInt32)
+protected def So  : GC := (0x0020000 : UInt32)
+protected def S   : GC := .Sm ||| .Sc ||| .Sk ||| .So
 
-protected def S   : GC := (0x07800000 : UInt32)
-protected def Sm  : GC := (0x00800000 : UInt32)
-protected def Sc  : GC := (0x01000000 : UInt32)
-protected def Sk  : GC := (0x02000000 : UInt32)
-protected def So  : GC := (0x04000000 : UInt32)
+protected def Zs  : GC := (0x00400000 : UInt32)
+protected def Zl  : GC := (0x00800000 : UInt32)
+protected def Zp  : GC := (0x01000000 : UInt32)
+protected def Z   : GC := .Zs ||| .Zl ||| .Zp
 
-protected def Z   : GC := (0x38000000 : UInt32)
-protected def Zs  : GC := (0x08000000 : UInt32)
-protected def Zl  : GC := (0x10000000 : UInt32)
-protected def Zp  : GC := (0x20000000 : UInt32)
+protected def Cc  : GC := (0x02000000 : UInt32)
+protected def Cf  : GC := (0x04000000 : UInt32)
+protected def Cs  : GC := (0x08000000 : UInt32)
+protected def Co  : GC := (0x10000000 : UInt32)
+protected def Cn  : GC := (0x20000000 : UInt32)
+protected def C   : GC := .Cc ||| .Cf ||| .Cs ||| .Co ||| .Cn
 
 def mk : (major : MajorGeneralCategory) → Option (MinorGeneralCategory major) → GC
 | .letter, none => .L
@@ -480,7 +480,7 @@ def ofAbbrev! (s : Substring) : GC :=
   | none => panic! "invalid general category"
 
 def ofString? (s : Substring) : Option GC := do
-  let mut c := .empty
+  let mut c := .none
   for a in s.splitOn "|" do
     c := c ||| (← GC.ofAbbrev? a.trim)
   return c
