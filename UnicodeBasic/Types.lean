@@ -244,8 +244,8 @@ protected def P   : GC := .Pc ||| .Pd ||| .Ps ||| .Pe ||| .Pi ||| .Pf ||| .Po
 
 protected def Sm  : GC := (0x00040000 : UInt32)
 protected def Sc  : GC := (0x00080000 : UInt32)
-protected def Sk  : GC := (0x0010000 : UInt32)
-protected def So  : GC := (0x0020000 : UInt32)
+protected def Sk  : GC := (0x00100000 : UInt32)
+protected def So  : GC := (0x00200000 : UInt32)
 protected def S   : GC := .Sm ||| .Sc ||| .Sk ||| .So
 
 protected def Zs  : GC := (0x00400000 : UInt32)
