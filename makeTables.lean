@@ -316,8 +316,7 @@ def mkOtherUppercase : Array (UInt32 × UInt32) :=
 def mkAlphabetic : IO <| Array (UInt32 × UInt32) := do
   let mut t := #[]
   for (c₀, c₁, gc) in ← mkGeneralCategory do
-    match gc with
-    | .LC | .Ll | .Lu | .Lt | .Lm | .Lo | .Nl =>
+    if gc ⊆ .LC ||| .Ll ||| .Lu ||| .Lt ||| .Lm ||| .Lo ||| .Nl then
       match t.back? with
       | some (a₀, a₁) =>
         if c₀ == a₁ + 1 then
@@ -326,7 +325,7 @@ def mkAlphabetic : IO <| Array (UInt32 × UInt32) := do
           t := t.push (c₀, c₁)
       | none =>
         t := t.push (c₀, c₁)
-    | _ => continue
+    else continue
   return mergeProp #[t, mkOtherAlphabetic]
 
 def mkCased : IO <| Array (UInt32 × UInt32) := do
@@ -345,35 +344,32 @@ def mkMath : IO <| Array (UInt32 × UInt32) := do
 
 def mkLowercase : IO <| Array (UInt32 × UInt32) := do
   let mut t := #[]
-  for gc in ← mkGeneralCategory do
-    match gc with
-    | (c₀, c₁, .Ll) =>
+  for (c₀, c₁, gc) in ← mkGeneralCategory do
+    if gc = .Ll then
       t := t.push (c₀, c₁)
-    | (c₀, c₁, .LC) =>
+    else if gc = .LC then
       for c in [c₀.toNat:c₁.toNat+1] do
         if c % 2 != 0 then t := t.push (c.toUInt32, c.toUInt32)
-    | _ => continue
+    else continue
   return mergeProp #[t, mkOtherLowercase]
 
 def mkTitlecase : IO <| Array (UInt32 × UInt32) := do
   let mut t := #[]
-  for gc in ← mkGeneralCategory do
-    match gc with
-    | (c₀, c₁, .Lt) =>
+  for (c₀, c₁, gc) in ← mkGeneralCategory do
+    if gc = .Lt then
       t := t.push (c₀, c₁)
-    | _ => continue
+    else continue
   return t
 
 def mkUppercase : IO <| Array (UInt32 × UInt32) := do
   let mut t := #[]
-  for gc in ← mkGeneralCategory do
-    match gc with
-    | (c₀, c₁, .Lu) =>
+  for (c₀, c₁, gc) in ← mkGeneralCategory do
+    if gc = .Lu then
       t := t.push (c₀, c₁)
-    | (c₀, c₁, .LC) =>
+    else if gc = .LC then
       for c in [c₀.toNat:c₁.toNat+1] do
         if c % 2 == 0 then t := t.push (c.toUInt32, c.toUInt32)
-    | _ => continue
+    else continue
   return mergeProp #[t, mkOtherUppercase]
 
 def mkWhiteSpace : Array (UInt32 × UInt32) :=
