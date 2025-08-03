@@ -313,6 +313,16 @@ def mkOtherUppercase : Array (UInt32 × UInt32) :=
     | (c₀, some c₁) => (c₀, c₁)
     | (c₀, none) => (c₀, c₀)
 
+def mkOther : Array (UInt32 × UInt32 × UInt32) :=
+  let ol := mkOtherLowercase |>.map fun (c₀, c₁) => (c₀, c₁, 1)
+  let ou := mkOtherUppercase |>.map fun (c₀, c₁) => (c₀, c₁, 2)
+  let oa := mkOtherAlphabetic |>.filterMap fun (c₀, c₁) =>
+    if c₀ ∈ #[0x0345, 0x24B6, 0x24D0, 0x1F130, 0x1F150, 0x1F170]
+    then none
+    else some (c₀, c₁, 3)
+  let om := mkOtherMath |>.map fun (c₀, c₁) => (c₀, c₁, 4)
+  mergeData #[ol, ou, oa, om]
+
 def mkAlphabetic : IO <| Array (UInt32 × UInt32) := do
   let mut t := #[]
   for (c₀, c₁, gc) in ← mkGeneralCategory do
@@ -390,6 +400,7 @@ def main (args : List String) : IO UInt32 := do
     "Lowercase",
     "Math",
     "Name",
+    "Other",
     "Titlecase",
     "Uppercase",
     "Numeric_Value",
@@ -591,6 +602,16 @@ def main (args : List String) : IO UInt32 := do
           else
             file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+    | "Other" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkOther
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁, v) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| toHexStringAux c₀ ++ ";;" ++ toString v
+          else
+            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁ ++ ";" ++ toString v
+      IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
     | "Titlecase" =>
       IO.println s!"Generating table {arg}"
       let table ← mkTitlecase
