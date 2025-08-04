@@ -177,18 +177,20 @@ def lookupGC (c : UInt32) : GC :=
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
     | (_, v, gc) =>
       if c ≤ v then
-        if gc == .LC then
-          if c &&& 1 == 0 then .Lu else .Ll
-        else if gc == .PG then
-          if c &&& 1 == 0 then .Ps else .Pe
-        else if gc == .PQ then
-          if c &&& 1 == 0 then .Pi else .Pf
+        let pb : UInt32 := gc >>> 31
+        let gc : UInt32 := gc &&& 0x7FFFFFFF
+        if gc == GC.LC then
+          if (c &&& 1) == pb then .Lu else .Ll
+        else if gc == GC.PG then
+          if (c &&& 1) == pb then .Ps else .Pe
+        else if gc == GC.PQ then
+          if (c &&& 1) == pb then .Pi else .Pf
         else gc
       else .Cn
 where
   str : String := include_str "../data/table/General_Category.txt"
-  table : Thunk <| Array (UInt32 × UInt32 × GC) :=
-    parseDataTable str fun _ _ x => GC.ofAbbrev! x[0]!
+  table : Thunk <| Array (UInt32 × UInt32 × UInt32) :=
+    parseDataTable str fun _ _ x => UInt32.ofNat x[0]!.toNat?.get!
 
 set_option linter.deprecated false in
 @[deprecated Unicode.lookupGC (since := "v1.3.0")]
@@ -289,6 +291,19 @@ where
         | [n, d] => .numeric n.toInt! (some d.toNat!)
         | _ => panic! "invalid table data"
       else .numeric (-4) none
+
+/-- Get other properties using lookup table
+
+  Unicode properties: `Other_Alphabetic`, `Other_Lowercase`, `Other_Uppercase`, `Other_Math` -/
+def lookupOther (c : UInt32) : UInt32 :=
+  let table := table.get
+  if c < table[0]!.1 then 0 else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v, op) => if c ≤ v then UInt32.ofNat op else 0
+where
+  str : String := include_str "../data/table/Other.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × Nat) :=
+    parseDataTable str fun _ _ x => x[0]!.toNat?.get!
 
 /-! Properties -/
 
