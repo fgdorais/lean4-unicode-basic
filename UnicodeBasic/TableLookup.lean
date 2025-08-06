@@ -9,6 +9,21 @@ import UnicodeBasic.Types
 
 namespace Unicode
 
+namespace CLib
+
+@[extern "unicode_case_lookup"]
+protected opaque lookupCase (c : UInt32) : UInt64
+
+protected abbrev oUpper : UInt64 := 0x100000000
+protected abbrev oLower : UInt64 := 0x200000000
+protected abbrev oAlpha : UInt64 := 0x400000000
+protected abbrev oMath  : UInt64 := 0x800000000
+
+@[extern "unicode_prop_lookup"]
+protected opaque lookupProp (c : UInt32) : UInt64
+
+end CLib
+
 /-- Binary search -/
 @[specialize]
 private partial def find (c : UInt32) (t : USize → UInt32) (lo hi : USize) : USize :=
@@ -106,21 +121,12 @@ where
     `Simple_Uppercase_Mapping`
     `Simple_Titlecase_Mapping` -/
 def lookupCaseMapping (c : UInt32) : UInt32 × UInt32 × UInt32 :=
-  let table := table.get
-  if c < table[0]!.1 then (c, c, c) else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
-    | (_, v, mu, ml, mt) => if c ≤ v then (mu.getD c, ml.getD c, mt.getD (mu.getD c)) else (c, c, c)
-where
-  str : String := include_str "../data/table/Case_Mapping.txt"
-  table : Thunk <| Array (UInt32 × UInt32 × Option UInt32 × Option UInt32 × Option UInt32) :=
-    parseDataTable str fun _ _ a =>
-      match a with
-      | #[mu, ml, mt] =>
-        let mu := if mu.isEmpty then none else some <| ofHexString! mu
-        let ml := if ml.isEmpty then none else some <| ofHexString! ml
-        let mt := if mt.isEmpty then none else some <| ofHexString! mt
-        (mu, ml, mt)
-      | _ => panic! "invalid table data"
+  let v : UInt64 := CLib.lookupCase c
+  if v == 0 then (c, c, c) else
+    let cu : UInt32 := v.toUInt32 &&& 0x001FFFFF
+    let cl : UInt32 := (v >>> 21).toUInt32 &&& 0x001FFFFF
+    let ct : UInt32 := (v >>> 42).toUInt32 &&& 0x001FFFFF
+    (cu, cl, ct)
 
 /-- Get decomposition mapping using lookup table
 
@@ -171,29 +177,11 @@ where
 /-- Get general category of a code point using lookup table
 
   Unicode property: `General_Category` -/
-def lookupGC (c : UInt32) : GC :=
-  let table := table.get
-  if c < table[0]!.1 then .Cn else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
-    | (_, v, gc) =>
-      if c ≤ v then
-        let pb : UInt32 := gc >>> 31
-        let gc : UInt32 := gc &&& 0x7FFFFFFF
-        if gc == GC.LC then
-          if (c &&& 1) == pb then .Lu else .Ll
-        else if gc == GC.PG then
-          if (c &&& 1) == pb then .Ps else .Pe
-        else if gc == GC.PQ then
-          if (c &&& 1) == pb then .Pi else .Pf
-        else gc
-      else .Cn
-where
-  str : String := include_str "../data/table/General_Category.txt"
-  table : Thunk <| Array (UInt32 × UInt32 × UInt32) :=
-    parseDataTable str fun _ _ x => UInt32.ofNat x[0]!.toNat?.get!
+@[inline]
+def lookupGC (c : UInt32) : GC := CLib.lookupProp c |>.toUInt32
 
 set_option linter.deprecated false in
-@[deprecated Unicode.lookupGC (since := "v1.3.0")]
+@[inline, deprecated Unicode.lookupGC (since := "v1.3.0")]
 def lookupGeneralCategory (c : UInt32) : GeneralCategory :=
   .ofGC! (lookupGC c)
 
@@ -310,14 +298,10 @@ where
 /-- Check if code point is alphabetic using lookup table
 
   Unicode property: `Alphabetic` -/
+@[inline]
 def lookupAlphabetic (c : UInt32) : Bool :=
-  let table := table.get
-  if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
-    | (_, v) => c ≤ v
-where
-  str : String := include_str "../data/table/Alphabetic.txt"
-  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+  let m := CLib.oAlpha ||| (GC.L ||| GC.Nl).toUInt64
+  CLib.lookupProp c &&& m != 0
 
 /-- Check if code point is bidi mirrored using lookup table
 
@@ -335,62 +319,42 @@ where
 /-- Check if code point is a cased letter using lookup table
 
   Unicode property: `Cased` -/
+@[inline]
 def lookupCased (c : UInt32 ) : Bool :=
-  let table := table.get
-  if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
-    | (_, v) => c ≤ v
-where
-  str : String := include_str "../data/table/Cased.txt"
-  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+  let m := CLib.oUpper ||| CLib.oLower ||| GC.LC.toUInt64
+  CLib.lookupProp c &&& m != 0
 
 /-- Check if code point is a lowercase letter using lookup table
 
   Unicode property: `Lowercase` -/
+@[inline]
 def lookupLowercase (c : UInt32) : Bool :=
-  let table := table.get
-  if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
-    | (_, v) => c ≤ v
-where
-  str : String := include_str "../data/table/Lowercase.txt"
-  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+  let m := CLib.oLower ||| GC.Ll.toUInt64
+  CLib.lookupProp c &&& m != 0
+
 
 /-- Check if code point is a mathematical symbol using lookup table
 
   Unicode property: `Math` -/
+@[inline]
 def lookupMath (c : UInt32) : Bool :=
-  let table := table.get
-  if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
-    | (_, v) => c ≤ v
-where
-  str : String := include_str "../data/table/Math.txt"
-  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+  let m := CLib.oMath ||| GC.Sm.toUInt64
+  CLib.lookupProp c &&& m != 0
 
 /-- Check if code point is a titlecase letter using lookup table
 
   Unicode property: `Titlecase` -/
+@[inline]
 def lookupTitlecase (c : UInt32) : Bool :=
-  let table := table.get
-  if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
-    | (_, v) => c ≤ v
-where
-  str : String := include_str "../data/table/Titlecase.txt"
-  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+  lookupGC c == GC.Lt
 
 /-- Check if code point is a uppercase letter using lookup table
 
   Unicode property: `Uppercase` -/
+@[inline]
 def lookupUppercase (c : UInt32) : Bool :=
-  let table := table.get
-  if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
-    | (_, v) => c ≤ v
-where
-  str : String := include_str "../data/table/Uppercase.txt"
-  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+  let m := CLib.oUpper ||| GC.Lu.toUInt64
+  CLib.lookupProp c &&& m != 0
 
 /-- Check if code point is a white space character using lookup table
 
