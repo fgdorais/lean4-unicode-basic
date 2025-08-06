@@ -115,7 +115,7 @@ where
       .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ps, .Sm, .Po, .Sm, .Cc]
 
 set_option linter.deprecated false in
-@[deprecated Unicode.getGC (since := "1.3.0")]
+@[deprecated Unicode.getGC (since := "1.2.0")]
 def getGeneralCategory (char : Char) : GeneralCategory :=
   .ofGC! (getGC char)
 
@@ -125,7 +125,7 @@ instance : Membership Char GC where
 instance (char : Char) (cat : GC) : Decidable (char ∈ cat) := inferInstanceAs (Decidable (_ ⊆ _))
 
 set_option linter.deprecated false in
-@[deprecated "use `char ∈ category` instead" (since := "1.3.0")]
+@[deprecated "use `char ∈ category` instead" (since := "1.2.0")]
 def isInGeneralCategory (char : Char) (category : GeneralCategory) : Bool :=
   match category, getGeneralCategory char with
   | ⟨major, none⟩, ⟨charMajor, _⟩ => major == charMajor
@@ -150,7 +150,7 @@ namespace GeneralCategory
   Unicode Property: `General_Category=L` -/
 abbrev isLetter (char : Char) : Bool := char ∈ Unicode.GC.L
 
-@[deprecated "c ∈ Unicode.GC.L" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.L" (since := "1.2.0")]
 protected abbrev isL := isLetter
 
 /-- Check if lowercase letter character (`Ll`)
@@ -158,7 +158,7 @@ protected abbrev isL := isLetter
   Unicode Property: `General_Category=Ll` -/
 abbrev isLowercaseLetter (char : Char) : Bool := char ∈ Unicode.GC.Ll
 
-@[deprecated "c ∈ Unicode.GC.Ll" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Ll" (since := "1.2.0")]
 protected abbrev isLl := isLowercaseLetter
 
 /-- Check if titlecase letter character (`Lt`)
@@ -166,7 +166,7 @@ protected abbrev isLl := isLowercaseLetter
   Unicode Property: `General_Category=Lt` -/
 abbrev isTitlecaseLetter (char : Char) : Bool := char ∈ Unicode.GC.Lt
 
-@[deprecated "c ∈ Unicode.GC.Lt" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Lt" (since := "1.2.0")]
 protected abbrev isLt := isTitlecaseLetter
 
 /-- Check if uppercase letter character (`Lu`)
@@ -174,7 +174,7 @@ protected abbrev isLt := isTitlecaseLetter
   Unicode Property: `General_Category=Lu` -/
 abbrev isUppercaseLetter (char : Char) : Bool := char ∈ Unicode.GC.Lu
 
-@[deprecated "c ∈ Unicode.GC.Lu" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Lu" (since := "1.2.0")]
 protected abbrev isLu := isUppercaseLetter
 
 /-- Check if cased letter character (`LC`)
@@ -184,7 +184,7 @@ protected abbrev isLu := isUppercaseLetter
   Unicode Property: `General_Category=LC` -/
 abbrev isCasedLetter (char : Char) : Bool := char ∈ Unicode.GC.LC
 
-@[deprecated "c ∈ Unicode.GC.LC" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.LC" (since := "1.2.0")]
 protected abbrev isLC := isCasedLetter
 
 /-- Check if modifier letter character (`Lm`)
@@ -192,7 +192,7 @@ protected abbrev isLC := isCasedLetter
   Unicode Property: `General_Category=Lm`-/
 abbrev isModifierLetter (char : Char) : Bool := char ∈ Unicode.GC.Lm
 
-@[deprecated "c ∈ Unicode.GC.Lm" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Lm" (since := "1.2.0")]
 protected abbrev isLm := isModifierLetter
 
 /-- Check if other letter character (`Lo`)
@@ -200,7 +200,7 @@ protected abbrev isLm := isModifierLetter
   Unicode Property: `General_Category=Lo`-/
 abbrev isOtherLetter (char : Char) : Bool := char ∈ Unicode.GC.Lo
 
-@[deprecated "c ∈ Unicode.GC.Lo" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Lo" (since := "1.2.0")]
 protected abbrev isLo := isOtherLetter
 
 /-- Check if mark character (`M`)
@@ -210,7 +210,7 @@ protected abbrev isLo := isOtherLetter
   Unicode Property: `General_Category=M` -/
 abbrev isMark (char : Char) : Bool := char ∈ Unicode.GC.M
 
-@[deprecated "c ∈ Unicode.GC.M" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.M" (since := "1.2.0")]
 protected abbrev isM := isMark
 
 /-- Check if nonspacing combining mark character (`Mn`)
@@ -218,7 +218,7 @@ protected abbrev isM := isMark
   Unicode Property: `General_Category=Mn` -/
 abbrev isNonspacingMark (char : Char) : Bool := char ∈ Unicode.GC.Mn
 
-@[deprecated "c ∈ Unicode.GC.Mn" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Mn" (since := "1.2.0")]
 protected abbrev isMn := isNonspacingMark
 
 /-- Check if spacing combining mark character (`Mc`)
@@ -226,7 +226,7 @@ protected abbrev isMn := isNonspacingMark
   Unicode Property: `General_Category=Mc` -/
 abbrev isSpacingMark (char : Char) : Bool := char ∈ Unicode.GC.Mc
 
-@[deprecated "c ∈ Unicode.GC.Mc" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Mc" (since := "1.2.0")]
 protected abbrev isMc := isSpacingMark
 
 /-- Check if enclosing combining mark character (`Me`)
@@ -234,7 +234,7 @@ protected abbrev isMc := isSpacingMark
   Unicode Property: `General_Category=Me` -/
 abbrev isEnclosingMark (char : Char) : Bool := char ∈ Unicode.GC.Me
 
-@[deprecated "c ∈ Unicode.GC.Me" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Me" (since := "1.2.0")]
 protected abbrev isMe := isEnclosingMark
 
 /-- Check if number character (`N`)
@@ -244,7 +244,7 @@ protected abbrev isMe := isEnclosingMark
   Unicode Property: `General_Category=N` -/
 abbrev isNumber (char : Char) : Bool := char ∈ Unicode.GC.N
 
-@[deprecated "c ∈ Unicode.GC.N" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.N" (since := "1.2.0")]
 protected abbrev isN := isNumber
 
 /-- Check if decimal number character (`Nd`)
@@ -252,7 +252,7 @@ protected abbrev isN := isNumber
   Unicode Property: `General_Category=Nd` -/
 abbrev isDecimalNumber (char : Char) : Bool := char ∈ Unicode.GC.Nd
 
-@[deprecated "c ∈ Unicode.GC.Nd" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Nd" (since := "1.2.0")]
 protected abbrev isNd := isDecimalNumber
 
 /-- Check if letter number character (`Nl`)
@@ -260,7 +260,7 @@ protected abbrev isNd := isDecimalNumber
   Unicode Property: `General_Category=Nl` -/
 abbrev isLetterNumber (char : Char) : Bool := char ∈ Unicode.GC.Nl
 
-@[deprecated "c ∈ Unicode.GC.Nl" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Nl" (since := "1.2.0")]
 protected abbrev isNl := isLetterNumber
 
 /-- Check if other number character (`No`)
@@ -268,7 +268,7 @@ protected abbrev isNl := isLetterNumber
   Unicode Property: `General_Category=No` -/
 abbrev isOtherNumber (char : Char) : Bool := char ∈ Unicode.GC.No
 
-@[deprecated "c ∈ Unicode.GC.No" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.No" (since := "1.2.0")]
 protected abbrev isNo := isOtherNumber
 
 /-- Check if punctuation character (`P`)
@@ -278,7 +278,7 @@ protected abbrev isNo := isOtherNumber
   Unicode Property: `General_Category=P` -/
 abbrev isPunctuation (char : Char) : Bool := char ∈ Unicode.GC.P
 
-@[deprecated "c ∈ Unicode.GC.P" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.P" (since := "1.2.0")]
 protected abbrev isP := isPunctuation
 
 /-- Check if connector punctuation character (`Pc`)
@@ -286,7 +286,7 @@ protected abbrev isP := isPunctuation
   Unicode Property: `General_Category=Pc` -/
 abbrev isConnectorPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pc
 
-@[deprecated "c ∈ Unicode.GC.Pc" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Pc" (since := "1.2.0")]
 protected abbrev isPc := isConnectorPunctuation
 
 /-- Check if dash punctuation character (`Pd`)
@@ -294,7 +294,7 @@ protected abbrev isPc := isConnectorPunctuation
   Unicode Property: `General_Category=Pd` -/
 abbrev isDashPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pd
 
-@[deprecated "c ∈ Unicode.GC.Pd" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Pd" (since := "1.2.0")]
 protected abbrev isPd := isDashPunctuation
 
 /-- Check if grouping punctuation character (`PG`)
@@ -304,7 +304,7 @@ protected abbrev isPd := isDashPunctuation
   Unicode Property: `General_Category=PG` -/
 abbrev isGroupPunctuation (char : Char) : Bool := char ∈ Unicode.GC.PG
 
-@[deprecated "c ∈ Unicode.GC.PG" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.PG" (since := "1.2.0")]
 protected abbrev isPG := isGroupPunctuation
 
 /-- Check if open punctuation character (`Ps`)
@@ -312,7 +312,7 @@ protected abbrev isPG := isGroupPunctuation
   Unicode Property: `General_Category=Ps` -/
 abbrev isOpenPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Ps
 
-@[deprecated "c ∈ Unicode.GC.Ps" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Ps" (since := "1.2.0")]
 protected abbrev isPs := isOpenPunctuation
 
 /-- Check if close punctuation character (`Pe`)
@@ -320,7 +320,7 @@ protected abbrev isPs := isOpenPunctuation
   Unicode Property: `General_Category=Pe` -/
 abbrev isClosePunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pe
 
-@[deprecated "c ∈ Unicode.GC.Pe" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Pe" (since := "1.2.0")]
 protected abbrev isPe := isClosePunctuation
 
 /-- Check if quoting punctuation character (`PQ`)
@@ -330,7 +330,7 @@ protected abbrev isPe := isClosePunctuation
   Unicode Property: `General_Category=PQ` -/
 abbrev isQuotePunctuation (char : Char) : Bool := char ∈ Unicode.GC.PQ
 
-@[deprecated "c ∈ Unicode.GC.PQ" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.PQ" (since := "1.2.0")]
 protected abbrev isPQ := isQuotePunctuation
 
 /-- Check if initial punctuation character (`Pi`)
@@ -338,7 +338,7 @@ protected abbrev isPQ := isQuotePunctuation
   Unicode Property: `General_Category=Pi` -/
 abbrev isInitialPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pi
 
-@[deprecated "c ∈ Unicode.GC.Pi" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Pi" (since := "1.2.0")]
 protected abbrev isPi := isInitialPunctuation
 
 /-- Check if initial punctuation character (`Pf`)
@@ -346,7 +346,7 @@ protected abbrev isPi := isInitialPunctuation
   Unicode Property: `General_Category=Pf` -/
 abbrev isFinalPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pf
 
-@[deprecated "c ∈ Unicode.GC.Pf" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Pf" (since := "1.2.0")]
 protected abbrev isPf := isFinalPunctuation
 
 /-- Check if other punctuation character (`Po`)
@@ -354,7 +354,7 @@ protected abbrev isPf := isFinalPunctuation
   Unicode Property: `General_Category=Po` -/
 abbrev isOtherPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Po
 
-@[deprecated "c ∈ Unicode.GC.Po" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Po" (since := "1.2.0")]
 protected abbrev isPo := isOtherPunctuation
 
 /-- Check if symbol character (`S`)
@@ -364,7 +364,7 @@ protected abbrev isPo := isOtherPunctuation
   Unicode Property: `General_Category=S` -/
 abbrev isSymbol (char : Char) : Bool := char ∈ Unicode.GC.S
 
-@[deprecated "c ∈ Unicode.GC.S" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.S" (since := "1.2.0")]
 protected abbrev isS := isSymbol
 
 /-- Check if math symbol character (`Sm`)
@@ -372,7 +372,7 @@ protected abbrev isS := isSymbol
   Unicode Property: `General_Category=Sm` -/
 abbrev isMathSymbol (char : Char) : Bool := char ∈ Unicode.GC.Sm
 
-@[deprecated "c ∈ Unicode.GC.Sm" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Sm" (since := "1.2.0")]
 protected abbrev isSm := isMathSymbol
 
 /-- Check if currency symbol character (`Sc`)
@@ -380,7 +380,7 @@ protected abbrev isSm := isMathSymbol
   Unicode Property: `General_Category=Sc` -/
 abbrev isCurrencySymbol (char : Char) : Bool := char ∈ Unicode.GC.Sc
 
-@[deprecated "c ∈ Unicode.GC.Sc" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Sc" (since := "1.2.0")]
 protected abbrev isSc := isCurrencySymbol
 
 /-- Check if modifier symbol character (`Sk`)
@@ -388,7 +388,7 @@ protected abbrev isSc := isCurrencySymbol
   Unicode Property: `General_Category=Sk` -/
 abbrev isModifierSymbol (char : Char) : Bool := char ∈ Unicode.GC.Sk
 
-@[deprecated "c ∈ Unicode.GC.Sk" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Sk" (since := "1.2.0")]
 protected abbrev isSk := isModifierSymbol
 
 /-- Check if other symbol character (`So`)
@@ -396,7 +396,7 @@ protected abbrev isSk := isModifierSymbol
   Unicode Property: `General_Category=So` -/
 abbrev isOtherSymbol (char : Char) : Bool := char ∈ Unicode.GC.So
 
-@[deprecated "c ∈ Unicode.GC.So" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.So" (since := "1.2.0")]
 protected abbrev isSo := isOtherSymbol
 
 /-- Check if separator character (`Z`)
@@ -406,7 +406,7 @@ protected abbrev isSo := isOtherSymbol
   Unicode Property: `General_Category=Z` -/
 abbrev isSeparator (char : Char) : Bool := char ∈ Unicode.GC.Z
 
-@[deprecated "c ∈ Unicode.GC.Z" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Z" (since := "1.2.0")]
 protected abbrev isZ := isSeparator
 
 /-- Check if space separator character (`Zs`)
@@ -414,7 +414,7 @@ protected abbrev isZ := isSeparator
   Unicode Property: `General_Category=Zs` -/
 abbrev isSpaceSeparator (char : Char) : Bool := char ∈ Unicode.GC.Zs
 
-@[deprecated "c ∈ Unicode.GC.Zs" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Zs" (since := "1.2.0")]
 protected abbrev isZs := isSpaceSeparator
 
 /-- Check if line separator character (`Zl`)
@@ -422,7 +422,7 @@ protected abbrev isZs := isSpaceSeparator
   Unicode Property: `General_Category=Zl` -/
 abbrev isLineSeparator (char : Char) : Bool := char ∈ Unicode.GC.Zl
 
-@[deprecated "c ∈ Unicode.GC.Zl" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Zl" (since := "1.2.0")]
 protected abbrev isZl := isLineSeparator
 
 /-- Check if paragraph separator character (`Zp`)
@@ -430,7 +430,7 @@ protected abbrev isZl := isLineSeparator
   Unicode Property: `General_Category=Zp` -/
 abbrev isParagraphSeparator (char : Char) : Bool := char ∈ Unicode.GC.Zp
 
-@[deprecated "c ∈ Unicode.GC.Zp" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Zp" (since := "1.2.0")]
 protected abbrev isZp := isParagraphSeparator
 
 /-- Check if other character (`C`)
@@ -440,7 +440,7 @@ protected abbrev isZp := isParagraphSeparator
   Unicode Property: `General_Category=C` -/
 abbrev isOther (char : Char) : Bool := char ∈ Unicode.GC.C
 
-@[deprecated "c ∈ Unicode.GC.C" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.C" (since := "1.2.0")]
 protected abbrev isC := isOther
 
 /-- Check if control character (`Cc`)
@@ -448,7 +448,7 @@ protected abbrev isC := isOther
   Unicode Property: `General_Category=Cc` -/
 abbrev isControl (char : Char) : Bool := char ∈ Unicode.GC.Cc
 
-@[deprecated "c ∈ Unicode.GC.Cc" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Cc" (since := "1.2.0")]
 protected abbrev isCc := isControl
 
 /-- Check if format character (`Cf`)
@@ -456,7 +456,7 @@ protected abbrev isCc := isControl
   Unicode Property: `General_Category=Cf` -/
 abbrev isFormat (char : Char) : Bool := char ∈ Unicode.GC.Cf
 
-@[deprecated "c ∈ Unicode.GC.Cf" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Cf" (since := "1.2.0")]
 protected abbrev isCf := isFormat
 
 /-- Check if surrogate character (`Cs`)
@@ -466,7 +466,7 @@ protected abbrev isCf := isFormat
   Unicode Property: `General_Category=Cs` -/
 abbrev isSurrogate (char : Char) : Bool := char ∈ Unicode.GC.Cs
 
-@[deprecated "c ∈ Unicode.GC.Cs" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Cs" (since := "1.2.0")]
 protected abbrev isCs := isSurrogate
 
 /-- Check if private use character (`Co`)
@@ -474,7 +474,7 @@ protected abbrev isCs := isSurrogate
   Unicode Property: `General_Category=Co` -/
 abbrev isPrivateUse (char : Char) : Bool := char ∈ Unicode.GC.Co
 
-@[deprecated "c ∈ Unicode.GC.Co" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Co" (since := "1.2.0")]
 protected abbrev isCo := isPrivateUse
 
 /-- Check if unassigned character (`Cn`)
@@ -482,7 +482,7 @@ protected abbrev isCo := isPrivateUse
   Unicode Property: `General_Category=Cn` -/
 abbrev isUnassigned (char : Char) : Bool := char ∈ Unicode.GC.Cn
 
-@[deprecated "c ∈ Unicode.GC.Cn" (since := "1.3.0")]
+@[deprecated "c ∈ Unicode.GC.Cn" (since := "1.2.0")]
 protected abbrev isCn := isUnassigned
 
 end GeneralCategory
