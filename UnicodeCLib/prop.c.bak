@@ -1,0 +1,64 @@
+#include "basic.h"
+
+#define TABLE_SIZE 10
+
+static const unicode_data_t table[];
+
+uint64_t unicode_prop_lookup(uint32_t c) {
+  unicode_data_t v;
+
+  if (c >= unicode_prop_table[0].cmin) {
+
+    v = table[bsearch(c, 0, TABLE_SIZE, table)];
+
+    if (c <= v.cmax) {
+      uint32_t gc = v.data & UNICODE_GC;
+      uint32_t pb = (v.data >> 31) & 1;
+      uint64_t op = v.data & UINT64_C(0xffffffff00000000);
+
+      if (gc == UNICODE_GC_LC) {
+        if (c & 1 == pb)
+          return op | UNICODE_GC_Lu;
+        else
+          return op | UNICODE_GC_Ll;
+      }
+
+      if (gc == UNICODE_GC_PG) {
+        if (c & 1 == pb)
+          return op | UNICODE_GC_Ps;
+        else
+          return op | UNICODE_GC_Pe;
+      }
+
+      if (gc == UNICODE_GC_PQ) {
+        if (c & 1 == pb)
+          return op | UNICODE_GC_Pi;
+        else
+          return op | UNICODE_GC_Pf;
+      }
+
+      return op | gc;
+    }
+  }
+
+  return UNICODE_GC_Cn;
+}
+
+unicode_data_t table[] = {
+  {0, 0},
+  {0, 0},
+  {0, 0},
+  {0, 0},
+  {0, 0},
+  {0, 0},
+  {0, 0},
+  {0, 0},
+  {0, 0},
+  {0, 0},
+  {0, 0},
+  {0, 0},
+  {0, 0},
+  {0, 0},
+  {0, 0},
+  {0, 0},
+};

@@ -4,22 +4,37 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
 import Lake
-open Lake DSL
+open System Lake DSL
 
 package UnicodeBasic where
   version := v!"1.1.0"
   description := "Basic Unicode support for Lean 4"
   keywords := #["unicode"]
   reservoir := true
+  precompileModules := true
+
+target UnicodeCLib pkg : FilePath := do
+  let mut oFiles : Array (Job FilePath) := #[]
+  for file in (← (pkg.dir / "UnicodeCLib").readDir) do
+    if file.path.extension == some "c" then
+      let obj := pkg.buildDir / "UnicodeCLib" / (file.fileName.stripSuffix ".c" ++ ".o")
+      let src ← inputTextFile file.path
+      let weakArgs := #["-I", (← getLeanIncludeDir).toString, "-O", "-fPIC"]
+      oFiles := oFiles.push <| ← buildO obj src weakArgs
+  let name := nameToStaticLib "unicodeclib"
+  buildStaticLib (pkg.sharedLibDir / name) oFiles
 
 @[default_target]
-lean_lib UnicodeBasic
+lean_lib UnicodeBasic where
+  moreLinkObjs := #[UnicodeCLib]
 
 lean_lib UnicodeData
 
 lean_exe lookup
 
 lean_exe makeTables
+
+lean_exe makeCLib
 
 @[test_driver]
 lean_exe testTables
