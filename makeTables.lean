@@ -485,22 +485,13 @@ def mkWhiteSpace : Array (UInt32 × UInt32) :=
 
 def main (args : List String) : IO UInt32 := do
   let args := if args != [] then args else [
-    "Alphabetic",
     "Bidi_Class",
     "Bidi_Mirrored",
     "Canonical_Combining_Class",
     "Canonical_Decomposition_Mapping",
-    "Case_Mapping",
-    "Cased",
     "Decomposition_Mapping",
-    "Lowercase",
-    "Math",
     "Name",
-    "Other",
-    "Titlecase",
-    "Uppercase",
     "Numeric_Value",
-    "General_Category",
     "White_Space"]
   let tableDir : System.FilePath := "."/"data"/"table"
   IO.FS.createDirAll tableDir
@@ -602,16 +593,6 @@ def main (args : List String) : IO UInt32 := do
           else
             file.putStrLn <| ";".intercalate [toHexStringAux c₀, toHexStringAux c₁, toString v]
       IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
-    -- | "General_Category" =>
-    --   IO.println s!"Generating table {arg}"
-    --   let table ← mkGeneralCategory
-    --   IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
-    --     for (c₀, c₁, gc) in table do
-    --       if c₀ == c₁ then
-    --         file.putStrLn <| ";".intercalate [toHexStringAux c₀, "", gc.toAbbrev!]
-    --       else
-    --         file.putStrLn <| ";".intercalate [toHexStringAux c₀, toHexStringAux c₁, gc.toAbbrev!]
-    --   IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
     | "Lowercase" =>
       IO.println s!"Generating table {arg}"
       let table ← mkLowercase
