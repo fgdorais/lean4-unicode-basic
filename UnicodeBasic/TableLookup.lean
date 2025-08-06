@@ -284,14 +284,7 @@ where
 
   Unicode properties: `Other_Alphabetic`, `Other_Lowercase`, `Other_Uppercase`, `Other_Math` -/
 def lookupOther (c : UInt32) : UInt32 :=
-  let table := table.get
-  if c < table[0]!.1 then 0 else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
-    | (_, v, op) => if c ≤ v then UInt32.ofNat op else 0
-where
-  str : String := include_str "../data/table/Other.txt"
-  table : Thunk <| Array (UInt32 × UInt32 × Nat) :=
-    parseDataTable str fun _ _ x => x[0]!.toNat?.get!
+  CLib.lookupProp c >>> 32 |>.toUInt32
 
 /-! Properties -/
 
