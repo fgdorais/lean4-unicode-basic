@@ -19,6 +19,7 @@ jobs:
       - name: Install Lean
         uses: leanprover/lean-action@v1
         with:
+          build: false
           test: false
           lint: false
           use-github-cache: true

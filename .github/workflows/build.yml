@@ -22,5 +22,7 @@ jobs:
       - name: build
         uses: leanprover/lean-action@v1
         with:
+          build: true
+          build-args: "UnicodeBasic UnicodeData"
           test: true
           use-mathlib-cache: false
