@@ -1,0 +1,74 @@
+/*
+Copyright © 2025 François G. Dorais. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+*/
+#pragma once
+#include <stdint.h>
+#include <lean/lean.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define UNICODE_GC    UINT32_C(0x3fffffff)
+
+#define UNICODE_GC_Lu UINT32_C(0x00000001)
+#define UNICODE_GC_Ll UINT32_C(0x00000002)
+#define UNICODE_GC_Lt UINT32_C(0x00000004)
+#define UNICODE_GC_Lm UINT32_C(0x00000008)
+#define UNICODE_GC_Lo UINT32_C(0x00000010)
+#define UNICODE_GC_LC (UNICODE_GC_Lu | UNICODE_GC_Ll | UNICODE_GC_Lt)
+#define UNICODE_GC_L (UNICODE_GC_LC | UNICODE_GC_Lm | UNICODE_GC_Lo)
+
+#define UNICODE_GC_Mn UINT32_C(0x00000020)
+#define UNICODE_GC_Mc UINT32_C(0x00000040)
+#define UNICODE_GC_Me UINT32_C(0x00000080)
+#define UNICODE_GC_M (UNICODE_GC_Mn | UNICODE_GC_Mc | UNICODE_GC_Me)
+
+#define UNICODE_GC_Nd UINT32_C(0x00000100)
+#define UNICODE_GC_Nl UINT32_C(0x00000200)
+#define UNICODE_GC_No UINT32_C(0x00000400)
+#define UNICODE_GC_N (UNICODE_GC_Nd | UNICODE_GC_Nl | UNICODE_GC_No)
+
+#define UNICODE_GC_Pc UINT32_C(0x00000800)
+#define UNICODE_GC_Pd UINT32_C(0x00001000)
+#define UNICODE_GC_Ps UINT32_C(0x00002000)
+#define UNICODE_GC_Pe UINT32_C(0x00004000)
+#define UNICODE_GC_Pi UINT32_C(0x00008000)
+#define UNICODE_GC_Pf UINT32_C(0x00010000)
+#define UNICODE_GC_Po UINT32_C(0x00020000)
+#define UNICODE_GC_PG (UNICODE_GC_Ps | UNICODE_GC_Pe)
+#define UNICODE_GC_PQ (UNICODE_GC_Pi | UNICODE_GC_Pf)
+#define UNICODE_GC_P (UNICODE_GC_Pc | UNICODE_GC_Pd | UNICODE_GC_PG | UNICODE_GC_PQ | UNICODE_GC_Po)
+
+#define UNICODE_GC_Sm UINT32_C(0x00040000)
+#define UNICODE_GC_Sc UINT32_C(0x00080000)
+#define UNICODE_GC_Sk UINT32_C(0x00100000)
+#define UNICODE_GC_So UINT32_C(0x00200000)
+#define UNICODE_GC_S (UNICODE_GC_Sm | UNICODE_GC_Sc | UNICODE_GC_Sk | UNICODE_GC_So)
+
+#define UNICODE_GC_Zs UINT32_C(0x00400000)
+#define UNICODE_GC_Zl UINT32_C(0x00800000)
+#define UNICODE_GC_Zp UINT32_C(0x01000000)
+#define UNICODE_GC_Z (UNICODE_GC_Zs | UNICODE_GC_Zl | UNICODE_GC_Zp)
+
+#define UNICODE_GC_Cc UINT32_C(0x02000000)
+#define UNICODE_GC_Cf UINT32_C(0x04000000)
+#define UNICODE_GC_Cs UINT32_C(0x08000000)
+#define UNICODE_GC_Co UINT32_C(0x10000000)
+#define UNICODE_GC_Cn UINT32_C(0x20000000)
+#define UNICODE_GC_C (UNICODE_GC_Cc | UNICODE_GC_Cf | UNICODE_GC_Cs | UNICODE_GC_Co | UNICODE_GC_Cn)
+
+typedef struct {
+  uint32_t cmin;
+  uint32_t cmax;
+  uint64_t data;
+} unicode_data_t;
+
+LEAN_EXPORT uint64_t unicode_prop_lookup(uint32_t c);
+
+LEAN_EXPORT uint64_t unicode_case_lookup(uint32_t c);
+
+#ifdef __cplusplus
+}
+#endif
