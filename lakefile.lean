@@ -24,6 +24,8 @@ target UnicodeCLib pkg : FilePath := do
   let name := nameToStaticLib "unicodeclib"
   buildStaticLib (pkg.sharedLibDir / name) oFiles
 
+extern_lib libunicodeclib := UnicodeCLib.fetch
+
 @[default_target]
 lean_lib UnicodeBasic where
   moreLinkObjs := #[UnicodeCLib]
