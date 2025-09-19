@@ -741,6 +741,7 @@ FF10;FF19;decimal
 11C6C;;numeric 100
 11D50;11D59;decimal
 11DA0;11DA9;decimal
+11DE0;11DE9;decimal
 11F50;11F59;decimal
 11FC0;;numeric 1/320
 11FC1;;numeric 1/160
@@ -763,6 +764,14 @@ FF10;FF19;decimal
 11FD2;;numeric 1/2
 11FD3;;numeric 3/4
 11FD4;;numeric 1/320
+12038;;numeric 1
+12039;;numeric 1
+12079;;numeric 1
+12226;;numeric 1/2
+1222B;;numeric 2
+1230B;;numeric 1
+1230D;;numeric 3
+12399;;numeric 2
 12400;;numeric 2
 12401;;numeric 3
 12402;;numeric 4
@@ -909,6 +918,9 @@ FF10;FF19;decimal
 16E94;;numeric 1
 16E95;;numeric 2
 16E96;;numeric 3
+16FF4;;numeric 1
+16FF5;;numeric 3/2
+16FF6;;numeric 2
 1CCF0;1CCF9;decimal
 1D2C0;;numeric 0
 1D2C1;;numeric 1

@@ -214,7 +214,12 @@ def lookupName (c : UInt32) : String :=
           else if d == "<Nushu Character>" then
             "NUSHU CHARACTER-" ++ toHexStringAux c
           else if d == "<Tangut Component>" then
-            let i := toString <| c.toNat - 0x18800 + 1
+            let i := if c.toNat < 0x18B00 then
+                -- Tangut Component
+                toString <| c.toNat - 0x18800 + 1
+              else
+                -- Tangut Component Supplement
+                toString <| c.toNat - 0x18D80 + 769
             let i :=
               if i.length == 1 then "00" ++ i
               else if i.length == 2 then "0" ++ i
