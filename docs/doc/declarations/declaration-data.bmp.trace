@@ -1,0 +1,19 @@
+{"synthetic": false,
+ "outputs": null,
+ "log":
+ [{"message": "Documentation indexing", "level": "info"},
+  {"message":
+   ".> /home/runner/work/lean4-unicode-basic/lean4-unicode-basic/.lake/packages/doc-gen4/.lake/build/bin/doc-gen4 index --build /home/runner/work/lean4-unicode-basic/lean4-unicode-basic/docs",
+   "level": "trace"}],
+ "inputs":
+ [["/home/runner/work/lean4-unicode-basic/lean4-unicode-basic/.lake/packages/doc-gen4/.lake/build/bin/doc-gen4",
+   "11879849805808541587"],
+  ["<nil>", "6748611221465965550"],
+  ["<collection>",
+   [["/home/runner/work/lean4-unicode-basic/lean4-unicode-basic/docs/doc/UnicodeData/Basic.html",
+     "8495932314089618809"],
+    ["/home/runner/work/lean4-unicode-basic/lean4-unicode-basic/docs/doc/UnicodeData/PropList.html",
+     "9092398830120713342"],
+    ["/home/runner/work/lean4-unicode-basic/lean4-unicode-basic/docs/doc/UnicodeData.html",
+     "1910001168076460512"]]]],
+ "depHash": "10008132167715565307"}
