@@ -25,10 +25,10 @@ jobs:
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor_id}}+${{ github.actor }}@users.noreply.github.com"
 
-      - name: merge main
+      - name: rebase main
         run: |
           git fetch origin
-          git merge origin/main --strategy-option ours --no-commit --allow-unrelated-histories
+          git rebase origin/main -Xtheirs
 
       - name: update lean-toolchain
         id: toolchain-tag
@@ -41,4 +41,4 @@ jobs:
       - name: commit and push
         run: |
           git commit -m "chore: update toolchain ${{ steps.toolchain-tag.outputs.lean_tag }}"
-          git push origin nightly
+          git push --force origin nightly
