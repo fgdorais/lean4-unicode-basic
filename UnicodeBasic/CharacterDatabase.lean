@@ -59,7 +59,7 @@ protected def next? (stream : UCDStream) : Option (Array Substring × UCDStream)
       arr := arr.push item.trim
     return (arr, table)
 
-instance : Stream UCDStream (Array Substring) where
+instance : Std.Stream UCDStream (Array Substring) where
   next? := UCDStream.next?
 
 end UCDStream
