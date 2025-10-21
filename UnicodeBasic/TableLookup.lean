@@ -269,7 +269,7 @@ where
       if s == "decimal" then
         .decimal 0
       else if "digit".isPrefixOf s then
-        let d := (s.get ⟨6⟩).toNat
+        let d := (String.Pos.Raw.get s ⟨6⟩).toNat
         if h : d - '0'.toNat < 10 then
           if d < '0'.toNat then
             panic! s!"invalid table data {d} {s}"
