@@ -410,7 +410,7 @@ private def UnicodeDataStream.next? (s : UnicodeDataStream) : Option (UnicodeDat
   else
     return (.mkNoncharacter c, {s with code := c+1})
 
-instance : Stream UnicodeDataStream UnicodeData where
+instance : Std.Stream UnicodeDataStream UnicodeData where
   next? := UnicodeDataStream.next?
 
 end Unicode
