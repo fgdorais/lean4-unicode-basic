@@ -36,7 +36,7 @@ def toHexStringAux (code : UInt32) : String := Id.run do
   while code != 0 do
     dgts := hex[(code &&& 0xF).toNat]! :: dgts
     code := code >>> 4
-  return String.mk dgts
+  return String.ofList dgts
 
 /-- Hexadecimal string representation of a code point
 
