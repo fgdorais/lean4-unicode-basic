@@ -24,6 +24,8 @@ target UnicodeCLib pkg : FilePath := do
   let name := nameToStaticLib "unicodeclib"
   buildStaticLib (pkg.sharedLibDir / name) oFiles
 
+-- temporary fix for Windows
+meta if System.Platform.isWindows then
 extern_lib libunicodeclib := UnicodeCLib.fetch
 
 @[default_target]
