@@ -27,7 +27,7 @@ def ofSubstring (str : Substring) : UCDStream where
 def ofString (str : String) : UCDStream where
   str := str
   startPos := 0
-  stopPos := str.endPos
+  stopPos := str.rawEndPos
 
 /-- Make a `UCDStream` from a file -/
 def ofFile (path : System.FilePath) : IO UCDStream :=
