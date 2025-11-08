@@ -13,16 +13,28 @@ jobs:
 
       - name: checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: install jq
         uses: dcarbone/install-jq-action@v3
 
-      - name: update lean-toolchain
+      - name: get toolchain tags
         id: toolchain-tag
         run: |
-          LEAN_TAG=$(curl -s "https://api.github.com/repos/leanprover/lean4/releases" | jq -r '.[0].tag_name')
+          REPO_TAG=$(sed 's/.*://1' lean-toolchain | tr -d '\n')
+          LEAN_TAG=$(curl -s "https://api.github.com/repos/leanprover/lean4/releases" | jq -r '.[0].tag_name' | tr -d '\n')
+          echo "repo_tag=$REPO_TAG" >> $GITHUB_OUTPUT
           echo "lean_tag=$LEAN_TAG" >> $GITHUB_OUTPUT
-          echo "leanprover/lean4:$LEAN_TAG" > lean-toolchain
+
+      - name: update toolchain
+        id: update
+        if: ${{ steps.toolchain-tag.outputs.lean_tag != steps.toolchain-tag.outputs.repo_tag }}
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor_id}}+${{ github.actor }}@users.noreply.github.com"
+          git merge -X theirs origin/nightly
+          echo "leanprover/lean4:${{ steps.toolchain-tag.outputs.lean_tag }}" > lean-toolchain
 
       - name: create pull request
         uses: peter-evans/create-pull-request@v7
