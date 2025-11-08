@@ -27,6 +27,7 @@ jobs:
       - name: create pull request
         uses: peter-evans/create-pull-request@v7
         with:
+          token: ${{ secrets.UNICODE_BASIC_TOKEN }}
           commit-message: "chore: update toolchain ${{ steps.toolchain-tag.outputs.lean_tag }}"
           branch: update-toolchain-${{ steps.toolchain-tag.outputs.lean_tag }}
           delete-branch: true
