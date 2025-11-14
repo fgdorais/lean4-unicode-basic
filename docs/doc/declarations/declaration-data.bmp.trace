@@ -1,0 +1,24 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs": null,
+ "log":
+ [{"message": "Documentation indexing", "level": "info"},
+  {"message":
+   ".> /home/runner/work/lean4-unicode-basic/lean4-unicode-basic/.lake/packages/doc-gen4/.lake/build/bin/doc-gen4 index --build /home/runner/work/lean4-unicode-basic/lean4-unicode-basic/docs",
+   "level": "trace"}],
+ "inputs":
+ [["/home/runner/work/lean4-unicode-basic/lean4-unicode-basic/.lake/packages/doc-gen4/.lake/build/bin/doc-gen4",
+   "d033102f280b96cd"],
+  ["<nil>", "7c0baac5fc784a49"],
+  ["<collection>",
+   [["/home/runner/work/lean4-unicode-basic/lean4-unicode-basic/docs/doc/UnicodeBasic/Types.html",
+     "54904db02532a176"],
+    ["/home/runner/work/lean4-unicode-basic/lean4-unicode-basic/docs/doc/UnicodeBasic/CharacterDatabase.html",
+     "0c7adcad4c4b0046"],
+    ["/home/runner/work/lean4-unicode-basic/lean4-unicode-basic/docs/doc/UnicodeBasic/Hangul.html",
+     "a284efc976cc396d"],
+    ["/home/runner/work/lean4-unicode-basic/lean4-unicode-basic/docs/doc/UnicodeBasic/TableLookup.html",
+     "f423712487ff31a6"],
+    ["/home/runner/work/lean4-unicode-basic/lean4-unicode-basic/docs/doc/UnicodeBasic.html",
+     "e59695154a967a80"]]]],
+ "depHash": "a36fb6ad9b650bff"}
