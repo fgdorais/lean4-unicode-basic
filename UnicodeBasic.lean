@@ -637,7 +637,7 @@ def getCanonicalCombiningClass (char : Char) : Nat :=
 def getCanonicalDecomposition (char : Char) : String :=
   -- ASCII shortcut
   if char.val < 0x80 then char.toString else
-    String.mk <| (lookupCanonicalDecompositionMapping char.val).map fun c => Char.ofNat c.toNat
+    String.ofList <| (lookupCanonicalDecompositionMapping char.val).map fun c => Char.ofNat c.toNat
 
 /-- Get decomposition mapping of a character
 
