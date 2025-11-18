@@ -14,7 +14,7 @@ structure UnicodeData where
   /-- Code Value -/
   code : UInt32
   /-- Character Name -/
-  name : Substring
+  name : Substring.Raw
   /-- General Category -/
   gc : GC
   /-- Bidirectional Class -/
@@ -165,7 +165,7 @@ private unsafe def UnicodeData.init : IO (Array UnicodeData) := do
 where
 
   /-- Get decomposition mapping -/
-  getDecompositionMapping? (s : Substring) : Option DecompositionMapping := do
+  getDecompositionMapping? (s : Substring.Raw) : Option DecompositionMapping := do
     /-
       The value of the `Decomposition_Mapping` property for a character is
       provided in field 5 of `UnicodeData.txt`. This is a string-valued
@@ -221,7 +221,7 @@ where
       | [] => unreachable!
 
   /-- Get numeric type -/
-  getNumericType? (s₁ s₂ s₃ : Substring) : Option NumericType := do
+  getNumericType? (s₁ s₂ s₃ : Substring.Raw) : Option NumericType := do
     /-
       If the character has the property value `Numeric_Type=Decimal`, then the
       `Numeric_Value` of that digit is represented with an integer value

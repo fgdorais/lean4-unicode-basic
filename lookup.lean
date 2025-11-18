@@ -24,8 +24,8 @@ def main (args : List String) : IO Unit := do
         IO.println s!"Bidi Mirrored ........: {data.bidiMirrored}"
         match data.decomp with
         | some ⟨none, m⟩ =>
-        IO.println s!"Decomposition Mapping : \"{String.mk m}\" (canonical)"
-        | some ⟨some t, m⟩ => IO.println s!"Decomposition Mapping : {t} \"{String.mk m}\" (compatibility)"
+        IO.println s!"Decomposition Mapping : \"{String.ofList m}\" (canonical)"
+        | some ⟨some t, m⟩ => IO.println s!"Decomposition Mapping : {t} \"{String.ofList m}\" (compatibility)"
         | none => pure ()
         match data.numeric with
         | some (.decimal d) =>
@@ -50,6 +50,6 @@ where
     if a.take 2 == "U+" then
       Unicode.ofHexString? a
     else if a.length == 1 then
-      Char.val <$> a.get? 0
+      Char.val <$> String.Pos.Raw.get? a 0
     else
       Nat.toUInt32 <$> a.toNat?

@@ -12,7 +12,7 @@ namespace Unicode
   around field values are not significant. Line comments are prefixed with a
   number sign `#` (U+0023).
 -/
-structure UCDStream extends Substring where
+structure UCDStream extends Substring.Raw where
   /-- `isUnihan` is true if the records are tab separated -/
   isUnihan := false
 deriving Inhabited
@@ -20,14 +20,13 @@ deriving Inhabited
 namespace UCDStream
 
 /-- Make a `UCDStream` from a substring -/
-def ofSubstring (str : Substring) : UCDStream where
-  toSubstring := str
+def ofSubstring (str : Substring.Raw) : UCDStream := { str with }
 
 /-- Make a `UCDStream` from a string -/
 def ofString (str : String) : UCDStream where
   str := str
   startPos := 0
-  stopPos := str.endPos
+  stopPos := str.rawEndPos
 
 /-- Make a `UCDStream` from a file -/
 def ofFile (path : System.FilePath) : IO UCDStream :=
@@ -37,7 +36,7 @@ def ofFile (path : System.FilePath) : IO UCDStream :=
 
   Line comments are stripped and blank lines are skipped.
 -/
-protected partial def nextLine? (stream : UCDStream) : Option (Substring × UCDStream) := do
+protected partial def nextLine? (stream : UCDStream) : Option (Substring.Raw × UCDStream) := do
   if stream.isEmpty then failure else
     let line := stream.trimLeft.takeWhile (.!='\n')
     let nextPos := stream.next line.stopPos
@@ -51,7 +50,7 @@ protected partial def nextLine? (stream : UCDStream) : Option (Substring × UCDS
 
   Spaces around field values are trimmed.
 -/
-protected def next? (stream : UCDStream) : Option (Array Substring × UCDStream) := do
+protected def next? (stream : UCDStream) : Option (Array Substring.Raw × UCDStream) := do
     let sep := if stream.isUnihan then "\t" else ";"
     let mut arr := #[]
     let (line, table) ← stream.nextLine?
@@ -59,7 +58,7 @@ protected def next? (stream : UCDStream) : Option (Array Substring × UCDStream)
       arr := arr.push item.trim
     return (arr, table)
 
-instance : Std.Stream UCDStream (Array Substring) where
+instance : Std.Stream UCDStream (Array Substring.Raw) where
   next? := UCDStream.next?
 
 end UCDStream

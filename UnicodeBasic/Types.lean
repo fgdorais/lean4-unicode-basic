@@ -17,7 +17,7 @@ namespace Unicode
   This coercion is in Batteries but not in Lean. It is scoped to `Unicode` here to avoid issues in
   low-level packages that don't use Batteries.
 -/
-scoped instance : Coe String Substring where
+scoped instance : Coe String Substring.Raw where
   coe := String.toSubstring
 
 /-- Maximum valid code point value -/
@@ -36,7 +36,7 @@ def toHexStringAux (code : UInt32) : String := Id.run do
   while code != 0 do
     dgts := hex[(code &&& 0xF).toNat]! :: dgts
     code := code >>> 4
-  return String.mk dgts
+  return String.ofList dgts
 
 /-- Hexadecimal string representation of a code point
 
@@ -52,7 +52,7 @@ def toHexString (code : UInt32) : String :=
   For convenience, the `U+` prefix may be omitted and lowercase hexadecimal
   digits are accepted.
 -/
-def ofHexString? (str : Substring) : Option UInt32 := do
+def ofHexString? (str : Substring.Raw) : Option UInt32 := do
   let str := if str.take 2 == "U+" then str.drop 2 else str
   if str.isEmpty || str.bsize > 8 then none else
     let mut val : UInt32 := 0
@@ -80,7 +80,7 @@ where
             none
 
 @[inherit_doc ofHexString?]
-def ofHexString! (str : Substring) : UInt32 :=
+def ofHexString! (str : Substring.Raw) : UInt32 :=
   match ofHexString? str with
   | some val => val
   | none => panic! "invalid unicode hexadecimal string representation"
@@ -408,7 +408,7 @@ open Std.Format Repr in instance : Repr GC where
 instance : ToString GC where
   toString x := " | ".intercalate (reprAux x)
 
-def ofAbbrev? (s : Substring) : Option GC :=
+def ofAbbrev? (s : Substring.Raw) : Option GC :=
   if s.bsize = 0 || s.bsize > 2 then none else
     match s.get 0 with
     | 'C' =>
@@ -474,18 +474,18 @@ def ofAbbrev? (s : Substring) : Option GC :=
         | _ => none
     | _ => none
 
-def ofAbbrev! (s : Substring) : GC :=
+def ofAbbrev! (s : Substring.Raw) : GC :=
   match ofAbbrev? s with
   | some c => c
   | none => panic! "invalid general category"
 
-def ofString? (s : Substring) : Option GC := do
+def ofString? (s : Substring.Raw) : Option GC := do
   let mut c := .none
   for a in s.splitOn "|" do
     c := c ||| (← GC.ofAbbrev? a.trim)
   return c
 
-def ofString! (s : Substring) : GC :=
+def ofString! (s : Substring.Raw) : GC :=
   match ofString? s with
   | some c => c
   | none => panic! "invalid general category"
@@ -670,7 +670,7 @@ def GeneralCategory.toAbbrev : GeneralCategory → String
 
 /-- Get general category from string abbreviation -/
 @[deprecated Unicode.GC.ofAbbrev? (since := "1.2.0")]
-def GeneralCategory.ofAbbrev? (s : Substring) : Option GeneralCategory :=
+def GeneralCategory.ofAbbrev? (s : Substring.Raw) : Option GeneralCategory :=
   if s.bsize = 0 || s.bsize > 2 then none else
     match s.get 0 with
     | 'C' =>
@@ -1009,7 +1009,7 @@ def BidiClass.toAbbrev : BidiClass → String
 | popDirectionalIsolate => "PDI"
 
 /-- Get bidi class from abbreviation -/
-def BidiClass.ofAbbrev? (abbr : Substring) : Option BidiClass :=
+def BidiClass.ofAbbrev? (abbr : Substring.Raw) : Option BidiClass :=
   match abbr.toString with -- TODO: don't use toString
   | "L" => some leftToRight
   | "R" => some rightToLeft
@@ -1037,7 +1037,7 @@ def BidiClass.ofAbbrev? (abbr : Substring) : Option BidiClass :=
   | _ => none
 
 @[inherit_doc BidiClass.ofAbbrev?]
-def BidiClass.ofAbbrev! (abbr : Substring) : BidiClass :=
+def BidiClass.ofAbbrev! (abbr : Substring.Raw) : BidiClass :=
   match ofAbbrev? abbr with
   | some bc => bc
   | none => panic! "invalid bidi class abbreviation"

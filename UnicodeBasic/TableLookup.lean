@@ -36,7 +36,7 @@ private partial def find (c : UInt32) (t : USize → UInt32) (lo hi : USize) : U
     find c t mid hi
 
 /-- Parse a simple table -/
-private def parseTable (s : String) (f : UInt32 → Array Substring → α) : Thunk <| Array (UInt32 × α) := Id.run do
+private def parseTable (s : String) (f : UInt32 → Array Substring.Raw → α) : Thunk <| Array (UInt32 × α) := Id.run do
   let mut r := #[]
   let mut stream := UCDStream.ofString s
   for record in stream do
@@ -46,7 +46,7 @@ private def parseTable (s : String) (f : UInt32 → Array Substring → α) : Th
   return r
 
 /-- Parse a range compressed data table -/
-private def parseDataTable (s : String) (f : UInt32 → UInt32 → Array Substring → α) : Thunk <| Array (UInt32 × UInt32 × α) := Id.run do
+private def parseDataTable (s : String) (f : UInt32 → UInt32 → Array Substring.Raw → α) : Thunk <| Array (UInt32 × UInt32 × α) := Id.run do
   let mut r := #[]
   let mut stream := UCDStream.ofString s
   for record in stream do
@@ -228,11 +228,11 @@ def lookupName (c : UInt32) : String :=
           else if d == "<Tangut Ideograph>" then
             "TANGUT IDEOGRAPH-" ++ toHexStringAux c
           else panic! s!"unknown name range {d}"
-        else d.toString
+        else Substring.Raw.toString d
       else s!"<noncharacter-{toHexStringAux c}>"
 where
   str : String := include_str "../data/table/Name.txt"
-  table : Thunk <| Array (UInt32 × UInt32 × Substring) :=
+  table : Thunk <| Array (UInt32 × UInt32 × Substring.Raw) :=
     parseDataTable str fun _ _ x => x[0]!
 
 /-- Get numeric value of a code point using lookup table
