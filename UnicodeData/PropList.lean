@@ -32,18 +32,22 @@ private unsafe def PropList.init : IO PropList := do
   let mut list : PropList := {}
   for record in stream do
     let val : UInt32 × Option UInt32 :=
-      match record[0]!.splitOn ".." with
-      | [c] => (ofHexString! c.toString, none)
-      | [c₀, c₁] => (ofHexString! c₀.toString, some <| ofHexString! c₁.toString)
+      match record[0]!.split ".." |>.toList with
+      | [c] => (ofHexString! c, none)
+      | [c₀, c₁] => (ofHexString! c₀, some <| ofHexString! c₁)
       | _ => panic! "invalid record in PropList.txt"
-    match record[1]!.toString with -- TODO: don't use toString
-    | "Noncharacter_Code_Point" => list := {list with noncharacterCodePoint := list.noncharacterCodePoint.push val}
-    | "White_Space" => list := {list with whiteSpace := list.whiteSpace.push val}
-    | "Other_Math" => list := {list with otherMath := list.otherMath.push val}
-    | "Other_Alphabetic" => list := {list with otherAlphabetic := list.otherAlphabetic.push val}
-    | "Other_Lowercase" => list := {list with otherLowercase := list.otherLowercase.push val}
-    | "Other_Uppercase" => list := {list with otherUppercase := list.otherUppercase.push val}
-    | _ => continue
+    if record[1]! == "Noncharacter_Code_Point" then
+      list := {list with noncharacterCodePoint := list.noncharacterCodePoint.push val}
+    if record[1]! == "White_Space" then
+      list := {list with whiteSpace := list.whiteSpace.push val}
+    if record[1]! == "Other_Math" then
+      list := {list with otherMath := list.otherMath.push val}
+    if record[1]! == "Other_Alphabetic" then
+      list := {list with otherAlphabetic := list.otherAlphabetic.push val}
+    if record[1]! == "Other_Lowercase" then
+      list := {list with otherLowercase := list.otherLowercase.push val}
+    if record[1]! == "Other_Uppercase" then
+      list := {list with otherUppercase := list.otherUppercase.push val}
   return list
 
 /-- Parsed data from `PropList.txt` -/
