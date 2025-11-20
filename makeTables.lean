@@ -60,7 +60,7 @@ def statsProp (array : Array (UInt32 × UInt32)) : Id <| Nat × Nat := do
 def mkBidiClass : IO <| Array (UInt32 × UInt32 × BidiClass) := do
   let mut t := #[]
   for d in UnicodeData.data do
-    if d.name.takeRight 7 == ", Last>" then
+    if d.name.takeEnd 7 == ", Last>" then
       match t.back? with
       | some (c₀, _, bc) =>
         t := t.pop.push (c₀, d.code, bc)
@@ -164,9 +164,9 @@ def mkGC : IO <| Array (UInt32 × UInt32 × UInt32) := do
     let data := UnicodeData.data[i]!
     let c := data.code
     let k := data.gc
-    if data.name.takeRight 8 == ", First>" then
+    if data.name.takeEnd 8 == ", First>" then
       t := t.push (c, c, k)
-    else if data.name.takeRight 7 == ", Last>" then
+    else if data.name.takeEnd 7 == ", Last>" then
       let (c₀, _, k₀) := t.back!
       t := t.pop.push (c₀, c, k₀)
     else
@@ -252,9 +252,9 @@ def mkGeneralCategory : IO <| Array (UInt32 × UInt32 × GC) := do
     let data := UnicodeData.data[i]!
     let c := data.code
     let k := data.gc
-    if data.name.takeRight 8 == ", First>" then
+    if data.name.takeEnd 8 == ", First>" then
       t := t.push (c, c, k)
-    else if data.name.takeRight 7 == ", Last>" then
+    else if data.name.takeEnd 7 == ", Last>" then
       match t.back! with
       | (c₀, _, k) =>
         t := t.pop.push (c₀, c, k)
@@ -303,7 +303,7 @@ def mkName : IO <| Array (UInt32 × UInt32 × String) := do
   for i in [1:UnicodeData.data.size] do
     let data := UnicodeData.data[i]!
     let c := data.code
-    let n := data.name.toString
+    let n := data.name.copy
     if n.takeRight 8 == ", First>" then
       if "<CJK Ideograph".isPrefixOf n then
         t := t.push (c, c, "<CJK Unified Ideograph>")

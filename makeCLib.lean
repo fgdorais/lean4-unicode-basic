@@ -28,7 +28,7 @@ def propTable : Array (UInt32 × UInt32 × UInt64) := Id.run do
       op := op ||| 0x800000000
     let d := op ||| gc.toUInt64
     let (c₀, c₁, d₀) := t.back!
-    if data.name.takeRight 7 == ", Last>" then
+    if data.name.takeEnd 7 == ", Last>" then
       t := t.pop.push (c₀, c, d)
     else if c = c₁ + 1 then
       if d = d₀ then

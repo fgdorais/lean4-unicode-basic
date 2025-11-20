@@ -10,9 +10,8 @@ open Unicode
 
 def testAlphabetic (d : UnicodeData) : Bool :=
   let v :=
-    match d.gc with
-    | .Lu | .Ll | .Lt | .Lm | .Lo | .Nl => true
-    | _ => PropList.isOtherAlphabetic d.code
+    if d.gc ∈ [.Lu, .Ll, .Lt, .Lm, .Lo, .Nl] then true
+    else PropList.isOtherAlphabetic d.code
   v == lookupAlphabetic d.code
 
 def testBidiClass (d : UnicodeData) : Bool :=
