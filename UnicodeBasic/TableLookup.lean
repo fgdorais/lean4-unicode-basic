@@ -279,9 +279,9 @@ where
           panic! s!"invalid table data {d} {s}"
       else if "numeric".isPrefixOf s then
         let s := s.drop 8
-        match String.splitOn s "/" with
-        | [n] => .numeric n.toInt! none
-        | [n, d] => .numeric n.toInt! (some d.toNat!)
+        match s.split "/" |>.toList with
+        | [n] => .numeric n.copy.toInt! none
+        | [n, d] => .numeric n.copy.toInt! (some d.toNat!)
         | _ => panic! "invalid table data"
       else .numeric (-4) none
 
