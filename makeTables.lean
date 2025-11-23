@@ -304,23 +304,23 @@ def mkName : IO <| Array (UInt32 × UInt32 × String) := do
     let data := UnicodeData.data[i]!
     let c := data.code
     let n := data.name.toString
-    if n.takeRight 8 == ", First>" then
+    if n.takeEnd 8 == ", First>".toSlice then
       if "<CJK Ideograph".isPrefixOf n then
         t := t.push (c, c, "<CJK Unified Ideograph>")
       else if "<Tangut Ideograph".isPrefixOf n then
         t := t.push (c, c, "<Tangut Ideograph>")
-      else if n.takeRight 17 == "Surrogate, First>" then
+      else if n.takeEnd 17 == "Surrogate, First>".toSlice then
         match t.back! with
         | (c₀, c₁, n₀) =>
           if c == c₁ + 1 && n₀ == "<Surrogate>" then
             t := t.pop.push (c₀, c, "<Surrogate>")
           else
             t := t.push (c, c, "<Surrogate>")
-      else if n.takeRight 19 == "Private Use, First>" then
+      else if n.takeEnd 19 == "Private Use, First>".toSlice then
         t := t.push (c, c, "<Private Use>")
       else
-        t := t.push (c, c, n.dropRight 8 ++ ">")
-    else if n.takeRight 7 == ", Last>" then
+        t := t.push (c, c, (n.dropEnd 8).copy ++ ">")
+    else if n.takeEnd 7 == ", Last>".toSlice then
       match t.back! with
       | (c₀, _, n₀) =>
         t := t.pop.push (c₀, c, n₀)

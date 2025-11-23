@@ -18,7 +18,7 @@ namespace Unicode
   low-level packages that don't use Batteries.
 -/
 scoped instance : Coe String Substring.Raw where
-  coe := String.toSubstring
+  coe := String.toRawSubstring
 
 /-- Maximum valid code point value -/
 protected def max : UInt32 := 0x10FFFF
