@@ -180,11 +180,6 @@ where
 @[inline]
 def lookupGC (c : UInt32) : GC := CLib.lookupProp c |>.toUInt32
 
-set_option linter.deprecated false in
-@[inline, deprecated Unicode.lookupGC (since := "v1.3.0")]
-def lookupGeneralCategory (c : UInt32) : GeneralCategory :=
-  .ofGC! (lookupGC c)
-
 /-- Get name of a code point using lookup table
 
   Unicode property: `Name` -/
