@@ -12,21 +12,21 @@ namespace Unicode
   around field values are not significant. Line comments are prefixed with a
   number sign `#` (U+0023).
 -/
-structure UCDStream extends Substring.Raw where
+structure UCDStream extends String.Slice where
   /-- `isUnihan` is true if the records are tab separated -/
   isUnihan := false
 deriving Inhabited
 
 namespace UCDStream
 
-/-- Make a `UCDStream` from a substring -/
-def ofSubstring (str : Substring.Raw) : UCDStream := { str with }
+/-- Make a `UCDStream` from a string slice -/
+def ofStringSlice (str : String.Slice) : UCDStream := { str with }
 
 /-- Make a `UCDStream` from a string -/
-def ofString (str : String) : UCDStream where
-  str := str
-  startPos := 0
-  stopPos := str.rawEndPos
+def ofString (str : String) : UCDStream := ofStringSlice str.toSlice
+
+/-- Make a `UCDStream` from a substring -/
+def ofSubstring (str : Substring.Raw) : UCDStream := ofStringSlice str.toString.toSlice
 
 /-- Make a `UCDStream` from a file -/
 def ofFile (path : System.FilePath) : IO UCDStream :=
@@ -36,29 +36,30 @@ def ofFile (path : System.FilePath) : IO UCDStream :=
 
   Line comments are stripped and blank lines are skipped.
 -/
-protected partial def nextLine? (stream : UCDStream) : Option (Substring.Raw × UCDStream) := do
-  if stream.isEmpty then failure else
-    let line := stream.trimLeft.takeWhile (.!='\n')
-    let nextPos := stream.next line.stopPos
-    let line := (line.takeWhile (.!='#')).trimRight
+protected partial def nextLine? (stream : UCDStream) : Option (String.Slice × UCDStream) := do
+  let line := stream.trimAsciiEnd.takeWhile (.!='\n')
+  if h : line.rawEndPos < stream.rawEndPos then
+    let nextPos := stream.findNextPos line.rawEndPos h
+    let line := (line.takeWhile (.!='#')).trimAsciiEnd
     if line.isEmpty then
-      UCDStream.nextLine? {stream with startPos := nextPos}
+      UCDStream.nextLine? {stream with toSlice := stream.replaceStart nextPos}
     else
-      return (line, {stream with startPos := nextPos})
+      return (line, {stream with toSlice := stream.replaceStart nextPos})
+  else failure
 
 /-- Get the next record from the `UCDStream`
 
   Spaces around field values are trimmed.
 -/
-protected def next? (stream : UCDStream) : Option (Array Substring.Raw × UCDStream) := do
+protected def next? (stream : UCDStream) : Option (Array String.Slice × UCDStream) := do
     let sep := if stream.isUnihan then "\t" else ";"
     let mut arr := #[]
     let (line, table) ← stream.nextLine?
-    for item in line.splitOn sep do
-      arr := arr.push item.trim
+    for item in line.split sep do
+      arr := arr.push item.trimAscii
     return (arr, table)
 
-instance : Std.Stream UCDStream (Array Substring.Raw) where
+instance : Std.Stream UCDStream (Array String.Slice) where
   next? := UCDStream.next?
 
 end UCDStream

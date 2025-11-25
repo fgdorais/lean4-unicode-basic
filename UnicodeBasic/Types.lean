@@ -12,13 +12,10 @@ protected unsafe def Char.mkUnsafe : UInt32 → Char := unsafeCast
 
 namespace Unicode
 
-/-- Coercion from `String` to `Substring`
-
-  This coercion is in Batteries but not in Lean. It is scoped to `Unicode` here to avoid issues in
-  low-level packages that don't use Batteries.
--/
-scoped instance : Coe String Substring.Raw where
-  coe := String.toSubstring
+-- forward-port: lean4#11341
+/-- Coercion from `String` to `String.Slice` -/
+scoped instance : Coe String String.Slice where
+  coe := String.toSlice
 
 /-- Maximum valid code point value -/
 protected def max : UInt32 := 0x10FFFF
@@ -52,11 +49,11 @@ def toHexString (code : UInt32) : String :=
   For convenience, the `U+` prefix may be omitted and lowercase hexadecimal
   digits are accepted.
 -/
-def ofHexString? (str : Substring.Raw) : Option UInt32 := do
+def ofHexString? (str : String.Slice) : Option UInt32 := do
   let str := if str.take 2 == "U+" then str.drop 2 else str
-  if str.isEmpty || str.bsize > 8 then none else
+  if str.isEmpty || str.utf8ByteSize > 8 then none else
     let mut val : UInt32 := 0
-    for dgt in str do
+    for dgt in str.chars do
       val := (val <<< 4) + (← hexValue? dgt)
     some val
 
@@ -80,7 +77,7 @@ where
             none
 
 @[inherit_doc ofHexString?]
-def ofHexString! (str : Substring.Raw) : UInt32 :=
+def ofHexString! (str : String.Slice) : UInt32 :=
   match ofHexString? str with
   | some val => val
   | none => panic! "invalid unicode hexadecimal string representation"
@@ -408,84 +405,62 @@ open Std.Format Repr in instance : Repr GC where
 instance : ToString GC where
   toString x := " | ".intercalate (reprAux x)
 
-def ofAbbrev? (s : Substring.Raw) : Option GC :=
-  if s.bsize = 0 || s.bsize > 2 then none else
-    match s.get 0 with
-    | 'C' =>
-      if s.bsize = 1 then some .C else
-        match s.get ⟨1⟩ with
-        | 'c' => some .Cc
-        | 'f' => some .Cf
-        | 's' => some .Cs
-        | 'o' => some .Co
-        | 'n' => some .Cn
-        | _ => none
-    | 'L' =>
-      if s.bsize = 1 then some .L else
-        match s.get ⟨1⟩ with
-        | 'C' => some .LC
-        | 'u' => some .Lu
-        | 'l' => some .Ll
-        | 't' => some .Lt
-        | 'm' => some .Lm
-        | 'o' => some .Lo
-        | _ => none
-    | 'M' =>
-      if s.bsize = 1 then some .M else
-        match s.get ⟨1⟩ with
-        | 'n' => some .Mn
-        | 'c' => some .Mc
-        | 'e' => some .Me
-        | _ => none
-    | 'N' =>
-      if s.bsize = 1 then some .N else
-        match s.get ⟨1⟩ with
-        | 'd' => some .Nd
-        | 'l' => some .Nl
-        | 'o' => some .No
-        | _ => none
-    | 'P' =>
-      if s.bsize = 1 then some .P else
-        match s.get ⟨1⟩ with
-        | 'G' => some .PG
-        | 'Q' => some .PQ
-        | 'c' => some .Pc
-        | 'd' => some .Pd
-        | 's' => some .Ps
-        | 'e' => some .Pe
-        | 'i' => some .Pi
-        | 'f' => some .Pf
-        | 'o' => some .Po
-        | _ => none
-    | 'S' =>
-      if s.bsize = 1 then some .S else
-        match s.get ⟨1⟩ with
-        | 'm' => some .Sm
-        | 'c' => some .Sc
-        | 'k' => some .Sk
-        | 'o' => some .So
-        | _ => none
-    | 'Z' =>
-      if s.bsize = 1 then some .Z else
-        match s.get ⟨1⟩ with
-        | 's' => some .Zs
-        | 'l' => some .Zl
-        | 'p' => some .Zp
-        | _ => none
-    | _ => none
+def ofAbbrev? (s : String.Slice) : Option GC :=
+  match s.chars.take 3 |>.toList with
+  | ['C'] => some .C
+  | ['C', 'c'] => some .Cc
+  | ['C', 'f'] => some .Cf
+  | ['C', 's'] => some .Cs
+  | ['C', 'o'] => some .Co
+  | ['C', 'n'] => some .Cn
+  | ['L'] => some .L
+  | ['L', 'C'] => some .LC
+  | ['L', 'u'] => some .Lu
+  | ['L', 'l'] => some .Ll
+  | ['L', 't'] => some .Lt
+  | ['L', 'm'] => some .Lm
+  | ['L', 'o'] => some .Lo
+  | ['M'] => some .M
+  | ['M', 'n'] => some .Mn
+  | ['M', 'c'] => some .Mc
+  | ['M', 'e'] => some .Me
+  | ['N'] => some .N
+  | ['N', 'd'] => some .Nd
+  | ['N', 'l'] => some .Nl
+  | ['N', 'o'] => some .No
+  | ['P'] => some .P
+  | ['P', 'G'] => some .PG
+  | ['P', 'Q'] => some .PQ
+  | ['P', 'c'] => some .Pc
+  | ['P', 'd'] => some .Pd
+  | ['P', 's'] => some .Ps
+  | ['P', 'e'] => some .Pe
+  | ['P', 'i'] => some .Pi
+  | ['P', 'f'] => some .Pf
+  | ['P', 'o'] => some .Po
+  | ['S'] => some .S
+  | ['S', 'm'] => some .Sm
+  | ['S', 'c'] => some .Sc
+  | ['S', 'k'] => some .Sk
+  | ['S', 'o'] => some .So
+  | ['Z'] => some .Z
+  | ['Z', 's'] => some .Zs
+  | ['Z', 'l'] => some .Zl
+  | ['Z', 'p'] => some .Zp
+  | _ => none
 
-def ofAbbrev! (s : Substring.Raw) : GC :=
+def ofAbbrev! (s : String.Slice) : GC :=
   match ofAbbrev? s with
   | some c => c
   | none => panic! "invalid general category"
 
-def ofString? (s : Substring.Raw) : Option GC := do
+def ofString? (s : String.Slice) : Option GC := do
   let mut c := .none
-  for a in s.splitOn "|" do
-    c := c ||| (← GC.ofAbbrev? a.trim)
+  for a in s.split "|" do
+    c := c ||| (← GC.ofAbbrev? a.trimAscii)
   return c
 
-def ofString! (s : Substring.Raw) : GC :=
+def ofString! (s : String.Slice) : GC :=
   match ofString? s with
   | some c => c
   | none => panic! "invalid general category"
@@ -624,136 +599,114 @@ protected def GeneralCategory.Co : GeneralCategory := ⟨_, some .privateUse⟩
 @[deprecated Unicode.GC.Cn (since := "1.2.0")]
 protected def GeneralCategory.Cn : GeneralCategory := ⟨_, some .unassigned⟩
 
+def GeneralCategory.toGC : GeneralCategory → GC
+| ⟨.letter, none⟩ => .L
+| ⟨_, some .casedLetter⟩ => .LC
+| ⟨_, some .uppercaseLetter⟩ => .Lu
+| ⟨_, some .lowercaseLetter⟩ => .Ll
+| ⟨_, some .titlecaseLetter⟩ => .Lt
+| ⟨_, some .modifierLetter⟩ => .Lm
+| ⟨_, some .otherLetter⟩ => .Lo
+| ⟨.mark, none⟩ => .M
+| ⟨_, some .nonspacingMark⟩ => .Mn
+| ⟨_, some .spacingMark⟩ => .Mc
+| ⟨_, some .enclosingMark⟩ => .Me
+| ⟨.number, none⟩ => .N
+| ⟨_, some .decimalNumber⟩ => .Nd
+| ⟨_, some .letterNumber⟩ => .Nl
+| ⟨_, some .otherNumber⟩ => .No
+| ⟨.punctuation, none⟩ => .P
+| ⟨_, some .connectorPunctuation⟩ => .Pc
+| ⟨_, some .dashPunctuation⟩ => .Pd
+| ⟨_, some .groupPunctuation⟩ => .PG
+| ⟨_, some .openPunctuation⟩ => .Ps
+| ⟨_, some .closePunctuation⟩ => .Pe
+| ⟨_, some .quotePunctuation⟩ => .PQ
+| ⟨_, some .initialPunctuation⟩ => .Pi
+| ⟨_, some .finalPunctuation⟩ => .Pf
+| ⟨_, some .otherPunctuation⟩ => .Po
+| ⟨.symbol, none⟩ => .S
+| ⟨_, some .mathSymbol⟩ => .Sm
+| ⟨_, some .currencySymbol⟩ => .Sc
+| ⟨_, some .modifierSymbol⟩ => .Sk
+| ⟨_, some .otherSymbol⟩ => .So
+| ⟨.separator, none⟩ => .Z
+| ⟨_, some .spaceSeparator⟩ => .Zs
+| ⟨_, some .lineSeparator⟩ => .Zl
+| ⟨_, some .paragraphSeparator⟩ => .Zp
+| ⟨.other, none⟩ => .C
+| ⟨_, some .control⟩ => .Cc
+| ⟨_, some .format⟩ => .Cf
+| ⟨_, some .surrogate⟩ => .Cs
+| ⟨_, some .privateUse⟩ => .Co
+| ⟨_, some .unassigned⟩ => .Cn
+
+@[deprecated some (since := "1.2.0")]
+def GeneralCategory.ofGC? (c : GC) : Option GeneralCategory :=
+  if c == .C  then some .C  else
+  if c == .Cc then some .Cc else
+  if c == .Cf then some .Cf else
+  if c == .Cs then some .Cs else
+  if c == .Co then some .Co else
+  if c == .Cn then some .Cn else
+  if c == .L  then some .L  else
+  if c == .LC then some .LC else
+  if c == .Lu then some .Lu else
+  if c == .Ll then some .Ll else
+  if c == .Lt then some .Lt else
+  if c == .Lm then some .Lm else
+  if c == .Lo then some .Lo else
+  if c == .M  then some .M  else
+  if c == .Mn then some .Mn else
+  if c == .Mc then some .Mc else
+  if c == .Me then some .Me else
+  if c == .N  then some .N  else
+  if c == .Nd then some .Nd else
+  if c == .Nl then some .Nl else
+  if c == .No then some .No else
+  if c == .P  then some .P  else
+  if c == .PG then some .PG else
+  if c == .PQ then some .PQ else
+  if c == .Pc then some .Pc else
+  if c == .Pd then some .Pd else
+  if c == .Ps then some .Ps else
+  if c == .Pe then some .Pe else
+  if c == .Pi then some .Pi else
+  if c == .Pf then some .Pf else
+  if c == .Po then some .Po else
+  if c == .S  then some .S  else
+  if c == .Sm then some .Sm else
+  if c == .Sc then some .Sc else
+  if c == .Sk then some .Sk else
+  if c == .So then some .So else
+  if c == .Z  then some .Z  else
+  if c == .Zs then some .Zs else
+  if c == .Zl then some .Zl else
+  if c == .Zp then some .Zp else
+  none
+
+@[deprecated id (since := "1.2.0")]
+def GeneralCategory.ofGC! (c : GC) : GeneralCategory :=
+  (ofGC? c).get!
+
 /-- String abbreviation for general category -/
 @[deprecated Unicode.GC.toAbbrev! (since := "1.2.0")]
-def GeneralCategory.toAbbrev : GeneralCategory → String
-| ⟨.letter, none⟩ => "L"
-| ⟨_, some .casedLetter⟩ => "LC"
-| ⟨_, some .uppercaseLetter⟩ => "Lu"
-| ⟨_, some .lowercaseLetter⟩ => "Ll"
-| ⟨_, some .titlecaseLetter⟩ => "Lt"
-| ⟨_, some .modifierLetter⟩ => "Lm"
-| ⟨_, some .otherLetter⟩ => "Lo"
-| ⟨.mark, none⟩ => "M"
-| ⟨_, some .nonspacingMark⟩ => "Mn"
-| ⟨_, some .spacingMark⟩ => "Mc"
-| ⟨_, some .enclosingMark⟩ => "Me"
-| ⟨.number, none⟩ => "N"
-| ⟨_, some .decimalNumber⟩ => "Nd"
-| ⟨_, some .letterNumber⟩ => "Nl"
-| ⟨_, some .otherNumber⟩ => "No"
-| ⟨.punctuation, none⟩ => "P"
-| ⟨_, some .connectorPunctuation⟩ => "Pc"
-| ⟨_, some .dashPunctuation⟩ => "Pd"
-| ⟨_, some .groupPunctuation⟩ => "PG"
-| ⟨_, some .openPunctuation⟩ => "Ps"
-| ⟨_, some .closePunctuation⟩ => "Pe"
-| ⟨_, some .quotePunctuation⟩ => "PQ"
-| ⟨_, some .initialPunctuation⟩ => "Pi"
-| ⟨_, some .finalPunctuation⟩ => "Pf"
-| ⟨_, some .otherPunctuation⟩ => "Po"
-| ⟨.symbol, none⟩ => "S"
-| ⟨_, some .mathSymbol⟩ => "Sm"
-| ⟨_, some .currencySymbol⟩ => "Sc"
-| ⟨_, some .modifierSymbol⟩ => "Sk"
-| ⟨_, some .otherSymbol⟩ => "So"
-| ⟨.separator, none⟩ => "Z"
-| ⟨_, some .spaceSeparator⟩ => "Zs"
-| ⟨_, some .lineSeparator⟩ => "Zl"
-| ⟨_, some .paragraphSeparator⟩ => "Zp"
-| ⟨.other, none⟩ => "C"
-| ⟨_, some .control⟩ => "Cc"
-| ⟨_, some .format⟩ => "Cf"
-| ⟨_, some .surrogate⟩ => "Cs"
-| ⟨_, some .privateUse⟩ => "Co"
-| ⟨_, some .unassigned⟩ => "Cn"
+def GeneralCategory.toAbbrev (c : GeneralCategory) : String :=
+  c.toGC.toAbbrev!
 
 /-- Get general category from string abbreviation -/
 @[deprecated Unicode.GC.ofAbbrev? (since := "1.2.0")]
-def GeneralCategory.ofAbbrev? (s : Substring.Raw) : Option GeneralCategory :=
-  if s.bsize = 0 || s.bsize > 2 then none else
-    match s.get 0 with
-    | 'C' =>
-      if s.bsize = 1 then some ⟨.other, none⟩ else
-        match s.get ⟨1⟩ with
-        | 'c' => some ⟨_, some .control⟩
-        | 'f' => some ⟨_, some .format⟩
-        | 's' => some ⟨_, some .surrogate⟩
-        | 'o' => some ⟨_, some .privateUse⟩
-        | 'n' => some ⟨_, some .unassigned⟩
-        | _ => none
-    | 'L' =>
-      if s.bsize = 1 then some ⟨.letter, none⟩ else
-        match s.get ⟨1⟩ with
-        | 'C' => some ⟨_, some .casedLetter⟩
-        | 'u' => some ⟨_, some .uppercaseLetter⟩
-        | 'l' => some ⟨_, some .lowercaseLetter⟩
-        | 't' => some ⟨_, some .titlecaseLetter⟩
-        | 'm' => some ⟨_, some .modifierLetter⟩
-        | 'o' => some ⟨_, some .otherLetter⟩
-        | _ => none
-    | 'M' =>
-      if s.bsize = 1 then some ⟨.mark, none⟩ else
-        match s.get ⟨1⟩ with
-        | 'n' => some ⟨_, some .nonspacingMark⟩
-        | 'c' => some ⟨_, some .spacingMark⟩
-        | 'e' => some ⟨_, some .enclosingMark⟩
-        | _ => none
-    | 'N' =>
-      if s.bsize = 1 then some ⟨.number, none⟩ else
-        match s.get ⟨1⟩ with
-        | 'd' => some ⟨_, some .decimalNumber⟩
-        | 'l' => some ⟨_, some .letterNumber⟩
-        | 'o' => some ⟨_, some .otherNumber⟩
-        | _ => none
-    | 'P' =>
-      if s.bsize = 1 then some ⟨.punctuation, none⟩ else
-        match s.get ⟨1⟩ with
-        | 'G' => some ⟨_, some .groupPunctuation⟩
-        | 'Q' => some ⟨_, some .quotePunctuation⟩
-        | 'c' => some ⟨_, some .connectorPunctuation⟩
-        | 'd' => some ⟨_, some .dashPunctuation⟩
-        | 's' => some ⟨_, some .openPunctuation⟩
-        | 'e' => some ⟨_, some .closePunctuation⟩
-        | 'i' => some ⟨_, some .initialPunctuation⟩
-        | 'f' => some ⟨_, some .finalPunctuation⟩
-        | 'o' => some ⟨_, some .otherPunctuation⟩
-        | _ => none
-    | 'S' =>
-      if s.bsize = 1 then some ⟨.symbol, none⟩ else
-        match s.get ⟨1⟩ with
-        | 'm' => some ⟨_, some .mathSymbol⟩
-        | 'c' => some ⟨_, some .currencySymbol⟩
-        | 'k' => some ⟨_, some .modifierSymbol⟩
-        | 'o' => some ⟨_, some .otherSymbol⟩
-        | _ => none
-    | 'Z' =>
-      if s.bsize = 1 then some ⟨.separator, none⟩ else
-        match s.get ⟨1⟩ with
-        | 's' => some ⟨_, some .spaceSeparator⟩
-        | 'l' => some ⟨_, some .lineSeparator⟩
-        | 'p' => some ⟨_, some .paragraphSeparator⟩
-        | _ => none
-    | _ => none
+def GeneralCategory.ofAbbrev? (s : String.Slice) : Option GeneralCategory :=
+  GC.ofAbbrev? s >>= ofGC?
 
 @[deprecated Unicode.GC.ofAbbrev! (since := "1.2.0"), inherit_doc GeneralCategory.ofAbbrev?]
-def GeneralCategory.ofAbbrev! (s : Substring) : GeneralCategory :=
+def GeneralCategory.ofAbbrev! (s : String.Slice) : GeneralCategory :=
   match ofAbbrev? s with
   | some gc => gc
   | none => panic! "invalid general category abbreviation"
 
 instance : Repr GeneralCategory where
   reprPrec gc _ := s!"Unicode.GeneralCategory.{gc.toAbbrev}"
-
-@[deprecated some (since := "1.2.0")]
-def GeneralCategory.ofGC? (c : GC) : Option GeneralCategory :=
-  match GC.reprAux c with
-  | [a] => GeneralCategory.ofAbbrev! a
-  | _ => none
-
-@[deprecated id (since := "1.2.0")]
-def GeneralCategory.ofGC! (c : GC) : GeneralCategory :=
-  (ofGC? c).get!
 
 end
 
@@ -1009,35 +962,35 @@ def BidiClass.toAbbrev : BidiClass → String
 | popDirectionalIsolate => "PDI"
 
 /-- Get bidi class from abbreviation -/
-def BidiClass.ofAbbrev? (abbr : Substring.Raw) : Option BidiClass :=
-  match abbr.toString with -- TODO: don't use toString
-  | "L" => some leftToRight
-  | "R" => some rightToLeft
-  | "AL" => some arabicLetter
-  | "EN" => some europeanNumber
-  | "ES" => some europeanSeparator
-  | "ET" => some europeanTerminator
-  | "AN" => some arabicNumber
-  | "CS" => some commonSeparator
-  | "NSM" => some nonspacingMark
-  | "BN" => some boundaryNeutral
-  | "B" => some paragraphSeparator
-  | "S" => some segmentSeparator
-  | "WS" => some whiteSpace
-  | "ON" => some otherNeutral
-  | "LRE" => some leftToRightEmbedding
-  | "LRO" => some leftToRightOverride
-  | "RLE" => some rightToLeftEmbeding
-  | "RLO" => some rightToLeftOverride
-  | "PDF" => some popDirectionalFormat
-  | "LRI" => some leftToRightIsolate
-  | "RLI" => some rightToLeftIsolate
-  | "FSI" => some firstStrongIsolate
-  | "PDI" => some popDirectionalIsolate
+def BidiClass.ofAbbrev? (abbr : String.Slice) : Option BidiClass :=
+  match abbr.chars.take 4 |>.toList with
+  | ['L'] => some leftToRight
+  | ['R'] => some rightToLeft
+  | ['A', 'L'] => some arabicLetter
+  | ['E', 'N'] => some europeanNumber
+  | ['E', 'S'] => some europeanSeparator
+  | ['E', 'T'] => some europeanTerminator
+  | ['A', 'N'] => some arabicNumber
+  | ['C', 'S'] => some commonSeparator
+  | ['N', 'S', 'M'] => some nonspacingMark
+  | ['B', 'N'] => some boundaryNeutral
+  | ['B'] => some paragraphSeparator
+  | ['S'] => some segmentSeparator
+  | ['W', 'S'] => some whiteSpace
+  | ['O', 'N'] => some otherNeutral
+  | ['L', 'R', 'E'] => some leftToRightEmbedding
+  | ['L', 'R', 'O'] => some leftToRightOverride
+  | ['R', 'L', 'E'] => some rightToLeftEmbeding
+  | ['R', 'L', 'O'] => some rightToLeftOverride
+  | ['P', 'D', 'F'] => some popDirectionalFormat
+  | ['L', 'R', 'I'] => some leftToRightIsolate
+  | ['R', 'L', 'I'] => some rightToLeftIsolate
+  | ['F', 'S', 'I'] => some firstStrongIsolate
+  | ['P', 'D', 'I'] => some popDirectionalIsolate
   | _ => none
 
 @[inherit_doc BidiClass.ofAbbrev?]
-def BidiClass.ofAbbrev! (abbr : Substring.Raw) : BidiClass :=
+def BidiClass.ofAbbrev! (abbr : String.Slice) : BidiClass :=
   match ofAbbrev? abbr with
   | some bc => bc
   | none => panic! "invalid bidi class abbreviation"

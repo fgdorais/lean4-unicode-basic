@@ -17,7 +17,7 @@ def main (args : List String) : IO Unit := do
       | none => IO.println s!"invalid code point: {a}"
       | some data =>
         IO.println s!"Code Value ...........: {Unicode.toHexString data.code} (decimal {data.code})"
-        IO.println s!"Character Name .......: {data.name}"
+        IO.println s!"Character Name .......: {data.name.copy}"
         IO.println s!"General Category .....: {data.gc}"
         IO.println s!"Combining Class ......: {data.cc}"
         IO.println s!"Bidi Class ...........: {data.bidi.toAbbrev}"

@@ -7,6 +7,20 @@ import UnicodeBasic.CharacterDatabase
 import UnicodeBasic.Hangul
 import UnicodeBasic.Types
 
+-- Issue: lean4#11275
+namespace String.Slice
+
+def toInt? (s : String.Slice) : Option Int :=
+  if s.front? = '-' then
+    Int.negOfNat <$> (s.drop 1).toNat?
+  else
+    Int.ofNat <$> s.toNat?
+
+def toInt! (s : String.Slice) : Int :=
+  s.toInt?.get!
+
+end String.Slice
+
 namespace Unicode
 
 /-- Structure for data from `UnicodeData.txt` -/
@@ -14,7 +28,7 @@ structure UnicodeData where
   /-- Code Value -/
   code : UInt32
   /-- Character Name -/
-  name : Substring.Raw
+  name : String.Slice
   /-- General Category -/
   gc : GC
   /-- Bidirectional Class -/
@@ -33,7 +47,7 @@ structure UnicodeData where
   lowercase : Option Char := none
   /-- Titlecase Mapping -/
   titlecase : Option Char := none
-deriving BEq, Repr
+deriving BEq
 
 @[deprecated UnicodeData.code (since := "1.2.0")]
 abbrev UnicodeData.codeValue := @UnicodeData.code
@@ -151,7 +165,7 @@ private unsafe def UnicodeData.init : IO (Array UnicodeData) := do
       code := ofHexString! record[0]!
       name := record[1]!
       gc := GC.ofAbbrev! record[2]!
-      cc := record[3]!.toString.toNat! -- TODO: don't use toString
+      cc := record[3]!.toNat!
       bidi := BidiClass.ofAbbrev! record[4]!
       decomp := getDecompositionMapping? record[5]!
       numeric := getNumericType? record[6]! record[7]! record[8]!
@@ -165,7 +179,7 @@ private unsafe def UnicodeData.init : IO (Array UnicodeData) := do
 where
 
   /-- Get decomposition mapping -/
-  getDecompositionMapping? (s : Substring.Raw) : Option DecompositionMapping := do
+  getDecompositionMapping? (s : String.Slice) : Option DecompositionMapping := do
     /-
       The value of the `Decomposition_Mapping` property for a character is
       provided in field 5 of `UnicodeData.txt`. This is a string-valued
@@ -190,38 +204,36 @@ where
     if s.isEmpty then
       none
     else
-      match s.splitOn " " with
+      match s.split ' ' |>.toList with
       | t :: cs =>
         let mut tag := none
         let mut cs := cs.map fun c => Char.mkUnsafe <| ofHexString! c
-        if t.get 0 == '<' then
-          -- compatibility mapping
-          tag := match t.toString with -- TODO: don't use toString
-          | "<font>" => some CompatibilityTag.font
-          | "<noBreak>" => some CompatibilityTag.noBreak
-          | "<initial>" => some CompatibilityTag.initial
-          | "<medial>" => some CompatibilityTag.medial
-          | "<final>" => some CompatibilityTag.final
-          | "<isolated>" => some CompatibilityTag.isolated
-          | "<circle>" => some CompatibilityTag.circle
-          | "<super>" => some CompatibilityTag.super
-          | "<sub>" => some CompatibilityTag.sub
-          | "<vertical>" => some CompatibilityTag.vertical
-          | "<wide>" => some CompatibilityTag.wide
-          | "<narrow>" => some CompatibilityTag.narrow
-          | "<small>" => some CompatibilityTag.small
-          | "<square>" => some CompatibilityTag.square
-          | "<fraction>" => some CompatibilityTag.fraction
-          | "<compat>"=> some CompatibilityTag.compat
-          | _ => panic! "invalid compatibility tag"
+        if '<' == t.front then
+          tag :=
+            if t == "<font>" then some CompatibilityTag.font else
+            if t == "<noBreak>" then some CompatibilityTag.noBreak else
+            if t == "<initial>" then some CompatibilityTag.initial else
+            if t == "<medial>" then some CompatibilityTag.medial else
+            if t == "<final>" then some CompatibilityTag.final else
+            if t == "<isolated>" then some CompatibilityTag.isolated else
+            if t == "<circle>" then some CompatibilityTag.circle else
+            if t == "<super>" then some CompatibilityTag.super else
+            if t == "<sub>" then some CompatibilityTag.sub else
+            if t == "<vertical>" then some CompatibilityTag.vertical else
+            if t == "<wide>" then some CompatibilityTag.wide else
+            if t == "<narrow>" then some CompatibilityTag.narrow else
+            if t == "<small>" then some CompatibilityTag.small else
+            if t == "<square>" then some CompatibilityTag.square else
+            if t == "<fraction>" then some CompatibilityTag.fraction else
+            if t == "<compat>" then some CompatibilityTag.compat else
+            none
         else
-          -- canonical mapping
           cs := (Char.mkUnsafe <| ofHexString! t) :: cs
         some ⟨tag, cs⟩
       | [] => unreachable!
 
   /-- Get numeric type -/
-  getNumericType? (s₁ s₂ s₃ : Substring.Raw) : Option NumericType := do
+  getNumericType? (s₁ s₂ s₃ : String.Slice) : Option NumericType := do
     /-
       If the character has the property value `Numeric_Type=Decimal`, then the
       `Numeric_Value` of that digit is represented with an integer value
@@ -254,16 +266,16 @@ where
         if s₃.isEmpty then
           none
         else
-          match s₃.splitOn "/" with
+          match s₃.split "/" |>.toList with
           | [s] => -- integer value
-            return .numeric s.toString.toInt! none -- TODO: don't use toString
+            return .numeric s.toInt! none -- TODO: don't use toString
           | [sn,sd] => -- rational value
-            return .numeric sn.toString.toInt! (some sd.toString.toNat!) -- TODO: don't use toString
+            return .numeric sn.toInt! (some sd.toNat!) -- TODO: don't use toString
           | _ => panic! "invalid numeric value"
       else
-        return .digit <| getDigitUnsafe <| s₂.get 0
+        return .digit <| getDigitUnsafe <| s₂.front
     else
-      return .decimal <| getDigitUnsafe <| s₁.get 0
+      return .decimal <| getDigitUnsafe <| s₁.front
 
   /-- Get decimal digit -/
   @[inline]
@@ -313,8 +325,8 @@ partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
       Unicode Standard for more information on derivation of character names
       for such ranges.
     -/
-    if data.name.get 0 == '<' then
-      if code = data.code || data.name.takeRight 8 == ", First>" then
+    if data.name.front == '<' then
+      if code = data.code || data.name.takeEnd 8 == ", First>" then
         if data.name.take 16 == "<Hangul Syllable" then
           UnicodeData.mkHangulSyllable code
         else if data.name.take 14 == "<CJK Ideograph" then
@@ -385,12 +397,12 @@ private def UnicodeDataStream.next? (s : UnicodeDataStream) : Option (UnicodeDat
     else if n == "<control>" then
       let d := {d with name := s!"<control-{toHexStringAux c}>"}
       return (d, {s with code := c+1, index := i+1})
-    else if n.get 0 == '<' then
-      if n.takeRight 8 == ", First>" then
+    else if n.front == '<' then
+      if n.takeEnd 8 == ", First>" then
         let mut default := UnicodeData.mkNoncharacter
-        if (n.dropRight 8).takeRight 11 == "Private Use" then
+        if (n.dropEnd 8).takeEnd 11 == "Private Use" then
           default := UnicodeData.mkPrivateUse
-        else if (n.dropRight 8).takeRight 9 == "Surrogate" then
+        else if (n.dropEnd 8).takeEnd 9 == "Surrogate" then
           default := UnicodeData.mkSurrogate
         else if n.take 14 == "<CJK Ideograph" then
           default := UnicodeData.mkCJKUnifiedIdeograph
@@ -401,7 +413,7 @@ private def UnicodeDataStream.next? (s : UnicodeDataStream) : Option (UnicodeDat
         else
           panic! "invalid Unicode data"
         return (default c, {s with code := c+1, index := i+1, default})
-      else if n.takeRight 7 == ", Last>" then
+      else if n.takeEnd 7 == ", Last>" then
         return (s.default c, {s with code := c+1, index := i+1, default := UnicodeData.mkNoncharacter})
       else
         panic! "invalid Unicode data"
