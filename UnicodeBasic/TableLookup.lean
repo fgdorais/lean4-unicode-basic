@@ -36,7 +36,7 @@ private partial def find (c : UInt32) (t : USize → UInt32) (lo hi : USize) : U
     find c t mid hi
 
 /-- Parse a simple table -/
-private def parseTable (s : String) (f : UInt32 → Array Substring.Raw → α) : Thunk <| Array (UInt32 × α) := Id.run do
+private def parseTable (s : String) (f : UInt32 → Array String.Slice → α) : Thunk <| Array (UInt32 × α) := Id.run do
   let mut r := #[]
   let mut stream := UCDStream.ofString s
   for record in stream do
@@ -46,7 +46,7 @@ private def parseTable (s : String) (f : UInt32 → Array Substring.Raw → α) 
   return r
 
 /-- Parse a range compressed data table -/
-private def parseDataTable (s : String) (f : UInt32 → UInt32 → Array Substring.Raw → α) : Thunk <| Array (UInt32 × UInt32 × α) := Id.run do
+private def parseDataTable (s : String) (f : UInt32 → UInt32 → Array String.Slice → α) : Thunk <| Array (UInt32 × UInt32 × α) := Id.run do
   let mut r := #[]
   let mut stream := UCDStream.ofString s
   for record in stream do
@@ -171,7 +171,7 @@ where
         else if x[0]! == "<square>" then some .square
         else if x[0]! == "<fraction>" then some .fraction
         else if x[0]! == "<compat>" then some .compat
-        else panic! s!"invalid compatibility tag {x[0]!}"
+        else panic! s!"invalid compatibility tag {x[0]!.copy}"
       (tag, x[1:].toArray.map ofHexString!)
 
 /-- Get general category of a code point using lookup table
@@ -194,7 +194,7 @@ def lookupName (c : UInt32) : String :=
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
     | (_, v, d) =>
       if c ≤ v then
-        if d.get 0 == '<' then
+        if Char.ofUInt8 (d.getUTF8Byte! 0) == '<' then
           if d == "<Control>" then
             s!"<control-{toHexStringAux c}>"
           else if d == "<Private Use>" then
@@ -227,12 +227,12 @@ def lookupName (c : UInt32) : String :=
             "TANGUT COMPONENT-" ++ i
           else if d == "<Tangut Ideograph>" then
             "TANGUT IDEOGRAPH-" ++ toHexStringAux c
-          else panic! s!"unknown name range {d}"
-        else Substring.Raw.toString d
+          else panic! s!"unknown name range {d.copy}"
+        else String.Slice.copy d
       else s!"<noncharacter-{toHexStringAux c}>"
 where
   str : String := include_str "../data/table/Name.txt"
-  table : Thunk <| Array (UInt32 × UInt32 × Substring.Raw) :=
+  table : Thunk <| Array (UInt32 × UInt32 × String.Slice) :=
     parseDataTable str fun _ _ x => x[0]!
 
 /-- Get numeric value of a code point using lookup table
@@ -265,7 +265,7 @@ where
   str : String := include_str "../data/table/Numeric_Value.txt"
   table : Thunk <| Array (UInt32 × UInt32 × NumericType) :=
     parseDataTable str fun _ _ a =>
-      let s := a[0]!.toString
+      let s := a[0]!.copy
       if s == "decimal" then
         .decimal 0
       else if "digit".isPrefixOf s then
