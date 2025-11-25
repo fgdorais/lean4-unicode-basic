@@ -12,10 +12,13 @@ protected unsafe def Char.mkUnsafe : UInt32 → Char := unsafeCast
 
 namespace Unicode
 
--- forward-port: lean4#11341
-/-- Coercion from `String` to `String.Slice` -/
-scoped instance : Coe String String.Slice where
-  coe := String.toSlice
+/-- Coercion from `String` to `Substring`
+
+  This coercion is in Batteries but not in Lean. It is scoped to `Unicode` here to avoid issues in
+  low-level packages that don't use Batteries.
+-/
+scoped instance : Coe String Substring.Raw where
+  coe := String.toRawSubstring
 
 /-- Maximum valid code point value -/
 protected def max : UInt32 := 0x10FFFF

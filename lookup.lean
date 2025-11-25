@@ -47,7 +47,7 @@ def main (args : List String) : IO Unit := do
 where
 
   getArg? (a : String) : Option UInt32 := do
-    if a.take 2 == "U+" then
+    if a.take 2 == "U+".toSlice then
       Unicode.ofHexString? a
     else if a.length == 1 then
       Char.val <$> String.Pos.Raw.get? a 0
