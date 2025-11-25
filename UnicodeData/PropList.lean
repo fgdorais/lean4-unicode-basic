@@ -3,13 +3,15 @@ Copyright © 2023-2024 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
+module
+
 import UnicodeBasic.Types
-import UnicodeBasic.CharacterDatabase
+import all UnicodeBasic.CharacterDatabase
 
 namespace Unicode
 
 /-- Structure containing supported character properties from `PropList.txt` -/
-structure PropList where
+public structure PropList where
   /-- property `Noncharacter_Code_Point` -/
   noncharacterCodePoint : Array (UInt32 × Option UInt32) := #[]
   /-- property `White_Space` -/
@@ -27,7 +29,7 @@ deriving Inhabited, Repr
 /-- Raw string form `PropList.txt` -/
 protected def PropList.txt := include_str "../data/PropList.txt"
 
-private unsafe def PropList.init : IO PropList := do
+public unsafe def PropList.init : IO PropList := do
   let stream := UCDStream.ofString PropList.txt
   let mut list : PropList := {}
   for record in stream do
@@ -52,7 +54,7 @@ private unsafe def PropList.init : IO PropList := do
 
 /-- Parsed data from `PropList.txt` -/
 @[init PropList.init]
-protected def PropList.data : PropList := {}
+public protected def PropList.data : PropList := {}
 
 -- TODO: stop reinventing the wheel!
 /-- Binary search -/
@@ -71,7 +73,7 @@ private partial def find (code : UInt32) (data : Array (UInt32 × Option UInt32)
 
 /-- Check if code point has `White_Space` property from `PropList.txt` -/
 @[inline]
-def PropList.isWhiteSpace (code : UInt32) : Bool :=
+public def PropList.isWhiteSpace (code : UInt32) : Bool :=
   let data := PropList.data.whiteSpace
   if data.size == 0 || code < data[0]!.fst then false else
     match data[find code data 0 data.size]! with
@@ -80,7 +82,7 @@ def PropList.isWhiteSpace (code : UInt32) : Bool :=
 
 /-- Check if code point has `Other_Math` property from `PropList.txt` -/
 @[inline]
-def PropList.isOtherMath (code : UInt32) : Bool :=
+public def PropList.isOtherMath (code : UInt32) : Bool :=
   let data := PropList.data.otherMath
   if data.size == 0 || code < data[0]!.fst then false else
     match data[find code data 0 data.size]! with
@@ -89,7 +91,7 @@ def PropList.isOtherMath (code : UInt32) : Bool :=
 
 /-- Check if code point has `Other_Alphabetic` property from `PropList.txt` -/
 @[inline]
-def PropList.isOtherAlphabetic (code : UInt32) : Bool :=
+public def PropList.isOtherAlphabetic (code : UInt32) : Bool :=
   let data := PropList.data.otherAlphabetic
   if data.size == 0 || code < data[0]!.fst then false else
     match data[find code data 0 data.size]! with
@@ -98,7 +100,7 @@ def PropList.isOtherAlphabetic (code : UInt32) : Bool :=
 
 /-- Check if code point has `Other_Lowercase` property from `PropList.txt` -/
 @[inline]
-def PropList.isOtherLowercase (code : UInt32) : Bool :=
+public def PropList.isOtherLowercase (code : UInt32) : Bool :=
   let data := PropList.data.otherLowercase
   if data.size == 0 || code < data[0]!.fst then false else
     match data[find code data 0 data.size]! with
@@ -107,11 +109,9 @@ def PropList.isOtherLowercase (code : UInt32) : Bool :=
 
 /-- Check if code point has `Other_Uppercase` property from `PropList.txt` -/
 @[inline]
-def PropList.isOtherUppercase (code : UInt32) : Bool :=
+public def PropList.isOtherUppercase (code : UInt32) : Bool :=
   let data := PropList.data.otherUppercase
   if data.size == 0 || code < data[0]!.fst then false else
     match data[find code data 0 data.size]! with
     | (val, none) => code == val
     | (_, some top) => code <= top
-
-end Unicode

@@ -3,14 +3,16 @@ Copyright © 2023-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
+module
+
 /-- Low-level conversion from `UInt32` to `Char` (*unsafe*)
 
   This function translates to a no-op in the compiler. However, it does not
   check whether the `UInt32` code is a valid `Char` value. Only use where it's
   known for external reasons that the code is valid. -/
-protected unsafe def Char.mkUnsafe : UInt32 → Char := unsafeCast
+public protected unsafe def Char.mkUnsafe : UInt32 → Char := unsafeCast
 
-namespace Unicode
+public section namespace Unicode
 
 -- forward-port: lean4#11341
 /-- Coercion from `String` to `String.Slice` -/
@@ -191,7 +193,7 @@ deriving DecidableEq
 /-- General category (GC)
 
   Unicode property: `General_Category` -/
-def GC := UInt32 deriving DecidableEq, Inhabited
+@[expose] def GC := UInt32 deriving DecidableEq, Inhabited
 
 namespace GC
 
@@ -207,73 +209,73 @@ instance : HasSubset GC where
 
 instance (x y : GC) : Decidable (x ⊆ y) := inferInstanceAs (Decidable (_ == _))
 
-protected def none : GC := (0x00000000 : UInt32)
-protected def univ : GC := (0x3FFFFFFF : UInt32)
+@[expose] protected def none : GC := (0x00000000 : UInt32)
+@[expose] protected def univ : GC := (0x3FFFFFFF : UInt32)
 
-protected def Lu  : GC := (0x00000001 : UInt32)
-protected def Ll  : GC := (0x00000002 : UInt32)
-protected def Lt  : GC := (0x00000004 : UInt32)
-protected def Lm  : GC := (0x00000008 : UInt32)
-protected def Lo  : GC := (0x00000010 : UInt32)
-protected def LC  : GC := .Lu ||| .Ll ||| .Lt
-protected def L   : GC := .Lu ||| .Ll ||| .Lt ||| .Lm ||| .Lo
+@[expose] protected def Lu  : GC := (0x00000001 : UInt32)
+@[expose] protected def Ll  : GC := (0x00000002 : UInt32)
+@[expose] protected def Lt  : GC := (0x00000004 : UInt32)
+@[expose] protected def Lm  : GC := (0x00000008 : UInt32)
+@[expose] protected def Lo  : GC := (0x00000010 : UInt32)
+@[expose] protected def LC  : GC := .Lu ||| .Ll ||| .Lt
+@[expose] protected def L   : GC := .Lu ||| .Ll ||| .Lt ||| .Lm ||| .Lo
 
-protected def Mn  : GC := (0x00000020 : UInt32)
-protected def Mc  : GC := (0x00000040 : UInt32)
-protected def Me  : GC := (0x00000080 : UInt32)
-protected def M   : GC := .Mn ||| .Mc ||| .Me
+@[expose] protected def Mn  : GC := (0x00000020 : UInt32)
+@[expose] protected def Mc  : GC := (0x00000040 : UInt32)
+@[expose] protected def Me  : GC := (0x00000080 : UInt32)
+@[expose] protected def M   : GC := .Mn ||| .Mc ||| .Me
 
-protected def Nd  : GC := (0x00000100 : UInt32)
-protected def Nl  : GC := (0x00000200 : UInt32)
-protected def No  : GC := (0x00000400 : UInt32)
-protected def N   : GC := .Nd ||| .Nl ||| .No
+@[expose] protected def Nd  : GC := (0x00000100 : UInt32)
+@[expose] protected def Nl  : GC := (0x00000200 : UInt32)
+@[expose] protected def No  : GC := (0x00000400 : UInt32)
+@[expose] protected def N   : GC := .Nd ||| .Nl ||| .No
 
-protected def Pc  : GC := (0x00000800 : UInt32)
-protected def Pd  : GC := (0x00001000 : UInt32)
-protected def Ps  : GC := (0x00002000 : UInt32)
-protected def Pe  : GC := (0x00004000 : UInt32)
-protected def Pi  : GC := (0x00008000 : UInt32)
-protected def Pf  : GC := (0x00010000 : UInt32)
-protected def Po  : GC := (0x00020000 : UInt32)
-protected def PG  : GC := .Ps ||| .Pe
-protected def PQ  : GC := .Pi ||| .Pf
-protected def P   : GC := .Pc ||| .Pd ||| .Ps ||| .Pe ||| .Pi ||| .Pf ||| .Po
+@[expose] protected def Pc  : GC := (0x00000800 : UInt32)
+@[expose] protected def Pd  : GC := (0x00001000 : UInt32)
+@[expose] protected def Ps  : GC := (0x00002000 : UInt32)
+@[expose] protected def Pe  : GC := (0x00004000 : UInt32)
+@[expose] protected def Pi  : GC := (0x00008000 : UInt32)
+@[expose] protected def Pf  : GC := (0x00010000 : UInt32)
+@[expose] protected def Po  : GC := (0x00020000 : UInt32)
+@[expose] protected def PG  : GC := .Ps ||| .Pe
+@[expose] protected def PQ  : GC := .Pi ||| .Pf
+@[expose] protected def P   : GC := .Pc ||| .Pd ||| .Ps ||| .Pe ||| .Pi ||| .Pf ||| .Po
 
-protected def Sm  : GC := (0x00040000 : UInt32)
-protected def Sc  : GC := (0x00080000 : UInt32)
-protected def Sk  : GC := (0x00100000 : UInt32)
-protected def So  : GC := (0x00200000 : UInt32)
-protected def S   : GC := .Sm ||| .Sc ||| .Sk ||| .So
+@[expose] protected def Sm  : GC := (0x00040000 : UInt32)
+@[expose] protected def Sc  : GC := (0x00080000 : UInt32)
+@[expose] protected def Sk  : GC := (0x00100000 : UInt32)
+@[expose] protected def So  : GC := (0x00200000 : UInt32)
+@[expose] protected def S   : GC := .Sm ||| .Sc ||| .Sk ||| .So
 
-protected def Zs  : GC := (0x00400000 : UInt32)
-protected def Zl  : GC := (0x00800000 : UInt32)
-protected def Zp  : GC := (0x01000000 : UInt32)
-protected def Z   : GC := .Zs ||| .Zl ||| .Zp
+@[expose] protected def Zs  : GC := (0x00400000 : UInt32)
+@[expose] protected def Zl  : GC := (0x00800000 : UInt32)
+@[expose] protected def Zp  : GC := (0x01000000 : UInt32)
+@[expose] protected def Z   : GC := .Zs ||| .Zl ||| .Zp
 
-protected def Cc  : GC := (0x02000000 : UInt32)
-protected def Cf  : GC := (0x04000000 : UInt32)
-protected def Cs  : GC := (0x08000000 : UInt32)
-protected def Co  : GC := (0x10000000 : UInt32)
-protected def Cn  : GC := (0x20000000 : UInt32)
-protected def C   : GC := .Cc ||| .Cf ||| .Cs ||| .Co ||| .Cn
+@[expose] protected def Cc  : GC := (0x02000000 : UInt32)
+@[expose] protected def Cf  : GC := (0x04000000 : UInt32)
+@[expose] protected def Cs  : GC := (0x08000000 : UInt32)
+@[expose] protected def Co  : GC := (0x10000000 : UInt32)
+@[expose] protected def Cn  : GC := (0x20000000 : UInt32)
+@[expose] protected def C   : GC := .Cc ||| .Cf ||| .Cs ||| .Co ||| .Cn
 
 def mk : (major : MajorGeneralCategory) → Option (MinorGeneralCategory major) → GC
-| .letter, none => .L
+| .letter, .none => .L
 | _, some .casedLetter => .LC
 | _, some .uppercaseLetter => .Lu
 | _, some .lowercaseLetter => .Ll
 | _, some .titlecaseLetter => .Lt
 | _, some .modifierLetter => .Lm
 | _, some .otherLetter => .Lo
-| .mark, none => .M
+| .mark, .none => .M
 | _, some .nonspacingMark => .Mn
 | _, some .spacingMark => .Mc
 | _, some .enclosingMark => .Me
-| .number, none => .N
+| .number, .none => .N
 | _, some .decimalNumber => .Nd
 | _, some .letterNumber => .Nl
 | _, some .otherNumber => .No
-| .punctuation, none => .P
+| .punctuation, .none => .P
 | _, some .connectorPunctuation => .Pc
 | _, some .dashPunctuation => .Pd
 | _, some .groupPunctuation => .PG
@@ -283,23 +285,23 @@ def mk : (major : MajorGeneralCategory) → Option (MinorGeneralCategory major) 
 | _, some .initialPunctuation => .Pi
 | _, some .finalPunctuation => .Pf
 | _, some .otherPunctuation => .Po
-| .symbol, none => .S
+| .symbol, .none => .S
 | _, some .mathSymbol => .Sm
 | _, some .currencySymbol => .Sc
 | _, some .modifierSymbol => .Sk
 | _, some .otherSymbol => .So
-| .separator, none => .Z
+| .separator, .none => .Z
 | _, some .spaceSeparator => .Zs
 | _, some .lineSeparator => .Zl
 | _, some .paragraphSeparator => .Zp
-| .other, none => .C
+| .other, .none => .C
 | _, some .control => .Cc
 | _, some .format => .Cf
 | _, some .surrogate => .Cs
 | _, some .privateUse => .Co
 | _, some .unassigned => .Cn
 
-private def reprAux (x : GC) (extra := false) : List String := Id.run do
+def reprAux (x : GC) (extra := false) : List String := Id.run do
   let mut c := #[]
   if .L ⊆ x then
     c := c.push "L"
@@ -452,7 +454,7 @@ def ofAbbrev? (s : String.Slice) : Option GC :=
 def ofAbbrev! (s : String.Slice) : GC :=
   match ofAbbrev? s with
   | some c => c
-  | none => panic! "invalid general category"
+  | _ => panic! "invalid general category"
 
 def ofString? (s : String.Slice) : Option GC := do
   let mut c := .none
@@ -463,7 +465,7 @@ def ofString? (s : String.Slice) : Option GC := do
 def ofString! (s : String.Slice) : GC :=
   match ofString? s with
   | some c => c
-  | none => panic! "invalid general category"
+  | _ => panic! "invalid general category"
 
 end GC
 
@@ -754,5 +756,3 @@ def BidiClass.ofAbbrev! (abbr : String.Slice) : BidiClass :=
 
 instance : Repr BidiClass where
   reprPrec bc _ := s!"Unicode.BidiClass.{bc.toAbbrev}"
-
-end Unicode

@@ -3,8 +3,10 @@ Copyright © 2023-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
-import UnicodeBasic.Types
-import UnicodeBasic.TableLookup
+module
+
+public import UnicodeBasic.TableLookup
+public import UnicodeBasic.Types
 
 /-!
   # General API #
@@ -40,7 +42,7 @@ import UnicodeBasic.TableLookup
   non-titlecase letter or a separator.
 -/
 
-namespace Unicode
+public section namespace Unicode
 
 /-!
   ## Name ##
