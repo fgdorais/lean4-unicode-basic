@@ -31,8 +31,10 @@ extern_lib libunicodeclib := UnicodeCLib.fetch
 @[default_target]
 lean_lib UnicodeBasic where
   moreLinkObjs := #[UnicodeCLib]
+  leanOptions := #[⟨`experimental.module, true⟩]
 
-lean_lib UnicodeData
+lean_lib UnicodeData where
+  leanOptions := #[⟨`experimental.module, true⟩]
 
 lean_exe lookup
 
@@ -41,7 +43,8 @@ lean_exe makeTables
 lean_exe makeCLib
 
 @[test_driver]
-lean_exe testTables
+lean_exe testTables where
+  leanOptions := #[⟨`experimental.module, true⟩]
 
 /-- Download datafile from the Unicode Character Database (UCD) -/
 script downloadUCD (args) do
