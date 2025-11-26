@@ -1,4 +1,4 @@
-name: Update Nightly
+name: Update nightly-testing
 
 on:
   schedule:
@@ -13,7 +13,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v6
         with:
-          ref: nightly
+          ref: nightly-testing
           token: ${{ secrets.UNICODE_BASIC_TOKEN }}
 
       - name: install jq
@@ -41,4 +41,4 @@ jobs:
       - name: commit and push
         run: |
           git commit -m "chore: update toolchain ${{ steps.toolchain-tag.outputs.lean_tag }}"
-          git push --force origin nightly
+          git push --force origin nightly-testing
