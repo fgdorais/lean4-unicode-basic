@@ -42,9 +42,9 @@ protected partial def nextLine? (stream : UCDStream) : Option (String.Slice × U
     let nextPos := stream.findNextPos line.rawEndPos h
     let line := (line.takeWhile (.!='#')).trimAsciiEnd
     if line.isEmpty then
-      UCDStream.nextLine? {stream with toSlice := stream.replaceStart nextPos}
+      UCDStream.nextLine? {stream with toSlice := stream.sliceFrom nextPos}
     else
-      return (line, {stream with toSlice := stream.replaceStart nextPos})
+      return (line, {stream with toSlice := stream.sliceFrom nextPos})
   else failure
 
 /-- Get the next record from the `UCDStream`
