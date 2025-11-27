@@ -7,20 +7,6 @@ import UnicodeBasic.CharacterDatabase
 import UnicodeBasic.Hangul
 import UnicodeBasic.Types
 
--- Issue: lean4#11275
-namespace String.Slice
-
-def toInt? (s : String.Slice) : Option Int :=
-  if s.front? = '-' then
-    Int.negOfNat <$> (s.drop 1).toNat?
-  else
-    Int.ofNat <$> s.toNat?
-
-def toInt! (s : String.Slice) : Int :=
-  s.toInt?.get!
-
-end String.Slice
-
 namespace Unicode
 
 /-- Structure for data from `UnicodeData.txt` -/
