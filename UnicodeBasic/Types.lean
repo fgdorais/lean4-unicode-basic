@@ -12,11 +12,6 @@ protected unsafe def Char.mkUnsafe : UInt32 → Char := unsafeCast
 
 namespace Unicode
 
--- forward-port: lean4#11341
-/-- Coercion from `String` to `String.Slice` -/
-scoped instance : Coe String String.Slice where
-  coe := String.toSlice
-
 /-- Maximum valid code point value -/
 @[simp, grind =] protected abbrev max : UInt32 := 0x10FFFF
 
