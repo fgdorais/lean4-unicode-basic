@@ -17,7 +17,7 @@ target UnicodeCLib pkg : FilePath := do
   let mut oFiles : Array (Job FilePath) := #[]
   for file in (← (pkg.dir / "UnicodeCLib").readDir) do
     if file.path.extension == some "c" then
-      let obj := pkg.buildDir / "UnicodeCLib" / (file.fileName.stripSuffix ".c" ++ ".o")
+      let obj := pkg.buildDir / "UnicodeCLib" / ((file.fileName.dropSuffix ".c" |>.copy) ++ ".o")
       let src ← inputTextFile file.path
       let weakArgs := #["-I", (← getLeanIncludeDir).toString, "-O", "-fPIC"]
       oFiles := oFiles.push <| ← buildO obj src weakArgs
