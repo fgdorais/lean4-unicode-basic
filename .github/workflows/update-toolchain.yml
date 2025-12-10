@@ -37,7 +37,7 @@ jobs:
           echo "leanprover/lean4:${{ steps.toolchain-tag.outputs.lean_tag }}" > lean-toolchain
 
       - name: create pull request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.UNICODE_BASIC_TOKEN }}
           commit-message: "chore: update toolchain ${{ steps.toolchain-tag.outputs.lean_tag }}"
