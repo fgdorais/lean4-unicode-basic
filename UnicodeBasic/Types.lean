@@ -12,13 +12,26 @@ protected unsafe def Char.mkUnsafe : UInt32 → Char := unsafeCast
 
 namespace Unicode
 
--- forward-port: lean4#11341
-/-- Coercion from `String` to `String.Slice` -/
-scoped instance : Coe String String.Slice where
-  coe := String.toSlice
-
 /-- Maximum valid code point value -/
-protected def max : UInt32 := 0x10FFFF
+@[simp, grind =] protected abbrev max : UInt32 := 0x10FFFF
+
+/-- Minimum high surrogate code point -/
+@[simp, grind =] protected abbrev minHighSurrogate : UInt32 := 0xD800
+
+/-- Maximum high surrogate code point -/
+@[simp, grind =] protected abbrev maxHighSurrogate : UInt32 := 0xDBFF
+
+/-- Minimum low surrogate code point -/
+@[simp, grind =] protected abbrev minLowSurrogate : UInt32 := 0xDC00
+
+/-- Maximum low surrogate code point -/
+@[simp, grind =] protected abbrev maxLowSurrogate : UInt32 := 0xDFFF
+
+/-- Minimum surrogate code point -/
+@[simp, grind =] protected abbrev minSurrogate : UInt32 := Unicode.minHighSurrogate
+
+/-- Minimum surrogate code point -/
+@[simp, grind =] protected abbrev maxSurrogate : UInt32 := Unicode.maxLowSurrogate
 
 /-- Hexadecimal string representation of a code point
 
