@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  update:
     runs-on: ubuntu-latest
     steps:
 
@@ -14,13 +14,10 @@ jobs:
         uses: actions/checkout@v6
         with:
           ref: nightly-testing
-          fetch-depth: 0
           token: ${{ secrets.UNICODE_BASIC_TOKEN }}
-
 
       - name: install jq
         uses: dcarbone/install-jq-action@v3
-
 
       - name: set user
         run: |
@@ -30,7 +27,7 @@ jobs:
       - name: merge main
         run: |
           git fetch origin
-          git merge main --strategy-option ours --no-commit --allow-unrelated-histories
+          git merge origin/main --strategy-option ours --no-commit --allow-unrelated-histories
 
       - name: update lean-toolchain
         id: toolchain-tag
