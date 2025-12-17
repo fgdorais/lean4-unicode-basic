@@ -1,4 +1,4 @@
-name: Update nightly-testing
+name: Update Nightly Testing
 
 on:
   schedule:
@@ -14,7 +14,9 @@ jobs:
         uses: actions/checkout@v6
         with:
           ref: nightly-testing
+          fetch-depth: 0
           token: ${{ secrets.UNICODE_BASIC_TOKEN }}
+
 
       - name: install jq
         uses: dcarbone/install-jq-action@v3
