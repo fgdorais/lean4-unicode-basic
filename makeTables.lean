@@ -3,7 +3,9 @@ Copyright © 2024-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
-import UnicodeData
+module
+import all UnicodeData.Basic
+import all UnicodeData.PropList
 
 open Unicode
 
@@ -483,7 +485,7 @@ def mkWhiteSpace : Array (UInt32 × UInt32) :=
     | (c₀, some c₁) => (c₀, c₁)
     | (c₀, none) => (c₀, c₀)
 
-def main (args : List String) : IO UInt32 := do
+public def main (args : List String) : IO UInt32 := do
   let args := if args != [] then args else [
     "Bidi_Class",
     "Bidi_Mirrored",

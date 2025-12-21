@@ -1,4 +1,11 @@
-import UnicodeData
+/-
+Copyright © 2025 François G. Dorais. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+-/
+
+module
+import all UnicodeData.Basic
+import all UnicodeData.PropList
 
 open Unicode
 
@@ -191,7 +198,7 @@ static const unicode_data_t table[] = {"
       file.putStrLn s!"\{UINT32_C({c₀}),UINT32_C({c₁}),UINT64_C({d})},"
     file.putStrLn "};"
 
-def main : IO UInt32 := do
+public def main : IO UInt32 := do
   makeCaseC
   makePropC
   return 0

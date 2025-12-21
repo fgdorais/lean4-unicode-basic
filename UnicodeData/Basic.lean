@@ -3,9 +3,10 @@ Copyright © 2023-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
-import UnicodeBasic.CharacterDatabase
-import UnicodeBasic.Hangul
-import UnicodeBasic.Types
+module
+public import UnicodeBasic.Types
+import all UnicodeBasic.CharacterDatabase
+import all UnicodeBasic.Hangul
 
 namespace Unicode
 

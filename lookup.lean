@@ -3,12 +3,13 @@ Copyright © 2023-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
+module
 import UnicodeBasic
-import UnicodeData
+import all UnicodeData.Basic
 
 open Unicode
 
-def main (args : List String) : IO Unit := do
+public def main (args : List String) : IO Unit := do
   for a in args do
     match getArg? a with
     | none => IO.println s!"invalid argument: {a}"
