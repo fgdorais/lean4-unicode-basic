@@ -3,6 +3,9 @@ Copyright © 2023-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
+module
+@[expose] public section
+
 /-- Low-level conversion from `UInt32` to `Char` (*unsafe*)
 
   This function translates to a no-op in the compiler. However, it does not
@@ -312,7 +315,7 @@ def mk : (major : MajorGeneralCategory) → Option (MinorGeneralCategory major) 
 | _, some .privateUse => .Co
 | _, some .unassigned => .Cn
 
-private def reprAux (x : GC) (extra := false) : List String := Id.run do
+def reprAux (x : GC) (extra := false) : List String := Id.run do
   let mut c := #[]
   if .L ⊆ x then
     c := c.push "L"
