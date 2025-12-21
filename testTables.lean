@@ -3,8 +3,11 @@ Copyright © 2024-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
+module
 import UnicodeBasic
-import UnicodeData
+import all UnicodeBasic.TableLookup
+import all UnicodeData.Basic
+import all UnicodeData.PropList
 
 open Unicode
 
@@ -115,7 +118,7 @@ def tests : Array (String × (UnicodeData → Bool)) := #[
   ("General_Category", testGeneralCategory),
   ("White_Space", testWhiteSpace)]
 
-def main (args : List String) : IO UInt32 := do
+public def main (args : List String) : IO UInt32 := do
   let args := if args.isEmpty then tests.map Prod.fst else args.toArray
   let stream : UnicodeDataStream := {}
   let mut err : UInt32 := 0
