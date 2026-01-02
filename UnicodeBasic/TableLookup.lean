@@ -3,16 +3,20 @@ Copyright © 2024-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
-import UnicodeBasic.CharacterDatabase
-import UnicodeBasic.Hangul
-import UnicodeBasic.Types
+module
+
+import all UnicodeBasic.CharacterDatabase
+import all UnicodeBasic.Hangul
+import all UnicodeBasic.Types
+
+public import UnicodeBasic.Types
 
 namespace Unicode
 
 namespace CLib
 
 @[extern "unicode_case_lookup"]
-protected opaque lookupCase (c : UInt32) : UInt64
+public protected opaque lookupCase (c : UInt32) : UInt64
 
 protected abbrev oUpper : UInt64 := 0x100000000
 protected abbrev oLower : UInt64 := 0x200000000
@@ -20,7 +24,7 @@ protected abbrev oAlpha : UInt64 := 0x400000000
 protected abbrev oMath  : UInt64 := 0x800000000
 
 @[extern "unicode_prop_lookup"]
-protected opaque lookupProp (c : UInt32) : UInt64
+public protected opaque lookupProp (c : UInt32) : UInt64
 
 end CLib
 
@@ -69,7 +73,7 @@ private def parsePropTable (s : String) : Thunk <| Array (UInt32 × UInt32) := I
 /-- Get bidirectional class using lookup table
 
   Unicode property: `Bidi_Class` -/
-def lookupBidiClass (c : UInt32) : BidiClass :=
+public def lookupBidiClass (c : UInt32) : BidiClass :=
   let table := table.get
   if c < table[0]!.1 then .BN else
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
@@ -82,7 +86,7 @@ where
 /-- Get canonical combining class using lookup table
 
   Unicode property: `Canonical_Combining_Class` -/
-def lookupCanonicalCombiningClass (c : UInt32) : Nat :=
+public def lookupCanonicalCombiningClass (c : UInt32) : Nat :=
   let t := table.get
   if c < t[0]!.1 then 0 else
     match t[find c (fun i => t[i]!.1) 0 t.size.toUSize]! with
@@ -97,7 +101,7 @@ where
   Unicode properties:
     `Decomposition_Mapping`
     `Decomposition_Type=Canonical` -/
-def lookupCanonicalDecompositionMapping (c : UInt32) : List UInt32 :=
+public def lookupCanonicalDecompositionMapping (c : UInt32) : List UInt32 :=
   -- Hangul syllables
   if Hangul.Syllable.base ≤ c && c ≤ Hangul.Syllable.last then
     let s := Hangul.getSyllable! c
@@ -120,7 +124,7 @@ where
     `Simple_Lowercase_Mapping`
     `Simple_Uppercase_Mapping`
     `Simple_Titlecase_Mapping` -/
-def lookupCaseMapping (c : UInt32) : UInt32 × UInt32 × UInt32 :=
+public def lookupCaseMapping (c : UInt32) : UInt32 × UInt32 × UInt32 :=
   let v : UInt64 := CLib.lookupCase c
   if v == 0 then (c, c, c) else
     let cu : UInt32 := v.toUInt32 &&& 0x001FFFFF
@@ -133,7 +137,7 @@ def lookupCaseMapping (c : UInt32) : UInt32 × UInt32 × UInt32 :=
   Unicode properties:
     `Decomposition_Mapping`
     `Decomposition_Type` -/
-def lookupDecompositionMapping? (c : UInt32) : Option DecompositionMapping :=
+public def lookupDecompositionMapping? (c : UInt32) : Option DecompositionMapping :=
   -- Hangul syllables
   if Hangul.Syllable.base ≤ c && c ≤ Hangul.Syllable.last then
     let s := Hangul.getSyllable! c
@@ -178,17 +182,12 @@ where
 
   Unicode property: `General_Category` -/
 @[inline]
-def lookupGC (c : UInt32) : GC := CLib.lookupProp c |>.toUInt32
-
-set_option linter.deprecated false in
-@[inline, deprecated Unicode.lookupGC (since := "v1.3.0")]
-def lookupGeneralCategory (c : UInt32) : GeneralCategory :=
-  .ofGC! (lookupGC c)
+public def lookupGC (c : UInt32) : GC := CLib.lookupProp c |>.toUInt32
 
 /-- Get name of a code point using lookup table
 
   Unicode property: `Name` -/
-def lookupName (c : UInt32) : String :=
+public def lookupName (c : UInt32) : String :=
   let table := table.get
   if c < table[0]!.1 then unreachable! else
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
@@ -240,7 +239,7 @@ where
   Unicode properties:
     `Numeric_Type`
     `Numeric_Value` -/
-def lookupNumericValue (c : UInt32) : Option NumericType :=
+public def lookupNumericValue (c : UInt32) : Option NumericType :=
   let table := table.get
   if c < table[0]!.1 then none else
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
@@ -297,7 +296,7 @@ def lookupOther (c : UInt32) : UInt32 :=
 
   Unicode property: `Alphabetic` -/
 @[inline]
-def lookupAlphabetic (c : UInt32) : Bool :=
+public def lookupAlphabetic (c : UInt32) : Bool :=
   let m := CLib.oAlpha ||| (GC.L ||| GC.Nl).toUInt64
   CLib.lookupProp c &&& m != 0
 
@@ -305,7 +304,8 @@ def lookupAlphabetic (c : UInt32) : Bool :=
 
   Unicode property: `Bidi_Mirrored`
 -/
-def lookupBidiMirrored (c : UInt32) : Bool :=
+@[inline]
+public def lookupBidiMirrored (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
@@ -318,7 +318,7 @@ where
 
   Unicode property: `Cased` -/
 @[inline]
-def lookupCased (c : UInt32 ) : Bool :=
+public def lookupCased (c : UInt32 ) : Bool :=
   let m := CLib.oUpper ||| CLib.oLower ||| GC.LC.toUInt64
   CLib.lookupProp c &&& m != 0
 
@@ -326,7 +326,7 @@ def lookupCased (c : UInt32 ) : Bool :=
 
   Unicode property: `Lowercase` -/
 @[inline]
-def lookupLowercase (c : UInt32) : Bool :=
+public def lookupLowercase (c : UInt32) : Bool :=
   let m := CLib.oLower ||| GC.Ll.toUInt64
   CLib.lookupProp c &&& m != 0
 
@@ -335,7 +335,7 @@ def lookupLowercase (c : UInt32) : Bool :=
 
   Unicode property: `Math` -/
 @[inline]
-def lookupMath (c : UInt32) : Bool :=
+public def lookupMath (c : UInt32) : Bool :=
   let m := CLib.oMath ||| GC.Sm.toUInt64
   CLib.lookupProp c &&& m != 0
 
@@ -343,21 +343,21 @@ def lookupMath (c : UInt32) : Bool :=
 
   Unicode property: `Titlecase` -/
 @[inline]
-def lookupTitlecase (c : UInt32) : Bool :=
+public def lookupTitlecase (c : UInt32) : Bool :=
   lookupGC c == GC.Lt
 
 /-- Check if code point is a uppercase letter using lookup table
 
   Unicode property: `Uppercase` -/
 @[inline]
-def lookupUppercase (c : UInt32) : Bool :=
+public def lookupUppercase (c : UInt32) : Bool :=
   let m := CLib.oUpper ||| GC.Lu.toUInt64
   CLib.lookupProp c &&& m != 0
 
 /-- Check if code point is a white space character using lookup table
 
   Unicode property: `White_Space` -/
-def lookupWhiteSpace (c : UInt32) : Bool :=
+public def lookupWhiteSpace (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
@@ -365,5 +365,3 @@ def lookupWhiteSpace (c : UInt32) : Bool :=
 where
   str : String := include_str "../data/table/White_Space.txt"
   table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
-
-end Unicode

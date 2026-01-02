@@ -3,8 +3,10 @@ Copyright © 2024-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
-import UnicodeBasic
-import UnicodeData
+module
+
+public import UnicodeBasic
+public import UnicodeData
 
 open Unicode
 
@@ -96,7 +98,7 @@ def testUppercase (d : UnicodeData) : Bool :=
 def testWhiteSpace (d : UnicodeData) : Bool :=
   PropList.isWhiteSpace d.code == lookupWhiteSpace d.code
 
-def tests : Array (String × (UnicodeData → Bool)) := #[
+public def tests : Array (String × (UnicodeData → Bool)) := #[
   ("Bidi_Class", testBidiClass),
   ("Alphabetic", testAlphabetic),
   ("Bidi_Class", testBidiClass),
@@ -115,7 +117,7 @@ def tests : Array (String × (UnicodeData → Bool)) := #[
   ("General_Category", testGeneralCategory),
   ("White_Space", testWhiteSpace)]
 
-def main (args : List String) : IO UInt32 := do
+public def main (args : List String) : IO UInt32 := do
   let args := if args.isEmpty then tests.map Prod.fst else args.toArray
   let stream : UnicodeDataStream := {}
   let mut err : UInt32 := 0

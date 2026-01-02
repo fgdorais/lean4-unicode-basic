@@ -3,14 +3,16 @@ Copyright © 2023-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
+module
+
 /-- Low-level conversion from `UInt32` to `Char` (*unsafe*)
 
   This function translates to a no-op in the compiler. However, it does not
   check whether the `UInt32` code is a valid `Char` value. Only use where it's
   known for external reasons that the code is valid. -/
-protected unsafe def Char.mkUnsafe : UInt32 → Char := unsafeCast
+public protected unsafe def Char.mkUnsafe : UInt32 → Char := unsafeCast
 
-namespace Unicode
+public section namespace Unicode
 
 /-- Maximum valid code point value -/
 @[simp, grind =] protected abbrev max : UInt32 := 0x10FFFF
@@ -204,7 +206,7 @@ deriving DecidableEq
 /-- General category (GC)
 
   Unicode property: `General_Category` -/
-def GC := UInt32 deriving DecidableEq, Inhabited
+@[expose] def GC := UInt32 deriving DecidableEq, Inhabited
 
 namespace GC
 
@@ -220,73 +222,73 @@ instance : HasSubset GC where
 
 instance (x y : GC) : Decidable (x ⊆ y) := inferInstanceAs (Decidable (_ == _))
 
-protected def none : GC := (0x00000000 : UInt32)
-protected def univ : GC := (0x3FFFFFFF : UInt32)
+@[expose] protected def none : GC := (0x00000000 : UInt32)
+@[expose] protected def univ : GC := (0x3FFFFFFF : UInt32)
 
-protected def Lu  : GC := (0x00000001 : UInt32)
-protected def Ll  : GC := (0x00000002 : UInt32)
-protected def Lt  : GC := (0x00000004 : UInt32)
-protected def Lm  : GC := (0x00000008 : UInt32)
-protected def Lo  : GC := (0x00000010 : UInt32)
-protected def LC  : GC := .Lu ||| .Ll ||| .Lt
-protected def L   : GC := .Lu ||| .Ll ||| .Lt ||| .Lm ||| .Lo
+@[expose] protected def Lu  : GC := (0x00000001 : UInt32)
+@[expose] protected def Ll  : GC := (0x00000002 : UInt32)
+@[expose] protected def Lt  : GC := (0x00000004 : UInt32)
+@[expose] protected def Lm  : GC := (0x00000008 : UInt32)
+@[expose] protected def Lo  : GC := (0x00000010 : UInt32)
+@[expose] protected def LC  : GC := .Lu ||| .Ll ||| .Lt
+@[expose] protected def L   : GC := .Lu ||| .Ll ||| .Lt ||| .Lm ||| .Lo
 
-protected def Mn  : GC := (0x00000020 : UInt32)
-protected def Mc  : GC := (0x00000040 : UInt32)
-protected def Me  : GC := (0x00000080 : UInt32)
-protected def M   : GC := .Mn ||| .Mc ||| .Me
+@[expose] protected def Mn  : GC := (0x00000020 : UInt32)
+@[expose] protected def Mc  : GC := (0x00000040 : UInt32)
+@[expose] protected def Me  : GC := (0x00000080 : UInt32)
+@[expose] protected def M   : GC := .Mn ||| .Mc ||| .Me
 
-protected def Nd  : GC := (0x00000100 : UInt32)
-protected def Nl  : GC := (0x00000200 : UInt32)
-protected def No  : GC := (0x00000400 : UInt32)
-protected def N   : GC := .Nd ||| .Nl ||| .No
+@[expose] protected def Nd  : GC := (0x00000100 : UInt32)
+@[expose] protected def Nl  : GC := (0x00000200 : UInt32)
+@[expose] protected def No  : GC := (0x00000400 : UInt32)
+@[expose] protected def N   : GC := .Nd ||| .Nl ||| .No
 
-protected def Pc  : GC := (0x00000800 : UInt32)
-protected def Pd  : GC := (0x00001000 : UInt32)
-protected def Ps  : GC := (0x00002000 : UInt32)
-protected def Pe  : GC := (0x00004000 : UInt32)
-protected def Pi  : GC := (0x00008000 : UInt32)
-protected def Pf  : GC := (0x00010000 : UInt32)
-protected def Po  : GC := (0x00020000 : UInt32)
-protected def PG  : GC := .Ps ||| .Pe
-protected def PQ  : GC := .Pi ||| .Pf
-protected def P   : GC := .Pc ||| .Pd ||| .Ps ||| .Pe ||| .Pi ||| .Pf ||| .Po
+@[expose] protected def Pc  : GC := (0x00000800 : UInt32)
+@[expose] protected def Pd  : GC := (0x00001000 : UInt32)
+@[expose] protected def Ps  : GC := (0x00002000 : UInt32)
+@[expose] protected def Pe  : GC := (0x00004000 : UInt32)
+@[expose] protected def Pi  : GC := (0x00008000 : UInt32)
+@[expose] protected def Pf  : GC := (0x00010000 : UInt32)
+@[expose] protected def Po  : GC := (0x00020000 : UInt32)
+@[expose] protected def PG  : GC := .Ps ||| .Pe
+@[expose] protected def PQ  : GC := .Pi ||| .Pf
+@[expose] protected def P   : GC := .Pc ||| .Pd ||| .Ps ||| .Pe ||| .Pi ||| .Pf ||| .Po
 
-protected def Sm  : GC := (0x00040000 : UInt32)
-protected def Sc  : GC := (0x00080000 : UInt32)
-protected def Sk  : GC := (0x00100000 : UInt32)
-protected def So  : GC := (0x00200000 : UInt32)
-protected def S   : GC := .Sm ||| .Sc ||| .Sk ||| .So
+@[expose] protected def Sm  : GC := (0x00040000 : UInt32)
+@[expose] protected def Sc  : GC := (0x00080000 : UInt32)
+@[expose] protected def Sk  : GC := (0x00100000 : UInt32)
+@[expose] protected def So  : GC := (0x00200000 : UInt32)
+@[expose] protected def S   : GC := .Sm ||| .Sc ||| .Sk ||| .So
 
-protected def Zs  : GC := (0x00400000 : UInt32)
-protected def Zl  : GC := (0x00800000 : UInt32)
-protected def Zp  : GC := (0x01000000 : UInt32)
-protected def Z   : GC := .Zs ||| .Zl ||| .Zp
+@[expose] protected def Zs  : GC := (0x00400000 : UInt32)
+@[expose] protected def Zl  : GC := (0x00800000 : UInt32)
+@[expose] protected def Zp  : GC := (0x01000000 : UInt32)
+@[expose] protected def Z   : GC := .Zs ||| .Zl ||| .Zp
 
-protected def Cc  : GC := (0x02000000 : UInt32)
-protected def Cf  : GC := (0x04000000 : UInt32)
-protected def Cs  : GC := (0x08000000 : UInt32)
-protected def Co  : GC := (0x10000000 : UInt32)
-protected def Cn  : GC := (0x20000000 : UInt32)
-protected def C   : GC := .Cc ||| .Cf ||| .Cs ||| .Co ||| .Cn
+@[expose] protected def Cc  : GC := (0x02000000 : UInt32)
+@[expose] protected def Cf  : GC := (0x04000000 : UInt32)
+@[expose] protected def Cs  : GC := (0x08000000 : UInt32)
+@[expose] protected def Co  : GC := (0x10000000 : UInt32)
+@[expose] protected def Cn  : GC := (0x20000000 : UInt32)
+@[expose] protected def C   : GC := .Cc ||| .Cf ||| .Cs ||| .Co ||| .Cn
 
 def mk : (major : MajorGeneralCategory) → Option (MinorGeneralCategory major) → GC
-| .letter, none => .L
+| .letter, .none => .L
 | _, some .casedLetter => .LC
 | _, some .uppercaseLetter => .Lu
 | _, some .lowercaseLetter => .Ll
 | _, some .titlecaseLetter => .Lt
 | _, some .modifierLetter => .Lm
 | _, some .otherLetter => .Lo
-| .mark, none => .M
+| .mark, .none => .M
 | _, some .nonspacingMark => .Mn
 | _, some .spacingMark => .Mc
 | _, some .enclosingMark => .Me
-| .number, none => .N
+| .number, .none => .N
 | _, some .decimalNumber => .Nd
 | _, some .letterNumber => .Nl
 | _, some .otherNumber => .No
-| .punctuation, none => .P
+| .punctuation, .none => .P
 | _, some .connectorPunctuation => .Pc
 | _, some .dashPunctuation => .Pd
 | _, some .groupPunctuation => .PG
@@ -296,23 +298,23 @@ def mk : (major : MajorGeneralCategory) → Option (MinorGeneralCategory major) 
 | _, some .initialPunctuation => .Pi
 | _, some .finalPunctuation => .Pf
 | _, some .otherPunctuation => .Po
-| .symbol, none => .S
+| .symbol, .none => .S
 | _, some .mathSymbol => .Sm
 | _, some .currencySymbol => .Sc
 | _, some .modifierSymbol => .Sk
 | _, some .otherSymbol => .So
-| .separator, none => .Z
+| .separator, .none => .Z
 | _, some .spaceSeparator => .Zs
 | _, some .lineSeparator => .Zl
 | _, some .paragraphSeparator => .Zp
-| .other, none => .C
+| .other, .none => .C
 | _, some .control => .Cc
 | _, some .format => .Cf
 | _, some .surrogate => .Cs
 | _, some .privateUse => .Co
 | _, some .unassigned => .Cn
 
-private def reprAux (x : GC) (extra := false) : List String := Id.run do
+def reprAux (x : GC) (extra := false) : List String := Id.run do
   let mut c := #[]
   if .L ⊆ x then
     c := c.push "L"
@@ -465,7 +467,7 @@ def ofAbbrev? (s : String.Slice) : Option GC :=
 def ofAbbrev! (s : String.Slice) : GC :=
   match ofAbbrev? s with
   | some c => c
-  | none => panic! "invalid general category"
+  | _ => panic! "invalid general category"
 
 def ofString? (s : String.Slice) : Option GC := do
   let mut c := .none
@@ -476,252 +478,9 @@ def ofString? (s : String.Slice) : Option GC := do
 def ofString! (s : String.Slice) : GC :=
   match ofString? s with
   | some c => c
-  | none => panic! "invalid general category"
+  | _ => panic! "invalid general category"
 
 end GC
-
-set_option linter.deprecated false in
-@[deprecated Unicode.GC (since := "1.2.0")]
-structure GeneralCategory : Type where
-  /-- Major general category of a code point -/
-  major : MajorGeneralCategory
-  /-- Minor general category of a code point -/
-  minor : Option (MinorGeneralCategory major)
-deriving Inhabited, DecidableEq
-
-set_option linter.deprecated false in section
-
-/-- General category: letter (`L`) -/
-@[deprecated Unicode.GC.L (since := "1.2.0")]
-protected def GeneralCategory.L  : GeneralCategory := ⟨.letter, none⟩
-/-- General category: cased letter (`LC`) -/
-@[deprecated Unicode.GC.LC (since := "1.2.0")]
-protected def GeneralCategory.LC : GeneralCategory := ⟨_, some .casedLetter⟩
-/-- General category: uppercase letter (`Lu`) -/
-@[deprecated Unicode.GC.Lu (since := "1.2.0")]
-protected def GeneralCategory.Lu : GeneralCategory := ⟨_, some .uppercaseLetter⟩
-/-- General category: lowercase letter (`Ll`) -/
-@[deprecated Unicode.GC.Ll (since := "1.2.0")]
-protected def GeneralCategory.Ll : GeneralCategory := ⟨_, some .lowercaseLetter⟩
-/-- General category: titlecase letter (`Lt`) -/
-@[deprecated Unicode.GC.Lt (since := "1.2.0")]
-protected def GeneralCategory.Lt : GeneralCategory := ⟨_, some .titlecaseLetter⟩
-/-- General category: modifier letter (`Lm`) -/
-@[deprecated Unicode.GC.Lm (since := "1.2.0")]
-protected def GeneralCategory.Lm : GeneralCategory := ⟨_, some .modifierLetter⟩
-/-- General category: other letter (`Lo`) -/
-@[deprecated Unicode.GC.Lo (since := "1.2.0")]
-protected def GeneralCategory.Lo : GeneralCategory := ⟨_, some .otherLetter⟩
-/-- General category mark (`M`) -/
-@[deprecated Unicode.GC.M (since := "1.2.0")]
-protected def GeneralCategory.M  : GeneralCategory := ⟨.mark, none⟩
-/-- General category: nonspacing combining mark (`Mn`) -/
-@[deprecated Unicode.GC.Mn (since := "1.2.0")]
-protected def GeneralCategory.Mn : GeneralCategory := ⟨_, some .nonspacingMark⟩
-/-- General category: spacing combining mark (`Mc`) -/
-@[deprecated Unicode.GC.Mc (since := "1.2.0")]
-protected def GeneralCategory.Mc : GeneralCategory := ⟨_, some .spacingMark⟩
-/-- General category: enclosing combining mark (`Me`) -/
-@[deprecated Unicode.GC.Me (since := "1.2.0")]
-protected def GeneralCategory.Me : GeneralCategory := ⟨_, some .enclosingMark⟩
-/-- General category: number (`N`) -/
-@[deprecated Unicode.GC.N (since := "1.2.0")]
-protected def GeneralCategory.N  : GeneralCategory := ⟨.number, none⟩
-/-- General category: decimal digit (`Nd`) -/
-@[deprecated Unicode.GC.Nd (since := "1.2.0")]
-protected def GeneralCategory.Nd : GeneralCategory := ⟨_, some .decimalNumber⟩
-/-- General category: letter number (`Nl`) -/
-@[deprecated Unicode.GC.Nl (since := "1.2.0")]
-protected def GeneralCategory.Nl : GeneralCategory := ⟨_, some .letterNumber⟩
-/-- General category: other number (`No`) -/
-@[deprecated Unicode.GC.No (since := "1.2.0")]
-protected def GeneralCategory.No : GeneralCategory := ⟨_, some .otherNumber⟩
-/-- General category: punctuation (`P`) -/
-@[deprecated Unicode.GC.P (since := "1.2.0")]
-protected def GeneralCategory.P  : GeneralCategory := ⟨.punctuation, none⟩
-/-- General category: connector punctuation (`Pc`) -/
-@[deprecated Unicode.GC.Pc (since := "1.2.0")]
-protected def GeneralCategory.Pc : GeneralCategory := ⟨_, some .connectorPunctuation⟩
-/-- General category: dash punctuation (`Pd`) -/
-@[deprecated Unicode.GC.Pd (since := "1.2.0")]
-protected def GeneralCategory.Pd : GeneralCategory := ⟨_, some .dashPunctuation⟩
-/-- General category: grouping punctuation (`PG`) -/
-@[deprecated Unicode.GC.PG (since := "1.2.0")]
-protected def GeneralCategory.PG : GeneralCategory := ⟨_, some .groupPunctuation⟩
-/-- General category: opening punctuation (`Ps`) -/
-@[deprecated Unicode.GC.Ps (since := "1.2.0")]
-protected def GeneralCategory.Ps : GeneralCategory := ⟨_, some .openPunctuation⟩
-/-- General category: closing punctuation (`Pe`) -/
-@[deprecated Unicode.GC.Pe (since := "1.2.0")]
-protected def GeneralCategory.Pe : GeneralCategory := ⟨_, some .closePunctuation⟩
-/-- General category: quoting punctuation (`PQ`) -/
-@[deprecated Unicode.GC.PQ (since := "1.2.0")]
-protected def GeneralCategory.PQ : GeneralCategory := ⟨_, some .quotePunctuation⟩
-/-- General category: initial punctuation (`Pi`) -/
-@[deprecated Unicode.GC.Pi (since := "1.2.0")]
-protected def GeneralCategory.Pi : GeneralCategory := ⟨_, some .initialPunctuation⟩
-/-- General category: final punctuation (`Pf`) -/
-@[deprecated Unicode.GC.Pf (since := "1.2.0")]
-protected def GeneralCategory.Pf : GeneralCategory := ⟨_, some .finalPunctuation⟩
-/-- General category: other punctuation (`Po`) -/
-@[deprecated Unicode.GC.Po (since := "1.2.0")]
-protected def GeneralCategory.Po : GeneralCategory := ⟨_, some .otherPunctuation⟩
-/-- General category: symbol (`S`) -/
-@[deprecated Unicode.GC.S (since := "1.2.0")]
-protected def GeneralCategory.S  : GeneralCategory := ⟨.symbol, none⟩
-/-- General category: math symbol (`Sm`) -/
-@[deprecated Unicode.GC.Sm (since := "1.2.0")]
-protected def GeneralCategory.Sm : GeneralCategory := ⟨_, some .mathSymbol⟩
-/-- General category: currency symbol (`Sc`) -/
-@[deprecated Unicode.GC.Sc (since := "1.2.0")]
-protected def GeneralCategory.Sc : GeneralCategory := ⟨_, some .currencySymbol⟩
-/-- General category: modifier symbol (`Sk`) -/
-@[deprecated Unicode.GC.Sk (since := "1.2.0")]
-protected def GeneralCategory.Sk : GeneralCategory := ⟨_, some .modifierSymbol⟩
-/-- General category: other symbol (`So`) -/
-@[deprecated Unicode.GC.So (since := "1.2.0")]
-protected def GeneralCategory.So : GeneralCategory := ⟨_, some .otherSymbol⟩
-/-- General category: separator (`Z`) -/
-@[deprecated Unicode.GC.Z (since := "1.2.0")]
-protected def GeneralCategory.Z  : GeneralCategory := ⟨.separator, none⟩
-/-- General category: space separator (`Zs`) -/
-@[deprecated Unicode.GC.Zs (since := "1.2.0")]
-protected def GeneralCategory.Zs : GeneralCategory := ⟨_, some .spaceSeparator⟩
-/-- General category: line separator (`Zl`) -/
-@[deprecated Unicode.GC.Zl (since := "1.2.0")]
-protected def GeneralCategory.Zl : GeneralCategory := ⟨_, some .lineSeparator⟩
-/-- General category: paragraph separator (`Zp`) -/
-@[deprecated Unicode.GC.Zp (since := "1.2.0")]
-protected def GeneralCategory.Zp : GeneralCategory := ⟨_, some .paragraphSeparator⟩
-/-- General category: other (`C`) -/
-@[deprecated Unicode.GC.C (since := "1.2.0")]
-protected def GeneralCategory.C  : GeneralCategory := ⟨.other, none⟩
-/-- General category: control (`Cc`) -/
-@[deprecated Unicode.GC.Cc (since := "1.2.0")]
-protected def GeneralCategory.Cc : GeneralCategory := ⟨_, some .control⟩
-/-- General category: format (`Cf`) -/
-@[deprecated Unicode.GC.Cf (since := "1.2.0")]
-protected def GeneralCategory.Cf : GeneralCategory := ⟨_, some .format⟩
-/-- General category: surrogate (`Cs`) -/
-@[deprecated Unicode.GC.Cs (since := "1.2.0")]
-protected def GeneralCategory.Cs : GeneralCategory := ⟨_, some .surrogate⟩
-/-- General category: private use (`Co`) -/
-@[deprecated Unicode.GC.Co (since := "1.2.0")]
-protected def GeneralCategory.Co : GeneralCategory := ⟨_, some .privateUse⟩
-/-- General category: unassigned (`Cn`) -/
-@[deprecated Unicode.GC.Cn (since := "1.2.0")]
-protected def GeneralCategory.Cn : GeneralCategory := ⟨_, some .unassigned⟩
-
-def GeneralCategory.toGC : GeneralCategory → GC
-| ⟨.letter, none⟩ => .L
-| ⟨_, some .casedLetter⟩ => .LC
-| ⟨_, some .uppercaseLetter⟩ => .Lu
-| ⟨_, some .lowercaseLetter⟩ => .Ll
-| ⟨_, some .titlecaseLetter⟩ => .Lt
-| ⟨_, some .modifierLetter⟩ => .Lm
-| ⟨_, some .otherLetter⟩ => .Lo
-| ⟨.mark, none⟩ => .M
-| ⟨_, some .nonspacingMark⟩ => .Mn
-| ⟨_, some .spacingMark⟩ => .Mc
-| ⟨_, some .enclosingMark⟩ => .Me
-| ⟨.number, none⟩ => .N
-| ⟨_, some .decimalNumber⟩ => .Nd
-| ⟨_, some .letterNumber⟩ => .Nl
-| ⟨_, some .otherNumber⟩ => .No
-| ⟨.punctuation, none⟩ => .P
-| ⟨_, some .connectorPunctuation⟩ => .Pc
-| ⟨_, some .dashPunctuation⟩ => .Pd
-| ⟨_, some .groupPunctuation⟩ => .PG
-| ⟨_, some .openPunctuation⟩ => .Ps
-| ⟨_, some .closePunctuation⟩ => .Pe
-| ⟨_, some .quotePunctuation⟩ => .PQ
-| ⟨_, some .initialPunctuation⟩ => .Pi
-| ⟨_, some .finalPunctuation⟩ => .Pf
-| ⟨_, some .otherPunctuation⟩ => .Po
-| ⟨.symbol, none⟩ => .S
-| ⟨_, some .mathSymbol⟩ => .Sm
-| ⟨_, some .currencySymbol⟩ => .Sc
-| ⟨_, some .modifierSymbol⟩ => .Sk
-| ⟨_, some .otherSymbol⟩ => .So
-| ⟨.separator, none⟩ => .Z
-| ⟨_, some .spaceSeparator⟩ => .Zs
-| ⟨_, some .lineSeparator⟩ => .Zl
-| ⟨_, some .paragraphSeparator⟩ => .Zp
-| ⟨.other, none⟩ => .C
-| ⟨_, some .control⟩ => .Cc
-| ⟨_, some .format⟩ => .Cf
-| ⟨_, some .surrogate⟩ => .Cs
-| ⟨_, some .privateUse⟩ => .Co
-| ⟨_, some .unassigned⟩ => .Cn
-
-@[deprecated some (since := "1.2.0")]
-def GeneralCategory.ofGC? (c : GC) : Option GeneralCategory :=
-  if c == .C  then some .C  else
-  if c == .Cc then some .Cc else
-  if c == .Cf then some .Cf else
-  if c == .Cs then some .Cs else
-  if c == .Co then some .Co else
-  if c == .Cn then some .Cn else
-  if c == .L  then some .L  else
-  if c == .LC then some .LC else
-  if c == .Lu then some .Lu else
-  if c == .Ll then some .Ll else
-  if c == .Lt then some .Lt else
-  if c == .Lm then some .Lm else
-  if c == .Lo then some .Lo else
-  if c == .M  then some .M  else
-  if c == .Mn then some .Mn else
-  if c == .Mc then some .Mc else
-  if c == .Me then some .Me else
-  if c == .N  then some .N  else
-  if c == .Nd then some .Nd else
-  if c == .Nl then some .Nl else
-  if c == .No then some .No else
-  if c == .P  then some .P  else
-  if c == .PG then some .PG else
-  if c == .PQ then some .PQ else
-  if c == .Pc then some .Pc else
-  if c == .Pd then some .Pd else
-  if c == .Ps then some .Ps else
-  if c == .Pe then some .Pe else
-  if c == .Pi then some .Pi else
-  if c == .Pf then some .Pf else
-  if c == .Po then some .Po else
-  if c == .S  then some .S  else
-  if c == .Sm then some .Sm else
-  if c == .Sc then some .Sc else
-  if c == .Sk then some .Sk else
-  if c == .So then some .So else
-  if c == .Z  then some .Z  else
-  if c == .Zs then some .Zs else
-  if c == .Zl then some .Zl else
-  if c == .Zp then some .Zp else
-  none
-
-@[deprecated id (since := "1.2.0")]
-def GeneralCategory.ofGC! (c : GC) : GeneralCategory :=
-  (ofGC? c).get!
-
-/-- String abbreviation for general category -/
-@[deprecated Unicode.GC.toAbbrev! (since := "1.2.0")]
-def GeneralCategory.toAbbrev (c : GeneralCategory) : String :=
-  c.toGC.toAbbrev!
-
-/-- Get general category from string abbreviation -/
-@[deprecated Unicode.GC.ofAbbrev? (since := "1.2.0")]
-def GeneralCategory.ofAbbrev? (s : String.Slice) : Option GeneralCategory :=
-  GC.ofAbbrev? s >>= ofGC?
-
-@[deprecated Unicode.GC.ofAbbrev! (since := "1.2.0"), inherit_doc GeneralCategory.ofAbbrev?]
-def GeneralCategory.ofAbbrev! (s : String.Slice) : GeneralCategory :=
-  match ofAbbrev? s with
-  | some gc => gc
-  | none => panic! "invalid general category abbreviation"
-
-instance : Repr GeneralCategory where
-  reprPrec gc _ := s!"Unicode.GeneralCategory.{gc.toAbbrev}"
-
-end
 
 /-!
   ## Numeric Type and Value ##
@@ -1010,5 +769,3 @@ def BidiClass.ofAbbrev! (abbr : String.Slice) : BidiClass :=
 
 instance : Repr BidiClass where
   reprPrec bc _ := s!"Unicode.BidiClass.{bc.toAbbrev}"
-
-end Unicode
