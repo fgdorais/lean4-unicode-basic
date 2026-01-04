@@ -802,6 +802,14 @@ def getHexDigit? (char : Char) : Option (Fin 16) :=
   ## Other Properties ##
 -/
 
+/-- Check if ignorable character
+
+  Unicode property: `Default_Ignorable_Code_Point`
+-/
+@[inline]
+def isDefaultIgnorableCodePoint (char : Char) : Bool :=
+  lookupDefaultIgnorableCodePoint char.val
+
 /-- Check if white space character
 
   Unicode property: `White_Space`
