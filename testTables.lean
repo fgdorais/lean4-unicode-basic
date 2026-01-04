@@ -88,6 +88,9 @@ def testMath (d : UnicodeData) : Bool :=
 def testName (d : UnicodeData) : Bool :=
   d.name == lookupName d.code
 
+def testNoncharacterCodePoint (d : UnicodeData) : Bool :=
+  PropList.isNoncharacterCodePoint d.code == lookupNoncharacterCodePoint d.code
+
 def testNumericValue (d : UnicodeData) : Bool :=
   d.numeric == lookupNumericValue d.code
 
@@ -122,6 +125,7 @@ def tests : Array (String × (UnicodeData → Bool)) := #[
   ("Lowercase", testLowercase),
   ("Math", testMath),
   ("Name", testName),
+  ("Noncharacter_Code_Point", testNoncharacterCodePoint),
   ("Titlecase", testTitlecase),
   ("Uppercase", testUppercase),
   ("Numeric_Value", testNumericValue),

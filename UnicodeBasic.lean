@@ -802,6 +802,14 @@ def getHexDigit? (char : Char) : Option (Fin 16) :=
   ## Other Properties ##
 -/
 
+/-- Check if noncharacter
+
+  Unicode property: `Noncharacter_Code_Point`
+-/
+@[inline]
+def isNoncharacterCodePoint (char : Char) : Bool :=
+  lookupNoncharacterCodePoint char.val
+
 /-- Check if ignorable character
 
   Unicode property: `Default_Ignorable_Code_Point`

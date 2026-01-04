@@ -85,6 +85,15 @@ private partial def find (code : UInt32) (data : Array (UInt32 × Option UInt32)
     else
       find code data mid hi
 
+/-- Check if code point has `Noncharacter_Code_Point` property from `PropList.txt` -/
+@[inline]
+def PropList.isNoncharacterCodePoint (code : UInt32) : Bool :=
+  let data := PropList.data.noncharacterCodePoint
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
+
 /-- Check if code point has `White_Space` property from `PropList.txt` -/
 @[inline]
 def PropList.isWhiteSpace (code : UInt32) : Bool :=
