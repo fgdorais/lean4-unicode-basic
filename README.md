@@ -13,6 +13,7 @@ Unicode properties that are currently supported by `UnicodeBasic` include:
 * `Cased`
 * `Decomposition_Mapping`
 * `Decomposition_Type`
+* `Default_Ignorable_Code_Point`
 * `General_Category`
 * `Hex_Digit`
 * `Math`
@@ -63,5 +64,5 @@ Users can also generate documentation locally using `lake build UnicodeBasic:doc
 
 -----
 
-* The `Lean 4 / Unicode Basic` library is copyright © 2023-2024 François G. Dorais. The library is released under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0). See the file LICENSE for additional details.
-* The `UnicodeData.txt` and `PropList.txt` files are copyright © 1991-2024 Unicode, Inc. The files are distributed under the [Unicode® Copyright and Terms of Use](https://www.unicode.org/copyright.html). See the file LICENSE-UNICODE for additional details.
+* The `Lean 4 / Unicode Basic` library is copyright © 2023-2025 François G. Dorais. The library is released under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0). See the file LICENSE for additional details.
+* The `UnicodeData.txt` and `PropList.txt` files are copyright © 1991-2025 Unicode®, Inc. The files are distributed under the [Unicode® Copyright and Terms of Use](https://www.unicode.org/copyright.html). See the file LICENSE-UNICODE for additional details.
