@@ -56,6 +56,18 @@ def testCaseMapping (d : UnicodeData) : Bool :=
 def testDecompositionMapping (d : UnicodeData) : Bool :=
   d.decomp == lookupDecompositionMapping? d.code
 
+def testDefautlIgnorableCodePoint (d : UnicodeData) : Bool :=
+  let v :=
+    d.gc == .Cf
+      || PropList.isOtherDefaultIgnorableCodePoint d.code
+        || PropList.isVariationSelector d.code
+  let v := v
+    && !(0xFFF9 ≤ d.code && d.code ≤ 0xFFFB)
+      && !(0x13430 ≤ d.code && d.code ≤ 0x1343F)
+        && !PropList.isWhiteSpace d.code
+          && !PropList.isPrependedConcatenationMark d.code
+  v == lookupDefaultIgnorableCodePoint d.code
+
 def testGeneralCategory (d : UnicodeData) : Bool :=
   d.gc == lookupGC d.code
 
@@ -106,6 +118,7 @@ def tests : Array (String × (UnicodeData → Bool)) := #[
   ("Case_Mapping", testCaseMapping),
   ("Cased", testCased),
   ("Decomposition_Mapping", testDecompositionMapping),
+  ("Default_Ignorable_Code_Point", testDefautlIgnorableCodePoint),
   ("Lowercase", testLowercase),
   ("Math", testMath),
   ("Name", testName),
