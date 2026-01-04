@@ -409,6 +409,21 @@ def mkOtherUppercase : Array (UInt32 × UInt32) :=
     | (c₀, some c₁) => (c₀, c₁)
     | (c₀, none) => (c₀, c₀)
 
+def mkOtherDefaultIgnorableCodePoint : Array (UInt32 × UInt32) :=
+  PropList.data.otherDefaultIgnorableCodePoint.map fun
+    | (c₀, some c₁) => (c₀, c₁)
+    | (c₀, none) => (c₀, c₀)
+
+def mkPrependedConcatenationMark : Array (UInt32 × UInt32) :=
+  PropList.data.prependedConcatenationMark.map fun
+    | (c₀, some c₁) => (c₀, c₁)
+    | (c₀, none) => (c₀, c₀)
+
+def mkVariationSelector : Array (UInt32 × UInt32) :=
+  PropList.data.variationSelector.map fun
+    | (c₀, some c₁) => (c₀, c₁)
+    | (c₀, none) => (c₀, c₀)
+
 def mkOther : Array (UInt32 × UInt32 × UInt32) :=
   let ol := mkOtherLowercase |>.map fun (c₀, c₁) => (c₀, c₁, 1)
   let ou := mkOtherUppercase |>.map fun (c₀, c₁) => (c₀, c₁, 2)
@@ -441,6 +456,28 @@ def mkCased : IO <| Array (UInt32 × UInt32) := do
     else
       none
   return mergeProp #[t, mkOtherLowercase, mkOtherUppercase]
+
+def mkDefaultIgnorableCodePoint : IO <| Array (UInt32 × UInt32) := do
+  let t := (← mkGeneralCategory).filterMap fun d =>
+    if d.2.2 = .Cf then some (d.1, d.2.1) else none
+  let t ← t.flatMapM fun (c₀, c₁) => do
+    let mut u := #[]
+    for c in [c₀.toNat:c₁.toNat+1] do
+      let c := c.toUInt32
+      if 0xFFF9 ≤ c && c ≤ 0xFFFB then continue
+      if 0x13430 ≤ c && c ≤ 0x1343F then continue
+      if PropList.isPrependedConcatenationMark c then continue
+      if PropList.isWhiteSpace c then continue
+      match u.back? with
+      | some (a, b) =>
+        if c = b+1 then
+          u := u.pop.push (a, c)
+        else
+          u := u.push (c, c)
+      | none =>
+        u := u.push (c, c)
+    return u
+  return mergeProp #[t, mkOtherDefaultIgnorableCodePoint, mkVariationSelector]
 
 def mkMath : IO <| Array (UInt32 × UInt32) := do
   let t := (← mkGeneralCategory).filterMap fun
@@ -490,6 +527,7 @@ def main (args : List String) : IO UInt32 := do
     "Canonical_Combining_Class",
     "Canonical_Decomposition_Mapping",
     "Decomposition_Mapping",
+    "Default_Ignorable_Code_Point",
     "Name",
     "Numeric_Value",
     "White_Space"]
@@ -583,6 +621,16 @@ def main (args : List String) : IO UInt32 := do
         for (c, s) in table do
           file.putStrLn <| toHexStringAux c ++ ";" ++ s
       IO.println s!"Size: {table.size}"
+    | "Default_Ignorable_Code_Point" =>
+      IO.println s!"Generating table {arg}"
+      let table ← mkDefaultIgnorableCodePoint
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| toHexStringAux c₀ ++ ";"
+          else
+            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+      IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "General_Category" =>
       IO.println s!"Generating table {arg}"
       let table ← mkGC
@@ -659,6 +707,16 @@ def main (args : List String) : IO UInt32 := do
           else
             file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+    | "Other_Default_Ignorable_Code_Point" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkOtherDefaultIgnorableCodePoint
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| toHexStringAux c₀ ++ ";"
+          else
+            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+      IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "Other_Lowercase" =>
       IO.println s!"Generating table {arg}"
       let table := mkOtherLowercase
@@ -699,6 +757,16 @@ def main (args : List String) : IO UInt32 := do
           else
             file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁ ++ ";" ++ toString v
       IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
+    | "Prepended_Concatenation_Mark" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkPrependedConcatenationMark
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| toHexStringAux c₀ ++ ";"
+          else
+            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+      IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "Titlecase" =>
       IO.println s!"Generating table {arg}"
       let table ← mkTitlecase
@@ -712,6 +780,16 @@ def main (args : List String) : IO UInt32 := do
     | "Uppercase" =>
       IO.println s!"Generating table {arg}"
       let table ← mkUppercase
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| toHexStringAux c₀ ++ ";"
+          else
+            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+      IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+    | "Variation_Selector" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkVariationSelector
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁) in table do
           if c₀ == c₁ then
