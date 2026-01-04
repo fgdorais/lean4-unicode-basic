@@ -20,6 +20,7 @@ Unicode properties that are currently supported by `UnicodeBasic` include:
 * `Name`
 * `Numeric_Type`
 * `Numeric_Value`
+* `Noncharacter_Code_Point`
 * `Simple_Lowercase_Mapping`
 * `Simple_Uppercase_Mapping`
 * `Simple_Titlecase_Mapping`

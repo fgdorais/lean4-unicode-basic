@@ -352,6 +352,13 @@ def lookupMath (c : UInt32) : Bool :=
   let m := CLib.oMath ||| GC.Sm.toUInt64
   CLib.lookupProp c &&& m != 0
 
+/-- Check if code point is a noncharcter code point
+
+  Unicode property: `Noncharacter_Code_Point` -/
+@[inline]
+def lookupNoncharacterCodePoint (c : UInt32) : Bool :=
+  (c ≤ 0xFDEF && 0xFDD0 ≤ c) || (c ≤ Unicode.max && c &&& 0xFFFE == 0xFFFE)
+
 /-- Check if code point is a titlecase letter using lookup table
 
   Unicode property: `Titlecase` -/
