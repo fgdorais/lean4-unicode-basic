@@ -22,6 +22,14 @@ structure PropList where
   otherLowercase : Array (UInt32 × Option UInt32) := #[]
   /-- property `Other_Uppercase` -/
   otherUppercase : Array (UInt32 × Option UInt32) := #[]
+  /-- property `Other_Default_Ignorable_Code_Point` -/
+  otherDefaultIgnorableCodePoint : Array (UInt32 × Option UInt32) := #[]
+  /-- property `Prepended_Concatenation_Mark` -/
+  prependedConcatenationMark : Array (UInt32 × Option UInt32) := #[]
+  /-- property `Variation_Selector` -/
+  variationSelector : Array (UInt32 × Option UInt32) := #[]
+  /-- property `Deprecated` -/
+  deprecated : Array (UInt32 × Option UInt32) := #[]
 deriving Inhabited, Repr
 
 /-- Raw string form `PropList.txt` -/
@@ -48,6 +56,14 @@ private unsafe def PropList.init : IO PropList := do
       list := {list with otherLowercase := list.otherLowercase.push val}
     if record[1]! == "Other_Uppercase" then
       list := {list with otherUppercase := list.otherUppercase.push val}
+    if record[1]! == "Other_Default_Ignorable_Code_Point" then
+      list := {list with otherDefaultIgnorableCodePoint := list.otherDefaultIgnorableCodePoint.push val}
+    if record[1]! == "Prepended_Concatenation_Mark" then
+      list := {list with prependedConcatenationMark := list.prependedConcatenationMark.push val}
+    if record[1]! == "Variation_Selector" then
+      list := {list with variationSelector := list.variationSelector.push val}
+    if record[1]! == "Deprecated" then
+      list := {list with deprecated := list.deprecated.push val}
   return list
 
 /-- Parsed data from `PropList.txt` -/
@@ -109,6 +125,42 @@ def PropList.isOtherLowercase (code : UInt32) : Bool :=
 @[inline]
 def PropList.isOtherUppercase (code : UInt32) : Bool :=
   let data := PropList.data.otherUppercase
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
+
+/-- Check if code point has `Other_Default_Ignorable_Code_Point` property from `PropList.txt` -/
+@[inline]
+def PropList.isOtherDefaultIgnorableCodePoint (code : UInt32) : Bool :=
+  let data := PropList.data.otherDefaultIgnorableCodePoint
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
+
+/-- Check if code point has `Prepended_Concatenation_Mark` property from `PropList.txt` -/
+@[inline]
+def PropList.isPrependedConcatenationMark (code : UInt32) : Bool :=
+  let data := PropList.data.prependedConcatenationMark
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
+
+/-- Check if code point has `Variation_Selector` property from `PropList.txt` -/
+@[inline]
+def PropList.isVariationSelector (code : UInt32) : Bool :=
+  let data := PropList.data.variationSelector
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
+
+/-- Check if code point has `Deprecated` property from `PropList.txt` -/
+@[inline]
+def PropList.isDeprecated (code : UInt32) : Bool :=
+  let data := PropList.data.deprecated
   if data.size == 0 || code < data[0]!.fst then false else
     match data[find code data 0 data.size]! with
     | (val, none) => code == val
