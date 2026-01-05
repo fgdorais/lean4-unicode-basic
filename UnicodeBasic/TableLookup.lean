@@ -322,6 +322,19 @@ def lookupCased (c : UInt32 ) : Bool :=
   let m := CLib.oUpper ||| CLib.oLower ||| GC.LC.toUInt64
   CLib.lookupProp c &&& m != 0
 
+/-- Check if code point is ignorable using lookup table
+
+  Unicode property: `Default_Ignorable_Code_Point` -/
+@[inline]
+def lookupDefaultIgnorableCodePoint (c : UInt32 ) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Default_Ignorable_Code_Point.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
 /-- Check if code point is a lowercase letter using lookup table
 
   Unicode property: `Lowercase` -/
@@ -338,6 +351,13 @@ def lookupLowercase (c : UInt32) : Bool :=
 def lookupMath (c : UInt32) : Bool :=
   let m := CLib.oMath ||| GC.Sm.toUInt64
   CLib.lookupProp c &&& m != 0
+
+/-- Check if code point is a noncharcter code point
+
+  Unicode property: `Noncharacter_Code_Point` -/
+@[inline]
+def lookupNoncharacterCodePoint (c : UInt32) : Bool :=
+  (c ≤ 0xFDEF && 0xFDD0 ≤ c) || (c ≤ Unicode.max && c &&& 0xFFFE == 0xFFFE)
 
 /-- Check if code point is a titlecase letter using lookup table
 
