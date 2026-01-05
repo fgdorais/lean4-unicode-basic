@@ -1,5 +1,5 @@
 /-
-Copyright © 2023-2024 François G. Dorais. All rights reserved.
+Copyright © 2023-2026 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
@@ -56,4 +56,10 @@ script downloadUCD (args) do
   return err
 
 /-- Update data files from the Unicode Character Database (UCD) -/
-script updateUCD do downloadUCD ["ReadMe.txt", "UnicodeData.txt", "PropList.txt"]
+script updateUCD do downloadUCD [
+    "ReadMe.txt",
+    "UnicodeData.txt",
+    "PropList.txt",
+    "PropertyAliases.txt",
+    "PropertyValueAliases.txt",
+  ]
