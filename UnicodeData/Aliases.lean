@@ -120,9 +120,8 @@ def PropertyValueAliases.getShortName? (prop val : String.Slice) : Option String
   let a ← getAliases? prop val
   a[1]? <|> a[0]?
 
-@[inline, inherit_doc PropertyAliases.getShortName?]
+@[inline, inherit_doc PropertyValueAliases.getShortName?]
 def PropertyValueAliases.getShortName! (prop val : String.Slice) : String.Slice :=
   getShortName? prop val |>.get!
-
 
 end Unicode
