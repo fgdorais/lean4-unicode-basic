@@ -39,7 +39,7 @@ def ofFile (path : System.FilePath) : IO UCDStream :=
 protected partial def nextLine? (stream : UCDStream) : Option (String.Slice × UCDStream) := do
   let line := stream.trimAsciiEnd.takeWhile (.!='\n')
   if h : line.rawEndPos < stream.rawEndPos then
-    let nextPos := stream.posGT line.rawEndPos h
+    let nextPos := stream.findNextPos line.rawEndPos h
     let line := (line.takeWhile (.!='#')).trimAsciiEnd
     if line.isEmpty then
       UCDStream.nextLine? {stream with toSlice := stream.sliceFrom nextPos}
