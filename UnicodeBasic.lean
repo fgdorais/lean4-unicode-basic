@@ -59,6 +59,27 @@ namespace Unicode
 def getName (char : Char) : String := lookupName char.val
 
 /-!
+  ## Script ##
+-/
+
+/-- Get character script
+
+  Unicode property: `Script`
+-/
+@[inline]
+def getScript (char : Char) : Script := lookupScript char.val
+
+/-- Get script name
+
+  Returns `none` if the script code is unassigned.
+
+  Unicode property: `Script`
+-/
+@[inline]
+def getScriptName? (s : Script) : Option String :=
+  lookupScriptName s |>.map toString
+
+/-!
   ## Bidirectional Properties ##
 -/
 
