@@ -49,7 +49,7 @@ namespace Unicode
 /-- Get character name
 
   When the Unicode property `Name` is empty, a unique code label is returned
-  as described in Unicode Standard, section 4.8. These labels start with
+  as recommended in Unicode Standard, section 4.8. These labels start with
   `'<'` (U+003C) and end with `'>'` (U+003E) so they are distinguishable from
   actual name values.
 
