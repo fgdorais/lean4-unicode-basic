@@ -27,7 +27,7 @@ jobs:
       - name: merge main
         run: |
           git fetch origin
-          git merge origin/main --strategy-option theirs --no-commit --allow-unrelated-histories
+          git merge origin/main --strategy-option ours --no-commit --allow-unrelated-histories
 
       - name: update lean-toolchain
         id: toolchain-tag
