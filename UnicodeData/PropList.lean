@@ -3,8 +3,11 @@ Copyright © 2023-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
+module
 import UnicodeBasic.Types
 import UnicodeBasic.CharacterDatabase
+
+public section
 
 namespace Unicode
 
@@ -35,7 +38,7 @@ deriving Inhabited, Repr
 /-- Raw string form `PropList.txt` -/
 protected def PropList.txt := include_str "../data/PropList.txt"
 
-private unsafe def PropList.init : IO PropList := do
+unsafe initialize PropList.data : PropList ←
   let stream := UCDStream.ofString PropList.txt
   let mut list : PropList := {}
   for record in stream do
@@ -65,10 +68,6 @@ private unsafe def PropList.init : IO PropList := do
     if record[1]! == "Deprecated" then
       list := {list with deprecated := list.deprecated.push val}
   return list
-
-/-- Parsed data from `PropList.txt` -/
-@[init PropList.init]
-protected def PropList.data : PropList := {}
 
 -- TODO: stop reinventing the wheel!
 /-- Binary search -/

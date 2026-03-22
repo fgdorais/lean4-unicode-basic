@@ -2,33 +2,36 @@
 Copyright © 2024 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
+module
+
+public section
 
 namespace Unicode.Hangul
 
-private def shortNameL : Array String :=
+def shortNameL : Array String :=
   #["G", "GG", "N", "D", "DD", "R", "M", "B", "BB", "S",
     "SS", "", "J", "JJ", "C", "K", "T", "P", "H"]
 
-private def shortNameV : Array String :=
+def shortNameV : Array String :=
   #["A", "AE", "YA", "YAE", "EO", "E", "YEO", "YE", "O", "WA",
     "WAE", "OE", "YO", "U", "WEO", "WE", "WI", "YU", "EU", "YI",
     "I"]
 
-private def shortNameT : Array String :=
+def shortNameT : Array String :=
   #["", "G", "GG", "GS", "N", "NJ", "NH", "D", "L", "LG",
     "LM", "LB", "LS", "LT", "LP", "LH", "M", "B", "BS", "S",
     "SS", "NG", "J", "C", "K", "T", "P", "H"]
 
-private abbrev sizeL := shortNameL.size -- 19
-private abbrev sizeV := shortNameV.size -- 21
-private abbrev sizeT := shortNameT.size -- 28
-private abbrev sizeLV := sizeL * sizeV -- 399
-private abbrev sizeVT := sizeV * sizeT -- 588
-private abbrev sizeLVT := sizeL * sizeV * sizeT -- 11172
+abbrev sizeL := shortNameL.size -- 19
+abbrev sizeV := shortNameV.size -- 21
+abbrev sizeT := shortNameT.size -- 28
+abbrev sizeLV := sizeL * sizeV -- 399
+abbrev sizeVT := sizeV * sizeT -- 588
+abbrev sizeLVT := sizeL * sizeV * sizeT -- 11172
 
-private abbrev baseL : UInt32 := 0x1100
-private abbrev baseV : UInt32 := 0x1161
-private abbrev baseT : UInt32 := 0x11A7
+abbrev baseL : UInt32 := 0x1100
+abbrev baseV : UInt32 := 0x1161
+abbrev baseT : UInt32 := 0x11A7
 
 /-- Number of Hangul syllables -/
 def Syllable.size := sizeLVT

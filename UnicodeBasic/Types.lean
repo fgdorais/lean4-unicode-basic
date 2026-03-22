@@ -2,7 +2,8 @@
 Copyright © 2023-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-
+module
+public section
 /-- Low-level conversion from `UInt32` to `Char` (*unsafe*)
 
   This function translates to a no-op in the compiler. However, it does not
@@ -204,6 +205,7 @@ deriving DecidableEq
 /-- General category (GC)
 
   Unicode property: `General_Category` -/
+@[expose]
 def GC := UInt32 deriving DecidableEq, Inhabited
 
 namespace GC
@@ -412,11 +414,12 @@ def toAbbrev! (x : GC) : String :=
   | [a] => a
   | _ => panic! "invalid general category"
 
-open Std.Format Repr in instance : Repr GC where
-  reprPrec x := addAppParen (group (joinSep (reprAux x |>.map (text "Unicode.GC." ++ text ·)) (text " |||" ++ line)) .fill)
+open Std.Format Repr in
+  def reprPrec (x : GC) := addAppParen (group (joinSep (reprAux x |>.map (text "Unicode.GC." ++ text ·)) (text " |||" ++ line)) .fill)
+  instance : Repr GC where reprPrec
 
-instance : ToString GC where
-  toString x := " | ".intercalate (reprAux x)
+def toString (x : GC) := " | ".intercalate (reprAux x)
+instance : ToString GC where toString
 
 def ofAbbrev? (s : String.Slice) : Option GC :=
   match s.chars.take 3 |>.toList with
@@ -464,7 +467,7 @@ def ofAbbrev? (s : String.Slice) : Option GC :=
 
 def ofAbbrev! (s : String.Slice) : GC :=
   match ofAbbrev? s with
-  | some c => c
+  | .some c => c
   | none => panic! "invalid general category"
 
 def ofString? (s : String.Slice) : Option GC := do
@@ -475,7 +478,7 @@ def ofString? (s : String.Slice) : Option GC := do
 
 def ofString! (s : String.Slice) : GC :=
   match ofString? s with
-  | some c => c
+  | .some c => c
   | none => panic! "invalid general category"
 
 end GC
@@ -1012,3 +1015,4 @@ instance : Repr BidiClass where
   reprPrec bc _ := s!"Unicode.BidiClass.{bc.toAbbrev}"
 
 end Unicode
+end
