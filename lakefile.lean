@@ -19,7 +19,7 @@ target UnicodeCLib pkg : FilePath := do
     if file.path.extension == some "c" then
       let obj := pkg.buildDir / "UnicodeCLib" / ((file.fileName.dropSuffix ".c" |>.copy) ++ ".o")
       let src ← inputTextFile file.path
-      let weakArgs := #["-I", (← getLeanIncludeDir).toString, "-O", "-fPIC"]
+      let weakArgs := #["-I", (← getLeanIncludeDir).toString, "-I", (pkg.dir / "UnicodeCLib").toString, "-O", "-fPIC"]
       oFiles := oFiles.push <| ← buildO obj src weakArgs
   let name := nameToStaticLib "unicodeclib"
   buildStaticLib (pkg.sharedLibDir / name) oFiles
