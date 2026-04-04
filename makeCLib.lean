@@ -191,7 +191,45 @@ static const unicode_data_t table[] = {"
       file.putStrLn s!"\{UINT32_C({c₀}),UINT32_C({c₁}),UINT64_C({d})},"
     file.putStrLn "};"
 
+def scriptTable : Array (UInt32 × UInt32 × UInt64) :=
+  let t := Scripts.data.toArray.flatMap fun (sc, t) =>
+    let sc := Script.ofAbbrev! <| PropertyValueAliases.getShortName! "sc" sc
+    t.map fun (c₀, c₁) => (c₀, c₁, sc.code.toUInt64)
+  t.qsort fun (a, _) (b, _) => a < b
+
+def makeScriptC : IO Unit :=
+  IO.FS.withFile (clibDir / "script.c") .write fun file => do
+    file.putStrLn s!"/* THIS IS A GENERATED FILE - DO NOT EDIT */
+#include \"basic.h\"
+
+#define TABLE_SIZE {scriptTable.size}
+#define SCRIPT_UNKNOWN UINT32_C({Script.ofAbbrev! "Zzzz" |>.code})"
+    file.putStrLn "
+static const unicode_data_t table[TABLE_SIZE];
+
+uint32_t unicode_script_lookup(uint32_t c) {
+  unicode_data_t v;
+  if (c >= table[0].cmin) {
+    unsigned int lo = 0;
+    unsigned int hi = TABLE_SIZE;
+    unsigned int i = (lo + hi)/2;
+    while (i != lo) {
+      if (c < table[i].cmin) hi = i;
+      else lo = i;
+      i = (lo + hi)/2;
+    }
+    if (c <= table[i].cmax) return (uint32_t)table[i].data;
+  }
+  return SCRIPT_UNKNOWN;
+}
+
+static const unicode_data_t table[] = {"
+    for (c₀, c₁, d) in scriptTable do
+      file.putStrLn s!"\{UINT32_C({c₀}),UINT32_C({c₁}),UINT64_C({d})},"
+    file.putStrLn "};"
+
 def main : IO UInt32 := do
   makeCaseC
   makePropC
+  makeScriptC
   return 0
