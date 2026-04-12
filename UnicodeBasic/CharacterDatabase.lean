@@ -15,7 +15,10 @@ namespace Unicode
 structure UCDStream extends String.Slice where
   /-- `isUnihan` is true if the records are tab separated -/
   isUnihan := false
-deriving Inhabited
+-- deriving Inhabited -- See https://github.com/leanprover/lean4/issues/13372
+
+instance : Inhabited UCDStream where
+  default := { toSlice := "", isUnihan := false }
 
 namespace UCDStream
 
