@@ -520,12 +520,6 @@ def mkWhiteSpace : Array (UInt32 × UInt32) :=
     | (c₀, some c₁) => (c₀, c₁)
     | (c₀, none) => (c₀, c₀)
 
-def mkScriptName : Array (UInt32 × String) :=
-  let t := PropertyAliases.getValues! "Script" |>.map fun name =>
-    let s := Script.ofAbbrev! <| PropertyValueAliases.getShortName! "Script" name
-    (s.code, name.toString)
-  t.qsort fun (a, _) (b, _) => a < b
-
 def main (args : List String) : IO UInt32 := do
   let args := if args != [] then args else [
     "Bidi_Class",
@@ -536,7 +530,6 @@ def main (args : List String) : IO UInt32 := do
     "Default_Ignorable_Code_Point",
     "Name",
     "Numeric_Value",
-    "Script_Name",
     "White_Space"]
   let tableDir : System.FilePath := "."/"data"/"table"
   IO.FS.createDirAll tableDir
@@ -774,13 +767,6 @@ def main (args : List String) : IO UInt32 := do
           else
             file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
-    | "Script_Name" =>
-      IO.println s!"Generating table {arg}"
-      let table := mkScriptName
-      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
-        for (c, name) in table do
-          file.putStrLn <| toHexStringAux c ++ ";" ++ name
-      IO.println s!"Size: {table.size}"
     | "Titlecase" =>
       IO.println s!"Generating table {arg}"
       let table ← mkTitlecase

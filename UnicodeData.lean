@@ -6,4 +6,3 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import UnicodeData.Aliases
 import UnicodeData.Basic
 import UnicodeData.PropList
-import UnicodeData.Scripts

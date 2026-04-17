@@ -1,9 +1,5 @@
 #include <lean/lean.h>
-#ifdef _WIN32
-#include <winsock2.h>
-#else
 #include <arpa/inet.h>
-#endif
 #include "basic.h"
 
 static inline int unicode_script_is_valid(uint32_t c) {

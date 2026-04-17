@@ -62,5 +62,4 @@ script updateUCD do downloadUCD [
     "PropList.txt",
     "PropertyAliases.txt",
     "PropertyValueAliases.txt",
-    "Scripts.txt",
   ]

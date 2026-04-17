@@ -22,9 +22,6 @@ protected abbrev oMath  : UInt64 := 0x800000000
 @[extern "unicode_prop_lookup"]
 protected opaque lookupProp (c : UInt32) : UInt64
 
-@[extern "unicode_script_lookup"]
-protected opaque lookupScript (c : UInt32) : Script
-
 end CLib
 
 /-- Binary search -/
@@ -388,23 +385,5 @@ def lookupWhiteSpace (c : UInt32) : Bool :=
 where
   str : String := include_str "../data/table/White_Space.txt"
   table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
-
-/-- Get the script of a code point using lookup table
-
-  Unicode property: `Script` -/
-@[inline]
-def lookupScript (c : UInt32) : Script := CLib.lookupScript c
-
-/-- Get the name of a script
-
-  Unicode property: `Script` -/
-def lookupScriptName (s : Script) : Option String.Slice :=
-  let table := table.get
-  if s.code < table[0]!.1 then none else
-    match table[find s.code (fun i => table[i]!.1) 0 table.size.toUSize]! with
-    | (c, v) => if s.code = c then some v else none
-where
-  str : String := include_str "../data/table/Script_Name.txt"
-  table : Thunk <| Array (UInt32 × String.Slice) := parseTable str fun _ n => n[0]!
 
 end Unicode
