@@ -1,0 +1,1 @@
+{"declarations":[],"imports":["Std.Internal.Http.Data.Body","Std.Internal.Http.Data.Chunk","Std.Internal.Http.Data.Headers","Std.Internal.Http.Data.Method","Std.Internal.Http.Data.Request","Std.Internal.Http.Data.Response","Std.Internal.Http.Data.Status","Std.Internal.Http.Data.URI","Std.Internal.Http.Data.Version"],"instances":[],"name":"Std.Internal.Http.Data"}
