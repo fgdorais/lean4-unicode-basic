@@ -1,0 +1,31 @@
+# Push every commit to `main` into `nightly-testing`
+
+name: Push to Nightly
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  push-to-nightly:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: checkout repo
+        uses: actions/checkout@v6
+        with:
+          ref: nightly-testing
+          fetch-depth: 0
+          token: ${{ secrets.UNICODE_BASIC_TOKEN }}
+
+      - name: set user
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
+
+      - name: merge main
+        run: |
+          git merge main --no-commit --strategy-option ours --allow-unrelated-histories
+          git restore --staged lean-toolchain lake-manifest.json
+          git commit -m "chore: merge main into nightly-testing"
+          git push origin nightly-testing
