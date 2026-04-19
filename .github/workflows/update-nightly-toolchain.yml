@@ -1,9 +1,9 @@
-name: Update Nightly Testing
+name: Update Nightly Toolchain
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: '0 9 * * *'
-  workflow_dispatch:
 
 jobs:
   update:
@@ -22,12 +22,7 @@ jobs:
       - name: set user
         run: |
           git config user.name "${{ github.actor }}"
-          git config user.email "${{ github.actor_id}}+${{ github.actor }}@users.noreply.github.com"
-
-      - name: merge main
-        run: |
-          git fetch origin
-          git merge origin/main --strategy-option ours --no-commit --allow-unrelated-histories
+          git config user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
 
       - name: update lean-toolchain
         id: toolchain-tag
