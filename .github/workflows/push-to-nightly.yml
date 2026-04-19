@@ -25,7 +25,7 @@ jobs:
 
       - name: merge main
         run: |
-          git merge main --no-commit --strategy-option ours --allow-unrelated-histories
+          git merge origin/main --no-commit --strategy-option ours --allow-unrelated-histories
           git restore --staged lean-toolchain lake-manifest.json
           git commit -m "chore: merge main into nightly-testing"
           git push origin nightly-testing
