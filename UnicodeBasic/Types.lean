@@ -3,7 +3,10 @@ Copyright © 2023-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 module
+public import Std.Data.HashMap
+
 public section
+
 /-- Low-level conversion from `UInt32` to `Char` (*unsafe*)
 
   This function translates to a no-op in the compiler. However, it does not
@@ -1013,6 +1016,66 @@ def BidiClass.ofAbbrev! (abbr : String.Slice) : BidiClass :=
 
 instance : Repr BidiClass where
   reprPrec bc _ := s!"Unicode.BidiClass.{bc.toAbbrev}"
+
+/-!
+  ## Scripts ##
+-/
+
+/-- Check if valid script identifier -/
+@[inline]
+def Script.isValid (c : UInt32) : Bool :=
+  let c0 := (c >>> 24).toUInt8
+  let c1 := (c >>> 16).toUInt8
+  let c2 := (c >>> 8).toUInt8
+  let c3 := c.toUInt8
+  (c0 ≤ 'Z'.toUInt8 && 'A'.toUInt8 ≤ c0)
+    && (c1 ≤ 'z'.toUInt8 && 'a'.toUInt8 ≤ c1)
+      && (c2 ≤ 'z'.toUInt8 && 'a'.toUInt8 ≤ c2)
+        && (c3 ≤ 'z'.toUInt8 && 'a'.toUInt8 ≤ c3)
+
+/-- Script identifier type -/
+structure Script where
+  code : UInt32
+  is_valid : Script.isValid code
+deriving DecidableEq, Hashable
+
+namespace Script
+
+/-- Default value is `Zzzz` (`Unknown`) -/
+instance : Inhabited Script where
+  default := {
+    code := (((('Z'.val <<< 8 ||| 'z'.val) <<< 8) ||| 'z'.val) <<< 8) ||| 'z'.val
+    is_valid := by decide
+  }
+
+/-- String abbreviation of script -/
+@[extern "unicode_script_to_abbrev"]
+def toAbbrev : Script → String
+  | ⟨c, _⟩ =>
+    let c0 := Char.ofUInt8 (c >>> 24).toUInt8
+    let c1 := Char.ofUInt8 (c >>> 16).toUInt8
+    let c2 := Char.ofUInt8 (c >>> 8).toUInt8
+    let c3 := Char.ofUInt8 c.toUInt8
+    String.ofList [c0, c1, c2, c3]
+
+@[extern "unicode_script_of_abbrev"]
+private opaque ofAbbrevAux (abbr : String) : UInt32
+
+/-- Get script from abbreviation -/
+def ofAbbrev? (abbr : String.Slice) : Option Script :=
+  if abbr.utf8ByteSize = 4 then
+    let code := ofAbbrevAux abbr.toString
+    if h : Script.isValid code then
+      some ⟨code, h⟩
+    else
+      none
+  else
+    none
+
+@[inline, inherit_doc ofAbbrev?]
+def ofAbbrev! (abbr : String.Slice) : Script := ofAbbrev? abbr |>.get!
+
+end Script
 
 end Unicode
 end
