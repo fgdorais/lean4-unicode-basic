@@ -2,7 +2,6 @@
 Copyright © 2023-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-
 module
 import UnicodeBasic.Types
 import UnicodeBasic.CharacterDatabase
@@ -173,5 +172,3 @@ def PropList.isDeprecated (code : UInt32) : Bool :=
     match data[find code data 0 data.size]! with
     | (val, none) => code == val
     | (_, some top) => code <= top
-
-end Unicode

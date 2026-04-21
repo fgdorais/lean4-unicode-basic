@@ -6,6 +6,7 @@ module
 import UnicodeBasic.CharacterDatabase
 import UnicodeBasic.Hangul
 public import UnicodeBasic.Types
+
 public section
 
 namespace Unicode
@@ -407,5 +408,3 @@ def lookupScriptName (s : Script) : Option String.Slice :=
 where
   str : String := include_str "../data/table/Script_Name.txt"
   table : Thunk <| Array (UInt32 × String.Slice) := parseTable str fun _ n => n[0]!
-
-end Unicode

@@ -1076,6 +1076,3 @@ def ofAbbrev? (abbr : String.Slice) : Option Script :=
 def ofAbbrev! (abbr : String.Slice) : Script := ofAbbrev? abbr |>.get!
 
 end Script
-
-end Unicode
-end

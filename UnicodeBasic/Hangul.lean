@@ -115,5 +115,3 @@ def getSyllable! (code : UInt32) : Syllable :=
   match getSyllable? code with
   | some s => s
   | none => panic! "not a Hangul syllable"
-
-end Unicode.Hangul
