@@ -2,10 +2,12 @@
 Copyright © 2023-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-
+module
 import UnicodeBasic.CharacterDatabase
 import UnicodeBasic.Hangul
-import UnicodeBasic.Types
+public import UnicodeBasic.Types
+
+public section
 
 namespace Unicode
 
@@ -143,29 +145,8 @@ def UnicodeData.mkTangutIdeograph (c : UInt32) : UnicodeData where
 protected def UnicodeData.txt := include_str "../data/UnicodeData.txt"
 
 /-- Parse `UnicodeData.txt` -/
-private unsafe def UnicodeData.init : IO (Array UnicodeData) := do
-  let stream := UCDStream.ofString UnicodeData.txt
-  let mut arr := #[]
-  for record in stream do
-    arr := arr.push {
-      code := ofHexString! record[0]!
-      name := record[1]!
-      gc := GC.ofAbbrev! record[2]!
-      cc := record[3]!.toNat!
-      bidi := BidiClass.ofAbbrev! record[4]!
-      decomp := getDecompositionMapping? record[5]!
-      numeric := getNumericType? record[6]! record[7]! record[8]!
-      bidiMirrored := record[9]! == "Y"
-      uppercase := if record[12]!.isEmpty then none else some <| Char.mkUnsafe <| ofHexString! record[12]!
-      lowercase := if record[13]!.isEmpty then none else some <| Char.mkUnsafe <| ofHexString! record[13]!
-      titlecase := if record[14]!.isEmpty then none else some <| Char.mkUnsafe <| ofHexString! record[14]!
-    }
-  return arr
-
-where
-
-  /-- Get decomposition mapping -/
-  getDecompositionMapping? (s : String.Slice) : Option DecompositionMapping := do
+unsafe initialize UnicodeData.data : Array UnicodeData ←
+  let getDecompositionMapping? (s : String.Slice) : Option DecompositionMapping := do
     /-
       The value of the `Decomposition_Mapping` property for a character is
       provided in field 5 of `UnicodeData.txt`. This is a string-valued
@@ -218,8 +199,10 @@ where
         some ⟨tag, cs⟩
       | [] => unreachable!
 
-  /-- Get numeric type -/
-  getNumericType? (s₁ s₂ s₃ : String.Slice) : Option NumericType := do
+  let getDigitUnsafe (char : Char) : Fin 10 :=
+    unsafeCast (char.val - '0'.val).toNat
+
+  let getNumericType? (s₁ s₂ s₃ : String.Slice) : Option NumericType := do
     /-
       If the character has the property value `Numeric_Type=Decimal`, then the
       `Numeric_Value` of that digit is represented with an integer value
@@ -263,14 +246,23 @@ where
     else
       return .decimal <| getDigitUnsafe <| s₁.front
 
-  /-- Get decimal digit -/
-  @[inline]
-  getDigitUnsafe (char : Char) : Fin 10 :=
-    unsafeCast (char.val - '0'.val).toNat
-
-/-- Parsed data from `UnicodeData.txt` -/
-@[init UnicodeData.init]
-protected def UnicodeData.data : Array UnicodeData := #[]
+  let stream := UCDStream.ofString UnicodeData.txt
+  let mut arr := #[]
+  for record in stream do
+    arr := arr.push {
+      code := ofHexString! record[0]!
+      name := record[1]!
+      gc := GC.ofAbbrev! record[2]!
+      cc := record[3]!.toNat!
+      bidi := BidiClass.ofAbbrev! record[4]!
+      decomp := getDecompositionMapping? record[5]!
+      numeric := getNumericType? record[6]! record[7]! record[8]!
+      bidiMirrored := record[9]! == "Y"
+      uppercase := if record[12]!.isEmpty then none else some <| Char.mkUnsafe <| ofHexString! record[12]!
+      lowercase := if record[13]!.isEmpty then none else some <| Char.mkUnsafe <| ofHexString! record[13]!
+      titlecase := if record[14]!.isEmpty then none else some <| Char.mkUnsafe <| ofHexString! record[14]!
+    }
+  return arr
 
 /-- Get code point data from `UnicodeData.txt` -/
 partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
@@ -370,12 +362,12 @@ structure UnicodeDataStream where
   default : UInt32 → UnicodeData := UnicodeData.mkNoncharacter
   deriving Inhabited
 
-private def UnicodeDataStream.next? (s : UnicodeDataStream) : Option (UnicodeData × UnicodeDataStream) := do
+def UnicodeDataStream.next? (s : UnicodeDataStream) : Option (UnicodeData × UnicodeDataStream) := do
   let c := s.code
   let i := s.index
   if c > Unicode.max then
     none
-  else if h : i < UnicodeData.data.size.toUSize then
+  else if h : i.toNat < UnicodeData.data.size then
     let d := UnicodeData.data[i]
     let n := d.name
     if c < d.code then
@@ -410,5 +402,3 @@ private def UnicodeDataStream.next? (s : UnicodeDataStream) : Option (UnicodeDat
 
 instance : Std.Stream UnicodeDataStream UnicodeData where
   next? := UnicodeDataStream.next?
-
-end Unicode

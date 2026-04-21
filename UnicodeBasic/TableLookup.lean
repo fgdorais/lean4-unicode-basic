@@ -2,10 +2,12 @@
 Copyright © 2024-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-
+module
 import UnicodeBasic.CharacterDatabase
 import UnicodeBasic.Hangul
-import UnicodeBasic.Types
+public import UnicodeBasic.Types
+
+public section
 
 namespace Unicode
 
@@ -406,5 +408,3 @@ def lookupScriptName (s : Script) : Option String.Slice :=
 where
   str : String := include_str "../data/table/Script_Name.txt"
   table : Thunk <| Array (UInt32 × String.Slice) := parseTable str fun _ n => n[0]!
-
-end Unicode
