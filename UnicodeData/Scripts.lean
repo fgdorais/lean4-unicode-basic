@@ -2,11 +2,12 @@
 Copyright © 2026 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-
-import Std.Data.HashMap
+module
+public import UnicodeData.Aliases
 import UnicodeBasic.Types
 import UnicodeBasic.CharacterDatabase
-import UnicodeData.Aliases
+
+public section
 
 namespace Unicode
 

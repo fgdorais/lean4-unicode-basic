@@ -2,9 +2,11 @@
 Copyright © 2023-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
+module
+public import UnicodeBasic.Types
+public import UnicodeBasic.TableLookup
 
-import UnicodeBasic.Types
-import UnicodeBasic.TableLookup
+public section
 
 /-!
   # General API #
