@@ -37,6 +37,7 @@ jobs:
           echo "leanprover/lean4:${{ steps.toolchain-tag.outputs.lean_tag }}" > lean-toolchain
 
       - name: create pull request
+        if: ${{ steps.toolchain-tag.outputs.lean_tag != steps.toolchain-tag.outputs.repo_tag }}
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.UNICODE_BASIC_TOKEN }}
