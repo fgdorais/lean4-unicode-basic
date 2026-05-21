@@ -3,16 +3,14 @@ Copyright © 2026 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 module
-public import Std.Data.HashMap
 import UnicodeBasic.Types
 import UnicodeBasic.CharacterDatabase
-
-public section
+public import Std.Data.HashMap
 
 namespace Unicode
 
 /-- Type for list of aliases -/
-structure Aliases where
+public structure Aliases where
   aliasMap : Std.HashMap String.Slice (Array String.Slice)
   nameMap : Std.HashMap String.Slice String.Slice
 deriving Inhabited
@@ -36,30 +34,30 @@ initialize PropertyAliases.data : Aliases ← do
 
 /-- Get the long name of a property -/
 @[inline]
-def PropertyAliases.getLongName? (prop : String.Slice) : Option String.Slice := do
+public def PropertyAliases.getLongName? (prop : String.Slice) : Option String.Slice := do
   data.nameMap.get? prop
 
 @[inline, inherit_doc PropertyAliases.getLongName?]
-def PropertyAliases.getLongName! (prop : String.Slice) : String.Slice :=
+public def PropertyAliases.getLongName! (prop : String.Slice) : String.Slice :=
   getLongName? prop |>.get!
 
 /-- Get all aliases of a property -/
 @[inline]
-def PropertyAliases.getAliases? (prop : String.Slice) : Option (Array String.Slice) := do
+public def PropertyAliases.getAliases? (prop : String.Slice) : Option (Array String.Slice) := do
   let prop ← getLongName? prop
   data.aliasMap.get? prop
 
 @[inline, inherit_doc PropertyAliases.getAliases?]
-def PropertyAliases.getAliases! (prop : String.Slice) : Array String.Slice :=
+public def PropertyAliases.getAliases! (prop : String.Slice) : Array String.Slice :=
   getAliases? prop |>.get!
 
 /-- Get the short name of a property -/
-def PropertyAliases.getShortName? (prop : String.Slice) : Option String.Slice := do
+public def PropertyAliases.getShortName? (prop : String.Slice) : Option String.Slice := do
   let a ← getAliases? prop
   a[1]? <|> a[0]?
 
 @[inline, inherit_doc PropertyAliases.getShortName?]
-def PropertyAliases.getShortName! (prop : String.Slice) : String.Slice :=
+public def PropertyAliases.getShortName! (prop : String.Slice) : String.Slice :=
   getShortName? prop |>.get!
 
 protected def PropertyValueAliases.txt := include_str "../data/PropertyValueAliases.txt"
@@ -84,46 +82,44 @@ initialize PropertyValueAliases.data : Std.HashMap String.Slice Aliases ← do
 
 /-- Get all values for a property -/
 @[inline]
-def PropertyAliases.getValues? (prop : String.Slice) : Option (Array String.Slice) := do
+public def PropertyAliases.getValues? (prop : String.Slice) : Option (Array String.Slice) := do
   let prop ← PropertyAliases.getLongName? prop
   let al ← PropertyValueAliases.data.get? prop
   return al.aliasMap.keysArray
 
 @[inline, inherit_doc PropertyAliases.getValues?]
-def PropertyAliases.getValues! (prop : String.Slice) : Array String.Slice :=
+public def PropertyAliases.getValues! (prop : String.Slice) : Array String.Slice :=
   getValues? prop |>.get!
 
 /-- Get the long name of a property value -/
 @[inline]
-def PropertyValueAliases.getLongName? (prop val : String.Slice) : Option String.Slice := do
+public def PropertyValueAliases.getLongName? (prop val : String.Slice) : Option String.Slice := do
   let prop ← PropertyAliases.getLongName? prop
   let al ← data.get? prop
   al.nameMap.get? val
 
 @[inline, inherit_doc PropertyValueAliases.getLongName?]
-def PropertyValueAliases.getLongName! (prop val : String.Slice) : String.Slice :=
+public def PropertyValueAliases.getLongName! (prop val : String.Slice) : String.Slice :=
   getLongName? prop val |>.get!
 
 /-- Get all aliases of a property value -/
 @[inline]
-def PropertyValueAliases.getAliases? (prop val : String.Slice) : Option (Array String.Slice) := do
+public def PropertyValueAliases.getAliases? (prop val : String.Slice) : Option (Array String.Slice) := do
   let prop ← PropertyAliases.getLongName? prop
   let val ← getLongName? prop val
   let al ← data.get? prop
   al.aliasMap.get? val
 
 @[inline, inherit_doc PropertyAliases.getAliases?]
-def PropertyValueAliases.getAliases! (prop val : String.Slice) : Array String.Slice :=
+public def PropertyValueAliases.getAliases! (prop val : String.Slice) : Array String.Slice :=
   getAliases? prop val |>.get!
 
 /-- Get the short name of a property value -/
 @[inline]
-def PropertyValueAliases.getShortName? (prop val : String.Slice) : Option String.Slice := do
+public def PropertyValueAliases.getShortName? (prop val : String.Slice) : Option String.Slice := do
   let a ← getAliases? prop val
   a[1]? <|> a[0]?
 
 @[inline, inherit_doc PropertyValueAliases.getShortName?]
-def PropertyValueAliases.getShortName! (prop val : String.Slice) : String.Slice :=
+public def PropertyValueAliases.getShortName! (prop val : String.Slice) : String.Slice :=
   getShortName? prop val |>.get!
-
-end Unicode

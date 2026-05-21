@@ -1,3 +1,4 @@
+module
 import UnicodeData
 
 open Unicode
@@ -228,7 +229,7 @@ static const unicode_data_t table[] = {"
       file.putStrLn s!"\{UINT32_C({c₀}),UINT32_C({c₁}),UINT64_C({d})},"
     file.putStrLn "};"
 
-def main : IO UInt32 := do
+public def main : IO UInt32 := do
   makeCaseC
   makePropC
   makeScriptC

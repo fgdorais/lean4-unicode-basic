@@ -7,65 +7,35 @@ import UnicodeBasic.CharacterDatabase
 import UnicodeBasic.Hangul
 public import UnicodeBasic.Types
 
-public section
-
 namespace Unicode
 
 /-- Structure for data from `UnicodeData.txt` -/
-structure UnicodeData where
+public structure UnicodeData where
   /-- Code Value -/
-  code : UInt32
+  public code : UInt32
   /-- Character Name -/
-  name : String.Slice
+  public name : String.Slice
   /-- General Category -/
-  gc : GC
+  public gc : GC
   /-- Bidirectional Class -/
-  bidi : BidiClass
+  public bidi : BidiClass
   /-- Canonical Combining Class -/
-  cc : Nat := 0
+  public cc : Nat := 0
   /-- Bidirectional Mirrored -/
-  bidiMirrored : Bool := false
+  public bidiMirrored : Bool := false
   /-- Character Decomposition Mapping -/
-  decomp : Option DecompositionMapping := none
+  public decomp : Option DecompositionMapping := none
   /-- Numeric Value -/
-  numeric : Option NumericType := none
+  public numeric : Option NumericType := none
   /-- Uppercase Mapping -/
-  uppercase : Option Char := none
+  public uppercase : Option Char := none
   /-- Lowercase Mapping -/
-  lowercase : Option Char := none
+  public lowercase : Option Char := none
   /-- Titlecase Mapping -/
-  titlecase : Option Char := none
+  public titlecase : Option Char := none
 deriving BEq
 
-@[deprecated UnicodeData.code (since := "1.2.0")]
-abbrev UnicodeData.codeValue := @UnicodeData.code
-
-@[deprecated UnicodeData.name (since := "1.2.0")]
-abbrev UnicodeData.characterName := @UnicodeData.name
-
-set_option linter.deprecated false in
-@[deprecated UnicodeData.gc (since := "1.2.0")]
-def UnicodeData.generalCategory (d : UnicodeData) : GeneralCategory := .ofGC! d.gc
-
-@[deprecated UnicodeData.bidi (since := "1.2.0")]
-abbrev UnicodeData.bidiClass := @UnicodeData.bidi
-
-@[deprecated UnicodeData.cc (since := "1.2.0")]
-abbrev UnicodeData.canonicalCombiningClass := @UnicodeData.cc
-
-@[deprecated UnicodeData.cc (since := "1.2.0")]
-abbrev UnicodeData.decompositionMapping := @UnicodeData.decomp
-
-@[deprecated UnicodeData.lowercase (since := "1.2.0")]
-abbrev UnicodeData.lowercaseMapping := @UnicodeData.lowercase
-
-@[deprecated UnicodeData.uppercase (since := "1.2.0")]
-abbrev UnicodeData.uppercaseMapping := @UnicodeData.uppercase
-
-@[deprecated UnicodeData.titlecase (since := "1.2.0")]
-abbrev UnicodeData.titlecaseMapping := @UnicodeData.titlecase
-
-instance : Inhabited UnicodeData where
+public instance : Inhabited UnicodeData where
   default := {
     code := 0
     name := "<control-0000>"
@@ -74,49 +44,49 @@ instance : Inhabited UnicodeData where
   }
 
 /-- Make `UnicodeData` for noncharacter code point -/
-def UnicodeData.mkNoncharacter (code : UInt32) : UnicodeData where
+public def UnicodeData.mkNoncharacter (code : UInt32) : UnicodeData where
   code := code
   name :=
     -- Extracted from property `Noncharacter_Code_Point`
     let isReserved := (code &&& 0xFFFFFFF0 == 0x0000FDD0) ||
                       (code &&& 0xFFFFFFF0 == 0x0000FDE0) ||
                       (code &&& 0x0000FFFE == 0x0000FFFE)
-    (if isReserved then "<reserved-" else "<noncharacter-") ++ toHexStringAux code ++ ">"
+    (if isReserved then "<reserved-" else "<noncharacter-") ++ toHexStringRaw code ++ ">"
   bidi := .BN
   gc := .Cn
 
 /-- Make `UnicodeData` for generic control code point -/
 def UnicodeData.mkControl (c : UInt32) : UnicodeData where
   code := c
-  name := s!"<control-{toHexStringAux c}>"
+  name := s!"<control-{toHexStringRaw c}>"
   bidi := .BN
   gc := .Cc
 
 /-- Make `UnicodeData` for generic surrogate code point -/
 def UnicodeData.mkSurrogate (c : UInt32) : UnicodeData where
   code := c
-  name := s!"<surrogate-{toHexStringAux c}>"
+  name := s!"<surrogate-{toHexStringRaw c}>"
   bidi := .L
   gc := .Cs
 
 /-- Make `UnicodeData` for generic private use code point -/
 def UnicodeData.mkPrivateUse (c : UInt32) : UnicodeData where
   code := c
-  name := s!"<private-use-{toHexStringAux c}>"
+  name := s!"<private-use-{toHexStringRaw c}>"
   bidi := .L
   gc := .Co
 
 /-- Make `UnicodeData` for CJK compatibilty ideograph code point -/
 def UnicodeData.mkCJKCompatibilityIdeograph (c : UInt32) : UnicodeData where
   code := c
-  name := s!"CJK COMPATIBILITY IDEOGRAPH-{toHexStringAux c}"
+  name := s!"CJK COMPATIBILITY IDEOGRAPH-{toHexStringRaw c}"
   bidi := .L
   gc := .Lo
 
 /-- Make `UnicodeData` for CJK unified ideograph code point -/
 def UnicodeData.mkCJKUnifiedIdeograph (c : UInt32) : UnicodeData where
   code := c
-  name := s!"CJK UNIFIED IDEOGRAPH-{toHexStringAux c}"
+  name := s!"CJK UNIFIED IDEOGRAPH-{toHexStringRaw c}"
   bidi := .L
   gc := .Lo
 
@@ -137,7 +107,7 @@ def UnicodeData.mkHangulSyllable (c : UInt32) : UnicodeData :=
 /-- Make `UnicodeData` for Tangut ideograph code point -/
 def UnicodeData.mkTangutIdeograph (c : UInt32) : UnicodeData where
   code := c
-  name := s!"TANGUT IDEOGRAPH-{toHexStringAux c}"
+  name := s!"TANGUT IDEOGRAPH-{toHexStringRaw c}"
   bidi := .L
   gc := .Lo
 
@@ -145,7 +115,7 @@ def UnicodeData.mkTangutIdeograph (c : UInt32) : UnicodeData where
 protected def UnicodeData.txt := include_str "../data/UnicodeData.txt"
 
 /-- Parse `UnicodeData.txt` -/
-unsafe initialize UnicodeData.data : Array UnicodeData ←
+public unsafe initialize UnicodeData.data : Array UnicodeData ←
   let getDecompositionMapping? (s : String.Slice) : Option DecompositionMapping := do
     /-
       The value of the `Decomposition_Mapping` property for a character is
@@ -265,7 +235,7 @@ unsafe initialize UnicodeData.data : Array UnicodeData ←
   return arr
 
 /-- Get code point data from `UnicodeData.txt` -/
-partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
+public partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
   if code > Unicode.max then
     none
   else if code ≤ 0x0377 then
@@ -280,7 +250,7 @@ partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
     assert! (data.code == code)
     if data.name == "<control>" then
       return {data with
-        name := s!"<control-{toHexStringAux code}>"}
+        name := s!"<control-{toHexStringRaw code}>"}
     else
       return data
   else
@@ -344,25 +314,25 @@ where
         find mid hi
 
 @[inherit_doc getUnicodeData?]
-def getUnicodeData! (code : UInt32) :=
+public def getUnicodeData! (code : UInt32) :=
   match getUnicodeData? code with
   | some data => data
   | none => panic! "code point out of range"
 
 /-- Get character data from `UnicodeData.txt` -/
-def getUnicodeData (char : Char) : UnicodeData :=
+public def getUnicodeData (char : Char) : UnicodeData :=
   match getUnicodeData? char.val with
   | some data => data
   | none => unreachable!
 
 /-- Stream type to roll through all code points up to `Unicode.max`, yielding `UnicodeData` -/
-structure UnicodeDataStream where
+public structure UnicodeDataStream where
   code : UInt32 := 0
   index : USize := 0
   default : UInt32 → UnicodeData := UnicodeData.mkNoncharacter
   deriving Inhabited
 
-def UnicodeDataStream.next? (s : UnicodeDataStream) : Option (UnicodeData × UnicodeDataStream) := do
+public def UnicodeDataStream.next? (s : UnicodeDataStream) : Option (UnicodeData × UnicodeDataStream) := do
   let c := s.code
   let i := s.index
   if c > Unicode.max then
@@ -373,7 +343,7 @@ def UnicodeDataStream.next? (s : UnicodeDataStream) : Option (UnicodeData × Uni
     if c < d.code then
       return (s.default c, {s with code := c+1})
     else if n == "<control>" then
-      let d := {d with name := s!"<control-{toHexStringAux c}>"}
+      let d := {d with name := s!"<control-{toHexStringRaw c}>"}
       return (d, {s with code := c+1, index := i+1})
     else if n.front == '<' then
       if n.takeEnd 8 == ", First>" then
@@ -400,5 +370,5 @@ def UnicodeDataStream.next? (s : UnicodeDataStream) : Option (UnicodeData × Uni
   else
     return (.mkNoncharacter c, {s with code := c+1})
 
-instance : Std.Stream UnicodeDataStream UnicodeData where
+public instance : Std.Stream UnicodeDataStream UnicodeData where
   next? := UnicodeDataStream.next?

@@ -7,17 +7,15 @@ public import UnicodeData.Aliases
 import UnicodeBasic.Types
 import UnicodeBasic.CharacterDatabase
 
-public section
-
 namespace Unicode
 
 /-- Type for scripts data -/
-abbrev Scripts := Std.HashMap String.Slice (Array (UInt32 × UInt32))
+public abbrev Scripts := Std.HashMap String.Slice (Array (UInt32 × UInt32))
 
 /-- Raw string from `Scripts.txt` -/
 def Scripts.txt := include_str "../data/Scripts.txt"
 
-initialize Scripts.data : Scripts ← do
+public initialize Scripts.data : Scripts ← do
   let stream := UCDStream.ofString Scripts.txt
   let mut t := {}
   for record in stream do
@@ -39,12 +37,10 @@ initialize Scripts.data : Scripts ← do
 
 /-- Get table for given script -/
 @[inline]
-def Scripts.getTable? (sc : String.Slice) : Option <| Array (UInt32 × UInt32) := do
+public def Scripts.getTable? (sc : String.Slice) : Option <| Array (UInt32 × UInt32) := do
   let sc ← PropertyValueAliases.getLongName! "Script" sc
   data.get? sc
 
 @[inline, inherit_doc Scripts.getTable?]
-def Scripts.getTable! (sc : String.Slice) : Array (UInt32 × UInt32) :=
+public def Scripts.getTable! (sc : String.Slice) : Array (UInt32 × UInt32) :=
   getTable? sc |>.get!
-
-end Unicode

@@ -6,8 +6,6 @@ module
 public import UnicodeBasic.Types
 public import UnicodeBasic.TableLookup
 
-public section
-
 /-!
   # General API #
 
@@ -58,7 +56,7 @@ namespace Unicode
   Unicode property: `Name`
 -/
 @[inline]
-def getName (char : Char) : String := lookupName char.val
+public def getName (char : Char) : String := lookupName char.val
 
 /-!
   ## Script ##
@@ -69,7 +67,7 @@ def getName (char : Char) : String := lookupName char.val
   Unicode property: `Script`
 -/
 @[inline]
-def getScript (char : Char) : Script := lookupScript char.val
+public def getScript (char : Char) : Script := lookupScript char.val
 
 /-- Get script name
 
@@ -78,7 +76,7 @@ def getScript (char : Char) : Script := lookupScript char.val
   Unicode property: `Script`
 -/
 @[inline]
-def getScriptName? (s : Script) : Option String :=
+public def getScriptName? (s : Script) : Option String :=
   lookupScriptName s |>.map toString
 
 /-!
@@ -89,19 +87,19 @@ def getScriptName? (s : Script) : Option String :=
 
   Unicode property: `Bidi_Class` -/
 @[inline]
-def getBidiClass (char : Char) : BidiClass := lookupBidiClass char.val
+public def getBidiClass (char : Char) : BidiClass := lookupBidiClass char.val
 
 /-- Check if bidirectional mirrored character
 
   Unicode property: `Bidi_Mirrored` -/
 @[inline]
-def isBidiMirrored (char : Char) : Bool := lookupBidiMirrored char.val
+public def isBidiMirrored (char : Char) : Bool := lookupBidiMirrored char.val
 
 /-- Check if bidirectional control character
 
   Unicode property: `Bidi_Control` -/
 @[inline]
-def isBidiControl (char : Char) : Bool :=
+public def isBidiControl (char : Char) : Bool :=
   -- Extracted from `PropList.txt`
   char.val == 0x061C
   || char.val <= 0x200F && char.val >= 0x200E
@@ -120,7 +118,7 @@ def isBidiControl (char : Char) : Bool :=
 
   Unicode property: `General_Category` -/
 @[inline]
-def getGC (char : Char) : GC :=
+public def getGC (char : Char) : GC :=
   -- ASCII shortcut
   if h : char.toNat < table.size then
     table[char.toNat]
@@ -137,32 +135,10 @@ where
       .Sk, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll,
       .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ps, .Sm, .Po, .Sm, .Cc]
 
-set_option linter.deprecated false in
-@[deprecated Unicode.getGC (since := "1.2.0")]
-def getGeneralCategory (char : Char) : GeneralCategory :=
-  .ofGC! (getGC char)
-
-instance : Membership Char GC where
+public instance : Membership Char GC where
   mem cat char := getGC char ⊆ cat
 
-instance (char : Char) (cat : GC) : Decidable (char ∈ cat) := inferInstanceAs (Decidable (_ ⊆ _))
-
-set_option linter.deprecated false in
-@[deprecated "use `char ∈ category` instead" (since := "1.2.0")]
-def isInGeneralCategory (char : Char) (category : GeneralCategory) : Bool :=
-  match category, getGeneralCategory char with
-  | ⟨major, none⟩, ⟨charMajor, _⟩ => major == charMajor
-  | ⟨_, some .casedLetter⟩, ⟨_, some .lowercaseLetter⟩ => true
-  | ⟨_, some .casedLetter⟩, ⟨_, some .titlecaseLetter⟩ => true
-  | ⟨_, some .casedLetter⟩, ⟨_, some .uppercaseLetter⟩ => true
-  | ⟨_, some .casedLetter⟩, _ => false
-  | ⟨_, some .groupPunctuation⟩, ⟨_, some .openPunctuation⟩ => true
-  | ⟨_, some .groupPunctuation⟩, ⟨_, some .closePunctuation⟩ => true
-  | ⟨_, some .groupPunctuation⟩, _ => false
-  | ⟨_, some .quotePunctuation⟩, ⟨_, some .initialPunctuation⟩ => true
-  | ⟨_, some .quotePunctuation⟩, ⟨_, some .finalPunctuation⟩ => true
-  | ⟨_, some .quotePunctuation⟩, _ => false
-  | cat, charCat => cat == charCat
+public instance (char : Char) (cat : GC) : Decidable (char ∈ cat) := inferInstanceAs (Decidable (_ ⊆ _))
 
 namespace GeneralCategory
 
@@ -171,342 +147,222 @@ namespace GeneralCategory
   This is a derived category (`L = Lu | Ll | Lt | Lm | Lo`).
 
   Unicode Property: `General_Category=L` -/
-abbrev isLetter (char : Char) : Bool := char ∈ Unicode.GC.L
-
-@[deprecated "c ∈ Unicode.GC.L" (since := "1.2.0")]
-protected abbrev isL := isLetter
+public abbrev isLetter (char : Char) : Bool := char ∈ Unicode.GC.L
 
 /-- Check if lowercase letter character (`Ll`)
 
   Unicode Property: `General_Category=Ll` -/
-abbrev isLowercaseLetter (char : Char) : Bool := char ∈ Unicode.GC.Ll
-
-@[deprecated "c ∈ Unicode.GC.Ll" (since := "1.2.0")]
-protected abbrev isLl := isLowercaseLetter
+public abbrev isLowercaseLetter (char : Char) : Bool := char ∈ Unicode.GC.Ll
 
 /-- Check if titlecase letter character (`Lt`)
 
   Unicode Property: `General_Category=Lt` -/
-abbrev isTitlecaseLetter (char : Char) : Bool := char ∈ Unicode.GC.Lt
-
-@[deprecated "c ∈ Unicode.GC.Lt" (since := "1.2.0")]
-protected abbrev isLt := isTitlecaseLetter
+public abbrev isTitlecaseLetter (char : Char) : Bool := char ∈ Unicode.GC.Lt
 
 /-- Check if uppercase letter character (`Lu`)
 
   Unicode Property: `General_Category=Lu` -/
-abbrev isUppercaseLetter (char : Char) : Bool := char ∈ Unicode.GC.Lu
-
-@[deprecated "c ∈ Unicode.GC.Lu" (since := "1.2.0")]
-protected abbrev isLu := isUppercaseLetter
+public abbrev isUppercaseLetter (char : Char) : Bool := char ∈ Unicode.GC.Lu
 
 /-- Check if cased letter character (`LC`)
 
   This is a derived category (`L = Lu | Ll | Lt`).
 
   Unicode Property: `General_Category=LC` -/
-abbrev isCasedLetter (char : Char) : Bool := char ∈ Unicode.GC.LC
-
-@[deprecated "c ∈ Unicode.GC.LC" (since := "1.2.0")]
-protected abbrev isLC := isCasedLetter
+public abbrev isCasedLetter (char : Char) : Bool := char ∈ Unicode.GC.LC
 
 /-- Check if modifier letter character (`Lm`)
 
   Unicode Property: `General_Category=Lm`-/
-abbrev isModifierLetter (char : Char) : Bool := char ∈ Unicode.GC.Lm
-
-@[deprecated "c ∈ Unicode.GC.Lm" (since := "1.2.0")]
-protected abbrev isLm := isModifierLetter
+public abbrev isModifierLetter (char : Char) : Bool := char ∈ Unicode.GC.Lm
 
 /-- Check if other letter character (`Lo`)
 
   Unicode Property: `General_Category=Lo`-/
-abbrev isOtherLetter (char : Char) : Bool := char ∈ Unicode.GC.Lo
-
-@[deprecated "c ∈ Unicode.GC.Lo" (since := "1.2.0")]
-protected abbrev isLo := isOtherLetter
+public abbrev isOtherLetter (char : Char) : Bool := char ∈ Unicode.GC.Lo
 
 /-- Check if mark character (`M`)
 
   This is a derived category (`M = Mn | Mc | Me`).
 
   Unicode Property: `General_Category=M` -/
-abbrev isMark (char : Char) : Bool := char ∈ Unicode.GC.M
-
-@[deprecated "c ∈ Unicode.GC.M" (since := "1.2.0")]
-protected abbrev isM := isMark
+public abbrev isMark (char : Char) : Bool := char ∈ Unicode.GC.M
 
 /-- Check if nonspacing combining mark character (`Mn`)
 
   Unicode Property: `General_Category=Mn` -/
-abbrev isNonspacingMark (char : Char) : Bool := char ∈ Unicode.GC.Mn
-
-@[deprecated "c ∈ Unicode.GC.Mn" (since := "1.2.0")]
-protected abbrev isMn := isNonspacingMark
+public abbrev isNonspacingMark (char : Char) : Bool := char ∈ Unicode.GC.Mn
 
 /-- Check if spacing combining mark character (`Mc`)
 
   Unicode Property: `General_Category=Mc` -/
-abbrev isSpacingMark (char : Char) : Bool := char ∈ Unicode.GC.Mc
-
-@[deprecated "c ∈ Unicode.GC.Mc" (since := "1.2.0")]
-protected abbrev isMc := isSpacingMark
+public abbrev isSpacingMark (char : Char) : Bool := char ∈ Unicode.GC.Mc
 
 /-- Check if enclosing combining mark character (`Me`)
 
   Unicode Property: `General_Category=Me` -/
-abbrev isEnclosingMark (char : Char) : Bool := char ∈ Unicode.GC.Me
-
-@[deprecated "c ∈ Unicode.GC.Me" (since := "1.2.0")]
-protected abbrev isMe := isEnclosingMark
+public abbrev isEnclosingMark (char : Char) : Bool := char ∈ Unicode.GC.Me
 
 /-- Check if number character (`N`)
 
   This is a derived category (`N = Nd | Nl | No`).
 
   Unicode Property: `General_Category=N` -/
-abbrev isNumber (char : Char) : Bool := char ∈ Unicode.GC.N
-
-@[deprecated "c ∈ Unicode.GC.N" (since := "1.2.0")]
-protected abbrev isN := isNumber
+public abbrev isNumber (char : Char) : Bool := char ∈ Unicode.GC.N
 
 /-- Check if decimal number character (`Nd`)
 
   Unicode Property: `General_Category=Nd` -/
-abbrev isDecimalNumber (char : Char) : Bool := char ∈ Unicode.GC.Nd
-
-@[deprecated "c ∈ Unicode.GC.Nd" (since := "1.2.0")]
-protected abbrev isNd := isDecimalNumber
+public abbrev isDecimalNumber (char : Char) : Bool := char ∈ Unicode.GC.Nd
 
 /-- Check if letter number character (`Nl`)
 
   Unicode Property: `General_Category=Nl` -/
-abbrev isLetterNumber (char : Char) : Bool := char ∈ Unicode.GC.Nl
-
-@[deprecated "c ∈ Unicode.GC.Nl" (since := "1.2.0")]
-protected abbrev isNl := isLetterNumber
+public abbrev isLetterNumber (char : Char) : Bool := char ∈ Unicode.GC.Nl
 
 /-- Check if other number character (`No`)
 
   Unicode Property: `General_Category=No` -/
-abbrev isOtherNumber (char : Char) : Bool := char ∈ Unicode.GC.No
-
-@[deprecated "c ∈ Unicode.GC.No" (since := "1.2.0")]
-protected abbrev isNo := isOtherNumber
+public abbrev isOtherNumber (char : Char) : Bool := char ∈ Unicode.GC.No
 
 /-- Check if punctuation character (`P`)
 
   This is a derived category (`P = Pc | Pd | Ps | Pe | Pi | Pf | Po`).
 
   Unicode Property: `General_Category=P` -/
-abbrev isPunctuation (char : Char) : Bool := char ∈ Unicode.GC.P
-
-@[deprecated "c ∈ Unicode.GC.P" (since := "1.2.0")]
-protected abbrev isP := isPunctuation
+public abbrev isPunctuation (char : Char) : Bool := char ∈ Unicode.GC.P
 
 /-- Check if connector punctuation character (`Pc`)
 
   Unicode Property: `General_Category=Pc` -/
-abbrev isConnectorPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pc
-
-@[deprecated "c ∈ Unicode.GC.Pc" (since := "1.2.0")]
-protected abbrev isPc := isConnectorPunctuation
+public abbrev isConnectorPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pc
 
 /-- Check if dash punctuation character (`Pd`)
 
   Unicode Property: `General_Category=Pd` -/
-abbrev isDashPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pd
-
-@[deprecated "c ∈ Unicode.GC.Pd" (since := "1.2.0")]
-protected abbrev isPd := isDashPunctuation
+public abbrev isDashPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pd
 
 /-- Check if grouping punctuation character (`PG`)
 
   This is a derived category (`PG = Ps | Pe`).
 
   Unicode Property: `General_Category=PG` -/
-abbrev isGroupPunctuation (char : Char) : Bool := char ∈ Unicode.GC.PG
-
-@[deprecated "c ∈ Unicode.GC.PG" (since := "1.2.0")]
-protected abbrev isPG := isGroupPunctuation
+public abbrev isGroupPunctuation (char : Char) : Bool := char ∈ Unicode.GC.PG
 
 /-- Check if open punctuation character (`Ps`)
 
   Unicode Property: `General_Category=Ps` -/
-abbrev isOpenPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Ps
-
-@[deprecated "c ∈ Unicode.GC.Ps" (since := "1.2.0")]
-protected abbrev isPs := isOpenPunctuation
+public abbrev isOpenPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Ps
 
 /-- Check if close punctuation character (`Pe`)
 
   Unicode Property: `General_Category=Pe` -/
-abbrev isClosePunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pe
-
-@[deprecated "c ∈ Unicode.GC.Pe" (since := "1.2.0")]
-protected abbrev isPe := isClosePunctuation
+public abbrev isClosePunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pe
 
 /-- Check if quoting punctuation character (`PQ`)
 
   This is a derived category (`PQ = Pi | Pf`).
 
   Unicode Property: `General_Category=PQ` -/
-abbrev isQuotePunctuation (char : Char) : Bool := char ∈ Unicode.GC.PQ
-
-@[deprecated "c ∈ Unicode.GC.PQ" (since := "1.2.0")]
-protected abbrev isPQ := isQuotePunctuation
+public abbrev isQuotePunctuation (char : Char) : Bool := char ∈ Unicode.GC.PQ
 
 /-- Check if initial punctuation character (`Pi`)
 
   Unicode Property: `General_Category=Pi` -/
-abbrev isInitialPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pi
-
-@[deprecated "c ∈ Unicode.GC.Pi" (since := "1.2.0")]
-protected abbrev isPi := isInitialPunctuation
+public abbrev isInitialPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pi
 
 /-- Check if initial punctuation character (`Pf`)
 
   Unicode Property: `General_Category=Pf` -/
-abbrev isFinalPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pf
-
-@[deprecated "c ∈ Unicode.GC.Pf" (since := "1.2.0")]
-protected abbrev isPf := isFinalPunctuation
+public abbrev isFinalPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pf
 
 /-- Check if other punctuation character (`Po`)
 
   Unicode Property: `General_Category=Po` -/
-abbrev isOtherPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Po
-
-@[deprecated "c ∈ Unicode.GC.Po" (since := "1.2.0")]
-protected abbrev isPo := isOtherPunctuation
+public abbrev isOtherPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Po
 
 /-- Check if symbol character (`S`)
 
   This is a derived category (`S = Sm | Sc | Sk | So`).
 
   Unicode Property: `General_Category=S` -/
-abbrev isSymbol (char : Char) : Bool := char ∈ Unicode.GC.S
-
-@[deprecated "c ∈ Unicode.GC.S" (since := "1.2.0")]
-protected abbrev isS := isSymbol
+public abbrev isSymbol (char : Char) : Bool := char ∈ Unicode.GC.S
 
 /-- Check if math symbol character (`Sm`)
 
   Unicode Property: `General_Category=Sm` -/
-abbrev isMathSymbol (char : Char) : Bool := char ∈ Unicode.GC.Sm
-
-@[deprecated "c ∈ Unicode.GC.Sm" (since := "1.2.0")]
-protected abbrev isSm := isMathSymbol
+public abbrev isMathSymbol (char : Char) : Bool := char ∈ Unicode.GC.Sm
 
 /-- Check if currency symbol character (`Sc`)
 
   Unicode Property: `General_Category=Sc` -/
-abbrev isCurrencySymbol (char : Char) : Bool := char ∈ Unicode.GC.Sc
-
-@[deprecated "c ∈ Unicode.GC.Sc" (since := "1.2.0")]
-protected abbrev isSc := isCurrencySymbol
+public abbrev isCurrencySymbol (char : Char) : Bool := char ∈ Unicode.GC.Sc
 
 /-- Check if modifier symbol character (`Sk`)
 
   Unicode Property: `General_Category=Sk` -/
-abbrev isModifierSymbol (char : Char) : Bool := char ∈ Unicode.GC.Sk
-
-@[deprecated "c ∈ Unicode.GC.Sk" (since := "1.2.0")]
-protected abbrev isSk := isModifierSymbol
+public abbrev isModifierSymbol (char : Char) : Bool := char ∈ Unicode.GC.Sk
 
 /-- Check if other symbol character (`So`)
 
   Unicode Property: `General_Category=So` -/
-abbrev isOtherSymbol (char : Char) : Bool := char ∈ Unicode.GC.So
-
-@[deprecated "c ∈ Unicode.GC.So" (since := "1.2.0")]
-protected abbrev isSo := isOtherSymbol
+public abbrev isOtherSymbol (char : Char) : Bool := char ∈ Unicode.GC.So
 
 /-- Check if separator character (`Z`)
 
   This is a derived property (`Z = Zs | Zl | Zp`).
 
   Unicode Property: `General_Category=Z` -/
-abbrev isSeparator (char : Char) : Bool := char ∈ Unicode.GC.Z
-
-@[deprecated "c ∈ Unicode.GC.Z" (since := "1.2.0")]
-protected abbrev isZ := isSeparator
+public abbrev isSeparator (char : Char) : Bool := char ∈ Unicode.GC.Z
 
 /-- Check if space separator character (`Zs`)
 
   Unicode Property: `General_Category=Zs` -/
-abbrev isSpaceSeparator (char : Char) : Bool := char ∈ Unicode.GC.Zs
-
-@[deprecated "c ∈ Unicode.GC.Zs" (since := "1.2.0")]
-protected abbrev isZs := isSpaceSeparator
+public abbrev isSpaceSeparator (char : Char) : Bool := char ∈ Unicode.GC.Zs
 
 /-- Check if line separator character (`Zl`)
 
   Unicode Property: `General_Category=Zl` -/
-abbrev isLineSeparator (char : Char) : Bool := char ∈ Unicode.GC.Zl
-
-@[deprecated "c ∈ Unicode.GC.Zl" (since := "1.2.0")]
-protected abbrev isZl := isLineSeparator
+public abbrev isLineSeparator (char : Char) : Bool := char ∈ Unicode.GC.Zl
 
 /-- Check if paragraph separator character (`Zp`)
 
   Unicode Property: `General_Category=Zp` -/
-abbrev isParagraphSeparator (char : Char) : Bool := char ∈ Unicode.GC.Zp
-
-@[deprecated "c ∈ Unicode.GC.Zp" (since := "1.2.0")]
-protected abbrev isZp := isParagraphSeparator
+public abbrev isParagraphSeparator (char : Char) : Bool := char ∈ Unicode.GC.Zp
 
 /-- Check if other character (`C`)
 
   This is a derived category (`C = Cc | Cf | Cs | Co | Cn`).
 
   Unicode Property: `General_Category=C` -/
-abbrev isOther (char : Char) : Bool := char ∈ Unicode.GC.C
-
-@[deprecated "c ∈ Unicode.GC.C" (since := "1.2.0")]
-protected abbrev isC := isOther
+public abbrev isOther (char : Char) : Bool := char ∈ Unicode.GC.C
 
 /-- Check if control character (`Cc`)
 
   Unicode Property: `General_Category=Cc` -/
-abbrev isControl (char : Char) : Bool := char ∈ Unicode.GC.Cc
-
-@[deprecated "c ∈ Unicode.GC.Cc" (since := "1.2.0")]
-protected abbrev isCc := isControl
+public abbrev isControl (char : Char) : Bool := char ∈ Unicode.GC.Cc
 
 /-- Check if format character (`Cf`)
 
   Unicode Property: `General_Category=Cf` -/
-abbrev isFormat (char : Char) : Bool := char ∈ Unicode.GC.Cf
-
-@[deprecated "c ∈ Unicode.GC.Cf" (since := "1.2.0")]
-protected abbrev isCf := isFormat
+public abbrev isFormat (char : Char) : Bool := char ∈ Unicode.GC.Cf
 
 /-- Check if surrogate character (`Cs`)
 
   Does not actually occur since Lean does not regard surrogate code points as characters.
 
   Unicode Property: `General_Category=Cs` -/
-abbrev isSurrogate (char : Char) : Bool := char ∈ Unicode.GC.Cs
-
-@[deprecated "c ∈ Unicode.GC.Cs" (since := "1.2.0")]
-protected abbrev isCs := isSurrogate
+public abbrev isSurrogate (char : Char) : Bool := char ∈ Unicode.GC.Cs
 
 /-- Check if private use character (`Co`)
 
   Unicode Property: `General_Category=Co` -/
-abbrev isPrivateUse (char : Char) : Bool := char ∈ Unicode.GC.Co
-
-@[deprecated "c ∈ Unicode.GC.Co" (since := "1.2.0")]
-protected abbrev isCo := isPrivateUse
+public abbrev isPrivateUse (char : Char) : Bool := char ∈ Unicode.GC.Co
 
 /-- Check if unassigned character (`Cn`)
 
   Unicode Property: `General_Category=Cn` -/
-abbrev isUnassigned (char : Char) : Bool := char ∈ Unicode.GC.Cn
-
-@[deprecated "c ∈ Unicode.GC.Cn" (since := "1.2.0")]
-protected abbrev isCn := isUnassigned
+public abbrev isUnassigned (char : Char) : Bool := char ∈ Unicode.GC.Cn
 
 end GeneralCategory
 
@@ -520,7 +376,7 @@ end GeneralCategory
 
   Unicode property: `Lowercase` -/
 @[inline]
-def isLowercase (char : Char) : Bool :=
+public def isLowercase (char : Char) : Bool :=
   -- ASCII shortcut
   if char.val < 0x80 then
     'a' ≤ char && char ≤ 'z'
@@ -533,7 +389,7 @@ def isLowercase (char : Char) : Bool :=
 
   Unicode property: `Uppercase` -/
 @[inline]
-def isUppercase (char : Char) : Bool :=
+public def isUppercase (char : Char) : Bool :=
   -- ASCII shortcut
   if char.val < 0x80 then
     'A' ≤ char && char ≤ 'Z'
@@ -546,7 +402,7 @@ def isUppercase (char : Char) : Bool :=
 
   Unicode property: `Cased` -/
 @[inline]
-def isCased (char : Char) : Bool :=
+public def isCased (char : Char) : Bool :=
   -- ASCII shortcut
   if char.val < 0x80 then
     'A' ≤ char && char ≤ 'Z' || 'a' ≤ char && char ≤ 'z'
@@ -560,7 +416,7 @@ def isCased (char : Char) : Bool :=
 
   Unicode property: `Case_Ignorable` -/
 @[inline]
-def isCaseIgnorable (char : Char) : Bool :=
+public def isCaseIgnorable (char : Char) : Bool :=
   char ∈ Unicode.GC.Lm ||| GC.Mn ||| GC.Sk ||| GC.Cf || other.elem char.val
 where
   /-- Auxiliary data for `isCaseIgnorable`
@@ -592,7 +448,7 @@ where
 
   Unicode property: `Simple_Lowercase_Mapping` -/
 @[inline]
-def getLowerChar (char : Char) : Char :=
+public def getLowerChar (char : Char) : Char :=
   -- ASCII shortcut
   if char.val < 0x80 then
     if 'A' ≤ char && char ≤ 'Z' then
@@ -610,7 +466,7 @@ def getLowerChar (char : Char) : Char :=
 
   Unicode property: `Simple_Uppercase_Mapping` -/
 @[inline]
-def getUpperChar (char : Char) : Char :=
+public def getUpperChar (char : Char) : Char :=
   if char.val < 0x80 then
     if 'a' ≤ char && char ≤ 'z' then
       Char.ofNat (char.val - 0x20).toNat
@@ -627,7 +483,7 @@ def getUpperChar (char : Char) : Char :=
 
   Unicode property: `Simple_Titlecase_Mapping` -/
 @[inline]
-def getTitleChar (char : Char) : Char :=
+public def getTitleChar (char : Char) : Char :=
   if char.val < 0x80 then
     if 'a' ≤ char && char ≤ 'z' then
       Char.ofNat (char.val - 0x20).toNat
@@ -645,7 +501,7 @@ def getTitleChar (char : Char) : Char :=
 
   Unicode property: `Canonical_Combining_Class`
 -/
-def getCanonicalCombiningClass (char : Char) : Nat :=
+public def getCanonicalCombiningClass (char : Char) : Nat :=
   -- ASCII shortcut
   if char.val < 0x80 then
     0
@@ -657,7 +513,7 @@ def getCanonicalCombiningClass (char : Char) : Nat :=
   Unicode properties:
     `Decomposition_Mapping`
     `Decomposition_Type=Canonical` -/
-def getCanonicalDecomposition (char : Char) : String :=
+public def getCanonicalDecomposition (char : Char) : String :=
   -- ASCII shortcut
   if char.val < 0x80 then char.toString else
     String.ofList <| (lookupCanonicalDecompositionMapping char.val).map fun c => Char.ofNat c.toNat
@@ -670,7 +526,7 @@ def getCanonicalDecomposition (char : Char) : String :=
   Unicode properties:
   `Decomposition_Type`
   `Decomposition_Mapping` -/
-def getDecompositionMapping? (char : Char) : Option DecompositionMapping :=
+public def getDecompositionMapping? (char : Char) : Option DecompositionMapping :=
   -- ASCII shortcut
   if char.val < 0x80 then
     none
@@ -685,7 +541,7 @@ def getDecompositionMapping? (char : Char) : Option DecompositionMapping :=
 
   Unicode property: `Numeric_Type=Numeric` -/
 @[inline]
-def isNumeric (char : Char) : Bool :=
+public def isNumeric (char : Char) : Bool :=
   -- ASCII shortcut
   if char.val < 0x80 then
     char >= '0' && char <= '9'
@@ -710,7 +566,7 @@ where
 
   Unicode property: `Numeric_Type=Digit` -/
 @[inline]
-def isDigit (char : Char) : Bool :=
+public def isDigit (char : Char) : Bool :=
   -- ASCII shortcut
   if char.val < 0x80 then
     char >= '0' && char <= '9'
@@ -726,7 +582,7 @@ def isDigit (char : Char) : Bool :=
     `Numeric_Type=Digit`
     `Numeric_Value` -/
 @[inline]
-def getDigit? (char : Char) : Option (Fin 10) :=
+public def getDigit? (char : Char) : Option (Fin 10) :=
   -- ASCII shortcut
   if char.val < 0x80 then
     if char.toNat < '0'.toNat then
@@ -750,7 +606,7 @@ def getDigit? (char : Char) : Option (Fin 10) :=
 
   Unicode property: `Numeric_Type=Decimal` -/
 @[inline]
-def isDecimal (char : Char) : Bool :=
+public def isDecimal (char : Char) : Bool :=
   -- ASCII shortcut
   if char.val < 0x80 then
     char >= '0' && char <= '9'
@@ -769,7 +625,7 @@ def isDecimal (char : Char) : Bool :=
     `Numeric_Type=Decimal`
     `Numeric_Value` -/
 @[inline]
-def getDecimalRange? (char : Char) : Option (Char × Char) :=
+public def getDecimalRange? (char : Char) : Option (Char × Char) :=
   -- ASCII shortcut
   if char.val < 0x80 then
     if char >= '0' && char <= '9' then
@@ -787,7 +643,7 @@ def getDecimalRange? (char : Char) : Option (Char × Char) :=
 
   Unicode property: `Hex_Digit` -/
 @[inline]
-def isHexDigit (char : Char) : Bool :=
+public def isHexDigit (char : Char) : Bool :=
   -- Extracted from `PropList.txt`
   char.val <= 0x0039 && char.val >= 0x0030 || -- [10] DIGIT ZERO..DIGIT NINE
   char.val <= 0x0046 && char.val >= 0x0041 || --  [6] LATIN CAPITAL LETTER A..LATIN CAPITAL LETTER F
@@ -800,7 +656,7 @@ def isHexDigit (char : Char) : Bool :=
 
   Unicode property: `Hex_Digit` -/
 @[inline]
-def getHexDigit? (char : Char) : Option (Fin 16) :=
+public def getHexDigit? (char : Char) : Option (Fin 16) :=
   if char.toNat < 0x30 then
     none
   else
@@ -830,7 +686,7 @@ def getHexDigit? (char : Char) : Option (Fin 16) :=
   Unicode property: `Noncharacter_Code_Point`
 -/
 @[inline]
-def isNoncharacterCodePoint (char : Char) : Bool :=
+public def isNoncharacterCodePoint (char : Char) : Bool :=
   lookupNoncharacterCodePoint char.val
 
 /-- Check if ignorable character
@@ -838,7 +694,7 @@ def isNoncharacterCodePoint (char : Char) : Bool :=
   Unicode property: `Default_Ignorable_Code_Point`
 -/
 @[inline]
-def isDefaultIgnorableCodePoint (char : Char) : Bool :=
+public def isDefaultIgnorableCodePoint (char : Char) : Bool :=
   lookupDefaultIgnorableCodePoint char.val
 
 /-- Check if white space character
@@ -846,7 +702,7 @@ def isDefaultIgnorableCodePoint (char : Char) : Bool :=
   Unicode property: `White_Space`
 -/
 @[inline]
-def isWhiteSpace (char : Char) : Bool :=
+public def isWhiteSpace (char : Char) : Bool :=
   -- ASCII shortcut
   if char.val < 0x80 then
     char == ' ' || char >= '\t' && char <= '\r'
@@ -859,7 +715,7 @@ def isWhiteSpace (char : Char) : Bool :=
 
   Unicode property: `Math` -/
 @[inline]
-def isMath (char : Char) : Bool := lookupMath char.val
+public def isMath (char : Char) : Bool := lookupMath char.val
 
 /-- Check if alphabetic character
 
@@ -867,7 +723,7 @@ def isMath (char : Char) : Bool := lookupMath char.val
 
   Unicode property: `Alphabetic` -/
 @[inline]
-def isAlphabetic (char : Char) : Bool :=
+public def isAlphabetic (char : Char) : Bool :=
   -- ASCII shortcut
   if char.val < 0x80 then
     'A' ≤ char && char ≤ 'Z' || 'a' ≤ char && char ≤ 'z'
@@ -875,6 +731,4 @@ def isAlphabetic (char : Char) : Bool :=
     lookupAlphabetic char.val
 
 @[inherit_doc isAlphabetic]
-abbrev isAlpha := isAlphabetic
-
-end Unicode
+public abbrev isAlpha := isAlphabetic
