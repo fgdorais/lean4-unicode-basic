@@ -140,5 +140,5 @@ def main (args : List String) : IO UInt32 := do
     for t in tests do
       if t.1 ∈ args && !t.2 d then
         err := 1
-        IO.println s!"Error: {t.1} {toHexStringAux d.code}"
+        IO.println s!"Error: {t.1} {toHexStringRaw d.code}"
   return err

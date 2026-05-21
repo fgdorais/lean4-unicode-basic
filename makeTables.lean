@@ -144,9 +144,9 @@ def mkDecompositionMapping : IO <| Array (UInt32 × String) := do
   for data in UnicodeData.data do
     match data.decomp with
     | some ⟨none, l⟩ =>
-      t := t.push (data.code, ";" ++ ";".intercalate (l.map (toHexStringAux <| Char.val .)))
+      t := t.push (data.code, ";" ++ ";".intercalate (l.map (toHexStringRaw <| Char.val .)))
     | some ⟨some k, l⟩ =>
-      t := t.push (data.code, s!"{k};" ++ ";".intercalate (l.map (toHexStringAux <| Char.val ·)))
+      t := t.push (data.code, s!"{k};" ++ ";".intercalate (l.map (toHexStringRaw <| Char.val ·)))
     | _ => continue
   return t
 
@@ -548,9 +548,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁) in table do
           if c₀ == c₁ then
-            file.putStrLn <| toHexStringAux c₀ ++ ";"
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
           else
-            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "Bidi_Class" =>
       IO.println s!"Generating table {arg}"
@@ -558,9 +558,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁, bc) in table do
           if c₀ == c₁ then
-            file.putStrLn <| toHexStringAux c₀ ++ ";;" ++ bc.toAbbrev
+            file.putStrLn <| toHexStringRaw c₀ ++ ";;" ++ bc.toAbbrev
           else
-            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁ ++ ";" ++ bc.toAbbrev
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁ ++ ";" ++ bc.toAbbrev
       IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
     | "Bidi_Mirrored" =>
       IO.println s!"Generating table {arg}"
@@ -568,9 +568,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁) in table do
           if c₀ == c₁ then
-            file.putStrLn <| toHexStringAux c₀ ++ ";"
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
           else
-            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "Canonical_Combining_Class" =>
       IO.println s!"Generating table {arg}"
@@ -578,16 +578,16 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁, cc) in table do
           if c₀ == c₁ then
-            file.putStrLn <| ";".intercalate [toHexStringAux c₀, "", toString cc]
+            file.putStrLn <| ";".intercalate [toHexStringRaw c₀, "", toString cc]
           else
-            file.putStrLn <| ";".intercalate [toHexStringAux c₀, toHexStringAux c₁, toString cc]
+            file.putStrLn <| ";".intercalate [toHexStringRaw c₀, toHexStringRaw c₁, toString cc]
       IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
     | "Canonical_Decomposition_Mapping" =>
       IO.println s!"Generating table {arg}"
       let table ← mkCanonicalDecompositionMapping
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c, l) in table do
-          file.putStrLn <| toHexStringAux c ++ ";" ++ ";".intercalate (l.map fun c => toHexStringAux c.val)
+          file.putStrLn <| toHexStringRaw c ++ ";" ++ ";".intercalate (l.map fun c => toHexStringRaw c.val)
       IO.println s!"Size: {table.size}"
     | "Case_Mapping" =>
       IO.println s!"Generating table {arg}"
@@ -595,21 +595,21 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁, uc, lc, tc) in table  do
           if c₀ == c₁ then
-            file.putStr <| toHexStringAux c₀ ++ ";"
+            file.putStr <| toHexStringRaw c₀ ++ ";"
             if c₀ == uc then
               file.putStr <| ";"
             else
-              file.putStr <| ";" ++ toHexStringAux uc
+              file.putStr <| ";" ++ toHexStringRaw uc
             if c₀ == lc then
               file.putStr <| ";"
             else
-              file.putStr <| ";" ++ toHexStringAux lc
+              file.putStr <| ";" ++ toHexStringRaw lc
           else
-            file.putStr <| ";".intercalate <| [c₀, c₁, uc, lc].map toHexStringAux
+            file.putStr <| ";".intercalate <| [c₀, c₁, uc, lc].map toHexStringRaw
           if uc == tc then
             file.putStrLn ";"
           else
-            file.putStrLn <| ";" ++ toHexStringAux tc
+            file.putStrLn <| ";" ++ toHexStringRaw tc
       IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
     | "Cased" =>
       IO.println s!"Generating table {arg}"
@@ -617,16 +617,16 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁) in table do
           if c₀ == c₁ then
-            file.putStrLn <| toHexStringAux c₀ ++ ";"
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
           else
-            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "Decomposition_Mapping" =>
       IO.println s!"Generating table {arg}"
       let table ← mkDecompositionMapping
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c, s) in table do
-          file.putStrLn <| toHexStringAux c ++ ";" ++ s
+          file.putStrLn <| toHexStringRaw c ++ ";" ++ s
       IO.println s!"Size: {table.size}"
     | "Default_Ignorable_Code_Point" =>
       IO.println s!"Generating table {arg}"
@@ -634,9 +634,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁) in table do
           if c₀ == c₁ then
-            file.putStrLn <| toHexStringAux c₀ ++ ";"
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
           else
-            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "General_Category" =>
       IO.println s!"Generating table {arg}"
@@ -644,9 +644,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁, v) in table do
           if c₀ == c₁ then
-            file.putStrLn <| ";".intercalate [toHexStringAux c₀, "", toString v]
+            file.putStrLn <| ";".intercalate [toHexStringRaw c₀, "", toString v]
           else
-            file.putStrLn <| ";".intercalate [toHexStringAux c₀, toHexStringAux c₁, toString v]
+            file.putStrLn <| ";".intercalate [toHexStringRaw c₀, toHexStringRaw c₁, toString v]
       IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
     | "Lowercase" =>
       IO.println s!"Generating table {arg}"
@@ -654,9 +654,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁) in table do
           if c₀ == c₁ then
-            file.putStrLn <| toHexStringAux c₀ ++ ";"
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
           else
-            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "Math" =>
       IO.println s!"Generating table {arg}"
@@ -664,9 +664,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁) in table do
           if c₀ == c₁ then
-            file.putStrLn <| toHexStringAux c₀ ++ ";"
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
           else
-            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "Name" =>
       IO.println s!"Generating table {arg}"
@@ -674,9 +674,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁, n) in table do
           if c₀ == c₁ then
-            file.putStrLn <| ";".intercalate [toHexStringAux c₀, "", n]
+            file.putStrLn <| ";".intercalate [toHexStringRaw c₀, "", n]
           else
-            file.putStrLn <| ";".intercalate [toHexStringAux c₀, toHexStringAux c₁, n]
+            file.putStrLn <| ";".intercalate [toHexStringRaw c₀, toHexStringRaw c₁, n]
       IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
     | "Noncharacter_Code_Point" =>
       IO.println s!"Generating table {arg}"
@@ -684,9 +684,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁) in table do
           if c₀ == c₁ then
-            file.putStrLn <| toHexStringAux c₀ ++ ";"
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
           else
-            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "Numeric_Value" =>
       IO.println s!"Generating table {arg}"
@@ -694,15 +694,15 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁, n) in table do
           match n with
-          | .decimal _ => file.putStrLn <| ";".intercalate [toHexStringAux c₀, toHexStringAux c₁, "decimal"]
+          | .decimal _ => file.putStrLn <| ";".intercalate [toHexStringRaw c₀, toHexStringRaw c₁, "decimal"]
           | .digit v =>
             if c₀ == c₁ then
-              file.putStrLn <| ";".intercalate [toHexStringAux c₀, "", s!"digit {v.val}"]
+              file.putStrLn <| ";".intercalate [toHexStringRaw c₀, "", s!"digit {v.val}"]
             else
               let last := v.val + c₁.toNat - c₀.toNat
-              file.putStrLn <| ";".intercalate [toHexStringAux c₀, toHexStringAux c₁, s!"digit {v.val}-{last}"]
-          | .numeric v none => file.putStrLn <| ";".intercalate [toHexStringAux c₀, "", s!"numeric {v}"]
-          | .numeric v (some d) => file.putStrLn <| ";".intercalate [toHexStringAux c₀, "", s!"numeric {v}/{d}"]
+              file.putStrLn <| ";".intercalate [toHexStringRaw c₀, toHexStringRaw c₁, s!"digit {v.val}-{last}"]
+          | .numeric v none => file.putStrLn <| ";".intercalate [toHexStringRaw c₀, "", s!"numeric {v}"]
+          | .numeric v (some d) => file.putStrLn <| ";".intercalate [toHexStringRaw c₀, "", s!"numeric {v}/{d}"]
       IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
     | "Other_Alphabetic" =>
       IO.println s!"Generating table {arg}"
@@ -710,9 +710,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁) in table do
           if c₀ == c₁ then
-            file.putStrLn <| toHexStringAux c₀ ++ ";"
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
           else
-            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "Other_Default_Ignorable_Code_Point" =>
       IO.println s!"Generating table {arg}"
@@ -720,9 +720,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁) in table do
           if c₀ == c₁ then
-            file.putStrLn <| toHexStringAux c₀ ++ ";"
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
           else
-            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "Other_Lowercase" =>
       IO.println s!"Generating table {arg}"
@@ -730,9 +730,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁) in table do
           if c₀ == c₁ then
-            file.putStrLn <| toHexStringAux c₀ ++ ";"
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
           else
-            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "Other_Math" =>
       IO.println s!"Generating table {arg}"
@@ -740,9 +740,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁) in table do
           if c₀ == c₁ then
-            file.putStrLn <| toHexStringAux c₀ ++ ";"
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
           else
-            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "Other_Uppercase" =>
       IO.println s!"Generating table {arg}"
@@ -750,9 +750,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁) in table do
           if c₀ == c₁ then
-            file.putStrLn <| toHexStringAux c₀ ++ ";"
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
           else
-            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "Other" =>
       IO.println s!"Generating table {arg}"
@@ -760,9 +760,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁, v) in table do
           if c₀ == c₁ then
-            file.putStrLn <| toHexStringAux c₀ ++ ";;" ++ toString v
+            file.putStrLn <| toHexStringRaw c₀ ++ ";;" ++ toString v
           else
-            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁ ++ ";" ++ toString v
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁ ++ ";" ++ toString v
       IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
     | "Prepended_Concatenation_Mark" =>
       IO.println s!"Generating table {arg}"
@@ -770,16 +770,16 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁) in table do
           if c₀ == c₁ then
-            file.putStrLn <| toHexStringAux c₀ ++ ";"
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
           else
-            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "Script_Name" =>
       IO.println s!"Generating table {arg}"
       let table := mkScriptName
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c, name) in table do
-          file.putStrLn <| toHexStringAux c ++ ";" ++ name
+          file.putStrLn <| toHexStringRaw c ++ ";" ++ name
       IO.println s!"Size: {table.size}"
     | "Titlecase" =>
       IO.println s!"Generating table {arg}"
@@ -787,9 +787,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁) in table do
           if c₀ == c₁ then
-            file.putStrLn <| toHexStringAux c₀ ++ ";"
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
           else
-            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "Uppercase" =>
       IO.println s!"Generating table {arg}"
@@ -797,9 +797,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁) in table do
           if c₀ == c₁ then
-            file.putStrLn <| toHexStringAux c₀ ++ ";"
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
           else
-            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "Variation_Selector" =>
       IO.println s!"Generating table {arg}"
@@ -807,9 +807,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁) in table do
           if c₀ == c₁ then
-            file.putStrLn <| toHexStringAux c₀ ++ ";"
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
           else
-            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "White_Space" =>
       IO.println s!"Generating table {arg}"
@@ -817,9 +817,9 @@ def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁) in table do
           if c₀ == c₁ then
-            file.putStrLn <| toHexStringAux c₀ ++ ";"
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
           else
-            file.putStrLn <| toHexStringAux c₀ ++ ";" ++ toHexStringAux c₁
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | _ => IO.println s!"Unknown property {arg}"
   return 0
