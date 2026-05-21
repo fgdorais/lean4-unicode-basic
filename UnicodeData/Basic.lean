@@ -115,7 +115,7 @@ def UnicodeData.mkTangutIdeograph (c : UInt32) : UnicodeData where
 protected def UnicodeData.txt := include_str "../data/UnicodeData.txt"
 
 /-- Parse `UnicodeData.txt` -/
-unsafe initialize UnicodeData.data : Array UnicodeData ←
+public unsafe initialize UnicodeData.data : Array UnicodeData ←
   let getDecompositionMapping? (s : String.Slice) : Option DecompositionMapping := do
     /-
       The value of the `Decomposition_Mapping` property for a character is

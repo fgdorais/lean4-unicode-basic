@@ -15,7 +15,7 @@ public abbrev Scripts := Std.HashMap String.Slice (Array (UInt32 × UInt32))
 /-- Raw string from `Scripts.txt` -/
 def Scripts.txt := include_str "../data/Scripts.txt"
 
-initialize Scripts.data : Scripts ← do
+public initialize Scripts.data : Scripts ← do
   let stream := UCDStream.ofString Scripts.txt
   let mut t := {}
   for record in stream do

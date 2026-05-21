@@ -35,7 +35,7 @@ deriving Inhabited, Repr
 /-- Raw string form `PropList.txt` -/
 protected def PropList.txt := include_str "../data/PropList.txt"
 
-unsafe initialize PropList.data : PropList ←
+public unsafe initialize PropList.data : PropList ←
   let stream := UCDStream.ofString PropList.txt
   let mut list : PropList := {}
   for record in stream do
