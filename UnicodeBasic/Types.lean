@@ -127,55 +127,55 @@ public instance : HasSubset GC where
 
 public instance (x y : GC) : Decidable (x ⊆ y) := inferInstanceAs (Decidable (_ == _))
 
-public protected def none : GC := (0x00000000 : UInt32)
-public protected def univ : GC := (0x3FFFFFFF : UInt32)
+public protected abbrev none : GC := (0x00000000 : UInt32)
+public protected abbrev univ : GC := (0x3FFFFFFF : UInt32)
 
-public protected def Lu  : GC := (0x00000001 : UInt32)
-public protected def Ll  : GC := (0x00000002 : UInt32)
-public protected def Lt  : GC := (0x00000004 : UInt32)
-public protected def Lm  : GC := (0x00000008 : UInt32)
-public protected def Lo  : GC := (0x00000010 : UInt32)
-public protected def LC  : GC := .Lu ||| .Ll ||| .Lt
-public protected def L   : GC := .Lu ||| .Ll ||| .Lt ||| .Lm ||| .Lo
+public protected abbrev Lu  : GC := (0x00000001 : UInt32)
+public protected abbrev Ll  : GC := (0x00000002 : UInt32)
+public protected abbrev Lt  : GC := (0x00000004 : UInt32)
+public protected abbrev Lm  : GC := (0x00000008 : UInt32)
+public protected abbrev Lo  : GC := (0x00000010 : UInt32)
+public protected abbrev LC  : GC := .Lu ||| .Ll ||| .Lt
+public protected abbrev L   : GC := .Lu ||| .Ll ||| .Lt ||| .Lm ||| .Lo
 
-public protected def Mn  : GC := (0x00000020 : UInt32)
-public protected def Mc  : GC := (0x00000040 : UInt32)
-public protected def Me  : GC := (0x00000080 : UInt32)
-public protected def M   : GC := .Mn ||| .Mc ||| .Me
+public protected abbrev Mn  : GC := (0x00000020 : UInt32)
+public protected abbrev Mc  : GC := (0x00000040 : UInt32)
+public protected abbrev Me  : GC := (0x00000080 : UInt32)
+public protected abbrev M   : GC := .Mn ||| .Mc ||| .Me
 
-public protected def Nd  : GC := (0x00000100 : UInt32)
-public protected def Nl  : GC := (0x00000200 : UInt32)
-public protected def No  : GC := (0x00000400 : UInt32)
-public protected def N   : GC := .Nd ||| .Nl ||| .No
+public protected abbrev Nd  : GC := (0x00000100 : UInt32)
+public protected abbrev Nl  : GC := (0x00000200 : UInt32)
+public protected abbrev No  : GC := (0x00000400 : UInt32)
+public protected abbrev N   : GC := .Nd ||| .Nl ||| .No
 
-public protected def Pc  : GC := (0x00000800 : UInt32)
-public protected def Pd  : GC := (0x00001000 : UInt32)
-public protected def Ps  : GC := (0x00002000 : UInt32)
-public protected def Pe  : GC := (0x00004000 : UInt32)
-public protected def Pi  : GC := (0x00008000 : UInt32)
-public protected def Pf  : GC := (0x00010000 : UInt32)
-public protected def Po  : GC := (0x00020000 : UInt32)
-public protected def PG  : GC := .Ps ||| .Pe
-public protected def PQ  : GC := .Pi ||| .Pf
-public protected def P   : GC := .Pc ||| .Pd ||| .Ps ||| .Pe ||| .Pi ||| .Pf ||| .Po
+public protected abbrev Pc  : GC := (0x00000800 : UInt32)
+public protected abbrev Pd  : GC := (0x00001000 : UInt32)
+public protected abbrev Ps  : GC := (0x00002000 : UInt32)
+public protected abbrev Pe  : GC := (0x00004000 : UInt32)
+public protected abbrev Pi  : GC := (0x00008000 : UInt32)
+public protected abbrev Pf  : GC := (0x00010000 : UInt32)
+public protected abbrev Po  : GC := (0x00020000 : UInt32)
+public protected abbrev PG  : GC := .Ps ||| .Pe
+public protected abbrev PQ  : GC := .Pi ||| .Pf
+public protected abbrev P   : GC := .Pc ||| .Pd ||| .Ps ||| .Pe ||| .Pi ||| .Pf ||| .Po
 
-public protected def Sm  : GC := (0x00040000 : UInt32)
-public protected def Sc  : GC := (0x00080000 : UInt32)
-public protected def Sk  : GC := (0x00100000 : UInt32)
-public protected def So  : GC := (0x00200000 : UInt32)
-public protected def S   : GC := .Sm ||| .Sc ||| .Sk ||| .So
+public protected abbrev Sm  : GC := (0x00040000 : UInt32)
+public protected abbrev Sc  : GC := (0x00080000 : UInt32)
+public protected abbrev Sk  : GC := (0x00100000 : UInt32)
+public protected abbrev So  : GC := (0x00200000 : UInt32)
+public protected abbrev S   : GC := .Sm ||| .Sc ||| .Sk ||| .So
 
-public protected def Zs  : GC := (0x00400000 : UInt32)
-public protected def Zl  : GC := (0x00800000 : UInt32)
-public protected def Zp  : GC := (0x01000000 : UInt32)
-public protected def Z   : GC := .Zs ||| .Zl ||| .Zp
+public protected abbrev Zs  : GC := (0x00400000 : UInt32)
+public protected abbrev Zl  : GC := (0x00800000 : UInt32)
+public protected abbrev Zp  : GC := (0x01000000 : UInt32)
+public protected abbrev Z   : GC := .Zs ||| .Zl ||| .Zp
 
-public protected def Cc  : GC := (0x02000000 : UInt32)
-public protected def Cf  : GC := (0x04000000 : UInt32)
-public protected def Cs  : GC := (0x08000000 : UInt32)
-public protected def Co  : GC := (0x10000000 : UInt32)
-public protected def Cn  : GC := (0x20000000 : UInt32)
-public protected def C   : GC := .Cc ||| .Cf ||| .Cs ||| .Co ||| .Cn
+public protected abbrev Cc  : GC := (0x02000000 : UInt32)
+public protected abbrev Cf  : GC := (0x04000000 : UInt32)
+public protected abbrev Cs  : GC := (0x08000000 : UInt32)
+public protected abbrev Co  : GC := (0x10000000 : UInt32)
+public protected abbrev Cn  : GC := (0x20000000 : UInt32)
+public protected abbrev C   : GC := .Cc ||| .Cf ||| .Cs ||| .Co ||| .Cn
 
 def reprAux (x : GC) (extra := false) : List String := Id.run do
   let mut c := #[]
@@ -440,7 +440,7 @@ public inductive CompatibilityTag
 | public compat
 deriving Inhabited, DecidableEq, Repr
 
-instance : ToString CompatibilityTag where
+public instance : ToString CompatibilityTag where
   toString
   | .font => "<font>"
   | .noBreak => "<noBreak>"
@@ -632,7 +632,7 @@ public def BidiClass.ofAbbrev! (abbr : String.Slice) : BidiClass :=
   | some bc => bc
   | none => panic! "invalid bidi class abbreviation"
 
-instance : Repr BidiClass where
+public instance : Repr BidiClass where
   reprPrec bc _ := s!"Unicode.BidiClass.{bc.toAbbrev}"
 
 /-!
