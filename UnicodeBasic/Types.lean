@@ -279,10 +279,10 @@ public def toAbbrev! (x : GC) : String :=
 
 open Std.Format Repr in
 public def reprPrec (x : GC) := addAppParen (group (joinSep (reprAux x |>.map (text "Unicode.GC." ++ text ·)) (text " |||" ++ line)) .fill)
-instance : Repr GC where reprPrec
+public instance : Repr GC where reprPrec
 
 public def toString (x : GC) := " | ".intercalate (reprAux x)
-instance : ToString GC where toString
+public instance : ToString GC where toString
 
 public def ofAbbrev? (s : String.Slice) : Option GC :=
   match s.chars.take 3 |>.toList with
