@@ -7,7 +7,6 @@ import Lake
 open System Lake DSL
 
 package UnicodeBasic where
-  version := v!"1.1.0"
   description := "Basic Unicode support for Lean 4"
   keywords := #["unicode"]
   reservoir := true

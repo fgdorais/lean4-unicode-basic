@@ -6,30 +6,28 @@ module
 import UnicodeBasic.Types
 import UnicodeBasic.CharacterDatabase
 
-public section
-
 namespace Unicode
 
 /-- Structure containing supported character properties from `PropList.txt` -/
-structure PropList where
+public structure PropList where
   /-- property `Noncharacter_Code_Point` -/
-  noncharacterCodePoint : Array (UInt32 × Option UInt32) := #[]
+  public noncharacterCodePoint : Array (UInt32 × Option UInt32) := #[]
   /-- property `White_Space` -/
-  whiteSpace : Array (UInt32 × Option UInt32) := #[]
+  public whiteSpace : Array (UInt32 × Option UInt32) := #[]
   /-- property `Other_Math` -/
-  otherMath : Array (UInt32 × Option UInt32) := #[]
+  public otherMath : Array (UInt32 × Option UInt32) := #[]
   /-- property `Other_Alphabetic` -/
-  otherAlphabetic : Array (UInt32 × Option UInt32) := #[]
+  public otherAlphabetic : Array (UInt32 × Option UInt32) := #[]
   /-- property `Other_Lowercase` -/
-  otherLowercase : Array (UInt32 × Option UInt32) := #[]
+  public otherLowercase : Array (UInt32 × Option UInt32) := #[]
   /-- property `Other_Uppercase` -/
-  otherUppercase : Array (UInt32 × Option UInt32) := #[]
+  public otherUppercase : Array (UInt32 × Option UInt32) := #[]
   /-- property `Other_Default_Ignorable_Code_Point` -/
-  otherDefaultIgnorableCodePoint : Array (UInt32 × Option UInt32) := #[]
+  public otherDefaultIgnorableCodePoint : Array (UInt32 × Option UInt32) := #[]
   /-- property `Prepended_Concatenation_Mark` -/
-  prependedConcatenationMark : Array (UInt32 × Option UInt32) := #[]
+  public prependedConcatenationMark : Array (UInt32 × Option UInt32) := #[]
   /-- property `Variation_Selector` -/
-  variationSelector : Array (UInt32 × Option UInt32) := #[]
+  public variationSelector : Array (UInt32 × Option UInt32) := #[]
   /-- property `Deprecated` -/
   deprecated : Array (UInt32 × Option UInt32) := #[]
 deriving Inhabited, Repr
@@ -37,7 +35,7 @@ deriving Inhabited, Repr
 /-- Raw string form `PropList.txt` -/
 protected def PropList.txt := include_str "../data/PropList.txt"
 
-unsafe initialize PropList.data : PropList ←
+public unsafe initialize PropList.data : PropList ←
   let stream := UCDStream.ofString PropList.txt
   let mut list : PropList := {}
   for record in stream do
@@ -85,7 +83,7 @@ private partial def find (code : UInt32) (data : Array (UInt32 × Option UInt32)
 
 /-- Check if code point has `Noncharacter_Code_Point` property from `PropList.txt` -/
 @[inline]
-def PropList.isNoncharacterCodePoint (code : UInt32) : Bool :=
+public def PropList.isNoncharacterCodePoint (code : UInt32) : Bool :=
   let data := PropList.data.noncharacterCodePoint
   if data.size == 0 || code < data[0]!.fst then false else
     match data[find code data 0 data.size]! with
@@ -94,7 +92,7 @@ def PropList.isNoncharacterCodePoint (code : UInt32) : Bool :=
 
 /-- Check if code point has `White_Space` property from `PropList.txt` -/
 @[inline]
-def PropList.isWhiteSpace (code : UInt32) : Bool :=
+public def PropList.isWhiteSpace (code : UInt32) : Bool :=
   let data := PropList.data.whiteSpace
   if data.size == 0 || code < data[0]!.fst then false else
     match data[find code data 0 data.size]! with
@@ -103,7 +101,7 @@ def PropList.isWhiteSpace (code : UInt32) : Bool :=
 
 /-- Check if code point has `Other_Math` property from `PropList.txt` -/
 @[inline]
-def PropList.isOtherMath (code : UInt32) : Bool :=
+public def PropList.isOtherMath (code : UInt32) : Bool :=
   let data := PropList.data.otherMath
   if data.size == 0 || code < data[0]!.fst then false else
     match data[find code data 0 data.size]! with
@@ -112,7 +110,7 @@ def PropList.isOtherMath (code : UInt32) : Bool :=
 
 /-- Check if code point has `Other_Alphabetic` property from `PropList.txt` -/
 @[inline]
-def PropList.isOtherAlphabetic (code : UInt32) : Bool :=
+public def PropList.isOtherAlphabetic (code : UInt32) : Bool :=
   let data := PropList.data.otherAlphabetic
   if data.size == 0 || code < data[0]!.fst then false else
     match data[find code data 0 data.size]! with
@@ -121,7 +119,7 @@ def PropList.isOtherAlphabetic (code : UInt32) : Bool :=
 
 /-- Check if code point has `Other_Lowercase` property from `PropList.txt` -/
 @[inline]
-def PropList.isOtherLowercase (code : UInt32) : Bool :=
+public def PropList.isOtherLowercase (code : UInt32) : Bool :=
   let data := PropList.data.otherLowercase
   if data.size == 0 || code < data[0]!.fst then false else
     match data[find code data 0 data.size]! with
@@ -130,7 +128,7 @@ def PropList.isOtherLowercase (code : UInt32) : Bool :=
 
 /-- Check if code point has `Other_Uppercase` property from `PropList.txt` -/
 @[inline]
-def PropList.isOtherUppercase (code : UInt32) : Bool :=
+public def PropList.isOtherUppercase (code : UInt32) : Bool :=
   let data := PropList.data.otherUppercase
   if data.size == 0 || code < data[0]!.fst then false else
     match data[find code data 0 data.size]! with
@@ -139,7 +137,7 @@ def PropList.isOtherUppercase (code : UInt32) : Bool :=
 
 /-- Check if code point has `Other_Default_Ignorable_Code_Point` property from `PropList.txt` -/
 @[inline]
-def PropList.isOtherDefaultIgnorableCodePoint (code : UInt32) : Bool :=
+public def PropList.isOtherDefaultIgnorableCodePoint (code : UInt32) : Bool :=
   let data := PropList.data.otherDefaultIgnorableCodePoint
   if data.size == 0 || code < data[0]!.fst then false else
     match data[find code data 0 data.size]! with
@@ -148,7 +146,7 @@ def PropList.isOtherDefaultIgnorableCodePoint (code : UInt32) : Bool :=
 
 /-- Check if code point has `Prepended_Concatenation_Mark` property from `PropList.txt` -/
 @[inline]
-def PropList.isPrependedConcatenationMark (code : UInt32) : Bool :=
+public def PropList.isPrependedConcatenationMark (code : UInt32) : Bool :=
   let data := PropList.data.prependedConcatenationMark
   if data.size == 0 || code < data[0]!.fst then false else
     match data[find code data 0 data.size]! with
@@ -157,7 +155,7 @@ def PropList.isPrependedConcatenationMark (code : UInt32) : Bool :=
 
 /-- Check if code point has `Variation_Selector` property from `PropList.txt` -/
 @[inline]
-def PropList.isVariationSelector (code : UInt32) : Bool :=
+public def PropList.isVariationSelector (code : UInt32) : Bool :=
   let data := PropList.data.variationSelector
   if data.size == 0 || code < data[0]!.fst then false else
     match data[find code data 0 data.size]! with
@@ -166,7 +164,7 @@ def PropList.isVariationSelector (code : UInt32) : Bool :=
 
 /-- Check if code point has `Deprecated` property from `PropList.txt` -/
 @[inline]
-def PropList.isDeprecated (code : UInt32) : Bool :=
+public def PropList.isDeprecated (code : UInt32) : Bool :=
   let data := PropList.data.deprecated
   if data.size == 0 || code < data[0]!.fst then false else
     match data[find code data 0 data.size]! with

@@ -2,7 +2,7 @@
 Copyright © 2024-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-
+module
 import UnicodeBasic
 import UnicodeData
 
@@ -132,7 +132,7 @@ def tests : Array (String × (UnicodeData → Bool)) := #[
   ("General_Category", testGeneralCategory),
   ("White_Space", testWhiteSpace)]
 
-def main (args : List String) : IO UInt32 := do
+public def main (args : List String) : IO UInt32 := do
   let args := if args.isEmpty then tests.map Prod.fst else args.toArray
   let stream : UnicodeDataStream := {}
   let mut err : UInt32 := 0
@@ -140,5 +140,5 @@ def main (args : List String) : IO UInt32 := do
     for t in tests do
       if t.1 ∈ args && !t.2 d then
         err := 1
-        IO.println s!"Error: {t.1} {toHexStringAux d.code}"
+        IO.println s!"Error: {t.1} {toHexStringRaw d.code}"
   return err
