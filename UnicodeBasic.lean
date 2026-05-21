@@ -732,5 +732,3 @@ public def isAlphabetic (char : Char) : Bool :=
 
 @[inherit_doc isAlphabetic]
 public abbrev isAlpha := isAlphabetic
-
-end Unicode
