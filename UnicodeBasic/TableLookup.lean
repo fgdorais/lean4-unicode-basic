@@ -7,8 +7,6 @@ import UnicodeBasic.CharacterDatabase
 import UnicodeBasic.Hangul
 public import UnicodeBasic.Types
 
-public section
-
 namespace Unicode
 
 namespace CLib
@@ -74,7 +72,7 @@ private def parsePropTable (s : String) : Thunk <| Array (UInt32 × UInt32) := I
 /-- Get bidirectional class using lookup table
 
   Unicode property: `Bidi_Class` -/
-def lookupBidiClass (c : UInt32) : BidiClass :=
+public def lookupBidiClass (c : UInt32) : BidiClass :=
   let table := table.get
   if c < table[0]!.1 then .BN else
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
@@ -87,7 +85,7 @@ where
 /-- Get canonical combining class using lookup table
 
   Unicode property: `Canonical_Combining_Class` -/
-def lookupCanonicalCombiningClass (c : UInt32) : Nat :=
+public def lookupCanonicalCombiningClass (c : UInt32) : Nat :=
   let t := table.get
   if c < t[0]!.1 then 0 else
     match t[find c (fun i => t[i]!.1) 0 t.size.toUSize]! with
@@ -102,7 +100,7 @@ where
   Unicode properties:
     `Decomposition_Mapping`
     `Decomposition_Type=Canonical` -/
-def lookupCanonicalDecompositionMapping (c : UInt32) : List UInt32 :=
+public def lookupCanonicalDecompositionMapping (c : UInt32) : List UInt32 :=
   -- Hangul syllables
   if Hangul.Syllable.base ≤ c && c ≤ Hangul.Syllable.last then
     let s := Hangul.getSyllable! c
@@ -125,7 +123,7 @@ where
     `Simple_Lowercase_Mapping`
     `Simple_Uppercase_Mapping`
     `Simple_Titlecase_Mapping` -/
-def lookupCaseMapping (c : UInt32) : UInt32 × UInt32 × UInt32 :=
+public def lookupCaseMapping (c : UInt32) : UInt32 × UInt32 × UInt32 :=
   let v : UInt64 := CLib.lookupCase c
   if v == 0 then (c, c, c) else
     let cu : UInt32 := v.toUInt32 &&& 0x001FFFFF
@@ -138,7 +136,7 @@ def lookupCaseMapping (c : UInt32) : UInt32 × UInt32 × UInt32 :=
   Unicode properties:
     `Decomposition_Mapping`
     `Decomposition_Type` -/
-def lookupDecompositionMapping? (c : UInt32) : Option DecompositionMapping :=
+public def lookupDecompositionMapping? (c : UInt32) : Option DecompositionMapping :=
   -- Hangul syllables
   if Hangul.Syllable.base ≤ c && c ≤ Hangul.Syllable.last then
     let s := Hangul.getSyllable! c
@@ -183,12 +181,12 @@ where
 
   Unicode property: `General_Category` -/
 @[inline]
-def lookupGC (c : UInt32) : GC := CLib.lookupProp c |>.toUInt32
+public def lookupGC (c : UInt32) : GC := CLib.lookupProp c |>.toUInt32
 
 /-- Get name of a code point using lookup table
 
   Unicode property: `Name` -/
-def lookupName (c : UInt32) : String :=
+public def lookupName (c : UInt32) : String :=
   let table := table.get
   if c < table[0]!.1 then unreachable! else
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
@@ -196,23 +194,23 @@ def lookupName (c : UInt32) : String :=
       if c ≤ v then
         if Char.ofUInt8 (d.getUTF8Byte! 0) == '<' then
           if d == "<Control>" then
-            s!"<control-{toHexStringAux c}>"
+            s!"<control-{toHexStringRaw c}>"
           else if d == "<Private Use>" then
-            s!"<private-use-{toHexStringAux c}>"
+            s!"<private-use-{toHexStringRaw c}>"
           else if d == "<Reserved>" then
-            s!"<reserved-{toHexStringAux c}>"
+            s!"<reserved-{toHexStringRaw c}>"
           else if d == "<Surrogate>" then
-            s!"<surrogate-{toHexStringAux c}>"
+            s!"<surrogate-{toHexStringRaw c}>"
           else if d == "<CJK Unified Ideograph>" then
-            "CJK UNIFIED IDEOGRAPH-" ++ toHexStringAux c
+            "CJK UNIFIED IDEOGRAPH-" ++ toHexStringRaw c
           else if d == "<CJK Compatibility Ideograph>" then
-            "CJK COMPATIBILITY IDEOGRAPH-" ++ toHexStringAux c
+            "CJK COMPATIBILITY IDEOGRAPH-" ++ toHexStringRaw c
           else if d == "<Hangul Syllable>" then
             "HANGUL SYLLABLE " ++ (Hangul.getSyllable! c).getShortName
           else if d == "<Khitan Small Script Character>" then
-            "KHITAN SMALL SCRIPT CHARACTER-" ++ toHexStringAux c
+            "KHITAN SMALL SCRIPT CHARACTER-" ++ toHexStringRaw c
           else if d == "<Nushu Character>" then
-            "NUSHU CHARACTER-" ++ toHexStringAux c
+            "NUSHU CHARACTER-" ++ toHexStringRaw c
           else if d == "<Tangut Component>" then
             let i := if c.toNat < 0x18B00 then
                 -- Tangut Component
@@ -226,10 +224,10 @@ def lookupName (c : UInt32) : String :=
               else i
             "TANGUT COMPONENT-" ++ i
           else if d == "<Tangut Ideograph>" then
-            "TANGUT IDEOGRAPH-" ++ toHexStringAux c
+            "TANGUT IDEOGRAPH-" ++ toHexStringRaw c
           else panic! s!"unknown name range {d.copy}"
         else String.Slice.copy d
-      else s!"<noncharacter-{toHexStringAux c}>"
+      else s!"<noncharacter-{toHexStringRaw c}>"
 where
   str : String := include_str "../data/table/Name.txt"
   table : Thunk <| Array (UInt32 × UInt32 × String.Slice) :=
@@ -240,7 +238,7 @@ where
   Unicode properties:
     `Numeric_Type`
     `Numeric_Value` -/
-def lookupNumericValue (c : UInt32) : Option NumericType :=
+public def lookupNumericValue (c : UInt32) : Option NumericType :=
   let table := table.get
   if c < table[0]!.1 then none else
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
@@ -288,7 +286,7 @@ where
 /-- Get other properties using lookup table
 
   Unicode properties: `Other_Alphabetic`, `Other_Lowercase`, `Other_Uppercase`, `Other_Math` -/
-def lookupOther (c : UInt32) : UInt32 :=
+public def lookupOther (c : UInt32) : UInt32 :=
   CLib.lookupProp c >>> 32 |>.toUInt32
 
 /-! Properties -/
@@ -297,7 +295,7 @@ def lookupOther (c : UInt32) : UInt32 :=
 
   Unicode property: `Alphabetic` -/
 @[inline]
-def lookupAlphabetic (c : UInt32) : Bool :=
+public def lookupAlphabetic (c : UInt32) : Bool :=
   let m := CLib.oAlpha ||| (GC.L ||| GC.Nl).toUInt64
   CLib.lookupProp c &&& m != 0
 
@@ -305,7 +303,7 @@ def lookupAlphabetic (c : UInt32) : Bool :=
 
   Unicode property: `Bidi_Mirrored`
 -/
-def lookupBidiMirrored (c : UInt32) : Bool :=
+public def lookupBidiMirrored (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
@@ -318,7 +316,7 @@ where
 
   Unicode property: `Cased` -/
 @[inline]
-def lookupCased (c : UInt32 ) : Bool :=
+public def lookupCased (c : UInt32 ) : Bool :=
   let m := CLib.oUpper ||| CLib.oLower ||| GC.LC.toUInt64
   CLib.lookupProp c &&& m != 0
 
@@ -326,7 +324,7 @@ def lookupCased (c : UInt32 ) : Bool :=
 
   Unicode property: `Default_Ignorable_Code_Point` -/
 @[inline]
-def lookupDefaultIgnorableCodePoint (c : UInt32 ) : Bool :=
+public def lookupDefaultIgnorableCodePoint (c : UInt32 ) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
@@ -339,7 +337,7 @@ where
 
   Unicode property: `Lowercase` -/
 @[inline]
-def lookupLowercase (c : UInt32) : Bool :=
+public def lookupLowercase (c : UInt32) : Bool :=
   let m := CLib.oLower ||| GC.Ll.toUInt64
   CLib.lookupProp c &&& m != 0
 
@@ -348,7 +346,7 @@ def lookupLowercase (c : UInt32) : Bool :=
 
   Unicode property: `Math` -/
 @[inline]
-def lookupMath (c : UInt32) : Bool :=
+public def lookupMath (c : UInt32) : Bool :=
   let m := CLib.oMath ||| GC.Sm.toUInt64
   CLib.lookupProp c &&& m != 0
 
@@ -356,28 +354,28 @@ def lookupMath (c : UInt32) : Bool :=
 
   Unicode property: `Noncharacter_Code_Point` -/
 @[inline]
-def lookupNoncharacterCodePoint (c : UInt32) : Bool :=
+public def lookupNoncharacterCodePoint (c : UInt32) : Bool :=
   (c ≤ 0xFDEF && 0xFDD0 ≤ c) || (c ≤ Unicode.max && c &&& 0xFFFE == 0xFFFE)
 
 /-- Check if code point is a titlecase letter using lookup table
 
   Unicode property: `Titlecase` -/
 @[inline]
-def lookupTitlecase (c : UInt32) : Bool :=
+public def lookupTitlecase (c : UInt32) : Bool :=
   lookupGC c == GC.Lt
 
 /-- Check if code point is a uppercase letter using lookup table
 
   Unicode property: `Uppercase` -/
 @[inline]
-def lookupUppercase (c : UInt32) : Bool :=
+public def lookupUppercase (c : UInt32) : Bool :=
   let m := CLib.oUpper ||| GC.Lu.toUInt64
   CLib.lookupProp c &&& m != 0
 
 /-- Check if code point is a white space character using lookup table
 
   Unicode property: `White_Space` -/
-def lookupWhiteSpace (c : UInt32) : Bool :=
+public def lookupWhiteSpace (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
@@ -390,12 +388,12 @@ where
 
   Unicode property: `Script` -/
 @[inline]
-def lookupScript (c : UInt32) : Script := CLib.lookupScript c
+public def lookupScript (c : UInt32) : Script := CLib.lookupScript c
 
 /-- Get the name of a script
 
   Unicode property: `Script` -/
-def lookupScriptName (s : Script) : Option String.Slice :=
+public def lookupScriptName (s : Script) : Option String.Slice :=
   let table := table.get
   if s.code < table[0]!.1 then none else
     match table[find s.code (fun i => table[i]!.1) 0 table.size.toUSize]! with
