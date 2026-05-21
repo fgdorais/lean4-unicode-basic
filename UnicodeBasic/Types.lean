@@ -391,6 +391,7 @@ public def NumericType.isDigit : NumericType → Bool
 
   Unicode property: `Numeric_Value`
 -/
+@[expose]
 public def NumericType.value : NumericType → Int ⊕ Int × Nat
 | decimal n => .inl n
 | digit n => .inl n
