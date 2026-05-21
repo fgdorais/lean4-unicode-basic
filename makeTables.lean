@@ -527,7 +527,7 @@ def mkScriptName : Array (UInt32 × String) :=
     (s.code, name.toString)
   t.qsort fun (a, _) (b, _) => a < b
 
-def main (args : List String) : IO UInt32 := do
+public def main (args : List String) : IO UInt32 := do
   let args := if args != [] then args else [
     "Bidi_Class",
     "Bidi_Mirrored",
