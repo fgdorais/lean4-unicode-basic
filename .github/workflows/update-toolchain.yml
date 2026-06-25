@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
 
       - name: install jq
-        uses: dcarbone/install-jq-action@v3
+        uses: dcarbone/install-jq-action@v4
 
       - name: get toolchain tags
         id: toolchain-tag
