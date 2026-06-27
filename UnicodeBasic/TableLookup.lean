@@ -602,3 +602,105 @@ public def lookupPatternWhiteSpace (c : UInt32) : Bool :=
 where
   str : String := include_str "../data/table/Pattern_White_Space.txt"
   table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Emoji property using lookup table -/
+public def lookupEmoji (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Emoji.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Emoji_Presentation property using lookup table -/
+public def lookupEmojiPresentation (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Emoji_Presentation.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Emoji_Modifier property using lookup table -/
+public def lookupEmojiModifier (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Emoji_Modifier.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Emoji_Modifier_Base property using lookup table -/
+public def lookupEmojiModifierBase (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Emoji_Modifier_Base.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Emoji_Component property using lookup table -/
+public def lookupEmojiComponent (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Emoji_Component.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Extended_Pictographic property using lookup table -/
+public def lookupExtendedPictographic (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Extended_Pictographic.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Get sentence break property using lookup table -/
+public def lookupSentenceBreak (c : UInt32) : SentenceBreak :=
+  let table := table.get
+  if c < table[0]!.1 then .other else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v, b) => if c ≤ v then b else .other
+where
+  str : String := include_str "../data/table/Sentence_Break.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × SentenceBreak) :=
+    parseDataTable str fun _ _ x => SentenceBreak.ofAbbrev! x[0]!
+
+/-- Get line break property using lookup table -/
+public def lookupLineBreak (c : UInt32) : LineBreak :=
+  let table := table.get
+  if c < table[0]!.1 then .unknown else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v, b) => if c ≤ v then b else .unknown
+where
+  str : String := include_str "../data/table/Line_Break.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × LineBreak) :=
+    parseDataTable str fun _ _ x => LineBreak.ofAbbrev! x[0]!
+
+/-- Check if code point has Grapheme_Base property using lookup table -/
+public def lookupGraphemeBase (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Grapheme_Base.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Grapheme_Extend property using lookup table -/
+public def lookupGraphemeExtend (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Grapheme_Extend.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str

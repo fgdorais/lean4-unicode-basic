@@ -10,6 +10,11 @@ namespace Unicode
 
 /-- Structure containing supported character properties from `DerivedCoreProperties.txt` -/
 public structure DerivedCoreProperties where
+  /-- property `Grapheme_Base` -/
+  public graphemeBase : Array (UInt32 × Option UInt32) := #[]
+  /-- property `Grapheme_Extend` -/
+  public graphemeExtend : Array (UInt32 × Option UInt32) := #[]
+
   /-- property `ID_Start` -/
   public idStart : Array (UInt32 × Option UInt32) := #[]
   /-- property `ID_Continue` -/
@@ -39,6 +44,12 @@ public unsafe initialize DerivedCoreProperties.data : DerivedCoreProperties ←
     if record[1]! == "XID_Start" then
       list := {list with xidStart := list.xidStart.push val}
     if record[1]! == "XID_Continue" then
+      list := {list with xidContinue := list.xidContinue.push val}
+    if record[1]! == "Grapheme_Base" then
+      list := {list with graphemeBase := list.graphemeBase.push val}
+    if record[1]! == "Grapheme_Extend" then
+      list := {list with graphemeExtend := list.graphemeExtend.push val}
+
       list := {list with xidContinue := list.xidContinue.push val}
   return list
 
@@ -94,3 +105,21 @@ public def DerivedCoreProperties.isXIDContinue (code : UInt32) : Bool :=
     | (_, some top) => code <= top
 
 end Unicode
+
+/-- Check if code point has `Grapheme_Base` property -/
+@[inline]
+public def DerivedCoreProperties.isGraphemeBase (code : UInt32) : Bool :=
+  let data := DerivedCoreProperties.data.graphemeBase
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
+
+/-- Check if code point has `Grapheme_Extend` property -/
+@[inline]
+public def DerivedCoreProperties.isGraphemeExtend (code : UInt32) : Bool :=
+  let data := DerivedCoreProperties.data.graphemeExtend
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top

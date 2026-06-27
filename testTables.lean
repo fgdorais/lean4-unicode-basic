@@ -105,6 +105,14 @@ def testNoncharacterCodePoint (d : UnicodeData) : Bool :=
     && PropList.isSentenceTerminal d.code == lookupSentenceTerminal d.code
     && PropList.isPatternSyntax d.code == lookupPatternSyntax d.code
     && PropList.isPatternWhiteSpace d.code == lookupPatternWhiteSpace d.code
+    && EmojiData.isEmoji d.code == lookupEmoji d.code
+    && EmojiData.isEmojiPresentation d.code == lookupEmojiPresentation d.code
+    && EmojiData.isEmojiModifier d.code == lookupEmojiModifier d.code
+    && EmojiData.isEmojiModifierBase d.code == lookupEmojiModifierBase d.code
+    && EmojiData.isEmojiComponent d.code == lookupEmojiComponent d.code
+    && EmojiData.isExtendedPictographic d.code == lookupExtendedPictographic d.code
+    && DerivedCoreProperties.isGraphemeBase d.code == lookupGraphemeBase d.code
+    && DerivedCoreProperties.isGraphemeExtend d.code == lookupGraphemeExtend d.code
 
 def testNumericValue (d : UnicodeData) : Bool :=
   d.numeric == lookupNumericValue d.code

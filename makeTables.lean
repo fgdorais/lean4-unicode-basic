@@ -633,6 +633,57 @@ def mkPatternWhiteSpace : Array (UInt32 × UInt32) :=
     | (c₀, some c₁) => (c₀, c₁)
     | (c₀, none) => (c₀, c₀)
 
+
+def mkEmoji : Array (UInt32 × UInt32) :=
+  EmojiData.data.emoji.map fun
+    | (c₀, some c₁) => (c₀, c₁)
+    | (c₀, none) => (c₀, c₀)
+
+def mkEmojiPresentation : Array (UInt32 × UInt32) :=
+  EmojiData.data.emojiPresentation.map fun
+    | (c₀, some c₁) => (c₀, c₁)
+    | (c₀, none) => (c₀, c₀)
+
+def mkEmojiModifier : Array (UInt32 × UInt32) :=
+  EmojiData.data.emojiModifier.map fun
+    | (c₀, some c₁) => (c₀, c₁)
+    | (c₀, none) => (c₀, c₀)
+
+def mkEmojiModifierBase : Array (UInt32 × UInt32) :=
+  EmojiData.data.emojiModifierBase.map fun
+    | (c₀, some c₁) => (c₀, c₁)
+    | (c₀, none) => (c₀, c₀)
+
+def mkEmojiComponent : Array (UInt32 × UInt32) :=
+  EmojiData.data.emojiComponent.map fun
+    | (c₀, some c₁) => (c₀, c₁)
+    | (c₀, none) => (c₀, c₀)
+
+def mkExtendedPictographic : Array (UInt32 × UInt32) :=
+  EmojiData.data.extendedPictographic.map fun
+    | (c₀, some c₁) => (c₀, c₁)
+    | (c₀, none) => (c₀, c₀)
+
+
+def mkSentenceBreak : Array (UInt32 × UInt32 × String) :=
+  BreakProperties.data.sentenceBreak.map fun (c₀, c₁, v) =>
+    (c₀, match c₁ with | some c => c | none => c₀, v)
+
+def mkLineBreak : Array (UInt32 × UInt32 × String) :=
+  BreakProperties.data.lineBreak.map fun (c₀, c₁, v) =>
+    (c₀, match c₁ with | some c => c | none => c₀, v)
+
+
+def mkGraphemeBase : Array (UInt32 × UInt32) :=
+  DerivedCoreProperties.data.graphemeBase.map fun
+    | (c₀, some c₁) => (c₀, c₁)
+    | (c₀, none) => (c₀, c₀)
+
+def mkGraphemeExtend : Array (UInt32 × UInt32) :=
+  DerivedCoreProperties.data.graphemeExtend.map fun
+    | (c₀, some c₁) => (c₀, c₁)
+    | (c₀, none) => (c₀, c₀)
+
 def mkScriptExtensions : Array (UInt32 × String) := Id.run do
   let mut t_arr : Array (UInt32 × UInt32 × String) := #[]
   let txt : String := include_str "data/ScriptExtensions.txt"
@@ -946,6 +997,27 @@ public def main (args : List String) : IO UInt32 := do
           else
             file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+
+    | "Grapheme_Base" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkGraphemeBase
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
+          else
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
+      IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+    | "Grapheme_Extend" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkGraphemeExtend
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
+          else
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
+      IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "XID_Continue" =>
       IO.println s!"Generating table {arg}"
       let table := mkXIDContinue
@@ -1067,6 +1139,88 @@ public def main (args : List String) : IO UInt32 := do
     | "Grapheme_Break" =>
       IO.println s!"Generating table {arg}"
       let table := mkGraphemeBreak
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁, v) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| ";".intercalate [toHexStringRaw c₀, "", v]
+          else
+            file.putStrLn <| ";".intercalate [toHexStringRaw c₀, toHexStringRaw c₁, v]
+      IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
+
+    | "Emoji" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkEmoji
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
+          else
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
+      IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+    | "Emoji_Presentation" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkEmojiPresentation
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
+          else
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
+      IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+    | "Emoji_Modifier" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkEmojiModifier
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
+          else
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
+      IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+    | "Emoji_Modifier_Base" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkEmojiModifierBase
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
+          else
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
+      IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+    | "Emoji_Component" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkEmojiComponent
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
+          else
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
+      IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+    | "Extended_Pictographic" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkExtendedPictographic
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
+          else
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
+      IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+
+    | "Sentence_Break" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkSentenceBreak
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁, v) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| ";".intercalate [toHexStringRaw c₀, "", v]
+          else
+            file.putStrLn <| ";".intercalate [toHexStringRaw c₀, toHexStringRaw c₁, v]
+      IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
+    | "Line_Break" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkLineBreak
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁, v) in table do
           if c₀ == c₁ then
