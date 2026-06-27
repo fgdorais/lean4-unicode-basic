@@ -90,6 +90,7 @@ def testName (d : UnicodeData) : Bool :=
 
 def testNoncharacterCodePoint (d : UnicodeData) : Bool :=
   PropList.isNoncharacterCodePoint d.code == lookupNoncharacterCodePoint d.code
+    && isDefaultIgnorableCodePoint (Char.ofNat d.code.toNat) == lookupDefaultIgnorableCodePoint d.code
 
 def testNumericValue (d : UnicodeData) : Bool :=
   d.numeric == lookupNumericValue d.code

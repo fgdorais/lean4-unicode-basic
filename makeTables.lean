@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 module
 import UnicodeData
+import UnicodeBasic.CharacterDatabase
 public import UnicodeBasic
 
 open Unicode
@@ -527,6 +528,30 @@ def mkScriptName : Array (UInt32 × String) :=
     (s.code, name.toString)
   t.qsort fun (a, _) (b, _) => a < b
 
+
+
+
+
+def mkScriptExtensions : Array (UInt32 × String) := Id.run do
+  let mut t_arr : Array (UInt32 × UInt32 × String) := #[]
+  let txt : String := include_str "data/ScriptExtensions.txt"
+  let stream := UCDStream.ofString txt
+  for record in stream do
+    let r0 : String.Slice := record[0]!
+    let (c₀, c₁) : UInt32 × UInt32 :=
+      match r0.split ".." |>.toList with
+      | [c] => (ofHexString! c, ofHexString! c)
+      | [c₀, c₁] => (ofHexString! c₀, ofHexString! c₁)
+      | _ => panic! "invalid record in ScriptExtensions.txt"
+    let r1 : String.Slice := record[1]!
+    let val : String := r1.copy
+    t_arr := t_arr.push (c₀, c₁, val)
+  let t_res := compressData t_arr
+  return t_res.map fun (c₀, c₁, val) => (c₀, (toHexStringRaw c₁) ++ ";" ++ val)
+
+
+
+
 public def main (args : List String) : IO UInt32 := do
   let args := if args != [] then args else [
     "Bidi_Class",
@@ -781,6 +806,13 @@ public def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c, name) in table do
           file.putStrLn <| toHexStringRaw c ++ ";" ++ name
+      IO.println s!"Size: {table.size}"
+    | "Script_Extensions" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkScriptExtensions
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, data) in table do
+          file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ data
       IO.println s!"Size: {table.size}"
     | "Titlecase" =>
       IO.println s!"Generating table {arg}"

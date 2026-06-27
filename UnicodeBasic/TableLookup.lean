@@ -401,3 +401,21 @@ public def lookupScriptName (s : Script) : Option String.Slice :=
 where
   str : String := include_str "../data/table/Script_Name.txt"
   table : Thunk <| Array (UInt32 × String.Slice) := parseTable str fun _ n => n[0]!
+
+/-- Get script extensions of a code point using lookup table
+
+  Unicode property: `Script_Extensions` -/
+public def lookupScriptExtensions (c : UInt32) : Array Script :=
+  let table := table.get
+  if c < table[0]!.1 then #[] else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v, scs) =>
+      if c ≤ v then
+        scs
+      else
+        #[]
+where
+  str : String := include_str "../data/table/Script_Extensions.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × Array Script) :=
+    parseDataTable str fun _ _ x =>
+      x[0]!.split " " |>.toArray.map Script.ofAbbrev!

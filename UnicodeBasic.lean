@@ -79,6 +79,60 @@ public def getScript (char : Char) : Script := lookupScript char.val
 public def getScriptName? (s : Script) : Option String :=
   lookupScriptName s |>.map toString
 
+/-- Get character script extensions
+
+  Unicode property: `Script_Extensions`
+-/
+@[inline]
+public def getScriptExtensions (char : Char) : Array Script :=
+  let scs := lookupScriptExtensions char.val
+  if scs.isEmpty then #[lookupScript char.val] else scs
+
+/-- Check if character is part of a script
+
+  This function checks the `Script` property of the character.
+-/
+@[inline]
+public def isScript (sc : Script) (char : Char) : Bool :=
+  lookupScript char.val == sc
+
+/-- Check if character has a script extension
+
+  This function checks the `Script_Extensions` property of the character.
+  The `Script_Extensions` property includes the `Script` property.
+-/
+@[inline]
+public def hasScript (sc : Script) (char : Char) : Bool :=
+  getScriptExtensions char |>.contains sc
+
+/-- Check if character is Arabic -/
+public def isArabic (char : Char) : Bool := isScript (Script.ofAbbrev! "Arab") char
+/-- Check if character is Cyrillic -/
+public def isCyrillic (char : Char) : Bool := isScript (Script.ofAbbrev! "Cyrl") char
+/-- Check if character is Devanagari -/
+public def isDevanagari (char : Char) : Bool := isScript (Script.ofAbbrev! "Deva") char
+/-- Check if character is Greek -/
+public def isGreek (char : Char) : Bool := isScript (Script.ofAbbrev! "Grek") char
+/-- Check if character is Han (Chinese) -/
+public def isHan (char : Char) : Bool := isScript (Script.ofAbbrev! "Hani") char
+/-- Check if character is Hangul (Korean) -/
+public def isHangul (char : Char) : Bool := isScript (Script.ofAbbrev! "Hang") char
+/-- Check if character is Hebrew -/
+public def isHebrew (char : Char) : Bool := isScript (Script.ofAbbrev! "Hebr") char
+/-- Check if character is Hiragana -/
+public def isHiragana (char : Char) : Bool := isScript (Script.ofAbbrev! "Hira") char
+/-- Check if character is Katakana -/
+public def isKatakana (char : Char) : Bool := isScript (Script.ofAbbrev! "Kana") char
+/-- Check if character is Khmer -/
+public def isKhmer (char : Char) : Bool := isScript (Script.ofAbbrev! "Khmr") char
+/-- Check if character is Lao -/
+public def isLao (char : Char) : Bool := isScript (Script.ofAbbrev! "Laoo") char
+/-- Check if character is Latin -/
+public def isLatin (char : Char) : Bool := isScript (Script.ofAbbrev! "Latn") char
+/-- Check if character is Thai -/
+public def isThai (char : Char) : Bool := isScript (Script.ofAbbrev! "Thai") char
+
+
 /-!
   ## Bidirectional Properties ##
 -/
