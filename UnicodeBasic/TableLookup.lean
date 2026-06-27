@@ -419,3 +419,103 @@ where
   table : Thunk <| Array (UInt32 × UInt32 × Array Script) :=
     parseDataTable str fun _ _ x =>
       x[0]!.split " " |>.toArray.map Script.ofAbbrev!
+
+/-- Check if code point has ID_Start property using lookup table -/
+public def lookupIDStart (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/ID_Start.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has ID_Continue property using lookup table -/
+public def lookupIDContinue (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/ID_Continue.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has XID_Start property using lookup table -/
+public def lookupXIDStart (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/XID_Start.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has XID_Continue property using lookup table -/
+public def lookupXIDContinue (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/XID_Continue.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Dash property using lookup table -/
+public def lookupDash (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Dash.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Hyphen property using lookup table -/
+public def lookupHyphen (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Hyphen.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Quotation_Mark property using lookup table -/
+public def lookupQuotationMark (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Quotation_Mark.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Terminal_Punctuation property using lookup table -/
+public def lookupTerminalPunctuation (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Terminal_Punctuation.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Extender property using lookup table -/
+public def lookupExtender (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Extender.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Regional_Indicator property using lookup table -/
+public def lookupRegionalIndicator (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Regional_Indicator.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str

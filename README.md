@@ -11,24 +11,34 @@ Unicode properties that are currently supported by `UnicodeBasic` include:
 * `Canonical_Combining_Class`
 * `Case_Ignorable`
 * `Cased`
+* `Dash`
 * `Decomposition_Mapping`
 * `Decomposition_Type`
 * `Default_Ignorable_Code_Point`
+* `Extender`
 * `General_Category`
 * `Hex_Digit`
+* `Hyphen`
+* `ID_Continue`
+* `ID_Start`
+* `Lowercase`
 * `Math`
 * `Name`
+* `Noncharacter_Code_Point`
 * `Numeric_Type`
 * `Numeric_Value`
-* `Noncharacter_Code_Point`
-* `Script`
+* `Quotation_Mark`
+* `Regional_Indicator`
 * `Script_Extensions`
+* `Script`
 * `Simple_Lowercase_Mapping`
-* `Simple_Uppercase_Mapping`
 * `Simple_Titlecase_Mapping`
-* `Lowercase`
+* `Simple_Uppercase_Mapping`
+* `Terminal_Punctuation`
 * `Uppercase`
 * `White_Space`
+* `XID_Continue`
+* `XID_Start`
 
 To keep the `UnicodeBasic` library lightweight, only commonly used properties can be supported. If you need a property not yet in the list above, please submit a feature request!
 

@@ -91,6 +91,16 @@ def testName (d : UnicodeData) : Bool :=
 def testNoncharacterCodePoint (d : UnicodeData) : Bool :=
   PropList.isNoncharacterCodePoint d.code == lookupNoncharacterCodePoint d.code
     && isDefaultIgnorableCodePoint (Char.ofNat d.code.toNat) == lookupDefaultIgnorableCodePoint d.code
+    && PropList.isDash d.code == lookupDash d.code
+    && PropList.isHyphen d.code == lookupHyphen d.code
+    && PropList.isQuotationMark d.code == lookupQuotationMark d.code
+    && PropList.isTerminalPunctuation d.code == lookupTerminalPunctuation d.code
+    && PropList.isExtender d.code == lookupExtender d.code
+    && PropList.isRegionalIndicator d.code == lookupRegionalIndicator d.code
+    && DerivedCoreProperties.isIDStart d.code == lookupIDStart d.code
+    && DerivedCoreProperties.isIDContinue d.code == lookupIDContinue d.code
+    && DerivedCoreProperties.isXIDStart d.code == lookupXIDStart d.code
+    && DerivedCoreProperties.isXIDContinue d.code == lookupXIDContinue d.code
 
 def testNumericValue (d : UnicodeData) : Bool :=
   d.numeric == lookupNumericValue d.code

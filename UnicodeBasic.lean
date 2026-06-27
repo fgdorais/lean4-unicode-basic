@@ -1057,6 +1057,7 @@ public def getHexDigit? (char : Char) : Option (Fin 16) :=
     else
       none
 
+
 /-!
   ## Other Properties ##
 -/
@@ -1112,3 +1113,68 @@ public def isAlphabetic (char : Char) : Bool :=
 
 @[inherit_doc isAlphabetic]
 public abbrev isAlpha := isAlphabetic
+
+
+/-!
+  ## Extended Properties ##
+-/
+
+/-- Check if character is an identifier start character
+
+  Unicode property: `ID_Start` -/
+@[inline]
+public def isIDStart (char : Char) : Bool := lookupIDStart char.val
+
+/-- Check if character is an identifier continue character
+
+  Unicode property: `ID_Continue` -/
+@[inline]
+public def isIDContinue (char : Char) : Bool := lookupIDContinue char.val
+
+/-- Check if character is an identifier start character
+
+  Unicode property: `XID_Start` -/
+@[inline]
+public def isXIDStart (char : Char) : Bool := lookupXIDStart char.val
+
+/-- Check if character is an identifier continue character
+
+  Unicode property: `XID_Continue` -/
+@[inline]
+public def isXIDContinue (char : Char) : Bool := lookupXIDContinue char.val
+
+/-- Check if character is a dash character
+
+  Unicode property: `Dash` -/
+@[inline]
+public def isDash (char : Char) : Bool := lookupDash char.val
+
+/-- Check if character is a hyphen character
+
+  Unicode property: `Hyphen` -/
+@[inline]
+public def isHyphen (char : Char) : Bool := lookupHyphen char.val
+
+/-- Check if character is a quotation mark character
+
+  Unicode property: `Quotation_Mark` -/
+@[inline]
+public def isQuotationMark (char : Char) : Bool := lookupQuotationMark char.val
+
+/-- Check if character is a terminal punctuation character
+
+  Unicode property: `Terminal_Punctuation` -/
+@[inline]
+public def isTerminalPunctuation (char : Char) : Bool := lookupTerminalPunctuation char.val
+
+/-- Check if character is an extender character
+
+  Unicode property: `Extender` -/
+@[inline]
+public def isExtender (char : Char) : Bool := lookupExtender char.val
+
+/-- Check if character is a regional indicator character
+
+  Unicode property: `Regional_Indicator` -/
+@[inline]
+public def isRegionalIndicator (char : Char) : Bool := lookupRegionalIndicator char.val
