@@ -10,3 +10,5 @@ public import UnicodeData.PropList
 public import UnicodeData.Scripts
 public import UnicodeData.ScriptExtensions
 public import UnicodeData.DerivedCoreProperties
+public import UnicodeData.CaseFolding
+public import UnicodeData.BreakProperties

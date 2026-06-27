@@ -1178,3 +1178,27 @@ public def isExtender (char : Char) : Bool := lookupExtender char.val
   Unicode property: `Regional_Indicator` -/
 @[inline]
 public def isRegionalIndicator (char : Char) : Bool := lookupRegionalIndicator char.val
+
+/-- Check if character is a diacritic character
+
+  Unicode property: `Diacritic` -/
+@[inline]
+public def isDiacritic (char : Char) : Bool := lookupDiacritic char.val
+
+/-- Check if character is a sentence terminal character
+
+  Unicode property: `Sentence_Terminal` -/
+@[inline]
+public def isSentenceTerminal (char : Char) : Bool := lookupSentenceTerminal char.val
+
+/-- Check if character is a pattern syntax character
+
+  Unicode property: `Pattern_Syntax` -/
+@[inline]
+public def isPatternSyntax (char : Char) : Bool := lookupPatternSyntax char.val
+
+/-- Check if character is a pattern white space character
+
+  Unicode property: `Pattern_White_Space` -/
+@[inline]
+public def isPatternWhiteSpace (char : Char) : Bool := lookupPatternWhiteSpace char.val

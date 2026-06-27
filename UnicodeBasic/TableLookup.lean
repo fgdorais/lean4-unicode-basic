@@ -519,3 +519,86 @@ public def lookupRegionalIndicator (c : UInt32) : Bool :=
 where
   str : String := include_str "../data/table/Regional_Indicator.txt"
   table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Get case folding of a code point using lookup table -/
+public def lookupCaseFolding (c : UInt32) : Array UInt32 :=
+  let table := table.get
+  if c < table[0]!.1 then #[] else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (v, m) => if c == v then m else #[]
+where
+  str : String := include_str "../data/table/Case_Folding.txt"
+  table : Thunk <| Array (UInt32 × Array UInt32) :=
+    parseTable str fun _ x => x[0]!.split ";" |>.toArray.map ofHexString!
+
+/-- Get simple case folding of a code point using lookup table -/
+public def lookupSimpleCaseFolding (c : UInt32) : UInt32 :=
+  let table := table.get
+  if c < table[0]!.1 then c else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (v, m) => if c == v then m else c
+where
+  str : String := include_str "../data/table/Simple_Case_Folding.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parseTable str fun _ x => ofHexString! x[0]!
+
+/-- Get grapheme cluster break property using lookup table -/
+public def lookupGraphemeClusterBreak (c : UInt32) : GraphemeClusterBreak :=
+  let table := table.get
+  if c < table[0]!.1 then .other else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v, b) => if c ≤ v then b else .other
+where
+  str : String := include_str "../data/table/Grapheme_Break.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × GraphemeClusterBreak) :=
+    parseDataTable str fun _ _ x => GraphemeClusterBreak.ofAbbrev! x[0]!
+
+/-- Get word break property using lookup table -/
+public def lookupWordBreak (c : UInt32) : WordBreak :=
+  let table := table.get
+  if c < table[0]!.1 then .other else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v, b) => if c ≤ v then b else .other
+where
+  str : String := include_str "../data/table/Word_Break.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × WordBreak) :=
+    parseDataTable str fun _ _ x => WordBreak.ofAbbrev! x[0]!
+
+/-- Check if code point has Diacritic property using lookup table -/
+public def lookupDiacritic (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Diacritic.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Sentence_Terminal property using lookup table -/
+public def lookupSentenceTerminal (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Sentence_Terminal.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Pattern_Syntax property using lookup table -/
+public def lookupPatternSyntax (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Pattern_Syntax.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Pattern_White_Space property using lookup table -/
+public def lookupPatternWhiteSpace (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Pattern_White_Space.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str

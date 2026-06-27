@@ -584,6 +584,55 @@ def mkRegionalIndicator : Array (UInt32 × UInt32) :=
     | (c₀, some c₁) => (c₀, c₁)
     | (c₀, none) => (c₀, c₀)
 
+
+
+def mkCaseFolding : Array (UInt32 × String) :=
+  CaseFolding.data.filterMap fun e =>
+    if e.status == 'C' || e.status == 'F' then
+      let m := ";".intercalate (e.mapping.map toHexStringRaw).toList
+      some (e.code, m)
+    else
+      none
+
+
+
+def mkSimpleCaseFolding : Array (UInt32 × UInt32) :=
+  CaseFolding.data.filterMap fun e =>
+    if (e.status == 'C' || e.status == 'S') && e.mapping.size == 1 then
+      some (e.code, e.mapping[0]!)
+    else
+      none
+
+
+def mkGraphemeBreak : Array (UInt32 × UInt32 × String) :=
+  BreakProperties.data.graphemeBreak.map fun (c₀, c₁, v) =>
+    (c₀, match c₁ with | some c => c | none => c₀, v)
+
+def mkWordBreak : Array (UInt32 × UInt32 × String) :=
+  BreakProperties.data.wordBreak.map fun (c₀, c₁, v) =>
+    (c₀, match c₁ with | some c => c | none => c₀, v)
+
+
+def mkDiacritic : Array (UInt32 × UInt32) :=
+  PropList.data.diacritic.map fun
+    | (c₀, some c₁) => (c₀, c₁)
+    | (c₀, none) => (c₀, c₀)
+
+def mkSentenceTerminal : Array (UInt32 × UInt32) :=
+  PropList.data.sentenceTerminal.map fun
+    | (c₀, some c₁) => (c₀, c₁)
+    | (c₀, none) => (c₀, c₀)
+
+def mkPatternSyntax : Array (UInt32 × UInt32) :=
+  PropList.data.patternSyntax.map fun
+    | (c₀, some c₁) => (c₀, c₁)
+    | (c₀, none) => (c₀, c₀)
+
+def mkPatternWhiteSpace : Array (UInt32 × UInt32) :=
+  PropList.data.patternWhiteSpace.map fun
+    | (c₀, some c₁) => (c₀, c₁)
+    | (c₀, none) => (c₀, c₀)
+
 def mkScriptExtensions : Array (UInt32 × String) := Id.run do
   let mut t_arr : Array (UInt32 × UInt32 × String) := #[]
   let txt : String := include_str "data/ScriptExtensions.txt"
@@ -948,6 +997,47 @@ public def main (args : List String) : IO UInt32 := do
           else
             file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+
+    | "Diacritic" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkDiacritic
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
+          else
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
+      IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+    | "Sentence_Terminal" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkSentenceTerminal
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
+          else
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
+      IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+    | "Pattern_Syntax" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkPatternSyntax
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
+          else
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
+      IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+    | "Pattern_White_Space" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkPatternWhiteSpace
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| toHexStringRaw c₀ ++ ";"
+          else
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
+      IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
     | "Regional_Indicator" =>
       IO.println s!"Generating table {arg}"
       let table := mkRegionalIndicator
@@ -958,6 +1048,42 @@ public def main (args : List String) : IO UInt32 := do
           else
             file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+
+    | "Case_Folding" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkCaseFolding
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c, m) in table do
+          file.putStrLn <| toHexStringRaw c ++ ";" ++ m
+      IO.println s!"Size: {table.size}"
+    | "Simple_Case_Folding" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkSimpleCaseFolding
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c, m) in table do
+          file.putStrLn <| toHexStringRaw c ++ ";" ++ toHexStringRaw m
+      IO.println s!"Size: {table.size}"
+
+    | "Grapheme_Break" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkGraphemeBreak
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁, v) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| ";".intercalate [toHexStringRaw c₀, "", v]
+          else
+            file.putStrLn <| ";".intercalate [toHexStringRaw c₀, toHexStringRaw c₁, v]
+      IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
+    | "Word_Break" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkWordBreak
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁, v) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| ";".intercalate [toHexStringRaw c₀, "", v]
+          else
+            file.putStrLn <| ";".intercalate [toHexStringRaw c₀, toHexStringRaw c₁, v]
+      IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
     | "Terminal_Punctuation" =>
       IO.println s!"Generating table {arg}"
       let table := mkTerminalPunctuation
