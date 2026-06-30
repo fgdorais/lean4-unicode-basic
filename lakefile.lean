@@ -64,6 +64,7 @@ lean_lib UnicodeData where
     `UnicodeData.DerivedNumericValues,
     `UnicodeData.UnihanDictionaryIndices,
     `UnicodeData.UnihanDictionaryLikeData,
+    `UnicodeData.UnihanIRGSources,
     `UnicodeData.BidiBrackets,
     `UnicodeData.BidiMirroring,
     `UnicodeData.Blocks,

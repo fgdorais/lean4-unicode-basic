@@ -5,8 +5,8 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 ## Summary
 
 - Total txt files: 69
-- Used by Lean library: 34
-- Unused: 35
+- Used by Lean library: 35
+- Unused: 34
 
 ## auxiliary
 
@@ -100,7 +100,7 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 | --- | --- | --- |
 | `data/ucd/unihan/Unihan_DictionaryIndices.txt` | used | UnicodeData/UnihanDictionaryIndices.lean:11 [direct], UnicodeData/UnihanDictionaryIndices.lean:12 [direct], UnicodeData/UnihanDictionaryIndices.lean:24 [direct] (3 matches) |
 | `data/ucd/unihan/Unihan_DictionaryLikeData.txt` | used | UnicodeData/UnihanDictionaryLikeData.lean:11 [direct], UnicodeData/UnihanDictionaryLikeData.lean:12 [direct], UnicodeData/UnihanDictionaryLikeData.lean:24 [direct] (3 matches) |
-| `data/ucd/unihan/Unihan_IRGSources.txt` | unused |  |
+| `data/ucd/unihan/Unihan_IRGSources.txt` | used | UnicodeData/UnihanIRGSources.lean:12 [direct], UnicodeData/UnihanIRGSources.lean:13 [direct], UnicodeData/UnihanIRGSources.lean:25 [direct] (3 matches) |
 | `data/ucd/unihan/Unihan_NumericValues.txt` | unused |  |
 | `data/ucd/unihan/Unihan_OtherMappings.txt` | unused |  |
 | `data/ucd/unihan/Unihan_RadicalStrokeCounts.txt` | unused |  |
