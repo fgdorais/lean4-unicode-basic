@@ -3,8 +3,8 @@ Copyright © 2026 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 module
+import UnicodeBasic
 import UnicodeDataTest.Auxiliary.Grapheme
-import UnicodeDataTest.Auxiliary.Segmentation
 import UnicodeDataTest.Auxiliary.Data.GraphemeBreakTest
 import UnicodeDataTest.Auxiliary.Data.LineBreakTest
 import UnicodeDataTest.Auxiliary.Data.SentenceBreakTest
@@ -26,6 +26,24 @@ private def reportPendingAlgorithm (name : String) (cases : Array UnicodeDataTes
     IO.eprintln s!"{name}: parsed {cases.size} rows (pending segmentation implementation)"
   return rc
 
+private def runBoundaries
+    (file : String)
+    (cases : Array UnicodeDataTest.BreakTestCase)
+    (segment : Array UInt32 → Array Nat) :
+    Array UnicodeDataTest.Common.Failure := Id.run do
+  let mut failures := #[]
+  for tc in cases do
+    let actual := segment tc.codepoints
+    if actual != tc.boundaries then
+      failures := failures.push {
+        file := file
+        line := tc.line
+        expected := s!"{tc.boundaries}"
+        actual := s!"{actual}"
+        comment := tc.comment
+      }
+  return failures
+
 public def run : IO UInt32 := do
   let g ← UnicodeDataTest.Auxiliary.Data.GraphemeBreakTest.load
   let w ← UnicodeDataTest.Auxiliary.Data.WordBreakTest.load
@@ -34,9 +52,9 @@ public def run : IO UInt32 := do
   let rc ← UnicodeDataTest.Common.reportFailures "GraphemeBreakTest" <|
     UnicodeDataTest.Auxiliary.Grapheme.runConformance "GraphemeBreakTest.txt" g
   let wc ← UnicodeDataTest.Common.reportFailures "WordBreakTest" <|
-    UnicodeDataTest.Auxiliary.Segmentation.runWordConformance "WordBreakTest.txt" w
+    runBoundaries "WordBreakTest.txt" w Unicode.segmentWordBoundaries
   let sc ← UnicodeDataTest.Common.reportFailures "SentenceBreakTest" <|
-    UnicodeDataTest.Auxiliary.Segmentation.runSentenceConformance "SentenceBreakTest.txt" s
+    runBoundaries "SentenceBreakTest.txt" s Unicode.segmentSentenceBoundaries
   let mut failed := rc != 0
   failed := failed || wc != 0
   failed := failed || sc != 0

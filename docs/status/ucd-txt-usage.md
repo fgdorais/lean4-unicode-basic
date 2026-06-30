@@ -25,12 +25,12 @@ These files are part of the UCD distribution but are intentionally excluded from
 | File | Usage | Places |
 | --- | --- | --- |
 | `data/ucd/auxiliary/GraphemeBreakProperty.txt` | used by Lean library | UnicodeData/Auxiliary/BreakProperties.lean:19 [direct], UnicodeData/Auxiliary/BreakProperties.lean:20 [direct], UnicodeData/Auxiliary/BreakProperties.lean:31 [direct], UnicodeData/Auxiliary/BreakProperties.lean:37 [direct] (4 matches) |
-| `data/ucd/auxiliary/GraphemeBreakTest.txt` | used by tests | UnicodeDataTest/Auxiliary/Data/GraphemeBreakTest.lean:11 [direct], UnicodeDataTest/Auxiliary/Test.lean:35 [direct] (2 matches) |
+| `data/ucd/auxiliary/GraphemeBreakTest.txt` | used by tests | UnicodeDataTest/Auxiliary/Data/GraphemeBreakTest.lean:11 [direct], UnicodeDataTest/Auxiliary/Test.lean:53 [direct] (2 matches) |
 | `data/ucd/auxiliary/LineBreakTest.txt` | used by tests: parser smoke (pending algorithm conformance) | UnicodeDataTest/Auxiliary/Data/LineBreakTest.lean:11 [direct] (1 matches) |
 | `data/ucd/auxiliary/SentenceBreakProperty.txt` | used by Lean library | UnicodeData/Auxiliary/BreakProperties.lean:23 [direct], UnicodeData/Auxiliary/BreakProperties.lean:24 [direct], UnicodeData/Auxiliary/BreakProperties.lean:49 [direct], UnicodeData/Auxiliary/BreakProperties.lean:55 [direct] (4 matches) |
-| `data/ucd/auxiliary/SentenceBreakTest.txt` | used by tests | UnicodeDataTest/Auxiliary/Data/SentenceBreakTest.lean:11 [direct], UnicodeDataTest/Auxiliary/Test.lean:39 [direct] (2 matches) |
-| `data/ucd/auxiliary/WordBreakProperty.txt` | used by Lean library | UnicodeBasic.lean:848 [direct], UnicodeData/Auxiliary/BreakProperties.lean:21 [direct], UnicodeData/Auxiliary/BreakProperties.lean:22 [direct], UnicodeData/Auxiliary/BreakProperties.lean:40 [direct], ... (5 matches) |
-| `data/ucd/auxiliary/WordBreakTest.txt` | used by tests | UnicodeDataTest/Auxiliary/Data/WordBreakTest.lean:11 [direct], UnicodeDataTest/Auxiliary/Test.lean:37 [direct] (2 matches) |
+| `data/ucd/auxiliary/SentenceBreakTest.txt` | used by tests | UnicodeDataTest/Auxiliary/Data/SentenceBreakTest.lean:11 [direct], UnicodeDataTest/Auxiliary/Test.lean:57 [direct] (2 matches) |
+| `data/ucd/auxiliary/WordBreakProperty.txt` | used by Lean library | UnicodeBasic.lean:849 [direct], UnicodeData/Auxiliary/BreakProperties.lean:21 [direct], UnicodeData/Auxiliary/BreakProperties.lean:22 [direct], UnicodeData/Auxiliary/BreakProperties.lean:40 [direct], ... (5 matches) |
+| `data/ucd/auxiliary/WordBreakTest.txt` | used by tests | UnicodeDataTest/Auxiliary/Data/WordBreakTest.lean:11 [direct], UnicodeDataTest/Auxiliary/Test.lean:55 [direct] (2 matches) |
 
 ## conformance
 
@@ -69,7 +69,7 @@ These files are part of the UCD distribution but are intentionally excluded from
 | `data/ucd/core/NushuSources.txt` | used by Lean library | UnicodeData/Core/NushuSources.lean:11 [direct], UnicodeData/Core/NushuSources.lean:12 [direct], UnicodeData/Core/NushuSources.lean:14 [direct], UnicodeData/Core/NushuSources.lean:17 [direct] (4 matches) |
 | `data/ucd/core/PropertyAliases.txt` | used by Lean library | UnicodeData/Core/PropertyAliases.lean:18 [direct], UnicodeData/Core/PropertyAliases.lean:19 [direct], UnicodeData/Core/PropertyAliases.lean:22 [direct] (3 matches) |
 | `data/ucd/core/PropertyValueAliases.txt` | used by Lean library | UnicodeData/Core/PropertyValueAliases.lean:13 [direct], UnicodeData/Core/PropertyValueAliases.lean:16 [direct] (2 matches) |
-| `data/ucd/core/PropList.txt` | used by Lean library | UnicodeBasic.lean:527 [direct], UnicodeBasic.lean:1071 [direct], UnicodeData/Core/PropList.lean:11 [direct], UnicodeData/Core/PropList.lean:58 [direct], ... (23 matches) |
+| `data/ucd/core/PropList.txt` | used by Lean library | UnicodeBasic.lean:528 [direct], UnicodeBasic.lean:1072 [direct], UnicodeData/Core/PropList.lean:11 [direct], UnicodeData/Core/PropList.lean:58 [direct], ... (23 matches) |
 | `data/ucd/core/ScriptExtensions.txt` | used by Lean library | UnicodeData/Core/ScriptExtensions.lean:15 [direct], UnicodeData/Core/ScriptExtensions.lean:16 [direct], UnicodeData/Core/ScriptExtensions.lean:19 [direct], UnicodeData/Core/ScriptExtensions.lean:26 [direct] (4 matches) |
 | `data/ucd/core/Scripts.txt` | used by Lean library | UnicodeData/Core/Scripts.lean:15 [direct], UnicodeData/Core/Scripts.lean:16 [direct], UnicodeData/Core/Scripts.lean:19 [direct], UnicodeData/Core/Scripts.lean:26 [direct] (4 matches) |
 | `data/ucd/core/SpecialCasing.txt` | used by Lean library | UnicodeData/Core/SpecialCasing.lean:11 [direct], UnicodeData/Core/SpecialCasing.lean:12 [direct], UnicodeData/Core/SpecialCasing.lean:23 [direct], UnicodeData/Core/SpecialCasing.lean:26 [direct] (4 matches) |

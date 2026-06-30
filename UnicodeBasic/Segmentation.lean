@@ -3,13 +3,9 @@ Copyright © 2026 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 module
-import UnicodeBasic
-public import UnicodeDataTest.Common.Failure
-public import UnicodeDataTest.Common.Types
+import UnicodeBasic.TableLookup
 
-open Unicode
-
-namespace UnicodeDataTest.Auxiliary.Segmentation
+namespace Unicode
 
 private def wb (c : UInt32) : WordBreak :=
   lookupWordBreak c
@@ -322,28 +318,4 @@ public def segmentSentenceBoundaries (xs : Array UInt32) : Array Nat := Id.run d
   out := out.push xs.size
   return out
 
-private def runBoundaries
-    (file : String)
-    (cases : Array UnicodeDataTest.BreakTestCase)
-    (segment : Array UInt32 → Array Nat) :
-    Array UnicodeDataTest.Common.Failure := Id.run do
-  let mut failures := #[]
-  for tc in cases do
-    let actual := segment tc.codepoints
-    if actual != tc.boundaries then
-      failures := failures.push {
-        file := file
-        line := tc.line
-        expected := s!"{tc.boundaries}"
-        actual := s!"{actual}"
-        comment := tc.comment
-      }
-  return failures
-
-public def runWordConformance (file : String) (cases : Array UnicodeDataTest.BreakTestCase) : Array UnicodeDataTest.Common.Failure :=
-  runBoundaries file cases segmentWordBoundaries
-
-public def runSentenceConformance (file : String) (cases : Array UnicodeDataTest.BreakTestCase) : Array UnicodeDataTest.Common.Failure :=
-  runBoundaries file cases segmentSentenceBoundaries
-
-end UnicodeDataTest.Auxiliary.Segmentation
+end Unicode

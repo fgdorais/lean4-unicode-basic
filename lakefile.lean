@@ -38,6 +38,7 @@ lean_lib UnicodeBasic where
   roots := #[]
   globs := #[
     `UnicodeBasic,
+    `UnicodeBasic.Segmentation,
     `UnicodeBasic.TableLookup
   ]
   precompileModules := true
@@ -111,7 +112,6 @@ lean_lib UnicodeDataTest where
   globs := #[
     Glob.one `UnicodeDataTest.Auxiliary.Common,
     Glob.one `UnicodeDataTest.Auxiliary.Grapheme,
-    Glob.one `UnicodeDataTest.Auxiliary.Segmentation,
     Glob.one `UnicodeDataTest.Common.Types,
     Glob.one `UnicodeDataTest.Common.Failure,
     Glob.one `UnicodeDataTest.Common.Parse,

@@ -9,6 +9,7 @@ import UnicodeData.Core.BidiMirroring
 import UnicodeData.Core.Blocks
 import UnicodeData.Extracted.DerivedEastAsianWidth
 import UnicodeData.Core.VerticalOrientation
+public import UnicodeBasic.Segmentation
 public import UnicodeBasic.TableLookup
 
 /-!
