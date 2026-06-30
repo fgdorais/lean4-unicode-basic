@@ -5,8 +5,8 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 ## Summary
 
 - Total txt files: 69
-- Used by Lean library: 24
-- Unused: 45
+- Used by Lean library: 25
+- Unused: 44
 
 ## auxiliary
 
@@ -39,7 +39,7 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 | `data/ucd/core/CaseFolding.txt` | used | UnicodeData/CaseFolding.lean:18 [direct], UnicodeData/CaseFolding.lean:19 [direct], UnicodeData/CaseFolding.lean:22 [direct] (3 matches) |
 | `data/ucd/core/CJKRadicals.txt` | unused |  |
 | `data/ucd/core/CompositionExclusions.txt` | unused |  |
-| `data/ucd/core/DerivedAge.txt` | unused |  |
+| `data/ucd/core/DerivedAge.txt` | used | UnicodeData/DerivedAge.lean:11 [direct], UnicodeData/DerivedAge.lean:12 [direct], UnicodeData/DerivedAge.lean:29 [direct], UnicodeData/DerivedAge.lean:31 [direct], ... (6 matches) |
 | `data/ucd/core/DerivedCoreProperties.txt` | used | UnicodeData/DerivedCoreProperties.lean:11 [direct], UnicodeData/DerivedCoreProperties.lean:28 [direct], UnicodeData/DerivedCoreProperties.lean:29 [direct], UnicodeData/DerivedCoreProperties.lean:32 [direct], ... (5 matches) |
 | `data/ucd/core/DerivedNormalizationProps.txt` | unused |  |
 | `data/ucd/core/DoNotEmit.txt` | unused |  |
