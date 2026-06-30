@@ -5,8 +5,8 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 ## Summary
 
 - Total txt files: 69
-- Used by Lean library: 29
-- Unused: 40
+- Used by Lean library: 30
+- Unused: 39
 
 ## auxiliary
 
@@ -88,7 +88,7 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 | `data/ucd/extracted/DerivedEastAsianWidth.txt` | used | UnicodeData/EastAsianWidth.lean:11 [direct], UnicodeData/EastAsianWidth.lean:12 [direct] (2 matches) |
 | `data/ucd/extracted/DerivedGeneralCategory.txt` | used | UnicodeData/DerivedGeneralCategory.lean:11 [direct], UnicodeData/DerivedGeneralCategory.lean:12 [direct], UnicodeData/DerivedGeneralCategory.lean:14 [direct], UnicodeData/DerivedGeneralCategory.lean:17 [direct], ... (5 matches) |
 | `data/ucd/extracted/DerivedJoiningGroup.txt` | used | UnicodeData/DerivedJoiningGroup.lean:11 [direct], UnicodeData/DerivedJoiningGroup.lean:12 [direct], UnicodeData/DerivedJoiningGroup.lean:29 [direct], UnicodeData/DerivedJoiningGroup.lean:35 [direct], ... (5 matches) |
-| `data/ucd/extracted/DerivedJoiningType.txt` | unused |  |
+| `data/ucd/extracted/DerivedJoiningType.txt` | used | UnicodeData/DerivedJoiningType.lean:11 [direct], UnicodeData/DerivedJoiningType.lean:12 [direct], UnicodeData/DerivedJoiningType.lean:29 [direct], UnicodeData/DerivedJoiningType.lean:35 [direct], ... (5 matches) |
 | `data/ucd/extracted/DerivedLineBreak.txt` | used | UnicodeData/DerivedLineBreak.lean:12 [direct], UnicodeData/DerivedLineBreak.lean:13 [direct], UnicodeData/DerivedLineBreak.lean:30 [direct], UnicodeData/DerivedLineBreak.lean:39 [direct], ... (6 matches) |
 | `data/ucd/extracted/DerivedName.txt` | unused |  |
 | `data/ucd/extracted/DerivedNumericType.txt` | used | UnicodeData/DerivedNumericType.lean:11 [direct], UnicodeData/DerivedNumericType.lean:12 [direct], UnicodeData/DerivedNumericType.lean:17 [direct], UnicodeData/DerivedNumericType.lean:23 [direct] (4 matches) |
