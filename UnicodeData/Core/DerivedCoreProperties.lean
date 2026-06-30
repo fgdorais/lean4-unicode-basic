@@ -14,6 +14,12 @@ public structure DerivedCoreProperties where
   public graphemeBase : Array (UInt32 × Option UInt32) := #[]
   /-- property `Grapheme_Extend` -/
   public graphemeExtend : Array (UInt32 × Option UInt32) := #[]
+  /-- property `Indic_Conjunct_Break=Consonant` -/
+  public indicConjunctBreakConsonant : Array (UInt32 × Option UInt32) := #[]
+  /-- property `Indic_Conjunct_Break=Extend` -/
+  public indicConjunctBreakExtend : Array (UInt32 × Option UInt32) := #[]
+  /-- property `Indic_Conjunct_Break=Linker` -/
+  public indicConjunctBreakLinker : Array (UInt32 × Option UInt32) := #[]
 
   /-- property `ID_Start` -/
   public idStart : Array (UInt32 × Option UInt32) := #[]
@@ -49,6 +55,12 @@ public unsafe initialize DerivedCoreProperties.data : DerivedCoreProperties ←
       list := {list with graphemeBase := list.graphemeBase.push val}
     if record[1]! == "Grapheme_Extend" then
       list := {list with graphemeExtend := list.graphemeExtend.push val}
+    if record[1]! == "InCB" && record[2]! == "Consonant" then
+      list := {list with indicConjunctBreakConsonant := list.indicConjunctBreakConsonant.push val}
+    if record[1]! == "InCB" && record[2]! == "Extend" then
+      list := {list with indicConjunctBreakExtend := list.indicConjunctBreakExtend.push val}
+    if record[1]! == "InCB" && record[2]! == "Linker" then
+      list := {list with indicConjunctBreakLinker := list.indicConjunctBreakLinker.push val}
   return list
 
 -- TODO: stop reinventing the wheel!
@@ -115,6 +127,33 @@ public def DerivedCoreProperties.isGraphemeBase (code : UInt32) : Bool :=
 @[inline]
 public def DerivedCoreProperties.isGraphemeExtend (code : UInt32) : Bool :=
   let data := DerivedCoreProperties.data.graphemeExtend
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
+
+/-- Check if code point has `Indic_Conjunct_Break=Consonant` -/
+@[inline]
+public def DerivedCoreProperties.isIndicConjunctBreakConsonant (code : UInt32) : Bool :=
+  let data := DerivedCoreProperties.data.indicConjunctBreakConsonant
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
+
+/-- Check if code point has `Indic_Conjunct_Break=Extend` -/
+@[inline]
+public def DerivedCoreProperties.isIndicConjunctBreakExtend (code : UInt32) : Bool :=
+  let data := DerivedCoreProperties.data.indicConjunctBreakExtend
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
+
+/-- Check if code point has `Indic_Conjunct_Break=Linker` -/
+@[inline]
+public def DerivedCoreProperties.isIndicConjunctBreakLinker (code : UInt32) : Bool :=
+  let data := DerivedCoreProperties.data.indicConjunctBreakLinker
   if data.size == 0 || code < data[0]!.fst then false else
     match data[find code data 0 data.size]! with
     | (val, none) => code == val

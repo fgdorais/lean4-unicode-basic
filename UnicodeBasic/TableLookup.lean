@@ -55,7 +55,7 @@ private def parseTable (s : String) (f : UInt32 → Array String.Slice → α) :
     let start := ofHexString! record[0]!
     let val := f start record[1:]
     r := r.push (start, val)
-  return r
+  return r.qsort fun a b => a.1 < b.1
 
 /-- Parse a range compressed data table -/
 private def parseDataTable (s : String) (f : UInt32 → UInt32 → Array String.Slice → α) : Thunk <| Array (UInt32 × UInt32 × α) := Id.run do
@@ -66,7 +66,7 @@ private def parseDataTable (s : String) (f : UInt32 → UInt32 → Array String.
     let stop := if record[1]!.isEmpty then start else ofHexString! record[1]!
     let val := f start stop record[2:]
     r := r.push (start, stop, val)
-  return r
+  return r.qsort fun a b => a.1 < b.1
 
 /-- Parse a range compressed property table -/
 private def parsePropTable (s : String) : Thunk <| Array (UInt32 × UInt32) := Id.run do
@@ -76,7 +76,7 @@ private def parsePropTable (s : String) : Thunk <| Array (UInt32 × UInt32) := I
     let start := ofHexString! record[0]!
     let stop := if record[1]!.isEmpty then start else ofHexString! record[1]!
     r := r.push (start, stop)
-  return r
+  return r.qsort fun a b => a.1 < b.1
 
 /-- Get bidirectional class using lookup table
 

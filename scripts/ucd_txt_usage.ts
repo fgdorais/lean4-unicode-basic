@@ -32,6 +32,13 @@ type SkippedTarget = {
   reason: string;
 };
 
+type UsageLabel =
+  | 'used by Lean library'
+  | 'used by tests'
+  | 'used by tests: parser smoke (pending algorithm conformance)'
+  | 'test fixture pending'
+  | 'unused';
+
 const skippedTargets: SkippedTarget[] = [
   {
     relativePath: 'data/ucd/core/DoNotEmit.txt',
@@ -48,8 +55,24 @@ function groupOf(relativePath: string): string {
   return parts.length >= 3 ? parts[2] : 'root';
 }
 
-function usageProfile(matches: Match[]): string {
-  return matches.length > 0 ? 'used' : 'unused';
+function isTestFixture(relativePath: string): boolean {
+  return relativePath.includes('/conformance/') || path.posix.basename(relativePath).endsWith('Test.txt');
+}
+
+const parserSmokePendingFixtures = new Set<string>([
+  'data/ucd/auxiliary/LineBreakTest.txt',
+  'data/ucd/conformance/BidiCharacterTest.txt',
+  'data/ucd/conformance/BidiTest.txt'
+]);
+
+function usageProfile(relativePath: string, matches: Match[]): UsageLabel {
+  if (matches.length > 0) {
+    if (parserSmokePendingFixtures.has(relativePath)) {
+      return 'used by tests: parser smoke (pending algorithm conformance)';
+    }
+    return isTestFixture(relativePath) ? 'used by tests' : 'used by Lean library';
+  }
+  return isTestFixture(relativePath) ? 'test fixture pending' : 'unused';
 }
 
 function formatPlaces(matches: Match[]): string {
@@ -65,7 +88,7 @@ function renderTable(rows: FileReport[]): string {
   out += `| File | Usage | Places |\n`;
   out += `| --- | --- | --- |\n`;
   for (const row of rows) {
-    out += `| \`${row.relativePath}\` | ${usageProfile(row.matches)} | ${formatPlaces(row.matches)} |\n`;
+    out += `| \`${row.relativePath}\` | ${usageProfile(row.relativePath, row.matches)} | ${formatPlaces(row.matches)} |\n`;
   }
   return out;
 }
@@ -91,8 +114,10 @@ const scanFiles = walkFilesSkipping(repoRoot, {
     return (
       relativePath === 'UnicodeBasic.lean' ||
       relativePath === 'UnicodeData.lean' ||
+      (relativePath.startsWith('test') && relativePath.endsWith('.lean')) ||
       relativePath.startsWith('UnicodeBasic/') ||
-      relativePath.startsWith('UnicodeData/')
+      relativePath.startsWith('UnicodeData/') ||
+      relativePath.startsWith('UnicodeDataTest/')
     );
   }
 });
@@ -147,12 +172,17 @@ for (const report of reports) {
   byGroup.set(report.group, bucket);
 }
 
-const usedCount = reports.filter((r) => r.matches.length > 0).length;
-const unusedCount = reports.filter((r) => r.matches.length === 0).length;
+const libraryUsedCount = reports.filter((r) => usageProfile(r.relativePath, r.matches) === 'used by Lean library').length;
+const testUsedCount = reports.filter((r) => usageProfile(r.relativePath, r.matches) === 'used by tests').length;
+const parserSmokePendingCount = reports.filter((r) =>
+  usageProfile(r.relativePath, r.matches) === 'used by tests: parser smoke (pending algorithm conformance)'
+).length;
+const testPendingCount = reports.filter((r) => usageProfile(r.relativePath, r.matches) === 'test fixture pending').length;
+const unusedCount = reports.filter((r) => usageProfile(r.relativePath, r.matches) === 'unused').length;
 
 let markdown = '';
 markdown += `# UCD TXT Usage\n\n`;
-markdown += `Generated from a repo scan of \`data/ucd/**/*.txt\` against Lean library files in \`UnicodeBasic/\` and \`UnicodeData/\`.\n\n`;
+markdown += `Generated from a repo scan of \`data/ucd/**/*.txt\` against Lean library files in \`UnicodeBasic/\`, \`UnicodeData/\`, and \`UnicodeDataTest/\`.\n\n`;
 if (skippedTargets.length > 0) {
   markdown += `## Skipped\n\n`;
   markdown += `These files are part of the UCD distribution but are intentionally excluded from Lean usage counts because they are not machine-readable property tables.\n\n`;
@@ -165,7 +195,10 @@ if (skippedTargets.length > 0) {
 }
 markdown += `## Summary\n\n`;
 markdown += `- Total txt files: ${reports.length}\n`;
-markdown += `- Used by Lean library: ${usedCount}\n`;
+markdown += `- Used by Lean library: ${libraryUsedCount}\n`;
+markdown += `- Used by tests: ${testUsedCount}\n`;
+markdown += `- Parser smoke tests pending algorithm conformance: ${parserSmokePendingCount}\n`;
+markdown += `- Test fixtures pending: ${testPendingCount}\n`;
 markdown += `- Unused: ${unusedCount}\n\n`;
 
 for (const group of [...byGroup.keys()].sort()) {

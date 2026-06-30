@@ -106,7 +106,29 @@ lean_lib UnicodeData where
     Glob.one `UnicodeData.Unihan.UnihanVariants
   ] : Array Glob)
 
+lean_lib UnicodeDataTest where
+  roots := #[]
+  globs := #[
+    Glob.one `UnicodeDataTest.Auxiliary.Common,
+    Glob.one `UnicodeDataTest.Auxiliary.Grapheme,
+    Glob.one `UnicodeDataTest.Auxiliary.Segmentation,
+    Glob.one `UnicodeDataTest.Common.Types,
+    Glob.one `UnicodeDataTest.Common.Failure,
+    Glob.one `UnicodeDataTest.Common.Parse,
+    Glob.one `UnicodeDataTest.Auxiliary.Data.GraphemeBreakTest,
+    Glob.one `UnicodeDataTest.Auxiliary.Data.LineBreakTest,
+    Glob.one `UnicodeDataTest.Auxiliary.Data.SentenceBreakTest,
+    Glob.one `UnicodeDataTest.Auxiliary.Data.WordBreakTest,
+    Glob.one `UnicodeDataTest.Auxiliary.Test,
+    Glob.one `UnicodeDataTest.Conformance.Data.BidiCharacterTest,
+    Glob.one `UnicodeDataTest.Conformance.Data.BidiTest,
+    Glob.one `UnicodeDataTest.Conformance.Data.NormalizationTest,
+    Glob.one `UnicodeDataTest.Conformance.Normalization,
+    Glob.one `UnicodeDataTest.Conformance.Test
+  ]
+
 lean_exe lookup
+lean_exe testConformance
 
 lean_exe makeTables where
   moreLinkObjs := #[UnicodeCLib]
