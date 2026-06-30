@@ -49,6 +49,7 @@ lean_lib UnicodeData where
     Glob.one `UnicodeData,
     Glob.one `UnicodeData.Aliases,
     Glob.one `UnicodeData.Basic,
+    Glob.one `UnicodeData.UcdParse,
     Glob.one `UnicodeData.DerivedBidiClass,
     Glob.one `UnicodeData.DerivedCombiningClass,
     Glob.one `UnicodeData.DerivedBinaryProperties,
