@@ -22,6 +22,7 @@ public import UnicodeData.DerivedNumericValues
 public import UnicodeData.UnihanDictionaryIndices
 public import UnicodeData.UnihanDictionaryLikeData
 public import UnicodeData.UnihanIRGSources
+public import UnicodeData.UnihanNumericValues
 public import UnicodeData.BidiBrackets
 public import UnicodeData.BidiMirroring
 public import UnicodeData.Blocks
