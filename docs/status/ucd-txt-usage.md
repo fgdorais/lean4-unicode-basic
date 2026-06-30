@@ -5,8 +5,8 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 ## Summary
 
 - Total txt files: 69
-- Used by Lean library: 30
-- Unused: 39
+- Used by Lean library: 31
+- Unused: 38
 
 ## auxiliary
 
@@ -90,7 +90,7 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 | `data/ucd/extracted/DerivedJoiningGroup.txt` | used | UnicodeData/DerivedJoiningGroup.lean:11 [direct], UnicodeData/DerivedJoiningGroup.lean:12 [direct], UnicodeData/DerivedJoiningGroup.lean:29 [direct], UnicodeData/DerivedJoiningGroup.lean:35 [direct], ... (5 matches) |
 | `data/ucd/extracted/DerivedJoiningType.txt` | used | UnicodeData/DerivedJoiningType.lean:11 [direct], UnicodeData/DerivedJoiningType.lean:12 [direct], UnicodeData/DerivedJoiningType.lean:29 [direct], UnicodeData/DerivedJoiningType.lean:35 [direct], ... (5 matches) |
 | `data/ucd/extracted/DerivedLineBreak.txt` | used | UnicodeData/DerivedLineBreak.lean:12 [direct], UnicodeData/DerivedLineBreak.lean:13 [direct], UnicodeData/DerivedLineBreak.lean:30 [direct], UnicodeData/DerivedLineBreak.lean:39 [direct], ... (6 matches) |
-| `data/ucd/extracted/DerivedName.txt` | unused |  |
+| `data/ucd/extracted/DerivedName.txt` | used | UnicodeData/DerivedName.lean:11 [direct], UnicodeData/DerivedName.lean:12 [direct], UnicodeData/DerivedName.lean:29 [direct], UnicodeData/DerivedName.lean:31 [direct], ... (5 matches) |
 | `data/ucd/extracted/DerivedNumericType.txt` | used | UnicodeData/DerivedNumericType.lean:11 [direct], UnicodeData/DerivedNumericType.lean:12 [direct], UnicodeData/DerivedNumericType.lean:17 [direct], UnicodeData/DerivedNumericType.lean:23 [direct] (4 matches) |
 | `data/ucd/extracted/DerivedNumericValues.txt` | used | UnicodeData/DerivedNumericValues.lean:12 [direct], UnicodeData/DerivedNumericValues.lean:13 [direct], UnicodeData/DerivedNumericValues.lean:30 [direct], UnicodeData/DerivedNumericValues.lean:42 [direct], ... (5 matches) |
 

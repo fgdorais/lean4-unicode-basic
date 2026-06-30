@@ -58,6 +58,7 @@ lean_lib UnicodeData where
     `UnicodeData.DerivedDecompositionType,
     `UnicodeData.DerivedJoiningGroup,
     `UnicodeData.DerivedJoiningType,
+    `UnicodeData.DerivedName,
     `UnicodeData.DerivedNumericType,
     `UnicodeData.DerivedNumericValues,
     `UnicodeData.BidiBrackets,
