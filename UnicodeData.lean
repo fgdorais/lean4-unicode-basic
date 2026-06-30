@@ -26,6 +26,7 @@ public import UnicodeData.UnihanNumericValues
 public import UnicodeData.UnihanOtherMappings
 public import UnicodeData.UnihanRadicalStrokeCounts
 public import UnicodeData.UnihanReadings
+public import UnicodeData.UnihanVariants
 public import UnicodeData.BidiBrackets
 public import UnicodeData.BidiMirroring
 public import UnicodeData.Blocks
