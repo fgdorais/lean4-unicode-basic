@@ -5,8 +5,8 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 ## Summary
 
 - Total txt files: 69
-- Used by Lean library: 16
-- Unused: 53
+- Used by Lean library: 18
+- Unused: 51
 
 ## auxiliary
 
@@ -17,7 +17,7 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 | `data/ucd/auxiliary/LineBreakTest.txt` | unused |  |
 | `data/ucd/auxiliary/SentenceBreakProperty.txt` | used | UnicodeData/BreakProperties.lean:23 [direct], UnicodeData/BreakProperties.lean:24 [direct], UnicodeData/BreakProperties.lean:49 [direct], UnicodeData/BreakProperties.lean:55 [direct] (4 matches) |
 | `data/ucd/auxiliary/SentenceBreakTest.txt` | unused |  |
-| `data/ucd/auxiliary/WordBreakProperty.txt` | used | UnicodeBasic.lean:834 [direct], UnicodeData/BreakProperties.lean:21 [direct], UnicodeData/BreakProperties.lean:22 [direct], UnicodeData/BreakProperties.lean:40 [direct], ... (5 matches) |
+| `data/ucd/auxiliary/WordBreakProperty.txt` | used | UnicodeBasic.lean:848 [direct], UnicodeData/BreakProperties.lean:21 [direct], UnicodeData/BreakProperties.lean:22 [direct], UnicodeData/BreakProperties.lean:40 [direct], ... (5 matches) |
 | `data/ucd/auxiliary/WordBreakTest.txt` | unused |  |
 
 ## conformance
@@ -34,7 +34,7 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 | --- | --- | --- |
 | `data/ucd/core/ArabicShaping.txt` | unused |  |
 | `data/ucd/core/BidiBrackets.txt` | used | UnicodeData/BidiBrackets.lean:11 [direct], UnicodeData/BidiBrackets.lean:17 [direct], UnicodeData/BidiBrackets.lean:18 [direct], UnicodeData/BidiBrackets.lean:31 [direct] (4 matches) |
-| `data/ucd/core/BidiMirroring.txt` | unused |  |
+| `data/ucd/core/BidiMirroring.txt` | used | UnicodeData/BidiMirroring.lean:12 [direct], UnicodeData/BidiMirroring.lean:13 [direct], UnicodeData/BidiMirroring.lean:15 [direct], UnicodeData/BidiMirroring.lean:17 [direct] (4 matches) |
 | `data/ucd/core/Blocks.txt` | used | UnicodeData/Blocks.lean:11 [direct], UnicodeData/Blocks.lean:12 [direct], UnicodeData/Blocks.lean:25 [direct], UnicodeData/Blocks.lean:31 [direct] (4 matches) |
 | `data/ucd/core/CaseFolding.txt` | used | UnicodeData/CaseFolding.lean:18 [direct], UnicodeData/CaseFolding.lean:19 [direct], UnicodeData/CaseFolding.lean:22 [direct] (3 matches) |
 | `data/ucd/core/CJKRadicals.txt` | unused |  |
@@ -59,7 +59,7 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 | `data/ucd/core/NushuSources.txt` | unused |  |
 | `data/ucd/core/PropertyAliases.txt` | used | UnicodeData/Aliases.lean:18 [direct], UnicodeData/Aliases.lean:19 [direct], UnicodeData/Aliases.lean:22 [direct] (3 matches) |
 | `data/ucd/core/PropertyValueAliases.txt` | used | UnicodeData/Aliases.lean:63 [direct], UnicodeData/Aliases.lean:66 [direct] (2 matches) |
-| `data/ucd/core/PropList.txt` | used | UnicodeBasic.lean:513 [direct], UnicodeBasic.lean:1057 [direct], UnicodeData/PropList.lean:11 [direct], UnicodeData/PropList.lean:58 [direct], ... (23 matches) |
+| `data/ucd/core/PropList.txt` | used | UnicodeBasic.lean:527 [direct], UnicodeBasic.lean:1071 [direct], UnicodeData/PropList.lean:11 [direct], UnicodeData/PropList.lean:58 [direct], ... (23 matches) |
 | `data/ucd/core/ScriptExtensions.txt` | used | UnicodeData/ScriptExtensions.lean:15 [direct], UnicodeData/ScriptExtensions.lean:16 [direct], UnicodeData/ScriptExtensions.lean:19 [direct], UnicodeData/ScriptExtensions.lean:26 [direct] (4 matches) |
 | `data/ucd/core/Scripts.txt` | used | UnicodeData/Scripts.lean:15 [direct], UnicodeData/Scripts.lean:16 [direct], UnicodeData/Scripts.lean:19 [direct], UnicodeData/Scripts.lean:26 [direct] (4 matches) |
 | `data/ucd/core/SpecialCasing.txt` | unused |  |
@@ -68,7 +68,7 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 | `data/ucd/core/UnicodeData.txt` | used | UnicodeData/Basic.lean:12 [direct], UnicodeData/Basic.lean:114 [direct], UnicodeData/Basic.lean:115 [direct], UnicodeData/Basic.lean:117 [direct], ... (10 matches) |
 | `data/ucd/core/Unikemet.txt` | unused |  |
 | `data/ucd/core/USourceData.txt` | unused |  |
-| `data/ucd/core/VerticalOrientation.txt` | unused |  |
+| `data/ucd/core/VerticalOrientation.txt` | used | UnicodeData/VerticalOrientation.lean:11 [direct], UnicodeData/VerticalOrientation.lean:12 [direct], UnicodeData/VerticalOrientation.lean:14 [direct], UnicodeData/VerticalOrientation.lean:16 [direct], ... (5 matches) |
 
 ## emoji
 

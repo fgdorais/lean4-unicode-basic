@@ -96,11 +96,19 @@ def testEastAsianWidth : Bool :=
   getEastAsianWidth 'A' == EastAsianWidth.narrow
     && getEastAsianWidth '中' == EastAsianWidth.wide
 
+def testVerticalOrientation : Bool :=
+  getVerticalOrientation 'A' == VerticalOrientation.rotated
+    && getVerticalOrientation '中' == VerticalOrientation.upright
+
 def testBidiPairedBracket : Bool :=
   getBidiPairedBracket? '(' == some (')'.val)
     && getBidiPairedBracketType? '(' == some BidiBracketType.openBracket
     && getBidiPairedBracket? ')' == some ('('.val)
     && getBidiPairedBracketType? ')' == some BidiBracketType.closeBracket
+
+def testBidiMirroringGlyph : Bool :=
+  getBidiMirroringGlyph? '(' == some (')'.val)
+    && getBidiMirroringGlyph? '<' == some ('>'.val)
 
 def testNoncharacterCodePoint (d : UnicodeData) : Bool :=
   PropList.isNoncharacterCodePoint d.code == lookupNoncharacterCodePoint d.code
@@ -195,6 +203,8 @@ def tests : List (String × (UnicodeData → Bool)) := [
   ("Bidi_Class", testBidiClass),
   ("Block", fun _ => testBlockName),
   ("East_Asian_Width", fun _ => testEastAsianWidth),
+  ("Vertical_Orientation", fun _ => testVerticalOrientation),
+  ("Bidi_Mirroring_Glyph", fun _ => testBidiMirroringGlyph),
   ("Alphabetic", testAlphabetic),
   ("Bidi_Class", testBidiClass),
   ("Bidi_Paired_Bracket", fun _ => testBidiPairedBracket),

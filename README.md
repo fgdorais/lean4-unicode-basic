@@ -10,6 +10,7 @@ Unicode properties that are currently supported by `UnicodeBasic` include:
 * `Bidi_Paired_Bracket`
 * `Bidi_Paired_Bracket_Type`
 * `Bidi_Mirrored`
+* `Bidi_Mirroring_Glyph`
 * `Canonical_Combining_Class`
 * `Case_Folding`
 * `Case_Ignorable`
@@ -61,6 +62,7 @@ Unicode properties that are currently supported by `UnicodeBasic` include:
 * `Word_Break`
 * `XID_Continue`
 * `XID_Start`
+* `Vertical_Orientation`
 
 To keep the `UnicodeBasic` library lightweight, only commonly used properties can be supported. If you need a property not yet in the list above, please submit a feature request!
 

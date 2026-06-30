@@ -5,8 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 module
 public import UnicodeBasic.Types
 import UnicodeData.BidiBrackets
+import UnicodeData.BidiMirroring
 import UnicodeData.Blocks
 import UnicodeData.EastAsianWidth
+import UnicodeData.VerticalOrientation
 public import UnicodeBasic.TableLookup
 
 /-!
@@ -77,6 +79,14 @@ public def getEastAsianWidth (char : Char) : EastAsianWidth :=
   lookupEastAsianWidth char.val
 
 /-!
+  ## Vertical Orientation ##
+-/
+
+/-- Get vertical orientation -/
+public def getVerticalOrientation (char : Char) : VerticalOrientation :=
+  lookupVerticalOrientation char.val
+
+/-!
   ## Bidi Brackets ##
 -/
 
@@ -87,6 +97,10 @@ public def getBidiPairedBracket? (char : Char) : Option UInt32 :=
 /-- Get bidi paired bracket type -/
 public def getBidiPairedBracketType? (char : Char) : Option BidiBracketType :=
   lookupBidiPairedBracketType? char.val
+
+/-- Get bidi mirroring glyph code point, if any. -/
+public def getBidiMirroringGlyph? (char : Char) : Option UInt32 :=
+  lookupBidiMirroringGlyph? char.val
 
 /-!
   ## Script ##
