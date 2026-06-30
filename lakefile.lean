@@ -23,8 +23,6 @@ target UnicodeCLib pkg : FilePath := do
   let name := nameToStaticLib "unicodeclib"
   buildStaticLib (pkg.sharedLibDir / name) oFiles
 
--- temporary fix for Windows
-meta if System.Platform.isWindows then
 extern_lib libunicodeclib := UnicodeCLib.fetch
 
 lean_lib UnicodeBasicSupport where
@@ -42,6 +40,7 @@ lean_lib UnicodeBasic where
     `UnicodeBasic,
     `UnicodeBasic.TableLookup
   ]
+  precompileModules := true
   moreLinkObjs := #[UnicodeCLib]
 
 lean_lib UnicodeData where
@@ -50,7 +49,12 @@ lean_lib UnicodeData where
     `UnicodeData,
     `UnicodeData.Aliases,
     `UnicodeData.Basic,
+    `UnicodeData.BreakProperties,
+    `UnicodeData.CaseFolding,
+    `UnicodeData.DerivedCoreProperties,
+    `UnicodeData.Emoji,
     `UnicodeData.PropList,
+    `UnicodeData.ScriptExtensions,
     `UnicodeData.Scripts
   ]
 

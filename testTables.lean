@@ -91,6 +91,72 @@ def testName (d : UnicodeData) : Bool :=
 def testNoncharacterCodePoint (d : UnicodeData) : Bool :=
   PropList.isNoncharacterCodePoint d.code == lookupNoncharacterCodePoint d.code
 
+def testDash (d : UnicodeData) : Bool :=
+  PropList.isDash d.code == lookupDash d.code
+
+def testHyphen (d : UnicodeData) : Bool :=
+  PropList.isHyphen d.code == lookupHyphen d.code
+
+def testQuotationMark (d : UnicodeData) : Bool :=
+  PropList.isQuotationMark d.code == lookupQuotationMark d.code
+
+def testTerminalPunctuation (d : UnicodeData) : Bool :=
+  PropList.isTerminalPunctuation d.code == lookupTerminalPunctuation d.code
+
+def testExtender (d : UnicodeData) : Bool :=
+  PropList.isExtender d.code == lookupExtender d.code
+
+def testRegionalIndicator (d : UnicodeData) : Bool :=
+  PropList.isRegionalIndicator d.code == lookupRegionalIndicator d.code
+
+def testIDStart (d : UnicodeData) : Bool :=
+  DerivedCoreProperties.isIDStart d.code == lookupIDStart d.code
+
+def testIDContinue (d : UnicodeData) : Bool :=
+  DerivedCoreProperties.isIDContinue d.code == lookupIDContinue d.code
+
+def testXIDStart (d : UnicodeData) : Bool :=
+  DerivedCoreProperties.isXIDStart d.code == lookupXIDStart d.code
+
+def testXIDContinue (d : UnicodeData) : Bool :=
+  DerivedCoreProperties.isXIDContinue d.code == lookupXIDContinue d.code
+
+def testDiacritic (d : UnicodeData) : Bool :=
+  PropList.isDiacritic d.code == lookupDiacritic d.code
+
+def testSentenceTerminal (d : UnicodeData) : Bool :=
+  PropList.isSentenceTerminal d.code == lookupSentenceTerminal d.code
+
+def testPatternSyntax (d : UnicodeData) : Bool :=
+  PropList.isPatternSyntax d.code == lookupPatternSyntax d.code
+
+def testPatternWhiteSpace (d : UnicodeData) : Bool :=
+  PropList.isPatternWhiteSpace d.code == lookupPatternWhiteSpace d.code
+
+def testEmoji (d : UnicodeData) : Bool :=
+  EmojiData.isEmoji d.code == lookupEmoji d.code
+
+def testEmojiPresentation (d : UnicodeData) : Bool :=
+  EmojiData.isEmojiPresentation d.code == lookupEmojiPresentation d.code
+
+def testEmojiModifier (d : UnicodeData) : Bool :=
+  EmojiData.isEmojiModifier d.code == lookupEmojiModifier d.code
+
+def testEmojiModifierBase (d : UnicodeData) : Bool :=
+  EmojiData.isEmojiModifierBase d.code == lookupEmojiModifierBase d.code
+
+def testEmojiComponent (d : UnicodeData) : Bool :=
+  EmojiData.isEmojiComponent d.code == lookupEmojiComponent d.code
+
+def testExtendedPictographic (d : UnicodeData) : Bool :=
+  EmojiData.isExtendedPictographic d.code == lookupExtendedPictographic d.code
+
+def testGraphemeBase (d : UnicodeData) : Bool :=
+  DerivedCoreProperties.isGraphemeBase d.code == lookupGraphemeBase d.code
+
+def testGraphemeExtend (d : UnicodeData) : Bool :=
+  DerivedCoreProperties.isGraphemeExtend d.code == lookupGraphemeExtend d.code
+
 def testNumericValue (d : UnicodeData) : Bool :=
   d.numeric == lookupNumericValue d.code
 
@@ -111,7 +177,7 @@ def testUppercase (d : UnicodeData) : Bool :=
 def testWhiteSpace (d : UnicodeData) : Bool :=
   PropList.isWhiteSpace d.code == lookupWhiteSpace d.code
 
-def tests : Array (String × (UnicodeData → Bool)) := #[
+def tests : List (String × (UnicodeData → Bool)) := [
   ("Bidi_Class", testBidiClass),
   ("Alphabetic", testAlphabetic),
   ("Bidi_Class", testBidiClass),
@@ -122,18 +188,40 @@ def tests : Array (String × (UnicodeData → Bool)) := #[
   ("Cased", testCased),
   ("Decomposition_Mapping", testDecompositionMapping),
   ("Default_Ignorable_Code_Point", testDefautlIgnorableCodePoint),
+  ("Dash", testDash),
+  ("Diacritic", testDiacritic),
+  ("Emoji", testEmoji),
+  ("Emoji_Component", testEmojiComponent),
+  ("Emoji_Modifier", testEmojiModifier),
+  ("Emoji_Modifier_Base", testEmojiModifierBase),
+  ("Emoji_Presentation", testEmojiPresentation),
+  ("Extended_Pictographic", testExtendedPictographic),
+  ("Extender", testExtender),
+  ("Grapheme_Base", testGraphemeBase),
+  ("Grapheme_Extend", testGraphemeExtend),
+  ("Hyphen", testHyphen),
+  ("ID_Continue", testIDContinue),
+  ("ID_Start", testIDStart),
   ("Lowercase", testLowercase),
   ("Math", testMath),
   ("Name", testName),
   ("Noncharacter_Code_Point", testNoncharacterCodePoint),
+  ("Pattern_Syntax", testPatternSyntax),
+  ("Pattern_White_Space", testPatternWhiteSpace),
+  ("Quotation_Mark", testQuotationMark),
+  ("Regional_Indicator", testRegionalIndicator),
+  ("Sentence_Terminal", testSentenceTerminal),
+  ("Terminal_Punctuation", testTerminalPunctuation),
   ("Titlecase", testTitlecase),
   ("Uppercase", testUppercase),
+  ("XID_Continue", testXIDContinue),
+  ("XID_Start", testXIDStart),
   ("Numeric_Value", testNumericValue),
   ("General_Category", testGeneralCategory),
   ("White_Space", testWhiteSpace)]
 
 public def main (args : List String) : IO UInt32 := do
-  let args := if args.isEmpty then tests.map Prod.fst else args.toArray
+  let args := if args.isEmpty then tests.map Prod.fst else args
   let stream : UnicodeDataStream := {}
   let mut err : UInt32 := 0
   for d in stream do
