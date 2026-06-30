@@ -5,8 +5,8 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 ## Summary
 
 - Total txt files: 69
-- Used by Lean library: 23
-- Unused: 46
+- Used by Lean library: 24
+- Unused: 45
 
 ## auxiliary
 
@@ -50,7 +50,7 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 | `data/ucd/core/IndicPositionalCategory.txt` | unused |  |
 | `data/ucd/core/IndicSyllabicCategory.txt` | unused |  |
 | `data/ucd/core/Jamo.txt` | unused |  |
-| `data/ucd/core/LineBreak.txt` | used | UnicodeData/BreakProperties.lean:25 [direct], UnicodeData/BreakProperties.lean:26 [direct], UnicodeData/BreakProperties.lean:58 [direct], UnicodeData/BreakProperties.lean:64 [direct] (4 matches) |
+| `data/ucd/core/LineBreak.txt` | used | UnicodeData/BreakProperties.lean:25 [direct], UnicodeData/BreakProperties.lean:26 [direct], UnicodeData/BreakProperties.lean:58 [direct], UnicodeData/BreakProperties.lean:64 [direct], ... (10 matches) |
 | `data/ucd/core/NameAliases.txt` | unused |  |
 | `data/ucd/core/NamedSequences.txt` | unused |  |
 | `data/ucd/core/NamedSequencesProv.txt` | unused |  |
@@ -89,7 +89,7 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 | `data/ucd/extracted/DerivedGeneralCategory.txt` | used | UnicodeData/DerivedGeneralCategory.lean:11 [direct], UnicodeData/DerivedGeneralCategory.lean:12 [direct], UnicodeData/DerivedGeneralCategory.lean:14 [direct], UnicodeData/DerivedGeneralCategory.lean:17 [direct], ... (5 matches) |
 | `data/ucd/extracted/DerivedJoiningGroup.txt` | unused |  |
 | `data/ucd/extracted/DerivedJoiningType.txt` | unused |  |
-| `data/ucd/extracted/DerivedLineBreak.txt` | unused |  |
+| `data/ucd/extracted/DerivedLineBreak.txt` | used | UnicodeData/DerivedLineBreak.lean:12 [direct], UnicodeData/DerivedLineBreak.lean:13 [direct], UnicodeData/DerivedLineBreak.lean:30 [direct], UnicodeData/DerivedLineBreak.lean:39 [direct], ... (6 matches) |
 | `data/ucd/extracted/DerivedName.txt` | unused |  |
 | `data/ucd/extracted/DerivedNumericType.txt` | unused |  |
 | `data/ucd/extracted/DerivedNumericValues.txt` | unused |  |

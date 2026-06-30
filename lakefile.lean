@@ -53,6 +53,7 @@ lean_lib UnicodeData where
     `UnicodeData.DerivedCombiningClass,
     `UnicodeData.DerivedBinaryProperties,
     `UnicodeData.DerivedGeneralCategory,
+    `UnicodeData.DerivedLineBreak,
     `UnicodeData.BidiBrackets,
     `UnicodeData.BidiMirroring,
     `UnicodeData.Blocks,

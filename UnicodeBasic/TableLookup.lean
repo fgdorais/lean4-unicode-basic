@@ -10,6 +10,7 @@ import UnicodeData.DerivedBidiClass
 import UnicodeData.DerivedCombiningClass
 import UnicodeData.DerivedBinaryProperties
 public import UnicodeData.DerivedGeneralCategory
+import UnicodeData.DerivedLineBreak
 
 namespace Unicode
 
@@ -660,14 +661,7 @@ where
 
 /-- Get line break property using lookup table -/
 public def lookupLineBreak (c : UInt32) : LineBreak :=
-  let table := table.get
-  if c < table[0]!.1 then .unknown else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
-    | (_, v, b) => if c ≤ v then b else .unknown
-where
-  str : String := include_str "../data/table/Line_Break.txt"
-  table : Thunk <| Array (UInt32 × UInt32 × LineBreak) :=
-    parseDataTable str fun _ _ x => LineBreak.ofAbbrev! x[0]!
+  lookupDerivedLineBreak c
 
 /-- Check if code point has Grapheme_Base property using lookup table -/
 public def lookupGraphemeBase (c : UInt32) : Bool :=
@@ -688,3 +682,5 @@ public def lookupGraphemeExtend (c : UInt32) : Bool :=
 where
   str : String := include_str "../data/table/Grapheme_Extend.txt"
   table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+initialize _ : IO Unit := pure ()
