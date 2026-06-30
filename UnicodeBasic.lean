@@ -6,6 +6,7 @@ module
 public import UnicodeBasic.Types
 import UnicodeData.BidiBrackets
 import UnicodeData.Blocks
+import UnicodeData.EastAsianWidth
 public import UnicodeBasic.TableLookup
 
 /-!
@@ -66,6 +67,14 @@ public def getName (char : Char) : String := lookupName char.val
 
 /-- Get Unicode block name -/
 public def getBlockName (char : Char) : String := lookupBlockName char.val
+
+/-!
+  ## East Asian Width ##
+-/
+
+/-- Get East Asian width -/
+public def getEastAsianWidth (char : Char) : EastAsianWidth :=
+  lookupEastAsianWidth char.val
 
 /-!
   ## Bidi Brackets ##

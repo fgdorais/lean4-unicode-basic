@@ -5,8 +5,8 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 ## Summary
 
 - Total txt files: 69
-- Used by Lean library: 15
-- Unused: 54
+- Used by Lean library: 16
+- Unused: 53
 
 ## auxiliary
 
@@ -17,7 +17,7 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 | `data/ucd/auxiliary/LineBreakTest.txt` | unused |  |
 | `data/ucd/auxiliary/SentenceBreakProperty.txt` | used | UnicodeData/BreakProperties.lean:23 [direct], UnicodeData/BreakProperties.lean:24 [direct], UnicodeData/BreakProperties.lean:49 [direct], UnicodeData/BreakProperties.lean:55 [direct] (4 matches) |
 | `data/ucd/auxiliary/SentenceBreakTest.txt` | unused |  |
-| `data/ucd/auxiliary/WordBreakProperty.txt` | used | UnicodeBasic.lean:825 [direct], UnicodeData/BreakProperties.lean:21 [direct], UnicodeData/BreakProperties.lean:22 [direct], UnicodeData/BreakProperties.lean:40 [direct], ... (5 matches) |
+| `data/ucd/auxiliary/WordBreakProperty.txt` | used | UnicodeBasic.lean:834 [direct], UnicodeData/BreakProperties.lean:21 [direct], UnicodeData/BreakProperties.lean:22 [direct], UnicodeData/BreakProperties.lean:40 [direct], ... (5 matches) |
 | `data/ucd/auxiliary/WordBreakTest.txt` | unused |  |
 
 ## conformance
@@ -43,7 +43,7 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 | `data/ucd/core/DerivedCoreProperties.txt` | used | UnicodeData/DerivedCoreProperties.lean:11 [direct], UnicodeData/DerivedCoreProperties.lean:28 [direct], UnicodeData/DerivedCoreProperties.lean:29 [direct], UnicodeData/DerivedCoreProperties.lean:32 [direct], ... (5 matches) |
 | `data/ucd/core/DerivedNormalizationProps.txt` | unused |  |
 | `data/ucd/core/DoNotEmit.txt` | unused |  |
-| `data/ucd/core/EastAsianWidth.txt` | unused |  |
+| `data/ucd/core/EastAsianWidth.txt` | used | UnicodeData/EastAsianWidth.lean:11 [direct], UnicodeData/EastAsianWidth.lean:12 [direct], UnicodeData/EastAsianWidth.lean:14 [direct], UnicodeData/EastAsianWidth.lean:16 [direct], ... (5 matches) |
 | `data/ucd/core/EmojiSources.txt` | unused |  |
 | `data/ucd/core/EquivalentUnifiedIdeograph.txt` | unused |  |
 | `data/ucd/core/HangulSyllableType.txt` | unused |  |
@@ -59,7 +59,7 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 | `data/ucd/core/NushuSources.txt` | unused |  |
 | `data/ucd/core/PropertyAliases.txt` | used | UnicodeData/Aliases.lean:18 [direct], UnicodeData/Aliases.lean:19 [direct], UnicodeData/Aliases.lean:22 [direct] (3 matches) |
 | `data/ucd/core/PropertyValueAliases.txt` | used | UnicodeData/Aliases.lean:63 [direct], UnicodeData/Aliases.lean:66 [direct] (2 matches) |
-| `data/ucd/core/PropList.txt` | used | UnicodeBasic.lean:504 [direct], UnicodeBasic.lean:1048 [direct], UnicodeData/PropList.lean:11 [direct], UnicodeData/PropList.lean:58 [direct], ... (23 matches) |
+| `data/ucd/core/PropList.txt` | used | UnicodeBasic.lean:513 [direct], UnicodeBasic.lean:1057 [direct], UnicodeData/PropList.lean:11 [direct], UnicodeData/PropList.lean:58 [direct], ... (23 matches) |
 | `data/ucd/core/ScriptExtensions.txt` | used | UnicodeData/ScriptExtensions.lean:15 [direct], UnicodeData/ScriptExtensions.lean:16 [direct], UnicodeData/ScriptExtensions.lean:19 [direct], UnicodeData/ScriptExtensions.lean:26 [direct] (4 matches) |
 | `data/ucd/core/Scripts.txt` | used | UnicodeData/Scripts.lean:15 [direct], UnicodeData/Scripts.lean:16 [direct], UnicodeData/Scripts.lean:19 [direct], UnicodeData/Scripts.lean:26 [direct] (4 matches) |
 | `data/ucd/core/SpecialCasing.txt` | unused |  |

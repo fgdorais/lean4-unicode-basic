@@ -19,6 +19,7 @@ Unicode properties that are currently supported by `UnicodeBasic` include:
 * `Decomposition_Type`
 * `Default_Ignorable_Code_Point`
 * `Diacritic`
+* `East_Asian_Width`
 * `Emoji_Component`
 * `Emoji_Modifier_Base`
 * `Emoji_Modifier`

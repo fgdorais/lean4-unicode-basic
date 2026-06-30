@@ -92,6 +92,10 @@ def testBlockName : Bool :=
   getBlockName 'A' == "Basic Latin"
     && getBlockName '(' == "Basic Latin"
 
+def testEastAsianWidth : Bool :=
+  getEastAsianWidth 'A' == EastAsianWidth.narrow
+    && getEastAsianWidth '中' == EastAsianWidth.wide
+
 def testBidiPairedBracket : Bool :=
   getBidiPairedBracket? '(' == some (')'.val)
     && getBidiPairedBracketType? '(' == some BidiBracketType.openBracket
@@ -190,6 +194,7 @@ def testWhiteSpace (d : UnicodeData) : Bool :=
 def tests : List (String × (UnicodeData → Bool)) := [
   ("Bidi_Class", testBidiClass),
   ("Block", fun _ => testBlockName),
+  ("East_Asian_Width", fun _ => testEastAsianWidth),
   ("Alphabetic", testAlphabetic),
   ("Bidi_Class", testBidiClass),
   ("Bidi_Paired_Bracket", fun _ => testBidiPairedBracket),

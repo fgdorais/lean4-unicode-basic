@@ -8,6 +8,7 @@ public import UnicodeData.Aliases
 public import UnicodeData.Basic
 public import UnicodeData.BidiBrackets
 public import UnicodeData.Blocks
+public import UnicodeData.EastAsianWidth
 public import UnicodeData.PropList
 public import UnicodeData.Scripts
 public import UnicodeData.ScriptExtensions
