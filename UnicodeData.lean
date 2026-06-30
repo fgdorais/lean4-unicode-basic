@@ -19,6 +19,7 @@ public import UnicodeData.DerivedName
 public import UnicodeData.DerivedNormalizationProps
 public import UnicodeData.DerivedNumericType
 public import UnicodeData.DerivedNumericValues
+public import UnicodeData.UnihanDictionaryIndices
 public import UnicodeData.BidiBrackets
 public import UnicodeData.BidiMirroring
 public import UnicodeData.Blocks
