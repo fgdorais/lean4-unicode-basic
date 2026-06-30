@@ -6,11 +6,14 @@ module
 import UnicodeBasic.CharacterDatabase
 import UnicodeBasic.Hangul
 public import UnicodeBasic.Types
+public import UnicodeData.Basic
 import UnicodeData.DerivedBidiClass
 import UnicodeData.DerivedCombiningClass
 import UnicodeData.DerivedBinaryProperties
 public import UnicodeData.DerivedGeneralCategory
 import UnicodeData.DerivedLineBreak
+public import UnicodeData.DerivedNumericType
+public import UnicodeData.DerivedNumericValues
 
 namespace Unicode
 
@@ -230,49 +233,10 @@ where
     `Numeric_Type`
     `Numeric_Value` -/
 public def lookupNumericValue (c : UInt32) : Option NumericType :=
-  let table := table.get
-  if c < table[0]!.1 then none else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
-    | (c₀, _, .decimal _) =>
-      let val := c.toNat - c₀.toNat
-      if h : val < 10 then
-        some <| NumericType.decimal ⟨val, h⟩
-      else
-        none
-    | (c₀, c₁, .digit i) =>
-      if c ≤ c₁ then
-        let val := c.toNat - c₀.toNat + i.val
-        if h : val < 10 then
-          some <| NumericType.digit ⟨val, h⟩
-        else
-          panic! "invalid `Numeric_Value` table"
-      else
-        none
-    | ⟨v, _, n⟩ =>
-      if c == v then some n else none
-where
-  str : String := include_str "../data/table/Numeric_Value.txt"
-  table : Thunk <| Array (UInt32 × UInt32 × NumericType) :=
-    parseDataTable str fun _ _ a =>
-      let s := a[0]!.copy
-      if s == "decimal" then
-        .decimal 0
-      else if "digit".isPrefixOf s then
-        let d := (String.Pos.Raw.get s ⟨6⟩).toNat
-        if h : d - '0'.toNat < 10 then
-          if d < '0'.toNat then
-            panic! s!"invalid table data {d} {s}"
-          else
-            .digit ⟨d - '0'.toNat, h⟩
-        else
-          panic! s!"invalid table data {d} {s}"
-      else if "numeric".isPrefixOf s then
-        let s := s.drop 8
-        match s.split "/" |>.toStringList with
-        | [n] => .numeric n.toInt! none
-        | [n, d] => .numeric n.toInt! (some d.toNat!)
-        | _ => panic! "invalid table data"
-      else .numeric (-4) none
+  let d := getUnicodeData! c
+  match d.numeric with
+  | some n => some n
+  | none => lookupDerivedNumericValue c
 
 /-- Get other properties using lookup table
 

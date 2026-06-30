@@ -13,6 +13,8 @@ public import UnicodeData.DerivedGeneralCategory
 public import UnicodeData.DerivedLineBreak
 public import UnicodeData.DerivedAge
 public import UnicodeData.DerivedDecompositionType
+public import UnicodeData.DerivedNumericType
+public import UnicodeData.DerivedNumericValues
 public import UnicodeData.BidiBrackets
 public import UnicodeData.BidiMirroring
 public import UnicodeData.Blocks

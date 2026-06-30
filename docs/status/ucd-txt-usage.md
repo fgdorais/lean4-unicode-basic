@@ -5,8 +5,8 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 ## Summary
 
 - Total txt files: 69
-- Used by Lean library: 26
-- Unused: 43
+- Used by Lean library: 28
+- Unused: 41
 
 ## auxiliary
 
@@ -65,7 +65,7 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 | `data/ucd/core/SpecialCasing.txt` | unused |  |
 | `data/ucd/core/StandardizedVariants.txt` | unused |  |
 | `data/ucd/core/TangutSources.txt` | unused |  |
-| `data/ucd/core/UnicodeData.txt` | used | UnicodeData/Basic.lean:12 [direct], UnicodeData/Basic.lean:114 [direct], UnicodeData/Basic.lean:115 [direct], UnicodeData/Basic.lean:117 [direct], ... (10 matches) |
+| `data/ucd/core/UnicodeData.txt` | used | UnicodeData/Basic.lean:13 [direct], UnicodeData/Basic.lean:115 [direct], UnicodeData/Basic.lean:116 [direct], UnicodeData/Basic.lean:118 [direct], ... (11 matches) |
 | `data/ucd/core/Unikemet.txt` | unused |  |
 | `data/ucd/core/USourceData.txt` | unused |  |
 | `data/ucd/core/VerticalOrientation.txt` | used | UnicodeData/VerticalOrientation.lean:11 [direct], UnicodeData/VerticalOrientation.lean:12 [direct], UnicodeData/VerticalOrientation.lean:14 [direct], UnicodeData/VerticalOrientation.lean:16 [direct], ... (5 matches) |
@@ -91,8 +91,8 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 | `data/ucd/extracted/DerivedJoiningType.txt` | unused |  |
 | `data/ucd/extracted/DerivedLineBreak.txt` | used | UnicodeData/DerivedLineBreak.lean:12 [direct], UnicodeData/DerivedLineBreak.lean:13 [direct], UnicodeData/DerivedLineBreak.lean:30 [direct], UnicodeData/DerivedLineBreak.lean:39 [direct], ... (6 matches) |
 | `data/ucd/extracted/DerivedName.txt` | unused |  |
-| `data/ucd/extracted/DerivedNumericType.txt` | unused |  |
-| `data/ucd/extracted/DerivedNumericValues.txt` | unused |  |
+| `data/ucd/extracted/DerivedNumericType.txt` | used | UnicodeData/DerivedNumericType.lean:11 [direct], UnicodeData/DerivedNumericType.lean:12 [direct], UnicodeData/DerivedNumericType.lean:17 [direct], UnicodeData/DerivedNumericType.lean:23 [direct] (4 matches) |
+| `data/ucd/extracted/DerivedNumericValues.txt` | used | UnicodeData/DerivedNumericValues.lean:12 [direct], UnicodeData/DerivedNumericValues.lean:13 [direct], UnicodeData/DerivedNumericValues.lean:30 [direct], UnicodeData/DerivedNumericValues.lean:42 [direct], ... (5 matches) |
 
 ## unihan
 

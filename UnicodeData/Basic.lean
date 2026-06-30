@@ -6,6 +6,7 @@ module
 import UnicodeBasic.CharacterDatabase
 import UnicodeBasic.Hangul
 public import UnicodeBasic.Types
+import UnicodeData.DerivedNumericValues
 
 namespace Unicode
 
@@ -234,6 +235,15 @@ public unsafe initialize UnicodeData.data : Array UnicodeData ←
     }
   return arr
 
+/-- Fill in derived numeric values when `UnicodeData.txt` leaves them blank. -/
+private def withDerivedNumeric (d : UnicodeData) : UnicodeData :=
+  match d.numeric with
+  | some _ => d
+  | none =>
+    match lookupDerivedNumericValue d.code with
+    | some n => {d with numeric := some n}
+    | none => d
+
 /-- Get code point data from `UnicodeData.txt` -/
 public partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
   if code > Unicode.max then
@@ -249,10 +259,10 @@ public partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
     let data := UnicodeData.data[code.toUSize]!
     assert! (data.code == code)
     if data.name == "<control>" then
-      return {data with
+      return withDerivedNumeric {data with
         name := s!"<control-{toHexStringRaw code}>"}
     else
-      return data
+      return withDerivedNumeric data
   else
     let data := UnicodeData.data[find 0x0377 UnicodeData.data.size]!
     /-
@@ -276,25 +286,25 @@ public partial def getUnicodeData? (code : UInt32) : Option UnicodeData := do
     if data.name.front == '<' then
       if code = data.code || data.name.takeEnd 8 == ", First>" then
         if data.name.take 16 == "<Hangul Syllable" then
-          UnicodeData.mkHangulSyllable code
+          withDerivedNumeric <| UnicodeData.mkHangulSyllable code
         else if data.name.take 14 == "<CJK Ideograph" then
-          UnicodeData.mkCJKUnifiedIdeograph code
+          withDerivedNumeric <| UnicodeData.mkCJKUnifiedIdeograph code
         else if data.name.take 17 == "<Tangut Ideograph" then
-          UnicodeData.mkTangutIdeograph code
+          withDerivedNumeric <| UnicodeData.mkTangutIdeograph code
         else if data.gc == .Cc then
-          UnicodeData.mkControl code
+          withDerivedNumeric <| UnicodeData.mkControl code
         else if data.gc == .Co then
-          UnicodeData.mkPrivateUse code
+          withDerivedNumeric <| UnicodeData.mkPrivateUse code
         else if data.gc == .Cs then
-          UnicodeData.mkSurrogate code
+          withDerivedNumeric <| UnicodeData.mkSurrogate code
         else
           panic! "unexpected character name value"
       else
-        return .mkNoncharacter code
+        return withDerivedNumeric <| .mkNoncharacter code
     else if code = data.code then
-      return data
+      return withDerivedNumeric data
     else
-      return .mkNoncharacter code
+      return withDerivedNumeric <| .mkNoncharacter code
 
 where
 
@@ -341,10 +351,10 @@ public def UnicodeDataStream.next? (s : UnicodeDataStream) : Option (UnicodeData
     let d := UnicodeData.data[i]
     let n := d.name
     if c < d.code then
-      return (s.default c, {s with code := c+1})
+      return (withDerivedNumeric <| s.default c, {s with code := c+1})
     else if n == "<control>" then
       let d := {d with name := s!"<control-{toHexStringRaw c}>"}
-      return (d, {s with code := c+1, index := i+1})
+      return (withDerivedNumeric d, {s with code := c+1, index := i+1})
     else if n.front == '<' then
       if n.takeEnd 8 == ", First>" then
         let mut default := UnicodeData.mkNoncharacter
@@ -360,15 +370,15 @@ public def UnicodeDataStream.next? (s : UnicodeDataStream) : Option (UnicodeData
           default := UnicodeData.mkTangutIdeograph
         else
           panic! "invalid Unicode data"
-        return (default c, {s with code := c+1, index := i+1, default})
+        return (withDerivedNumeric <| default c, {s with code := c+1, index := i+1, default})
       else if n.takeEnd 7 == ", Last>" then
-        return (s.default c, {s with code := c+1, index := i+1, default := UnicodeData.mkNoncharacter})
+        return (withDerivedNumeric <| s.default c, {s with code := c+1, index := i+1, default := UnicodeData.mkNoncharacter})
       else
         panic! "invalid Unicode data"
     else
-      return (d, {s with code := c+1, index := i+1})
+      return (withDerivedNumeric d, {s with code := c+1, index := i+1})
   else
-    return (.mkNoncharacter c, {s with code := c+1})
+    return (withDerivedNumeric <| .mkNoncharacter c, {s with code := c+1})
 
 public instance : Std.Stream UnicodeDataStream UnicodeData where
   next? := UnicodeDataStream.next?
