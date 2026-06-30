@@ -5,8 +5,8 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 ## Summary
 
 - Total txt files: 69
-- Used by Lean library: 18
-- Unused: 51
+- Used by Lean library: 21
+- Unused: 48
 
 ## auxiliary
 
@@ -81,11 +81,11 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 
 | File | Usage | Places |
 | --- | --- | --- |
-| `data/ucd/extracted/DerivedBidiClass.txt` | unused |  |
+| `data/ucd/extracted/DerivedBidiClass.txt` | used | UnicodeData/DerivedBidiClass.lean:11 [direct], UnicodeData/DerivedBidiClass.lean:12 [direct], UnicodeData/DerivedBidiClass.lean:29 [direct], UnicodeData/DerivedBidiClass.lean:38 [direct], ... (6 matches) |
 | `data/ucd/extracted/DerivedBinaryProperties.txt` | unused |  |
-| `data/ucd/extracted/DerivedCombiningClass.txt` | unused |  |
+| `data/ucd/extracted/DerivedCombiningClass.txt` | used | UnicodeData/DerivedCombiningClass.lean:11 [direct], UnicodeData/DerivedCombiningClass.lean:12 [direct], UnicodeData/DerivedCombiningClass.lean:17 [direct], UnicodeData/DerivedCombiningClass.lean:23 [direct] (4 matches) |
 | `data/ucd/extracted/DerivedDecompositionType.txt` | unused |  |
-| `data/ucd/extracted/DerivedEastAsianWidth.txt` | unused |  |
+| `data/ucd/extracted/DerivedEastAsianWidth.txt` | used | UnicodeData/EastAsianWidth.lean:11 [direct], UnicodeData/EastAsianWidth.lean:12 [direct] (2 matches) |
 | `data/ucd/extracted/DerivedGeneralCategory.txt` | unused |  |
 | `data/ucd/extracted/DerivedJoiningGroup.txt` | unused |  |
 | `data/ucd/extracted/DerivedJoiningType.txt` | unused |  |

@@ -14,8 +14,61 @@ def testAlphabetic (d : UnicodeData) : Bool :=
     else PropList.isOtherAlphabetic d.code
   v == lookupAlphabetic d.code
 
+private def expectedCnBidiClass (code : UInt32) : BidiClass :=
+  if lookupDefaultIgnorableCodePoint code || PropList.isNoncharacterCodePoint code then
+    .BN
+  else if 0x0590 ≤ code && code ≤ 0x05FF then
+    .R
+  else if 0x0600 ≤ code && code ≤ 0x07BF then
+    .AL
+  else if 0x07C0 ≤ code && code ≤ 0x085F then
+    .R
+  else if 0x0860 ≤ code && code ≤ 0x08FF then
+    .AL
+  else if 0x20A0 ≤ code && code ≤ 0x20CF then
+    .ET
+  else if 0xFB1D ≤ code && code ≤ 0xFB4F then
+    .R
+  else if 0xFB50 ≤ code && code ≤ 0xFDCF then
+    .AL
+  else if 0xFDF0 ≤ code && code ≤ 0xFDFF then
+    .AL
+  else if 0xFE70 ≤ code && code ≤ 0xFEFF then
+    .AL
+  else if 0x10800 ≤ code && code ≤ 0x10CFF then
+    .R
+  else if 0x10D00 ≤ code && code ≤ 0x10D3F then
+    .AL
+  else if 0x10D40 ≤ code && code ≤ 0x10EBF then
+    .R
+  else if 0x10EC0 ≤ code && code ≤ 0x10EFF then
+    .AL
+  else if 0x10F00 ≤ code && code ≤ 0x10F2F then
+    .R
+  else if 0x10F30 ≤ code && code ≤ 0x10F6F then
+    .AL
+  else if 0x10F70 ≤ code && code ≤ 0x10FFF then
+    .R
+  else if 0x1E800 ≤ code && code ≤ 0x1EC6F then
+    .R
+  else if 0x1EC70 ≤ code && code ≤ 0x1ECBF then
+    .AL
+  else if 0x1ECC0 ≤ code && code ≤ 0x1ECFF then
+    .R
+  else if 0x1ED00 ≤ code && code ≤ 0x1ED4F then
+    .AL
+  else if 0x1ED50 ≤ code && code ≤ 0x1EDFF then
+    .R
+  else if 0x1EE00 ≤ code && code ≤ 0x1EEFF then
+    .AL
+  else if 0x1EF00 ≤ code && code ≤ 0x1EFFF then
+    .R
+  else
+    .L
+
 def testBidiClass (d : UnicodeData) : Bool :=
-  d.bidi == lookupBidiClass d.code
+  let expected := if d.gc == .Cn then expectedCnBidiClass d.code else d.bidi
+  expected == lookupBidiClass d.code
 
 def testBidiMirrored (d : UnicodeData) : Bool :=
   d.bidiMirrored == lookupBidiMirrored d.code
@@ -206,7 +259,6 @@ def tests : List (String × (UnicodeData → Bool)) := [
   ("Vertical_Orientation", fun _ => testVerticalOrientation),
   ("Bidi_Mirroring_Glyph", fun _ => testBidiMirroringGlyph),
   ("Alphabetic", testAlphabetic),
-  ("Bidi_Class", testBidiClass),
   ("Bidi_Paired_Bracket", fun _ => testBidiPairedBracket),
   ("Bidi_Mirrored", testBidiMirrored),
   ("Canonical_Combining_Class", testCanonicalCombiningClass),

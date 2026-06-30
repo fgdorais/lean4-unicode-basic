@@ -8,8 +8,8 @@ import UnicodeBasic.CharacterDatabase
 
 namespace Unicode
 
-/-- Raw string from `EastAsianWidth.txt` -/
-def EastAsianWidth.txt := include_str "../data/ucd/core/EastAsianWidth.txt"
+/-- Raw string from `DerivedEastAsianWidth.txt` -/
+def EastAsianWidth.txt := include_str "../data/ucd/extracted/DerivedEastAsianWidth.txt"
 
 /-- Parsed `EastAsianWidth.txt` records. -/
 public def EastAsianWidth.data : Array (UInt32 × UInt32 × EastAsianWidth) := Id.run do
@@ -22,7 +22,7 @@ public def EastAsianWidth.data : Array (UInt32 × UInt32 × EastAsianWidth) := I
       | [c₀, c₁] => (ofHexString! c₀, ofHexString! c₁)
       | _ => panic! "invalid record in EastAsianWidth.txt"
     data := data.push (c₀, c₁, EastAsianWidth.ofAbbrev! record[1]!)
-  return data
+  return data.qsort fun a b => a.1 < b.1
 
 private partial def find (code : UInt32)
     (data : Array (UInt32 × UInt32 × EastAsianWidth)) (lo hi : Nat) : Option EastAsianWidth :=

@@ -6,6 +6,8 @@ module
 import UnicodeBasic.CharacterDatabase
 import UnicodeBasic.Hangul
 public import UnicodeBasic.Types
+import UnicodeData.DerivedBidiClass
+import UnicodeData.DerivedCombiningClass
 
 namespace Unicode
 
@@ -73,27 +75,13 @@ private def parsePropTable (s : String) : Thunk <| Array (UInt32 × UInt32) := I
 
   Unicode property: `Bidi_Class` -/
 public def lookupBidiClass (c : UInt32) : BidiClass :=
-  let table := table.get
-  if c < table[0]!.1 then .BN else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
-    | (_, v, bc) => if c ≤ v then bc else .BN
-where
-  str : String := include_str "../data/table/Bidi_Class.txt"
-  table : Thunk <| Array (UInt32 × UInt32 × BidiClass) :=
-    parseDataTable str fun _ _ x => BidiClass.ofAbbrev! x[0]!
+  lookupDerivedBidiClass c
 
 /-- Get canonical combining class using lookup table
 
   Unicode property: `Canonical_Combining_Class` -/
 public def lookupCanonicalCombiningClass (c : UInt32) : Nat :=
-  let t := table.get
-  if c < t[0]!.1 then 0 else
-    match t[find c (fun i => t[i]!.1) 0 t.size.toUSize]! with
-    | (_, v, n) => if c ≤ v then n else 0
-where
-  str : String := include_str "../data/table/Canonical_Combining_Class.txt"
-  table : Thunk <| Array (UInt32 × UInt32 × Nat) :=
-    parseDataTable str fun _ _ x => x[0]!.toNat?.get!
+  lookupDerivedCombiningClass c
 
 /-- Get canonical decomposition mapping using lookup table
 
