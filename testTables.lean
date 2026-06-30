@@ -88,6 +88,16 @@ def testMath (d : UnicodeData) : Bool :=
 def testName (d : UnicodeData) : Bool :=
   d.name == lookupName d.code
 
+def testBlockName : Bool :=
+  getBlockName 'A' == "Basic Latin"
+    && getBlockName '(' == "Basic Latin"
+
+def testBidiPairedBracket : Bool :=
+  getBidiPairedBracket? '(' == some (')'.val)
+    && getBidiPairedBracketType? '(' == some BidiBracketType.openBracket
+    && getBidiPairedBracket? ')' == some ('('.val)
+    && getBidiPairedBracketType? ')' == some BidiBracketType.closeBracket
+
 def testNoncharacterCodePoint (d : UnicodeData) : Bool :=
   PropList.isNoncharacterCodePoint d.code == lookupNoncharacterCodePoint d.code
 
@@ -179,8 +189,10 @@ def testWhiteSpace (d : UnicodeData) : Bool :=
 
 def tests : List (String × (UnicodeData → Bool)) := [
   ("Bidi_Class", testBidiClass),
+  ("Block", fun _ => testBlockName),
   ("Alphabetic", testAlphabetic),
   ("Bidi_Class", testBidiClass),
+  ("Bidi_Paired_Bracket", fun _ => testBidiPairedBracket),
   ("Bidi_Mirrored", testBidiMirrored),
   ("Canonical_Combining_Class", testCanonicalCombiningClass),
   ("Canonical_Decomposition_Mapping", testCanonicalDecompositionMapping),

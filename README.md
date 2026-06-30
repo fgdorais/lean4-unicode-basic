@@ -7,6 +7,8 @@ Unicode properties that are currently supported by `UnicodeBasic` include:
 * `Alphabetic`
 * `Bidi_Class`
 * `Bidi_Control`
+* `Bidi_Paired_Bracket`
+* `Bidi_Paired_Bracket_Type`
 * `Bidi_Mirrored`
 * `Canonical_Combining_Class`
 * `Case_Folding`
@@ -24,6 +26,7 @@ Unicode properties that are currently supported by `UnicodeBasic` include:
 * `Emoji`
 * `Extended_Pictographic`
 * `Extender`
+* `Block`
 * `General_Category`
 * `Grapheme_Base`
 * `Grapheme_Cluster_Break`

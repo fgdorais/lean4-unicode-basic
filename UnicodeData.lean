@@ -6,6 +6,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 module
 public import UnicodeData.Aliases
 public import UnicodeData.Basic
+public import UnicodeData.BidiBrackets
+public import UnicodeData.Blocks
 public import UnicodeData.PropList
 public import UnicodeData.Scripts
 public import UnicodeData.ScriptExtensions

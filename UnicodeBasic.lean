@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 module
 public import UnicodeBasic.Types
+import UnicodeData.BidiBrackets
+import UnicodeData.Blocks
 public import UnicodeBasic.TableLookup
 
 /-!
@@ -57,6 +59,25 @@ namespace Unicode
 -/
 @[inline]
 public def getName (char : Char) : String := lookupName char.val
+
+/-!
+  ## Block ##
+-/
+
+/-- Get Unicode block name -/
+public def getBlockName (char : Char) : String := lookupBlockName char.val
+
+/-!
+  ## Bidi Brackets ##
+-/
+
+/-- Get bidi paired bracket -/
+public def getBidiPairedBracket? (char : Char) : Option UInt32 :=
+  lookupBidiPairedBracket? char.val
+
+/-- Get bidi paired bracket type -/
+public def getBidiPairedBracketType? (char : Char) : Option BidiBracketType :=
+  lookupBidiPairedBracketType? char.val
 
 /-!
   ## Script ##

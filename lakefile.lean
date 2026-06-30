@@ -49,6 +49,8 @@ lean_lib UnicodeData where
     `UnicodeData,
     `UnicodeData.Aliases,
     `UnicodeData.Basic,
+    `UnicodeData.BidiBrackets,
+    `UnicodeData.Blocks,
     `UnicodeData.BreakProperties,
     `UnicodeData.CaseFolding,
     `UnicodeData.DerivedCoreProperties,
