@@ -67,6 +67,7 @@ lean_lib UnicodeData where
     Glob.one `UnicodeData.UnihanIRGSources,
     Glob.one `UnicodeData.UnihanNumericValues,
     Glob.one `UnicodeData.UnihanOtherMappings,
+    Glob.one `UnicodeData.UnihanRadicalStrokeCounts,
     Glob.one `UnicodeData.BidiBrackets,
     Glob.one `UnicodeData.BidiMirroring,
     Glob.one `UnicodeData.Blocks,

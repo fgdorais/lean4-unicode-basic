@@ -24,6 +24,7 @@ public import UnicodeData.UnihanDictionaryLikeData
 public import UnicodeData.UnihanIRGSources
 public import UnicodeData.UnihanNumericValues
 public import UnicodeData.UnihanOtherMappings
+public import UnicodeData.UnihanRadicalStrokeCounts
 public import UnicodeData.BidiBrackets
 public import UnicodeData.BidiMirroring
 public import UnicodeData.Blocks
