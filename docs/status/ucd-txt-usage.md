@@ -5,8 +5,8 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 ## Summary
 
 - Total txt files: 69
-- Used by Lean library: 31
-- Unused: 38
+- Used by Lean library: 32
+- Unused: 37
 
 ## auxiliary
 
@@ -41,7 +41,7 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 | `data/ucd/core/CompositionExclusions.txt` | unused |  |
 | `data/ucd/core/DerivedAge.txt` | used | UnicodeData/DerivedAge.lean:11 [direct], UnicodeData/DerivedAge.lean:12 [direct], UnicodeData/DerivedAge.lean:29 [direct], UnicodeData/DerivedAge.lean:31 [direct], ... (6 matches) |
 | `data/ucd/core/DerivedCoreProperties.txt` | used | UnicodeData/DerivedCoreProperties.lean:11 [direct], UnicodeData/DerivedCoreProperties.lean:28 [direct], UnicodeData/DerivedCoreProperties.lean:29 [direct], UnicodeData/DerivedCoreProperties.lean:32 [direct], ... (5 matches) |
-| `data/ucd/core/DerivedNormalizationProps.txt` | unused |  |
+| `data/ucd/core/DerivedNormalizationProps.txt` | used | UnicodeData/DerivedNormalizationProps.lean:11 [direct], UnicodeData/DerivedNormalizationProps.lean:12 [direct], UnicodeData/DerivedNormalizationProps.lean:29 [direct], UnicodeData/DerivedNormalizationProps.lean:40 [direct], ... (6 matches) |
 | `data/ucd/core/DoNotEmit.txt` | unused |  |
 | `data/ucd/core/EastAsianWidth.txt` | used | UnicodeData/EastAsianWidth.lean:11 [direct], UnicodeData/EastAsianWidth.lean:12 [direct], UnicodeData/EastAsianWidth.lean:14 [direct], UnicodeData/EastAsianWidth.lean:16 [direct], ... (5 matches) |
 | `data/ucd/core/EmojiSources.txt` | unused |  |

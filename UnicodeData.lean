@@ -16,6 +16,7 @@ public import UnicodeData.DerivedDecompositionType
 public import UnicodeData.DerivedJoiningGroup
 public import UnicodeData.DerivedJoiningType
 public import UnicodeData.DerivedName
+public import UnicodeData.DerivedNormalizationProps
 public import UnicodeData.DerivedNumericType
 public import UnicodeData.DerivedNumericValues
 public import UnicodeData.BidiBrackets
