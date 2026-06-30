@@ -15,8 +15,8 @@ These files are part of the UCD distribution but are intentionally excluded from
 
 - Total txt files: 67
 - Used by Lean library: 60
-- Used by tests: 4
-- Parser smoke tests pending algorithm conformance: 3
+- Used by tests: 5
+- Parser smoke tests pending algorithm conformance: 2
 - Test fixtures pending: 0
 - Unused: 0
 
@@ -26,7 +26,7 @@ These files are part of the UCD distribution but are intentionally excluded from
 | --- | --- | --- |
 | `data/ucd/auxiliary/GraphemeBreakProperty.txt` | used by Lean library | UnicodeData/Auxiliary/BreakProperties.lean:19 [direct], UnicodeData/Auxiliary/BreakProperties.lean:20 [direct], UnicodeData/Auxiliary/BreakProperties.lean:31 [direct], UnicodeData/Auxiliary/BreakProperties.lean:37 [direct] (4 matches) |
 | `data/ucd/auxiliary/GraphemeBreakTest.txt` | used by tests | UnicodeDataTest/Auxiliary/Data/GraphemeBreakTest.lean:11 [direct], UnicodeDataTest/Auxiliary/Test.lean:53 [direct] (2 matches) |
-| `data/ucd/auxiliary/LineBreakTest.txt` | used by tests: parser smoke (pending algorithm conformance) | UnicodeDataTest/Auxiliary/Data/LineBreakTest.lean:11 [direct] (1 matches) |
+| `data/ucd/auxiliary/LineBreakTest.txt` | used by tests | UnicodeDataTest/Auxiliary/Data/LineBreakTest.lean:11 [direct], UnicodeDataTest/Auxiliary/Test.lean:59 [direct] (2 matches) |
 | `data/ucd/auxiliary/SentenceBreakProperty.txt` | used by Lean library | UnicodeData/Auxiliary/BreakProperties.lean:23 [direct], UnicodeData/Auxiliary/BreakProperties.lean:24 [direct], UnicodeData/Auxiliary/BreakProperties.lean:49 [direct], UnicodeData/Auxiliary/BreakProperties.lean:55 [direct] (4 matches) |
 | `data/ucd/auxiliary/SentenceBreakTest.txt` | used by tests | UnicodeDataTest/Auxiliary/Data/SentenceBreakTest.lean:11 [direct], UnicodeDataTest/Auxiliary/Test.lean:57 [direct] (2 matches) |
 | `data/ucd/auxiliary/WordBreakProperty.txt` | used by Lean library | UnicodeBasic.lean:849 [direct], UnicodeData/Auxiliary/BreakProperties.lean:21 [direct], UnicodeData/Auxiliary/BreakProperties.lean:22 [direct], UnicodeData/Auxiliary/BreakProperties.lean:40 [direct], ... (5 matches) |

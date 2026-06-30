@@ -60,7 +60,6 @@ function isTestFixture(relativePath: string): boolean {
 }
 
 const parserSmokePendingFixtures = new Set<string>([
-  'data/ucd/auxiliary/LineBreakTest.txt',
   'data/ucd/conformance/BidiCharacterTest.txt',
   'data/ucd/conformance/BidiTest.txt'
 ]);

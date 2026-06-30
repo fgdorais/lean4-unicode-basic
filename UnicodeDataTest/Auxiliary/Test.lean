@@ -55,10 +55,12 @@ public def run : IO UInt32 := do
     runBoundaries "WordBreakTest.txt" w Unicode.segmentWordBoundaries
   let sc ← UnicodeDataTest.Common.reportFailures "SentenceBreakTest" <|
     runBoundaries "SentenceBreakTest.txt" s Unicode.segmentSentenceBoundaries
+  let lc ← UnicodeDataTest.Common.reportFailures "LineBreakTest" <|
+    runBoundaries "LineBreakTest.txt" l Unicode.segmentLineBoundaries
   let mut failed := rc != 0
   failed := failed || wc != 0
   failed := failed || sc != 0
-  failed := failed || (← reportPendingAlgorithm "LineBreakTest" l) != 0
+  failed := failed || lc != 0
   return if failed then 1 else 0
 
 end UnicodeDataTest.Auxiliary
