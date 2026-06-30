@@ -8,6 +8,7 @@ public import UnicodeData.Aliases
 public import UnicodeData.Basic
 public import UnicodeData.DerivedBidiClass
 public import UnicodeData.DerivedCombiningClass
+public import UnicodeData.DerivedBinaryProperties
 public import UnicodeData.BidiBrackets
 public import UnicodeData.BidiMirroring
 public import UnicodeData.Blocks

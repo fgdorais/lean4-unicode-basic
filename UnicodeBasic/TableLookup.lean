@@ -8,6 +8,7 @@ import UnicodeBasic.Hangul
 public import UnicodeBasic.Types
 import UnicodeData.DerivedBidiClass
 import UnicodeData.DerivedCombiningClass
+import UnicodeData.DerivedBinaryProperties
 
 namespace Unicode
 
@@ -292,13 +293,7 @@ public def lookupAlphabetic (c : UInt32) : Bool :=
   Unicode property: `Bidi_Mirrored`
 -/
 public def lookupBidiMirrored (c : UInt32) : Bool :=
-  let table := table.get
-  if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
-    | (_, v) => c ≤ v
-where
-  str : String := include_str "../data/table/Bidi_Mirrored.txt"
-  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+  lookupDerivedBidiMirrored c
 
 /-- Check if code point is a cased letter using lookup table
 
