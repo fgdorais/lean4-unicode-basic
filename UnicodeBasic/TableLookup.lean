@@ -7,14 +7,14 @@ import UnicodeBasic.CharacterDatabase
 import UnicodeBasic.Hangul
 public import UnicodeBasic.Types
 public import UnicodeData.Basic
-public import UnicodeData.DerivedName
-import UnicodeData.DerivedBidiClass
-import UnicodeData.DerivedCombiningClass
-import UnicodeData.DerivedBinaryProperties
-public import UnicodeData.DerivedGeneralCategory
-import UnicodeData.DerivedLineBreak
-public import UnicodeData.DerivedNumericType
-public import UnicodeData.DerivedNumericValues
+public import UnicodeData.Extracted.DerivedName
+import UnicodeData.Extracted.DerivedBidiClass
+import UnicodeData.Extracted.DerivedCombiningClass
+import UnicodeData.Extracted.DerivedBinaryProperties
+public import UnicodeData.Extracted.DerivedGeneralCategory
+import UnicodeData.Extracted.DerivedLineBreak
+public import UnicodeData.Extracted.DerivedNumericType
+public import UnicodeData.Extracted.DerivedNumericValues
 
 namespace Unicode
 

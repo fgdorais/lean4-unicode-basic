@@ -6,7 +6,7 @@ module
 import UnicodeBasic.CharacterDatabase
 import UnicodeBasic.Hangul
 public import UnicodeBasic.Types
-import UnicodeData.DerivedNumericValues
+import UnicodeData.Extracted.DerivedNumericValues
 
 namespace Unicode
 

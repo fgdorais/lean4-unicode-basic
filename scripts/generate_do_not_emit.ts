@@ -206,5 +206,5 @@ for (const [idx] of entryChunks.entries()) {
 out += `  return data\n\n`;
 out += `end Unicode\n`;
 
-writeText(path.join(repoRoot, 'UnicodeData', 'DoNotEmit.lean'), out);
-console.log(`Wrote UnicodeData/DoNotEmit.lean from ${entries.length} parsed records and ${items.length - entries.length} comments.`);
+writeText(path.join(repoRoot, 'UnicodeData', 'Core', 'DoNotEmit.lean'), out);
+console.log(`Wrote UnicodeData/Core/DoNotEmit.lean from ${entries.length} parsed records and ${items.length - entries.length} comments.`);

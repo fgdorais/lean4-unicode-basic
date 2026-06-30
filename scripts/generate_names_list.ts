@@ -273,5 +273,5 @@ for (const [idx, section] of sections.entries()) {
 
 out += `end Unicode\n`;
 
-writeText(path.join(repoRoot, 'UnicodeData', 'NamesList.lean'), out);
-console.log(`Wrote UnicodeData/NamesList.lean from ${sections.length} parsed sections.`);
+writeText(path.join(repoRoot, 'UnicodeData', 'Core', 'NamesList.lean'), out);
+console.log(`Wrote UnicodeData/Core/NamesList.lean from ${sections.length} parsed sections.`);

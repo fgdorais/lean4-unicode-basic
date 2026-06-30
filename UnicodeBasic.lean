@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 module
 public import UnicodeBasic.Types
-import UnicodeData.BidiBrackets
-import UnicodeData.BidiMirroring
-import UnicodeData.Blocks
-import UnicodeData.EastAsianWidth
-import UnicodeData.VerticalOrientation
+import UnicodeData.Core.BidiBrackets
+import UnicodeData.Core.BidiMirroring
+import UnicodeData.Core.Blocks
+import UnicodeData.Extracted.DerivedEastAsianWidth
+import UnicodeData.Core.VerticalOrientation
 public import UnicodeBasic.TableLookup
 
 /-!
