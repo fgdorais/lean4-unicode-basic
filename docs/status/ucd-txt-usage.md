@@ -5,8 +5,8 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 ## Summary
 
 - Total txt files: 69
-- Used by Lean library: 22
-- Unused: 47
+- Used by Lean library: 23
+- Unused: 46
 
 ## auxiliary
 
@@ -86,7 +86,7 @@ Generated from a repo scan of `data/ucd/**/*.txt` against Lean library files in 
 | `data/ucd/extracted/DerivedCombiningClass.txt` | used | UnicodeData/DerivedCombiningClass.lean:11 [direct], UnicodeData/DerivedCombiningClass.lean:12 [direct], UnicodeData/DerivedCombiningClass.lean:17 [direct], UnicodeData/DerivedCombiningClass.lean:23 [direct] (4 matches) |
 | `data/ucd/extracted/DerivedDecompositionType.txt` | unused |  |
 | `data/ucd/extracted/DerivedEastAsianWidth.txt` | used | UnicodeData/EastAsianWidth.lean:11 [direct], UnicodeData/EastAsianWidth.lean:12 [direct] (2 matches) |
-| `data/ucd/extracted/DerivedGeneralCategory.txt` | unused |  |
+| `data/ucd/extracted/DerivedGeneralCategory.txt` | used | UnicodeData/DerivedGeneralCategory.lean:11 [direct], UnicodeData/DerivedGeneralCategory.lean:12 [direct], UnicodeData/DerivedGeneralCategory.lean:14 [direct], UnicodeData/DerivedGeneralCategory.lean:17 [direct], ... (5 matches) |
 | `data/ucd/extracted/DerivedJoiningGroup.txt` | unused |  |
 | `data/ucd/extracted/DerivedJoiningType.txt` | unused |  |
 | `data/ucd/extracted/DerivedLineBreak.txt` | unused |  |

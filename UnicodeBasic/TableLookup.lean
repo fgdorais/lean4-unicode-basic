@@ -9,6 +9,7 @@ public import UnicodeBasic.Types
 import UnicodeData.DerivedBidiClass
 import UnicodeData.DerivedCombiningClass
 import UnicodeData.DerivedBinaryProperties
+public import UnicodeData.DerivedGeneralCategory
 
 namespace Unicode
 
@@ -170,7 +171,7 @@ where
 
   Unicode property: `General_Category` -/
 @[inline]
-public def lookupGC (c : UInt32) : GC := CLib.lookupProp c |>.toUInt32
+public def lookupGC (c : UInt32) : GC := lookupDerivedGeneralCategory c
 
 /-- Get name of a code point using lookup table
 
