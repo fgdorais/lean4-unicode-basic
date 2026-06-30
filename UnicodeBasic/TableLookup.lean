@@ -401,3 +401,306 @@ public def lookupScriptName (s : Script) : Option String.Slice :=
 where
   str : String := include_str "../data/table/Script_Name.txt"
   table : Thunk <| Array (UInt32 × String.Slice) := parseTable str fun _ n => n[0]!
+
+/-- Get script extensions of a code point using lookup table
+
+  Unicode property: `Script_Extensions` -/
+public def lookupScriptExtensions (c : UInt32) : Array Script :=
+  let table := table.get
+  if c < table[0]!.1 then #[] else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v, scs) =>
+      if c ≤ v then
+        scs
+      else
+        #[]
+where
+  str : String := include_str "../data/table/Script_Extensions.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × Array Script) :=
+    parseDataTable str fun _ _ x =>
+      x[0]!.split " " |>.toArray.map Script.ofAbbrev!
+
+/-- Check if code point has ID_Start property using lookup table -/
+public def lookupIDStart (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/ID_Start.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has ID_Continue property using lookup table -/
+public def lookupIDContinue (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/ID_Continue.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has XID_Start property using lookup table -/
+public def lookupXIDStart (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/XID_Start.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has XID_Continue property using lookup table -/
+public def lookupXIDContinue (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/XID_Continue.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Dash property using lookup table -/
+public def lookupDash (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Dash.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Hyphen property using lookup table -/
+public def lookupHyphen (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Hyphen.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Quotation_Mark property using lookup table -/
+public def lookupQuotationMark (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Quotation_Mark.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Terminal_Punctuation property using lookup table -/
+public def lookupTerminalPunctuation (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Terminal_Punctuation.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Extender property using lookup table -/
+public def lookupExtender (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Extender.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Regional_Indicator property using lookup table -/
+public def lookupRegionalIndicator (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Regional_Indicator.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Get case folding of a code point using lookup table -/
+public def lookupCaseFolding (c : UInt32) : Array UInt32 :=
+  let table := table.get
+  if c < table[0]!.1 then #[] else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (v, m) => if c == v then m else #[]
+where
+  str : String := include_str "../data/table/Case_Folding.txt"
+  table : Thunk <| Array (UInt32 × Array UInt32) :=
+    parseTable str fun _ x => x[0]!.split ";" |>.toArray.map ofHexString!
+
+/-- Get simple case folding of a code point using lookup table -/
+public def lookupSimpleCaseFolding (c : UInt32) : UInt32 :=
+  let table := table.get
+  if c < table[0]!.1 then c else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (v, m) => if c == v then m else c
+where
+  str : String := include_str "../data/table/Simple_Case_Folding.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parseTable str fun _ x => ofHexString! x[0]!
+
+/-- Get grapheme cluster break property using lookup table -/
+public def lookupGraphemeClusterBreak (c : UInt32) : GraphemeClusterBreak :=
+  let table := table.get
+  if c < table[0]!.1 then .other else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v, b) => if c ≤ v then b else .other
+where
+  str : String := include_str "../data/table/Grapheme_Break.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × GraphemeClusterBreak) :=
+    parseDataTable str fun _ _ x => GraphemeClusterBreak.ofAbbrev! x[0]!
+
+/-- Get word break property using lookup table -/
+public def lookupWordBreak (c : UInt32) : WordBreak :=
+  let table := table.get
+  if c < table[0]!.1 then .other else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v, b) => if c ≤ v then b else .other
+where
+  str : String := include_str "../data/table/Word_Break.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × WordBreak) :=
+    parseDataTable str fun _ _ x => WordBreak.ofAbbrev! x[0]!
+
+/-- Check if code point has Diacritic property using lookup table -/
+public def lookupDiacritic (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Diacritic.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Sentence_Terminal property using lookup table -/
+public def lookupSentenceTerminal (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Sentence_Terminal.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Pattern_Syntax property using lookup table -/
+public def lookupPatternSyntax (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Pattern_Syntax.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Pattern_White_Space property using lookup table -/
+public def lookupPatternWhiteSpace (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Pattern_White_Space.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Emoji property using lookup table -/
+public def lookupEmoji (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Emoji.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Emoji_Presentation property using lookup table -/
+public def lookupEmojiPresentation (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Emoji_Presentation.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Emoji_Modifier property using lookup table -/
+public def lookupEmojiModifier (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Emoji_Modifier.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Emoji_Modifier_Base property using lookup table -/
+public def lookupEmojiModifierBase (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Emoji_Modifier_Base.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Emoji_Component property using lookup table -/
+public def lookupEmojiComponent (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Emoji_Component.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Extended_Pictographic property using lookup table -/
+public def lookupExtendedPictographic (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Extended_Pictographic.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Get sentence break property using lookup table -/
+public def lookupSentenceBreak (c : UInt32) : SentenceBreak :=
+  let table := table.get
+  if c < table[0]!.1 then .other else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v, b) => if c ≤ v then b else .other
+where
+  str : String := include_str "../data/table/Sentence_Break.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × SentenceBreak) :=
+    parseDataTable str fun _ _ x => SentenceBreak.ofAbbrev! x[0]!
+
+/-- Get line break property using lookup table -/
+public def lookupLineBreak (c : UInt32) : LineBreak :=
+  let table := table.get
+  if c < table[0]!.1 then .unknown else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v, b) => if c ≤ v then b else .unknown
+where
+  str : String := include_str "../data/table/Line_Break.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × LineBreak) :=
+    parseDataTable str fun _ _ x => LineBreak.ofAbbrev! x[0]!
+
+/-- Check if code point has Grapheme_Base property using lookup table -/
+public def lookupGraphemeBase (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Grapheme_Base.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
+
+/-- Check if code point has Grapheme_Extend property using lookup table -/
+public def lookupGraphemeExtend (c : UInt32) : Bool :=
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Grapheme_Extend.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str

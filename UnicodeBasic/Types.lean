@@ -635,6 +635,303 @@ public def BidiClass.ofAbbrev! (abbr : String.Slice) : BidiClass :=
 public instance : Repr BidiClass where
   reprPrec bc _ := s!"Unicode.BidiClass.{bc.toAbbrev}"
 
+
+/-- Grapheme cluster break property
+
+  Unicode property: `Grapheme_Cluster_Break` -/
+public inductive GraphemeClusterBreak
+| public other
+| public control
+| public cr
+| public extend
+| public lf
+| public spacingMark
+| public prepend
+| public regionalIndicator
+| public l
+| public v
+| public t
+| public lv
+| public lvt
+| public zwj
+deriving Inhabited, DecidableEq, Repr
+
+public instance : ToString GraphemeClusterBreak where
+  toString
+  | .other => "Other"
+  | .control => "Control"
+  | .cr => "CR"
+  | .extend => "Extend"
+  | .lf => "LF"
+  | .spacingMark => "SpacingMark"
+  | .prepend => "Prepend"
+  | .regionalIndicator => "Regional_Indicator"
+  | .l => "L"
+  | .v => "V"
+  | .t => "T"
+  | .lv => "LV"
+  | .lvt => "LVT"
+  | .zwj => "ZWJ"
+
+public def GraphemeClusterBreak.ofAbbrev? (abbr : String.Slice) : Option GraphemeClusterBreak :=
+  if abbr == "XX" || abbr == "Other" then some other
+  else if abbr == "CN" || abbr == "Control" then some control
+  else if abbr == "CR" then some cr
+  else if abbr == "EX" || abbr == "Extend" then some extend
+  else if abbr == "LF" then some lf
+  else if abbr == "SM" || abbr == "SpacingMark" then some spacingMark
+  else if abbr == "PP" || abbr == "Prepend" then some prepend
+  else if abbr == "RI" || abbr == "Regional_Indicator" then some regionalIndicator
+  else if abbr == "L" then some l
+  else if abbr == "V" then some v
+  else if abbr == "T" then some t
+  else if abbr == "LV" then some lv
+  else if abbr == "LVT" then some lvt
+  else if abbr == "ZWJ" then some zwj
+  else none
+
+@[inherit_doc GraphemeClusterBreak.ofAbbrev?]
+public def GraphemeClusterBreak.ofAbbrev! (abbr : String.Slice) : GraphemeClusterBreak :=
+  match ofAbbrev? abbr with
+  | some b => b
+  | none => panic! s!"invalid grapheme cluster break abbreviation {abbr.copy}"
+
+
+/-- Word break property
+
+  Unicode property: `Word_Break` -/
+public inductive WordBreak
+| public other
+| public doubleQuote
+| public singleQuote
+| public hebrewLetter
+| public cr
+| public lf
+| public newline
+| public extend
+| public regionalIndicator
+| public katakana
+| public aLetter
+| public midLetter
+| public midNum
+| public midNumLet
+| public numeric
+| public extendNumLet
+| public wSegSpace
+| public zwj
+| public format
+deriving Inhabited, DecidableEq, Repr
+
+public instance : ToString WordBreak where
+  toString
+  | .other => "Other"
+  | .doubleQuote => "Double_Quote"
+  | .singleQuote => "Single_Quote"
+  | .hebrewLetter => "Hebrew_Letter"
+  | .cr => "CR"
+  | .lf => "LF"
+  | .newline => "Newline"
+  | .extend => "Extend"
+  | .regionalIndicator => "Regional_Indicator"
+  | .katakana => "Katakana"
+  | .aLetter => "ALetter"
+  | .midLetter => "MidLetter"
+  | .midNum => "MidNum"
+  | .midNumLet => "MidNumLet"
+  | .numeric => "Numeric"
+  | .extendNumLet => "ExtendNumLet"
+  | .wSegSpace => "WSegSpace"
+  | .zwj => "ZWJ"
+  | .format => "Format"
+
+public def WordBreak.ofAbbrev? (abbr : String.Slice) : Option WordBreak :=
+  if abbr == "XX" || abbr == "Other" then some other
+  else if abbr == "DQ" || abbr == "Double_Quote" then some doubleQuote
+  else if abbr == "SQ" || abbr == "Single_Quote" then some singleQuote
+  else if abbr == "HL" || abbr == "Hebrew_Letter" then some hebrewLetter
+  else if abbr == "CR" then some cr
+  else if abbr == "LF" then some lf
+  else if abbr == "NL" || abbr == "Newline" then some newline
+  else if abbr == "EX" || abbr == "Extend" then some extend
+  else if abbr == "RI" || abbr == "Regional_Indicator" then some regionalIndicator
+  else if abbr == "KA" || abbr == "Katakana" then some katakana
+  else if abbr == "LE" || abbr == "ALetter" then some aLetter
+  else if abbr == "ML" || abbr == "MidLetter" then some midLetter
+  else if abbr == "MN" || abbr == "MidNum" then some midNum
+  else if abbr == "MB" || abbr == "MidNumLet" then some midNumLet
+  else if abbr == "NU" || abbr == "Numeric" then some numeric
+  else if abbr == "EX" || abbr == "ExtendNumLet" then some extendNumLet
+  else if abbr == "WS" || abbr == "WSegSpace" then some wSegSpace
+  else if abbr == "ZWJ" then some zwj
+  else if abbr == "FO" || abbr == "Format" then some format
+  else none
+
+@[inherit_doc WordBreak.ofAbbrev?]
+public def WordBreak.ofAbbrev! (abbr : String.Slice) : WordBreak :=
+  match ofAbbrev? abbr with
+  | some b => b
+  | none => panic! s!"invalid word break abbreviation {abbr.copy}"
+
+
+/-- Sentence break property
+
+  Unicode property: `Sentence_Break` -/
+public inductive SentenceBreak
+| public other
+| public aTerm
+| public cr
+| public close
+| public extend
+| public format
+| public lf
+| public lower
+| public numeric
+| public oLetter
+| public sContinue
+| public sTerm
+| public sep
+| public sp
+| public upper
+deriving Inhabited, DecidableEq, Repr
+
+public def SentenceBreak.ofAbbrev? (abbr : String.Slice) : Option SentenceBreak :=
+  if abbr == "XX" then some other
+  else if abbr == "AT" then some aTerm
+  else if abbr == "CR" then some cr
+  else if abbr == "CL" then some close
+  else if abbr == "EX" then some extend
+  else if abbr == "FO" then some format
+  else if abbr == "LF" then some lf
+  else if abbr == "LO" then some lower
+  else if abbr == "NU" then some numeric
+  else if abbr == "LE" then some oLetter
+  else if abbr == "SC" || abbr == "SContinue" then some sContinue
+  else if abbr == "ST" then some sTerm
+  else if abbr == "SE" then some sep
+  else if abbr == "SP" then some sp
+  else if abbr == "UP" then some upper
+  else none
+
+@[inherit_doc SentenceBreak.ofAbbrev?]
+public def SentenceBreak.ofAbbrev! (abbr : String.Slice) : SentenceBreak :=
+  match ofAbbrev? abbr with
+  | some b => b
+  | none => panic! s!"invalid sentence break abbreviation {abbr.copy}"
+
+
+/-- Line break property
+
+  Unicode property: `Line_Break` -/
+public inductive LineBreak
+| public unknown
+| public ambiguous
+| public aksara
+| public aksaraPrebase
+| public aksaraStart
+| public alphabetic
+| public breakAfter
+| public breakBefore
+| public breakBoth
+| public mandatoryBreak
+| public carriageReturn
+| public contingentBreak
+| public closeParenthesis
+| public closePunctuation
+| public combiningMark
+| public conditionalJapaneseStarter
+| public eBase
+| public eModifier
+| public exclamation
+| public glue
+| public h2
+| public h3
+| public hyphen
+| public unambiguousHyphen
+| public hebrewLetter
+| public ideographic
+| public inseparable
+| public infixNumeric
+| public jl
+| public jt
+| public jv
+| public lineFeed
+| public nextLine
+| public nonstarter
+| public numeric
+| public openPunctuation
+| public postfixNumeric
+| public prefixNumeric
+| public quotation
+| public regionalIndicator
+| public complexContext
+| public surrogate
+| public space
+| public breakSymbols
+| public viramaFinal
+| public virama
+| public wordJoiner
+| public zwSpace
+| public zwj
+deriving Inhabited, DecidableEq, Repr
+
+public def LineBreak.ofAbbrev? (abbr : String.Slice) : Option LineBreak :=
+  if abbr == "XX" then some unknown
+  else if abbr == "AI" then some ambiguous
+  else if abbr == "AK" then some aksara
+  else if abbr == "AP" then some aksaraPrebase
+  else if abbr == "AS" then some aksaraStart
+  else if abbr == "AL" then some alphabetic
+  else if abbr == "BA" then some breakAfter
+  else if abbr == "BB" then some breakBefore
+  else if abbr == "B2" then some breakBoth
+  else if abbr == "BK" then some mandatoryBreak
+  else if abbr == "CR" then some carriageReturn
+  else if abbr == "CB" then some contingentBreak
+  else if abbr == "CP" then some closeParenthesis
+  else if abbr == "CL" then some closePunctuation
+  else if abbr == "CM" then some combiningMark
+  else if abbr == "CJ" then some conditionalJapaneseStarter
+  else if abbr == "EB" then some eBase
+  else if abbr == "EM" then some eModifier
+  else if abbr == "EX" then some exclamation
+  else if abbr == "GL" then some glue
+  else if abbr == "H2" then some h2
+  else if abbr == "H3" then some h3
+  else if abbr == "HY" then some hyphen
+  else if abbr == "HH" then some unambiguousHyphen
+  else if abbr == "HL" then some hebrewLetter
+  else if abbr == "ID" then some ideographic
+  else if abbr == "IN" then some inseparable
+  else if abbr == "IS" then some infixNumeric
+  else if abbr == "JL" then some jl
+  else if abbr == "JT" then some jt
+  else if abbr == "JV" then some jv
+  else if abbr == "LF" then some lineFeed
+  else if abbr == "NL" then some nextLine
+  else if abbr == "NS" then some nonstarter
+  else if abbr == "NU" then some numeric
+  else if abbr == "OP" then some openPunctuation
+  else if abbr == "PO" then some postfixNumeric
+  else if abbr == "PR" then some prefixNumeric
+  else if abbr == "QU" then some quotation
+  else if abbr == "RI" then some regionalIndicator
+  else if abbr == "SA" then some complexContext
+  else if abbr == "SG" then some surrogate
+  else if abbr == "SP" then some space
+  else if abbr == "SY" then some breakSymbols
+  else if abbr == "VF" then some viramaFinal
+  else if abbr == "VI" then some virama
+  else if abbr == "WJ" then some wordJoiner
+  else if abbr == "ZW" then some zwSpace
+  else if abbr == "ZWJ" then some zwj
+  else none
+
+@[inherit_doc LineBreak.ofAbbrev?]
+public def LineBreak.ofAbbrev! (abbr : String.Slice) : LineBreak :=
+  match ofAbbrev? abbr with
+  | some b => b
+  | none => panic! s!"invalid line break abbreviation {abbr.copy}"
+
 /-!
   ## Scripts ##
 -/

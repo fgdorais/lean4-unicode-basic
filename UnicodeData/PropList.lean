@@ -10,6 +10,29 @@ namespace Unicode
 
 /-- Structure containing supported character properties from `PropList.txt` -/
 public structure PropList where
+  /-- property `Diacritic` -/
+  public diacritic : Array (UInt32 × Option UInt32) := #[]
+  /-- property `Sentence_Terminal` -/
+  public sentenceTerminal : Array (UInt32 × Option UInt32) := #[]
+  /-- property `Pattern_Syntax` -/
+  public patternSyntax : Array (UInt32 × Option UInt32) := #[]
+  /-- property `Pattern_White_Space` -/
+  public patternWhiteSpace : Array (UInt32 × Option UInt32) := #[]
+
+  /-- property `Extender` -/
+  public extender : Array (UInt32 × Option UInt32) := #[]
+  /-- property `Regional_Indicator` -/
+  public regionalIndicator : Array (UInt32 × Option UInt32) := #[]
+
+  /-- property `Dash` -/
+  public dash : Array (UInt32 × Option UInt32) := #[]
+  /-- property `Hyphen` -/
+  public hyphen : Array (UInt32 × Option UInt32) := #[]
+  /-- property `Quotation_Mark` -/
+  public quotationMark : Array (UInt32 × Option UInt32) := #[]
+  /-- property `Terminal_Punctuation` -/
+  public terminalPunctuation : Array (UInt32 × Option UInt32) := #[]
+
   /-- property `Noncharacter_Code_Point` -/
   public noncharacterCodePoint : Array (UInt32 × Option UInt32) := #[]
   /-- property `White_Space` -/
@@ -62,6 +85,29 @@ public unsafe initialize PropList.data : PropList ←
       list := {list with prependedConcatenationMark := list.prependedConcatenationMark.push val}
     if record[1]! == "Variation_Selector" then
       list := {list with variationSelector := list.variationSelector.push val}
+
+    if record[1]! == "Dash" then
+      list := {list with dash := list.dash.push val}
+    if record[1]! == "Hyphen" then
+      list := {list with hyphen := list.hyphen.push val}
+    if record[1]! == "Quotation_Mark" then
+      list := {list with quotationMark := list.quotationMark.push val}
+    if record[1]! == "Terminal_Punctuation" then
+      list := {list with terminalPunctuation := list.terminalPunctuation.push val}
+
+    if record[1]! == "Extender" then
+      list := {list with extender := list.extender.push val}
+    if record[1]! == "Regional_Indicator" then
+      list := {list with regionalIndicator := list.regionalIndicator.push val}
+
+    if record[1]! == "Diacritic" then
+      list := {list with diacritic := list.diacritic.push val}
+    if record[1]! == "Sentence_Terminal" then
+      list := {list with sentenceTerminal := list.sentenceTerminal.push val}
+    if record[1]! == "Pattern_Syntax" then
+      list := {list with patternSyntax := list.patternSyntax.push val}
+    if record[1]! == "Pattern_White_Space" then
+      list := {list with patternWhiteSpace := list.patternWhiteSpace.push val}
     if record[1]! == "Deprecated" then
       list := {list with deprecated := list.deprecated.push val}
   return list
@@ -166,6 +212,96 @@ public def PropList.isVariationSelector (code : UInt32) : Bool :=
 @[inline]
 public def PropList.isDeprecated (code : UInt32) : Bool :=
   let data := PropList.data.deprecated
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
+
+/-- Check if code point has `Dash` property from `PropList.txt` -/
+@[inline]
+public def PropList.isDash (code : UInt32) : Bool :=
+  let data := PropList.data.dash
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
+
+/-- Check if code point has `Hyphen` property from `PropList.txt` -/
+@[inline]
+public def PropList.isHyphen (code : UInt32) : Bool :=
+  let data := PropList.data.hyphen
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
+
+/-- Check if code point has `Quotation_Mark` property from `PropList.txt` -/
+@[inline]
+public def PropList.isQuotationMark (code : UInt32) : Bool :=
+  let data := PropList.data.quotationMark
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
+
+/-- Check if code point has `Terminal_Punctuation` property from `PropList.txt` -/
+@[inline]
+public def PropList.isTerminalPunctuation (code : UInt32) : Bool :=
+  let data := PropList.data.terminalPunctuation
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
+
+/-- Check if code point has `Extender` property from `PropList.txt` -/
+@[inline]
+public def PropList.isExtender (code : UInt32) : Bool :=
+  let data := PropList.data.extender
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
+
+/-- Check if code point has `Regional_Indicator` property from `PropList.txt` -/
+@[inline]
+public def PropList.isRegionalIndicator (code : UInt32) : Bool :=
+  let data := PropList.data.regionalIndicator
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
+
+/-- Check if code point has `Diacritic` property -/
+@[inline]
+public def PropList.isDiacritic (code : UInt32) : Bool :=
+  let data := PropList.data.diacritic
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
+
+/-- Check if code point has `Sentence_Terminal` property -/
+@[inline]
+public def PropList.isSentenceTerminal (code : UInt32) : Bool :=
+  let data := PropList.data.sentenceTerminal
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
+
+/-- Check if code point has `Pattern_Syntax` property -/
+@[inline]
+public def PropList.isPatternSyntax (code : UInt32) : Bool :=
+  let data := PropList.data.patternSyntax
+  if data.size == 0 || code < data[0]!.fst then false else
+    match data[find code data 0 data.size]! with
+    | (val, none) => code == val
+    | (_, some top) => code <= top
+
+/-- Check if code point has `Pattern_White_Space` property -/
+@[inline]
+public def PropList.isPatternWhiteSpace (code : UInt32) : Bool :=
+  let data := PropList.data.patternWhiteSpace
   if data.size == 0 || code < data[0]!.fst then false else
     match data[find code data 0 data.size]! with
     | (val, none) => code == val

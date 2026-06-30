@@ -90,6 +90,29 @@ def testName (d : UnicodeData) : Bool :=
 
 def testNoncharacterCodePoint (d : UnicodeData) : Bool :=
   PropList.isNoncharacterCodePoint d.code == lookupNoncharacterCodePoint d.code
+    && isDefaultIgnorableCodePoint (Char.mkUnsafe d.code) == lookupDefaultIgnorableCodePoint d.code
+    && PropList.isDash d.code == lookupDash d.code
+    && PropList.isHyphen d.code == lookupHyphen d.code
+    && PropList.isQuotationMark d.code == lookupQuotationMark d.code
+    && PropList.isTerminalPunctuation d.code == lookupTerminalPunctuation d.code
+    && PropList.isExtender d.code == lookupExtender d.code
+    && PropList.isRegionalIndicator d.code == lookupRegionalIndicator d.code
+    && DerivedCoreProperties.isIDStart d.code == lookupIDStart d.code
+    && DerivedCoreProperties.isIDContinue d.code == lookupIDContinue d.code
+    && DerivedCoreProperties.isXIDStart d.code == lookupXIDStart d.code
+    && DerivedCoreProperties.isXIDContinue d.code == lookupXIDContinue d.code
+    && PropList.isDiacritic d.code == lookupDiacritic d.code
+    && PropList.isSentenceTerminal d.code == lookupSentenceTerminal d.code
+    && PropList.isPatternSyntax d.code == lookupPatternSyntax d.code
+    && PropList.isPatternWhiteSpace d.code == lookupPatternWhiteSpace d.code
+    && EmojiData.isEmoji d.code == lookupEmoji d.code
+    && EmojiData.isEmojiPresentation d.code == lookupEmojiPresentation d.code
+    && EmojiData.isEmojiModifier d.code == lookupEmojiModifier d.code
+    && EmojiData.isEmojiModifierBase d.code == lookupEmojiModifierBase d.code
+    && EmojiData.isEmojiComponent d.code == lookupEmojiComponent d.code
+    && EmojiData.isExtendedPictographic d.code == lookupExtendedPictographic d.code
+    && DerivedCoreProperties.isGraphemeBase d.code == lookupGraphemeBase d.code
+    && DerivedCoreProperties.isGraphemeExtend d.code == lookupGraphemeExtend d.code
 
 def testNumericValue (d : UnicodeData) : Bool :=
   d.numeric == lookupNumericValue d.code
