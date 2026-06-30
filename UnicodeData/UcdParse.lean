@@ -25,6 +25,20 @@ public def parseRangeField (s : String) : UInt32 × UInt32 :=
   | [c₀, c₁] => (ofHexString! c₀, ofHexString! c₁)
   | _ => panic! "invalid range in UCD file"
 
+/-- Parse a `U+...` code point field. -/
+public def parseUPlusField (s : String.Slice) : UInt32 :=
+  let s := (String.Slice.trimAscii s).copy
+  let s := if s.take 2 == "U+" then s.drop 2 else s
+  ofHexString! s
+
+/-- Parse a space-separated code point sequence field. -/
+public def parseCodePointSequenceField (s : String.Slice) : Array UInt32 :=
+  let s := (String.Slice.trimAscii s).copy
+  if s.isEmpty then
+    #[]
+  else
+    s.splitOn " " |>.filter (· ≠ "") |>.map (fun x => ofHexString! x.toSlice) |>.toArray
+
 /-- Parse a range table with a value parser. -/
 public def parseRangeTable {α} (s : String) (parseValue : Array String → α) :
     Array (UInt32 × UInt32 × α) := Id.run do
@@ -37,7 +51,7 @@ public def parseRangeTable {α} (s : String) (parseValue : Array String → α) 
       let line := stripComment line
       if line.isEmpty then
         continue
-      let parts := line.splitOn ";" |>.toArray
+      let parts := line.splitOn ";" |>.toArray.map trimAsciiString
       let (c₀, c₁) := parseRangeField parts[0]!
       data := data.push (c₀, c₁, parseValue parts)
   return data.qsort fun a b => a.1 < b.1
@@ -52,7 +66,7 @@ public def parseRangeTableWithMissing {α} (s : String) (parseValue : Array Stri
     if line.isEmpty || line.startsWith "# " then
       if line.startsWith "# @missing:" then
         let body := trimAsciiSlice <| line.drop "# @missing:".length
-        let parts := body.splitOn ";" |>.toArray
+        let parts := body.splitOn ";" |>.toArray.map trimAsciiString
         let (c₀, c₁) := parseRangeField parts[0]!
         missing := missing.push (c₀, c₁, parseValue parts)
       else
@@ -61,7 +75,7 @@ public def parseRangeTableWithMissing {α} (s : String) (parseValue : Array Stri
       let line := stripComment line
       if line.isEmpty then
         continue
-      let parts := line.splitOn ";" |>.toArray
+      let parts := line.splitOn ";" |>.toArray.map trimAsciiString
       let (c₀, c₁) := parseRangeField parts[0]!
       explicit := explicit.push (c₀, c₁, parseValue parts)
   return (explicit.qsort fun a b => a.1 < b.1, missing.qsort fun a b => a.1 < b.1)

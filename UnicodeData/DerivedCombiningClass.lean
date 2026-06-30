@@ -13,9 +13,8 @@ def DerivedCombiningClass.txt := include_str "../data/ucd/extracted/DerivedCombi
 
 /-- Parsed non-zero combining class ranges. -/
 public def DerivedCombiningClass.data : Array (UInt32 × UInt32 × Nat) :=
-  UCD.parseRangeTable DerivedCombiningClass.txt fun parts =>
-    let ccc := parts[1]!.toNat!
-    if ccc != 0 then ccc else panic! "zero combining class should not be stored"
+  (UCD.parseRangeTable DerivedCombiningClass.txt fun parts => parts[1]!.toNat!).filter fun x =>
+    x.2.2 != 0
 
 /-- Find the canonical combining class for a code point, if explicitly listed. -/
 public def lookupDerivedCombiningClass? (code : UInt32) : Option Nat :=

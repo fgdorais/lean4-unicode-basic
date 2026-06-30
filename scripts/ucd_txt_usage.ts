@@ -27,6 +27,22 @@ type Target = {
   patterns: string[];
 };
 
+type SkippedTarget = {
+  relativePath: string;
+  reason: string;
+};
+
+const skippedTargets: SkippedTarget[] = [
+  {
+    relativePath: 'data/ucd/core/DoNotEmit.txt',
+    reason: 'editorial prose file with no machine-readable record schema'
+  },
+  {
+    relativePath: 'data/ucd/core/NamesList.txt',
+    reason: 'semi-structured reference text explicitly not intended for machine parsing'
+  }
+];
+
 function groupOf(relativePath: string): string {
   const parts = relativePath.split('/');
   return parts.length >= 3 ? parts[2] : 'root';
@@ -95,7 +111,7 @@ const targets: Target[] = walkFiles(path.join(repoRoot, 'data', 'ucd'), (p) => p
     basename,
     patterns: [relativePath, `../${relativePath}`, basename]
   };
-});
+}).filter((target) => !skippedTargets.some((skipped) => skipped.relativePath === target.relativePath));
 
 const reports: FileReport[] = targets.map((target) => {
   const matches: Match[] = [];
@@ -137,6 +153,16 @@ const unusedCount = reports.filter((r) => r.matches.length === 0).length;
 let markdown = '';
 markdown += `# UCD TXT Usage\n\n`;
 markdown += `Generated from a repo scan of \`data/ucd/**/*.txt\` against Lean library files in \`UnicodeBasic/\` and \`UnicodeData/\`.\n\n`;
+if (skippedTargets.length > 0) {
+  markdown += `## Skipped\n\n`;
+  markdown += `These files are part of the UCD distribution but are intentionally excluded from Lean usage counts because they are not machine-readable property tables.\n\n`;
+  markdown += `| File | Reason |\n`;
+  markdown += `| --- | --- |\n`;
+  for (const skipped of skippedTargets.sort((a, b) => a.relativePath.localeCompare(b.relativePath))) {
+    markdown += `| \`${skipped.relativePath}\` | ${skipped.reason} |\n`;
+  }
+  markdown += `\n`;
+}
 markdown += `## Summary\n\n`;
 markdown += `- Total txt files: ${reports.length}\n`;
 markdown += `- Used by Lean library: ${usedCount}\n`;
