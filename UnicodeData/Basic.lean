@@ -112,7 +112,7 @@ def UnicodeData.mkTangutIdeograph (c : UInt32) : UnicodeData where
   gc := .Lo
 
 /-- Raw string from file `UnicodeData.txt` -/
-protected def UnicodeData.txt := include_str "../data/UnicodeData.txt"
+protected def UnicodeData.txt := include_str "../data/ucd/core/UnicodeData.txt"
 
 /-- Parse `UnicodeData.txt` -/
 public unsafe initialize UnicodeData.data : Array UnicodeData ←

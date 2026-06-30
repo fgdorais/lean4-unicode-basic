@@ -13,7 +13,7 @@ namespace Unicode
 public abbrev Scripts := Std.HashMap String.Slice (Array (UInt32 × UInt32))
 
 /-- Raw string from `Scripts.txt` -/
-def Scripts.txt := include_str "../data/Scripts.txt"
+def Scripts.txt := include_str "../data/ucd/core/Scripts.txt"
 
 public initialize Scripts.data : Scripts ← do
   let stream := UCDStream.ofString Scripts.txt

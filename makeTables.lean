@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 module
 import UnicodeData
-public import UnicodeBasic
 
 open Unicode
 
@@ -529,15 +528,32 @@ def mkScriptName : Array (UInt32 × String) :=
 
 public def main (args : List String) : IO UInt32 := do
   let args := if args != [] then args else [
+    "Alphabetic",
     "Bidi_Class",
     "Bidi_Mirrored",
     "Canonical_Combining_Class",
     "Canonical_Decomposition_Mapping",
+    "Case_Mapping",
+    "Cased",
     "Decomposition_Mapping",
     "Default_Ignorable_Code_Point",
+    "General_Category",
+    "Lowercase",
+    "Math",
     "Name",
+    "Noncharacter_Code_Point",
     "Numeric_Value",
+    "Other",
+    "Other_Alphabetic",
+    "Other_Default_Ignorable_Code_Point",
+    "Other_Lowercase",
+    "Other_Math",
+    "Other_Uppercase",
+    "Prepended_Concatenation_Mark",
     "Script_Name",
+    "Titlecase",
+    "Uppercase",
+    "Variation_Selector",
     "White_Space"]
   let tableDir : System.FilePath := "."/"data"/"table"
   IO.FS.createDirAll tableDir

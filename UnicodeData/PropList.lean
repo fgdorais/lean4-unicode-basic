@@ -33,7 +33,7 @@ public structure PropList where
 deriving Inhabited, Repr
 
 /-- Raw string form `PropList.txt` -/
-protected def PropList.txt := include_str "../data/PropList.txt"
+protected def PropList.txt := include_str "../data/ucd/core/PropList.txt"
 
 public unsafe initialize PropList.data : PropList ←
   let stream := UCDStream.ofString PropList.txt

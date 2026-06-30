@@ -16,7 +16,7 @@ public structure Aliases where
 deriving Inhabited
 
 /-- Raw string form `PropertyAliases.txt` -/
-protected def PropertyAliases.txt := include_str "../data/PropertyAliases.txt"
+protected def PropertyAliases.txt := include_str "../data/ucd/core/PropertyAliases.txt"
 
 initialize PropertyAliases.data : Aliases ← do
   let stream := UCDStream.ofString PropertyAliases.txt
@@ -60,7 +60,7 @@ public def PropertyAliases.getShortName? (prop : String.Slice) : Option String.S
 public def PropertyAliases.getShortName! (prop : String.Slice) : String.Slice :=
   getShortName? prop |>.get!
 
-protected def PropertyValueAliases.txt := include_str "../data/PropertyValueAliases.txt"
+protected def PropertyValueAliases.txt := include_str "../data/ucd/core/PropertyValueAliases.txt"
 
 initialize PropertyValueAliases.data : Std.HashMap String.Slice Aliases ← do
   let stream := UCDStream.ofString PropertyValueAliases.txt

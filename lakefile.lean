@@ -27,39 +27,40 @@ target UnicodeCLib pkg : FilePath := do
 meta if System.Platform.isWindows then
 extern_lib libunicodeclib := UnicodeCLib.fetch
 
+lean_lib UnicodeBasicSupport where
+  roots := #[]
+  globs := #[
+    `UnicodeBasic.CharacterDatabase,
+    `UnicodeBasic.Hangul,
+    `UnicodeBasic.Types
+  ]
+
 @[default_target]
 lean_lib UnicodeBasic where
+  roots := #[]
+  globs := #[
+    `UnicodeBasic,
+    `UnicodeBasic.TableLookup
+  ]
   moreLinkObjs := #[UnicodeCLib]
 
-lean_lib UnicodeData
+lean_lib UnicodeData where
+  roots := #[]
+  globs := #[
+    `UnicodeData,
+    `UnicodeData.Aliases,
+    `UnicodeData.Basic,
+    `UnicodeData.PropList,
+    `UnicodeData.Scripts
+  ]
 
 lean_exe lookup
 
-lean_exe makeTables
+lean_exe makeTables where
+  moreLinkObjs := #[UnicodeCLib]
 
-lean_exe makeCLib
+lean_exe makeCLib where
+  moreLinkObjs := #[UnicodeCLib]
 
 @[test_driver]
 lean_exe testTables
-
-/-- Download datafile from the Unicode Character Database (UCD) -/
-script downloadUCD (args) do
-  let dir : System.FilePath := "./data"
-  let url := "https://www.unicode.org/Public/UCD/latest/ucd/"
-  let mut err : ExitCode := 0
-  for file in args do
-    IO.print s!"Downloading UCD/{file} ... "
-    match ← download (url ++ file) (dir/file) |>.run with
-    | .ok _ _ => IO.println "Done."
-    | .error _ _ => IO.println "Failed!"; err := err + 1
-  return err
-
-/-- Update data files from the Unicode Character Database (UCD) -/
-script updateUCD do downloadUCD [
-    "ReadMe.txt",
-    "UnicodeData.txt",
-    "PropList.txt",
-    "PropertyAliases.txt",
-    "PropertyValueAliases.txt",
-    "Scripts.txt",
-  ]
