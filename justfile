@@ -10,6 +10,15 @@ clean:
 download-ucd:
     node scripts/download_unicode_data.ts
 
+docs-readme:
+    ln -sfn ../README.md docs/README.md
+
+ucd-usage-status:
+    node scripts/ucd_txt_usage.ts
+
+table-provenance:
+    node scripts/ucd_table_provenance.ts
+
 tables:
     lake exe makeTables
 
