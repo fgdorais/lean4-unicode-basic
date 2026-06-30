@@ -73,6 +73,8 @@ lean_lib UnicodeData where
     Glob.one `UnicodeData.IndicSyllabicCategory,
     Glob.one `UnicodeData.Jamo,
     Glob.one `UnicodeData.NameAliases,
+    -- Glob.one `UnicodeData.NamesList,
+    -- Glob.one `UnicodeData.DoNotEmit,
     Glob.one `UnicodeData.NamedSequences,
     Glob.one `UnicodeData.NamedSequencesProv,
     Glob.one `UnicodeData.NormalizationCorrections,

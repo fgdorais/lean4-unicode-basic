@@ -31,6 +31,8 @@ public import UnicodeData.IndicPositionalCategory
 public import UnicodeData.IndicSyllabicCategory
 public import UnicodeData.Jamo
 public import UnicodeData.NameAliases
+-- public import UnicodeData.NamesList
+-- public import UnicodeData.DoNotEmit
 public import UnicodeData.NamedSequences
 public import UnicodeData.NamedSequencesProv
 public import UnicodeData.NormalizationCorrections

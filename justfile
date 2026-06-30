@@ -16,6 +16,12 @@ docs-readme:
 ucd-usage-status:
     node scripts/ucd_txt_usage.ts
 
+generate-do-not-emit:
+    node scripts/generate_do_not_emit.ts
+
+generate-names-list:
+    node scripts/generate_names_list.ts
+
 table-provenance:
     node scripts/ucd_table_provenance.ts
 
@@ -30,5 +36,8 @@ build:
 
 test:
     lake exe testTables
+
+check-ucd-text:
+    node scripts/check_ucd_text_not_baked.ts
 
 update-all: clean download-ucd tables clib build test
