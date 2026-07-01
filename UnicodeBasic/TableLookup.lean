@@ -6,15 +6,6 @@ module
 import UnicodeBasic.CharacterDatabase
 import UnicodeBasic.Hangul
 public import UnicodeBasic.Types
-public import UnicodeData.Basic
-public import UnicodeData.Extracted.DerivedName
-import UnicodeData.Extracted.DerivedBidiClass
-import UnicodeData.Extracted.DerivedCombiningClass
-import UnicodeData.Extracted.DerivedBinaryProperties
-public import UnicodeData.Extracted.DerivedGeneralCategory
-import UnicodeData.Extracted.DerivedLineBreak
-public import UnicodeData.Extracted.DerivedNumericType
-public import UnicodeData.Extracted.DerivedNumericValues
 
 namespace Unicode
 
@@ -82,7 +73,14 @@ private def parsePropTable (s : String) : Thunk <| Array (UInt32 × UInt32) := I
 
   Unicode property: `Bidi_Class` -/
 public def lookupBidiClass (c : UInt32) : BidiClass :=
-  lookupDerivedBidiClass c
+  let table := table.get
+  if c < table[0]!.1 then .BN else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v, bc) => if c ≤ v then bc else .BN
+where
+  str : String := include_str "../data/table/Bidi_Class.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × BidiClass) :=
+    parseDataTable str fun _ _ x => BidiClass.ofAbbrev! x[0]!
 
 /-- Get the bidi mirroring glyph for a code point, if it exists.
 
@@ -181,7 +179,14 @@ where
 
   Unicode property: `Canonical_Combining_Class` -/
 public def lookupCanonicalCombiningClass (c : UInt32) : Nat :=
-  lookupDerivedCombiningClass c
+  let t := table.get
+  if c < t[0]!.1 then 0 else
+    match t[find c (fun i => t[i]!.1) 0 t.size.toUSize]! with
+    | (_, v, n) => if c ≤ v then n else 0
+where
+  str : String := include_str "../data/table/Canonical_Combining_Class.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × Nat) :=
+    parseDataTable str fun _ _ x => x[0]!.toNat?.get!
 
 /-- Get canonical decomposition mapping using lookup table
 
@@ -269,56 +274,53 @@ where
 
   Unicode property: `General_Category` -/
 @[inline]
-public def lookupGC (c : UInt32) : GC := lookupDerivedGeneralCategory c
+public def lookupGC (c : UInt32) : GC := CLib.lookupProp c |>.toUInt32
 
 /-- Get name of a code point using lookup table
 
   Unicode property: `Name` -/
 public def lookupName (c : UInt32) : String :=
-  match lookupDerivedName? c with
-  | some n => n
-  | none =>
-    let table := table.get
-    if c < table[0]!.1 then unreachable! else
-      match table[find c (fun i => table[i]!.1) 0 table.usize]! with
-      | (_, v, d) =>
-        if c ≤ v then
-          if Char.ofUInt8 (d.getUTF8Byte! 0) == '<' then
-            if d == "<Control>" then
-              s!"<control-{toHexStringRaw c}>"
-            else if d == "<Private Use>" then
-              s!"<private-use-{toHexStringRaw c}>"
-            else if d == "<Reserved>" then
-              s!"<reserved-{toHexStringRaw c}>"
-            else if d == "<Surrogate>" then
-              s!"<surrogate-{toHexStringRaw c}>"
-            else if d == "<CJK Unified Ideograph>" then
-              "CJK UNIFIED IDEOGRAPH-" ++ toHexStringRaw c
-            else if d == "<CJK Compatibility Ideograph>" then
-              "CJK COMPATIBILITY IDEOGRAPH-" ++ toHexStringRaw c
-            else if d == "<Hangul Syllable>" then
-              "HANGUL SYLLABLE " ++ (Hangul.getSyllable! c).getShortName
-            else if d == "<Khitan Small Script Character>" then
-              "KHITAN SMALL SCRIPT CHARACTER-" ++ toHexStringRaw c
-            else if d == "<Nushu Character>" then
-              "NUSHU CHARACTER-" ++ toHexStringRaw c
-            else if d == "<Tangut Component>" then
-              let i := if c.toNat < 0x18B00 then
-                  -- Tangut Component
-                  toString <| c.toNat - 0x18800 + 1
-                else
-                  -- Tangut Component Supplement
-                  toString <| c.toNat - 0x18D80 + 769
-              let i :=
-                if i.length == 1 then "00" ++ i
-                else if i.length == 2 then "0" ++ i
-                else i
-              "TANGUT COMPONENT-" ++ i
-            else if d == "<Tangut Ideograph>" then
-              "TANGUT IDEOGRAPH-" ++ toHexStringRaw c
-            else panic! s!"unknown name range {d.copy}"
-          else String.Slice.copy d
-        else s!"<noncharacter-{toHexStringRaw c}>"
+  let table := table.get
+  if c < table[0]!.1 then unreachable! else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v, d) =>
+      if c ≤ v then
+        if Char.ofUInt8 (d.getUTF8Byte! 0) == '<' then
+          if d == "<Control>" then
+            s!"<control-{toHexStringRaw c}>"
+          else if d == "<Private Use>" then
+            s!"<private-use-{toHexStringRaw c}>"
+          else if d == "<Reserved>" then
+            s!"<reserved-{toHexStringRaw c}>"
+          else if d == "<Surrogate>" then
+            s!"<surrogate-{toHexStringRaw c}>"
+          else if d == "<CJK Unified Ideograph>" then
+            "CJK UNIFIED IDEOGRAPH-" ++ toHexStringRaw c
+          else if d == "<CJK Compatibility Ideograph>" then
+            "CJK COMPATIBILITY IDEOGRAPH-" ++ toHexStringRaw c
+          else if d == "<Hangul Syllable>" then
+            "HANGUL SYLLABLE " ++ (Hangul.getSyllable! c).getShortName
+          else if d == "<Khitan Small Script Character>" then
+            "KHITAN SMALL SCRIPT CHARACTER-" ++ toHexStringRaw c
+          else if d == "<Nushu Character>" then
+            "NUSHU CHARACTER-" ++ toHexStringRaw c
+          else if d == "<Tangut Component>" then
+            let i := if c.toNat < 0x18B00 then
+                -- Tangut Component
+                toString <| c.toNat - 0x18800 + 1
+              else
+                -- Tangut Component Supplement
+                toString <| c.toNat - 0x18D80 + 769
+            let i :=
+              if i.length == 1 then "00" ++ i
+              else if i.length == 2 then "0" ++ i
+              else i
+            "TANGUT COMPONENT-" ++ i
+          else if d == "<Tangut Ideograph>" then
+            "TANGUT IDEOGRAPH-" ++ toHexStringRaw c
+          else panic! s!"unknown name range {d.copy}"
+        else String.Slice.copy d
+      else s!"<noncharacter-{toHexStringRaw c}>"
 where
   str : String := include_str "../data/table/Name.txt"
   table : Thunk <| Array (UInt32 × UInt32 × String.Slice) :=
@@ -330,10 +332,49 @@ where
     `Numeric_Type`
     `Numeric_Value` -/
 public def lookupNumericValue (c : UInt32) : Option NumericType :=
-  let d := getUnicodeData! c
-  match d.numeric with
-  | some n => some n
-  | none => lookupDerivedNumericValue c
+  let table := table.get
+  if c < table[0]!.1 then none else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (c₀, _, .decimal _) =>
+      let val := c.toNat - c₀.toNat
+      if h : val < 10 then
+        some <| NumericType.decimal ⟨val, h⟩
+      else
+        none
+    | (c₀, c₁, .digit i) =>
+      if c ≤ c₁ then
+        let val := c.toNat - c₀.toNat + i.val
+        if h : val < 10 then
+          some <| NumericType.digit ⟨val, h⟩
+        else
+          panic! "invalid `Numeric_Value` table"
+      else
+        none
+    | ⟨v, _, n⟩ =>
+      if c == v then some n else none
+where
+  str : String := include_str "../data/table/Numeric_Value.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × NumericType) :=
+    parseDataTable str fun _ _ a =>
+      let s := a[0]!.copy
+      if s == "decimal" then
+        .decimal 0
+      else if "digit".isPrefixOf s then
+        let d := (String.Pos.Raw.get s ⟨6⟩).toNat
+        if h : d - '0'.toNat < 10 then
+          if d < '0'.toNat then
+            panic! s!"invalid table data {d} {s}"
+          else
+            .digit ⟨d - '0'.toNat, h⟩
+        else
+          panic! s!"invalid table data {d} {s}"
+      else if "numeric".isPrefixOf s then
+        let s := s.drop 8
+        match s.split "/" |>.toStringList with
+        | [n] => .numeric n.toInt! none
+        | [n, d] => .numeric n.toInt! (some d.toNat!)
+        | _ => panic! "invalid table data"
+      else .numeric (-4) none
 
 /-- Get other properties using lookup table
 
@@ -356,7 +397,13 @@ public def lookupAlphabetic (c : UInt32) : Bool :=
   Unicode property: `Bidi_Mirrored`
 -/
 public def lookupBidiMirrored (c : UInt32) : Bool :=
-  lookupDerivedBidiMirrored c
+  let table := table.get
+  if c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
+where
+  str : String := include_str "../data/table/Bidi_Mirrored.txt"
+  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
 
 /-- Check if code point is a cased letter using lookup table
 
@@ -722,7 +769,14 @@ where
 
 /-- Get line break property using lookup table -/
 public def lookupLineBreak (c : UInt32) : LineBreak :=
-  lookupDerivedLineBreak c
+  let table := table.get
+  if c < table[0]!.1 then .unknown else
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
+    | (_, v, b) => if c ≤ v then b else .unknown
+where
+  str : String := include_str "../data/table/Line_Break.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × LineBreak) :=
+    parseDataTable str fun _ _ x => LineBreak.ofAbbrev! x[0]!
 
 /-- Check if code point has Grapheme_Base property using lookup table -/
 public def lookupGraphemeBase (c : UInt32) : Bool :=
