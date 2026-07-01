@@ -37,7 +37,7 @@ public def lookupBlockName (c : UInt32) : String :=
   let table := Blocks.data
   if table.size == 0 then "No_Block" else
     if c < table[0]!.1 then "No_Block" else
-      match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+      match table[find c (fun i => table[i]!.1) 0 table.usize]! with
       | (_, v, n) => if c ≤ v then n else "No_Block"
 
 end Unicode

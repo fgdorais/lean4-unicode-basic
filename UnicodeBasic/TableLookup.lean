@@ -105,7 +105,7 @@ public def lookupCanonicalDecompositionMapping (c : UInt32) : List UInt32 :=
   else
     let table := table.get
     if c < table[0]!.1 then [c] else
-      match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+      match table[find c (fun i => table[i]!.1) 0 table.usize]! with
       | (v, l) => if c == v then l else [c]
 where
   str : String := include_str "../data/table/Canonical_Decomposition_Mapping.txt"
@@ -141,7 +141,7 @@ public def lookupDecompositionMapping? (c : UInt32) : Option DecompositionMappin
   else
     let table := table.get
     if c < table[0]!.1 then none else
-      match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+      match table[find c (fun i => table[i]!.1) 0 table.usize]! with
       | (v, t, l) =>
         if c == v then
           some <| .mk t (l.map fun c => Char.ofNat c.toNat).toList
@@ -187,7 +187,7 @@ public def lookupName (c : UInt32) : String :=
   | none =>
     let table := table.get
     if c < table[0]!.1 then unreachable! else
-      match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+      match table[find c (fun i => table[i]!.1) 0 table.usize]! with
       | (_, v, d) =>
         if c ≤ v then
           if Char.ofUInt8 (d.getUTF8Byte! 0) == '<' then
@@ -280,7 +280,7 @@ public def lookupCased (c : UInt32 ) : Bool :=
 public def lookupDefaultIgnorableCodePoint (c : UInt32 ) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Default_Ignorable_Code_Point.txt"
@@ -331,7 +331,7 @@ public def lookupUppercase (c : UInt32) : Bool :=
 public def lookupWhiteSpace (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/White_Space.txt"
@@ -349,7 +349,7 @@ public def lookupScript (c : UInt32) : Script := CLib.lookupScript c
 public def lookupScriptName (s : Script) : Option String.Slice :=
   let table := table.get
   if s.code < table[0]!.1 then none else
-    match table[find s.code (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find s.code (fun i => table[i]!.1) 0 table.usize]! with
     | (c, v) => if s.code = c then some v else none
 where
   str : String := include_str "../data/table/Script_Name.txt"
@@ -361,7 +361,7 @@ where
 public def lookupScriptExtensions (c : UInt32) : Array Script :=
   let table := table.get
   if c < table[0]!.1 then #[] else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v, scs) =>
       if c ≤ v then
         scs
@@ -377,7 +377,7 @@ where
 public def lookupIDStart (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/ID_Start.txt"
@@ -387,7 +387,7 @@ where
 public def lookupIDContinue (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/ID_Continue.txt"
@@ -397,7 +397,7 @@ where
 public def lookupXIDStart (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/XID_Start.txt"
@@ -407,7 +407,7 @@ where
 public def lookupXIDContinue (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/XID_Continue.txt"
@@ -417,7 +417,7 @@ where
 public def lookupDash (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Dash.txt"
@@ -427,7 +427,7 @@ where
 public def lookupHyphen (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Hyphen.txt"
@@ -437,7 +437,7 @@ where
 public def lookupQuotationMark (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Quotation_Mark.txt"
@@ -447,7 +447,7 @@ where
 public def lookupTerminalPunctuation (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Terminal_Punctuation.txt"
@@ -457,7 +457,7 @@ where
 public def lookupExtender (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Extender.txt"
@@ -467,7 +467,7 @@ where
 public def lookupRegionalIndicator (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Regional_Indicator.txt"
@@ -477,7 +477,7 @@ where
 public def lookupCaseFolding (c : UInt32) : Array UInt32 :=
   let table := table.get
   if c < table[0]!.1 then #[] else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (v, m) => if c == v then m else #[]
 where
   str : String := include_str "../data/table/Case_Folding.txt"
@@ -488,7 +488,7 @@ where
 public def lookupSimpleCaseFolding (c : UInt32) : UInt32 :=
   let table := table.get
   if c < table[0]!.1 then c else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (v, m) => if c == v then m else c
 where
   str : String := include_str "../data/table/Simple_Case_Folding.txt"
@@ -498,7 +498,7 @@ where
 public def lookupGraphemeClusterBreak (c : UInt32) : GraphemeClusterBreak :=
   let table := table.get
   if c < table[0]!.1 then .other else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v, b) => if c ≤ v then b else .other
 where
   str : String := include_str "../data/table/Grapheme_Break.txt"
@@ -509,7 +509,7 @@ where
 public def lookupWordBreak (c : UInt32) : WordBreak :=
   let table := table.get
   if c < table[0]!.1 then .other else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v, b) => if c ≤ v then b else .other
 where
   str : String := include_str "../data/table/Word_Break.txt"
@@ -520,7 +520,7 @@ where
 public def lookupDiacritic (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Diacritic.txt"
@@ -530,7 +530,7 @@ where
 public def lookupSentenceTerminal (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Sentence_Terminal.txt"
@@ -540,7 +540,7 @@ where
 public def lookupPatternSyntax (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Pattern_Syntax.txt"
@@ -550,7 +550,7 @@ where
 public def lookupPatternWhiteSpace (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Pattern_White_Space.txt"
@@ -560,7 +560,7 @@ where
 public def lookupEmoji (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Emoji.txt"
@@ -570,7 +570,7 @@ where
 public def lookupEmojiPresentation (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Emoji_Presentation.txt"
@@ -580,7 +580,7 @@ where
 public def lookupEmojiModifier (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Emoji_Modifier.txt"
@@ -590,7 +590,7 @@ where
 public def lookupEmojiModifierBase (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Emoji_Modifier_Base.txt"
@@ -600,7 +600,7 @@ where
 public def lookupEmojiComponent (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Emoji_Component.txt"
@@ -610,7 +610,7 @@ where
 public def lookupExtendedPictographic (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Extended_Pictographic.txt"
@@ -620,7 +620,7 @@ where
 public def lookupSentenceBreak (c : UInt32) : SentenceBreak :=
   let table := table.get
   if c < table[0]!.1 then .other else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v, b) => if c ≤ v then b else .other
 where
   str : String := include_str "../data/table/Sentence_Break.txt"
@@ -635,7 +635,7 @@ public def lookupLineBreak (c : UInt32) : LineBreak :=
 public def lookupGraphemeBase (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Grapheme_Base.txt"
@@ -645,7 +645,7 @@ where
 public def lookupGraphemeExtend (c : UInt32) : Bool :=
   let table := table.get
   if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
     | (_, v) => c ≤ v
 where
   str : String := include_str "../data/table/Grapheme_Extend.txt"

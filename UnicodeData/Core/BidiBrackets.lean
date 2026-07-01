@@ -40,7 +40,7 @@ public def BidiBrackets.data : Array (UInt32 × BidiBracket) := Id.run do
 public def lookupBidiBracket? (c : UInt32) : Option BidiBracket :=
   let table := BidiBrackets.data
   if table.size == 0 || c < table[0]!.1 then none else
-    let d := table[find c (fun i => table[i]!.1) 0 table.size.toUSize]!
+    let d := table[find c (fun i => table[i]!.1) 0 table.usize]!
     if c = d.1 then some d.2 else none
 
 /-- Get bidi paired bracket for a code point -/
