@@ -48,6 +48,20 @@ public structure BidiResolution where
   visualOrder : Array Nat
 deriving Inhabited, DecidableEq, Repr
 
+/-- A resolved bidi level attached to an original input code point. -/
+public structure BidiLeveledCodepoint where
+  index : Nat
+  codepoint : UInt32
+  level : Nat
+deriving Inhabited, DecidableEq, Repr
+
+/-- A contiguous logical run with the same resolved bidi level. -/
+public structure BidiRun where
+  start : Nat
+  stop : Nat
+  level : Nat
+deriving Inhabited, DecidableEq, Repr
+
 private inductive Override where
   | neutral
   | ltr
@@ -697,6 +711,69 @@ public def resolveBidiText
     (text : Array UInt32) (paragraphDirection : BidiParagraphDirection) :
     BidiResolution :=
   resolveItems (buildTextItems text) paragraphDirection
+
+/-- Convert a Lean string to Unicode scalar values.
+
+  This helper exposes the input shape expected by `resolveBidiText`.
+-/
+public def bidiCodepointsOfString (s : String) : Array UInt32 :=
+  s.toList.toArray.map (·.val)
+
+/-- Resolve bidi levels and visual order for a Lean string.
+
+  The result uses code-point indexes into `bidiCodepointsOfString s`.
+-/
+public def resolveBidiString
+    (s : String) (paragraphDirection : BidiParagraphDirection) :
+    BidiResolution :=
+  resolveBidiText (bidiCodepointsOfString s) paragraphDirection
+
+/-- Pair each non-X9 input code point with its resolved level.
+
+  Entries whose level is `none` in `BidiResolution.resolvedLevels` are omitted.
+-/
+public def bidiLeveledCodepoints
+    (text : Array UInt32) (resolution : BidiResolution) :
+    Array BidiLeveledCodepoint := Id.run do
+  let mut out := #[]
+  for i in [:text.size] do
+    if i < resolution.resolvedLevels.size then
+      match resolution.resolvedLevels[i]! with
+      | some level => out := out.push { index := i, codepoint := text[i]!, level }
+      | none => pure ()
+  return out
+
+/-- Return the input code points in resolved visual order.
+
+  X9-removed entries are omitted because `BidiResolution.visualOrder` contains
+  only indexes with concrete resolved levels.
+-/
+public def reorderBidiText (text : Array UInt32) (resolution : BidiResolution) : Array UInt32 := Id.run do
+  let mut out := #[]
+  for i in resolution.visualOrder do
+    if i < text.size then
+      out := out.push text[i]!
+  return out
+
+/-- Return contiguous logical runs with the same resolved bidi level.
+
+  Runs are half-open code-point index ranges `[start, stop)`. X9-removed entries
+  are skipped and therefore break runs.
+-/
+public def bidiRuns (resolution : BidiResolution) : Array BidiRun := Id.run do
+  let levels := resolution.resolvedLevels
+  let mut runs := #[]
+  let mut i := 0
+  while i < levels.size do
+    match levels[i]! with
+    | none => i := i + 1
+    | some level =>
+        let start := i
+        i := i + 1
+        while i < levels.size && levels[i]! == some level do
+          i := i + 1
+        runs := runs.push { start, stop := i, level }
+  return runs
 
 /-- Resolve bidi levels and visual order for a sequence of bidi classes.
 
