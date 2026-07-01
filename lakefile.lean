@@ -10,7 +10,6 @@ package UnicodeBasic where
   description := "Basic Unicode support for Lean 4"
   keywords := #["unicode"]
   reservoir := true
-  precompileModules := true
 
 target UnicodeCLib pkg : FilePath := do
   let mut oFiles : Array (Job FilePath) := #[]
@@ -27,39 +26,94 @@ target UnicodeCLib pkg : FilePath := do
 meta if System.Platform.isWindows then
 extern_lib libunicodeclib := UnicodeCLib.fetch
 
-@[default_target]
-lean_lib UnicodeBasic where
+lean_lib UnicodeBasicSupport where
+  roots := #[]
+  globs := #[
+    `UnicodeBasic.CharacterDatabase,
+    `UnicodeBasic.Hangul,
+    `UnicodeBasic.Types
+  ]
   moreLinkObjs := #[UnicodeCLib]
 
-lean_lib UnicodeData
+@[default_target]
+lean_lib UnicodeBasic where
+  roots := #[]
+  globs := #[
+    `UnicodeBasic,
+    `UnicodeBasic.Bidi,
+    `UnicodeBasic.Segmentation,
+    `UnicodeBasic.TableLookup
+  ]
+  precompileModules := true
+  moreLinkObjs := #[UnicodeCLib]
+
+lean_lib UnicodeData where
+  roots := #[]
+  globs := (#[
+    Glob.one `UnicodeData,
+    Glob.one `UnicodeData.Basic,
+    Glob.one `UnicodeData.UcdParse,
+    Glob.one `UnicodeData.Auxiliary.BreakProperties,
+    Glob.one `UnicodeData.Core.ArabicShaping,
+    Glob.one `UnicodeData.Core.BidiBrackets,
+    Glob.one `UnicodeData.Core.BidiMirroring,
+    Glob.one `UnicodeData.Core.Blocks,
+    Glob.one `UnicodeData.Core.CJKRadicals,
+    Glob.one `UnicodeData.Core.CaseFolding,
+    Glob.one `UnicodeData.Core.CompositionExclusions,
+    Glob.one `UnicodeData.Core.DerivedAge,
+    Glob.one `UnicodeData.Core.DerivedCoreProperties,
+    Glob.one `UnicodeData.Core.DerivedNormalizationProps,
+    Glob.one `UnicodeData.Core.EmojiSources,
+    Glob.one `UnicodeData.Core.EquivalentUnifiedIdeograph,
+    Glob.one `UnicodeData.Core.HangulSyllableType,
+    Glob.one `UnicodeData.Core.IndicPositionalCategory,
+    Glob.one `UnicodeData.Core.IndicSyllabicCategory,
+    Glob.one `UnicodeData.Core.Jamo,
+    Glob.one `UnicodeData.Core.NameAliases,
+    Glob.one `UnicodeData.Core.NamedSequences,
+    Glob.one `UnicodeData.Core.NamedSequencesProv,
+    Glob.one `UnicodeData.Core.NormalizationCorrections,
+    Glob.one `UnicodeData.Core.NushuSources,
+    Glob.one `UnicodeData.Core.PropertyAliases,
+    Glob.one `UnicodeData.Core.PropertyValueAliases,
+    Glob.one `UnicodeData.Core.PropList,
+    Glob.one `UnicodeData.Core.ScriptExtensions,
+    Glob.one `UnicodeData.Core.Scripts,
+    Glob.one `UnicodeData.Core.SpecialCasing,
+    Glob.one `UnicodeData.Core.StandardizedVariants,
+    Glob.one `UnicodeData.Core.TangutSources,
+    Glob.one `UnicodeData.Core.USourceData,
+    Glob.one `UnicodeData.Core.Unikemet,
+    Glob.one `UnicodeData.Core.VerticalOrientation,
+    Glob.one `UnicodeData.Emoji.Emoji,
+    Glob.one `UnicodeData.Emoji.EmojiVariationSequences,
+    Glob.one `UnicodeData.Extracted.DerivedBidiClass,
+    Glob.one `UnicodeData.Extracted.DerivedBinaryProperties,
+    Glob.one `UnicodeData.Extracted.DerivedCombiningClass,
+    Glob.one `UnicodeData.Extracted.DerivedDecompositionType,
+    Glob.one `UnicodeData.Extracted.DerivedEastAsianWidth,
+    Glob.one `UnicodeData.Extracted.DerivedGeneralCategory,
+    Glob.one `UnicodeData.Extracted.DerivedJoiningGroup,
+    Glob.one `UnicodeData.Extracted.DerivedJoiningType,
+    Glob.one `UnicodeData.Extracted.DerivedLineBreak,
+    Glob.one `UnicodeData.Extracted.DerivedName,
+    Glob.one `UnicodeData.Extracted.DerivedNumericType,
+    Glob.one `UnicodeData.Extracted.DerivedNumericValues,
+    Glob.one `UnicodeData.Unihan.UnihanDictionaryIndices,
+    Glob.one `UnicodeData.Unihan.UnihanDictionaryLikeData,
+    Glob.one `UnicodeData.Unihan.UnihanIRGSources,
+    Glob.one `UnicodeData.Unihan.UnihanNumericValues,
+    Glob.one `UnicodeData.Unihan.UnihanOtherMappings,
+    Glob.one `UnicodeData.Unihan.UnihanRadicalStrokeCounts,
+    Glob.one `UnicodeData.Unihan.UnihanReadings,
+    Glob.one `UnicodeData.Unihan.UnihanVariants
+  ] : Array Glob)
 
 lean_exe lookup
 
-lean_exe makeTables
+lean_exe makeTables where
+  moreLinkObjs := #[UnicodeCLib]
 
-lean_exe makeCLib
-
-@[test_driver]
-lean_exe testTables
-
-/-- Download datafile from the Unicode Character Database (UCD) -/
-script downloadUCD (args) do
-  let dir : System.FilePath := "./data"
-  let url := "https://www.unicode.org/Public/UCD/latest/ucd/"
-  let mut err : ExitCode := 0
-  for file in args do
-    IO.print s!"Downloading UCD/{file} ... "
-    match ← download (url ++ file) (dir/file) |>.run with
-    | .ok _ _ => IO.println "Done."
-    | .error _ _ => IO.println "Failed!"; err := err + 1
-  return err
-
-/-- Update data files from the Unicode Character Database (UCD) -/
-script updateUCD do downloadUCD [
-    "ReadMe.txt",
-    "UnicodeData.txt",
-    "PropList.txt",
-    "PropertyAliases.txt",
-    "PropertyValueAliases.txt",
-    "Scripts.txt",
-  ]
+lean_exe makeCLib where
+  moreLinkObjs := #[UnicodeCLib]
