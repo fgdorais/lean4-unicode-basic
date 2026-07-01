@@ -25,32 +25,23 @@ private def formatResolution (r : Unicode.BidiResolution) : String :=
 private def formatLevelOrder (levels : Array (Option Nat)) (orders : Array Nat) : String :=
   s!"{formatLevels levels};{formatOrders orders}"
 
-private def runCharacterCase (ctx : Unicode.BidiContext) (tc : UnicodeDataTest.BidiCharacterTestCase) : Option UnicodeDataTest.Common.Failure := do
+private def runCharacterCase (tc : UnicodeDataTest.BidiCharacterTestCase) : Option UnicodeDataTest.Common.Failure := do
   let expected : Unicode.BidiResolution := {
     paragraphLevel := tc.paragraphLevel
     resolvedLevels := tc.resolvedLevels
     visualOrder := tc.visualOrder
   }
-  match Unicode.resolveBidiText ctx tc.input tc.paragraphDirection with
-  | .error raw =>
+  let out := Unicode.resolveBidiText tc.input tc.paragraphDirection
+  if out ≠ expected then
       some {
         file := "BidiCharacterTest.txt"
         line := tc.line
         expected := formatResolution expected
-        actual := s!"{raw}"
+        actual := formatResolution out
         comment := tc.comment
       }
-  | .ok out =>
-      if out ≠ expected then
-        some {
-          file := "BidiCharacterTest.txt"
-          line := tc.line
-          expected := formatResolution expected
-          actual := formatResolution out
-          comment := tc.comment
-        }
-      else
-        none
+  else
+    none
 
 private def directionsOfMask (mask : Nat) : Array Unicode.BidiParagraphDirection := Id.run do
   let mut out := #[]
@@ -62,7 +53,7 @@ private def directionsOfMask (mask : Nat) : Array Unicode.BidiParagraphDirection
     out := out.push .rtl
   return out
 
-private def runBidiTestCase (ctx : Unicode.BidiContext) (tc : UnicodeDataTest.BidiTestCase) : Array UnicodeDataTest.Common.Failure := Id.run do
+private def runBidiTestCase (tc : UnicodeDataTest.BidiTestCase) : Array UnicodeDataTest.Common.Failure := Id.run do
   let mut failures := #[]
   let expected : Unicode.BidiResolution := {
     paragraphLevel := 0
@@ -70,46 +61,28 @@ private def runBidiTestCase (ctx : Unicode.BidiContext) (tc : UnicodeDataTest.Bi
     visualOrder := tc.expectedReorder
   }
   for dir in directionsOfMask tc.paragraphMask do
-    match Unicode.resolveBidiClasses ctx tc.input dir with
-    | .error raw =>
+    let out := Unicode.resolveBidiClasses tc.input dir
+    if out.resolvedLevels ≠ tc.expectedLevels || out.visualOrder ≠ tc.expectedReorder then
       failures := failures.push {
           file := "BidiTest.txt"
           line := tc.line
           expected := formatLevelOrder expected.resolvedLevels expected.visualOrder
-          actual := s!"{raw}"
+          actual := formatLevelOrder out.resolvedLevels out.visualOrder
           comment := tc.comment
         }
-    | .ok out =>
-        if out.resolvedLevels ≠ tc.expectedLevels || out.visualOrder ≠ tc.expectedReorder then
-          failures := failures.push {
-            file := "BidiTest.txt"
-            line := tc.line
-            expected := formatLevelOrder expected.resolvedLevels expected.visualOrder
-            actual := formatLevelOrder out.resolvedLevels out.visualOrder
-            comment := tc.comment
-          }
   return failures
 
 public def runConformance
     (characterCases : Array UnicodeDataTest.BidiCharacterTestCase)
     (bidiCases : Array UnicodeDataTest.BidiTestCase) :
     Array UnicodeDataTest.Common.Failure := Id.run do
-  match Unicode.bidiInit "data/ucd/core/" with
-  | .error err =>
-      return #[{
-        file := "BidiInit"
-        line := 0
-        expected := "successful bidi bridge initialization"
-        actual := s!"{err}"
-      }]
-  | .ok ctx =>
-      let mut failures := #[]
-      for tc in characterCases do
-        match runCharacterCase ctx tc with
-        | some failure => failures := failures.push failure
-        | none => continue
-      for tc in bidiCases do
-        failures := failures ++ runBidiTestCase ctx tc
-      return failures
+  let mut failures := #[]
+  for tc in characterCases do
+    match runCharacterCase tc with
+    | some failure => failures := failures.push failure
+    | none => continue
+  for tc in bidiCases do
+    failures := failures ++ runBidiTestCase tc
+  return failures
 
 end UnicodeDataTest.Conformance.Bidi

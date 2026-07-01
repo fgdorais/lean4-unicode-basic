@@ -10,9 +10,6 @@ clean:
 download-ucd:
     node scripts/download_unicode_data.ts
 
-download-bidiref:
-    node scripts/download_bidiref.ts
-
 docs-readme:
     ln -sfn ../README.md docs/README.md
 
@@ -43,4 +40,4 @@ test:
 check-ucd-text:
     node scripts/check_ucd_text_not_baked.ts
 
-update-all: clean download-ucd download-bidiref tables clib build test
+update-all: clean download-ucd tables clib build test

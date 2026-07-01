@@ -33,7 +33,7 @@ After the first harness pattern is proven, add:
 Each should reuse the same fixture parser where possible.
 
 7. Finish bidi and normalization conformance
-The public API exposes bidi property helpers in `UnicodeBasic` (`getBidiClass`, `isBidiControl`, bracket and mirroring lookups). The bidi conformance harness now runs `BidiCharacterTest.txt` and `BidiTest.txt` through the Unicode reference implementation, and normalization conformance is covered by the existing Lean runner.
+The public API exposes bidi property helpers in `UnicodeBasic` (`getBidiClass`, `isBidiControl`, bracket and mirroring lookups). The bidi conformance harness now runs `BidiCharacterTest.txt` and `BidiTest.txt` through the pure Lean UAX #9 resolver, and normalization conformance is covered by the existing Lean runner.
 
 8. Regenerate reports and verify
 Run:
@@ -321,7 +321,7 @@ What this validates:
 - implicit level resolution
 - visual reordering
 
-This is now wired through the public `UnicodeBasic.Bidi` API and the Unicode reference implementation.
+This is now wired through the public `UnicodeBasic.Bidi` API and the pure Lean UAX #9 resolver.
 
 **BidiTest.txt**
 This is broader and more synthetic than `BidiCharacterTest.txt`. It tests bidi classes directly rather than actual characters.
@@ -399,4 +399,4 @@ used by tests
 1. Update `ucd_txt_usage.ts` classification first so these files stop appearing as plain `unused`.
 2. Add shared break-test parser and smoke tests.
 3. Add `testGraphemeBreak` as the first real conformance executable when grapheme segmentation exists.
-4. Wire bidi conformance through the reference implementation and keep normalization covered by the Lean runner.
+4. Wire bidi conformance through the pure Lean UAX #9 resolver and keep normalization covered by the Lean runner.
