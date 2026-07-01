@@ -10,7 +10,6 @@ package UnicodeBasic where
   description := "Basic Unicode support for Lean 4"
   keywords := #["unicode"]
   reservoir := true
-  precompileModules := true
 
 target UnicodeCLib pkg : FilePath := do
   let mut oFiles : Array (Job FilePath) := #[]
@@ -34,6 +33,7 @@ lean_lib UnicodeBasicSupport where
     `UnicodeBasic.Hangul,
     `UnicodeBasic.Types
   ]
+  moreLinkObjs := #[UnicodeCLib]
 
 @[default_target]
 lean_lib UnicodeBasic where
@@ -110,35 +110,10 @@ lean_lib UnicodeData where
     Glob.one `UnicodeData.Unihan.UnihanVariants
   ] : Array Glob)
 
-lean_lib UnicodeDataTest where
-  roots := #[]
-  globs := #[
-    Glob.one `UnicodeDataTest.Auxiliary.Common,
-    Glob.one `UnicodeDataTest.Auxiliary.Grapheme,
-    Glob.one `UnicodeDataTest.Common.Types,
-    Glob.one `UnicodeDataTest.Common.Failure,
-    Glob.one `UnicodeDataTest.Common.Parse,
-    Glob.one `UnicodeDataTest.Auxiliary.Data.GraphemeBreakTest,
-    Glob.one `UnicodeDataTest.Auxiliary.Data.LineBreakTest,
-    Glob.one `UnicodeDataTest.Auxiliary.Data.SentenceBreakTest,
-    Glob.one `UnicodeDataTest.Auxiliary.Data.WordBreakTest,
-    Glob.one `UnicodeDataTest.Auxiliary.Test,
-    Glob.one `UnicodeDataTest.Conformance.Data.BidiCharacterTest,
-    Glob.one `UnicodeDataTest.Conformance.Data.BidiTest,
-    Glob.one `UnicodeDataTest.Conformance.Data.NormalizationTest,
-    Glob.one `UnicodeDataTest.Conformance.Bidi,
-    Glob.one `UnicodeDataTest.Conformance.Normalization,
-    Glob.one `UnicodeDataTest.Conformance.Test
-  ]
-
 lean_exe lookup
-lean_exe testConformance
 
 lean_exe makeTables where
   moreLinkObjs := #[UnicodeCLib]
 
 lean_exe makeCLib where
   moreLinkObjs := #[UnicodeCLib]
-
-@[test_driver]
-lean_exe testTables

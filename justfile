@@ -35,7 +35,7 @@ build:
     lake build --wfail UnicodeBasic UnicodeData lookup makeCLib makeTables
 
 test:
-    lake exe testTables && lake exe testConformance
+    cd tests && lake test
 
 check-ucd-text:
     node scripts/check_ucd_text_not_baked.ts

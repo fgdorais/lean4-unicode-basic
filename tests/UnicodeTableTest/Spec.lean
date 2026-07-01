@@ -3,10 +3,13 @@ Copyright © 2024-2025 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 module
+public import Spec.Tree
 import UnicodeBasic
 import UnicodeData
 
 open Unicode
+
+namespace UnicodeTableTest
 
 def testAlphabetic (d : UnicodeData) : Bool :=
   let v :=
@@ -252,60 +255,65 @@ def testUppercase (d : UnicodeData) : Bool :=
 def testWhiteSpace (d : UnicodeData) : Bool :=
   PropList.isWhiteSpace d.code == lookupWhiteSpace d.code
 
-def tests : List (String × (UnicodeData → Bool)) := [
-  ("Bidi_Class", testBidiClass),
-  ("Block", fun _ => testBlockName),
-  ("East_Asian_Width", fun _ => testEastAsianWidth),
-  ("Vertical_Orientation", fun _ => testVerticalOrientation),
-  ("Bidi_Mirroring_Glyph", fun _ => testBidiMirroringGlyph),
-  ("Alphabetic", testAlphabetic),
-  ("Bidi_Paired_Bracket", fun _ => testBidiPairedBracket),
-  ("Bidi_Mirrored", testBidiMirrored),
-  ("Canonical_Combining_Class", testCanonicalCombiningClass),
-  ("Canonical_Decomposition_Mapping", testCanonicalDecompositionMapping),
-  ("Case_Mapping", testCaseMapping),
-  ("Cased", testCased),
-  ("Decomposition_Mapping", testDecompositionMapping),
-  ("Default_Ignorable_Code_Point", testDefautlIgnorableCodePoint),
-  ("Dash", testDash),
-  ("Diacritic", testDiacritic),
-  ("Emoji", testEmoji),
-  ("Emoji_Component", testEmojiComponent),
-  ("Emoji_Modifier", testEmojiModifier),
-  ("Emoji_Modifier_Base", testEmojiModifierBase),
-  ("Emoji_Presentation", testEmojiPresentation),
-  ("Extended_Pictographic", testExtendedPictographic),
-  ("Extender", testExtender),
-  ("Grapheme_Base", testGraphemeBase),
-  ("Grapheme_Extend", testGraphemeExtend),
-  ("Hyphen", testHyphen),
-  ("ID_Continue", testIDContinue),
-  ("ID_Start", testIDStart),
-  ("Lowercase", testLowercase),
-  ("Math", testMath),
-  ("Name", testName),
-  ("Noncharacter_Code_Point", testNoncharacterCodePoint),
-  ("Pattern_Syntax", testPatternSyntax),
-  ("Pattern_White_Space", testPatternWhiteSpace),
-  ("Quotation_Mark", testQuotationMark),
-  ("Regional_Indicator", testRegionalIndicator),
-  ("Sentence_Terminal", testSentenceTerminal),
-  ("Terminal_Punctuation", testTerminalPunctuation),
-  ("Titlecase", testTitlecase),
-  ("Uppercase", testUppercase),
-  ("XID_Continue", testXIDContinue),
-  ("XID_Start", testXIDStart),
-  ("Numeric_Value", testNumericValue),
-  ("General_Category", testGeneralCategory),
-  ("White_Space", testWhiteSpace)]
+def itPropertyForData (name : String) (f : UnicodeData → Bool) : Spec.Spec := do
+  Spec.it name do
+    let stream : UnicodeDataStream := {}
+    let mut failedCodes : Array UInt32 := #[]
+    for d in stream do
+      if !f d then
+        failedCodes := failedCodes.push d.code
+    if !failedCodes.isEmpty then
+      Spec.Assert.fail s!"UnicodeTableTest.{name} failed, {failedCodes.size} codes: {failedCodes}"
 
-public def main (args : List String) : IO UInt32 := do
-  let args := if args.isEmpty then tests.map Prod.fst else args
-  let stream : UnicodeDataStream := {}
-  let mut err : UInt32 := 0
-  for d in stream do
-    for t in tests do
-      if t.1 ∈ args && !t.2 d then
-        err := 1
-        IO.println s!"Error: {t.1} {toHexStringRaw d.code}"
-  return err
+def itPropertySimple (name : String) (b : Bool) : Spec.Spec := do
+  Spec.it name do
+    if !b then
+      Spec.Assert.fail s!"UnicodeTableTest.{name} failed"
+
+public def spec : Spec.Spec := do
+  Spec.describe "UnicodeTableTest" do
+    itPropertyForData "Bidi_Class" testBidiClass
+    itPropertySimple "Block" testBlockName
+    itPropertySimple "East_Asian_Width" testEastAsianWidth
+    itPropertySimple "Vertical_Orientation" testVerticalOrientation
+    itPropertySimple "Bidi_Mirroring_Glyph" testBidiMirroringGlyph
+    itPropertyForData "Alphabetic" testAlphabetic
+    itPropertySimple "Bidi_Paired_Bracket" testBidiPairedBracket
+    itPropertyForData "Bidi_Mirrored" testBidiMirrored
+    itPropertyForData "Canonical_Combining_Class" testCanonicalCombiningClass
+    itPropertyForData "Canonical_Decomposition_Mapping" testCanonicalDecompositionMapping
+    itPropertyForData "Case_Mapping" testCaseMapping
+    itPropertyForData "Cased" testCased
+    itPropertyForData "Decomposition_Mapping" testDecompositionMapping
+    itPropertyForData "Default_Ignorable_Code_Point" testDefautlIgnorableCodePoint
+    itPropertyForData "Dash" testDash
+    itPropertyForData "Diacritic" testDiacritic
+    itPropertyForData "Emoji" testEmoji
+    itPropertyForData "Emoji_Component" testEmojiComponent
+    itPropertyForData "Emoji_Modifier" testEmojiModifier
+    itPropertyForData "Emoji_Modifier_Base" testEmojiModifierBase
+    itPropertyForData "Emoji_Presentation" testEmojiPresentation
+    itPropertyForData "Extended_Pictographic" testExtendedPictographic
+    itPropertyForData "Extender" testExtender
+    itPropertyForData "Grapheme_Base" testGraphemeBase
+    itPropertyForData "Grapheme_Extend" testGraphemeExtend
+    itPropertyForData "Hyphen" testHyphen
+    itPropertyForData "ID_Continue" testIDContinue
+    itPropertyForData "ID_Start" testIDStart
+    itPropertyForData "Lowercase" testLowercase
+    itPropertyForData "Math" testMath
+    itPropertyForData "Name" testName
+    itPropertyForData "Noncharacter_Code_Point" testNoncharacterCodePoint
+    itPropertyForData "Pattern_Syntax" testPatternSyntax
+    itPropertyForData "Pattern_White_Space" testPatternWhiteSpace
+    itPropertyForData "Quotation_Mark" testQuotationMark
+    itPropertyForData "Regional_Indicator" testRegionalIndicator
+    itPropertyForData "Sentence_Terminal" testSentenceTerminal
+    itPropertyForData "Terminal_Punctuation" testTerminalPunctuation
+    itPropertyForData "Titlecase" testTitlecase
+    itPropertyForData "Uppercase" testUppercase
+    itPropertyForData "XID_Continue" testXIDContinue
+    itPropertyForData "XID_Start" testXIDStart
+    itPropertyForData "Numeric_Value" testNumericValue
+    itPropertyForData "General_Category" testGeneralCategory
+    itPropertyForData "White_Space" testWhiteSpace

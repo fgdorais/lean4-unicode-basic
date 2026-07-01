@@ -19,10 +19,14 @@ jobs:
       - name: checkout
         uses: actions/checkout@v7
 
-      - name: build
+      - name: install lean and build
         uses: leanprover/lean-action@v1
         with:
           build: true
           build-args: "--wfail UnicodeBasic UnicodeData lookup makeCLib makeTables"
-          test: true
+          test: false
           use-mathlib-cache: false
+
+      - name: test package
+        working-directory: tests
+        run: lake test

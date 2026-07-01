@@ -2,7 +2,11 @@ module
 import UnicodeDataTest.Auxiliary.Test
 import UnicodeDataTest.Conformance.Test
 
-public def main : IO UInt32 := do
+namespace UnicodeDataTest
+
+public def run : IO Bool := do
   let aux ← UnicodeDataTest.Auxiliary.run
   let conf ← UnicodeDataTest.Conformance.run
-  return if aux == 0 && conf == 0 then 0 else 1
+  return aux && conf == 0
+
+end UnicodeDataTest

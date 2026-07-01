@@ -3,6 +3,7 @@ Copyright © 2026 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 module
+public import Spec.Tree
 import UnicodeBasic
 import UnicodeDataTest.Auxiliary.Grapheme
 import UnicodeDataTest.Auxiliary.Data.GraphemeBreakTest
@@ -44,23 +45,34 @@ private def runBoundaries
       }
   return failures
 
-public def run : IO UInt32 := do
-  let g ← UnicodeDataTest.Auxiliary.Data.GraphemeBreakTest.load
-  let w ← UnicodeDataTest.Auxiliary.Data.WordBreakTest.load
-  let s ← UnicodeDataTest.Auxiliary.Data.SentenceBreakTest.load
-  let l ← UnicodeDataTest.Auxiliary.Data.LineBreakTest.load
-  let rc ← UnicodeDataTest.Common.reportFailures "GraphemeBreakTest" <|
-    UnicodeDataTest.Auxiliary.Grapheme.runConformance "GraphemeBreakTest.txt" g
-  let wc ← UnicodeDataTest.Common.reportFailures "WordBreakTest" <|
-    runBoundaries "WordBreakTest.txt" w Unicode.segmentWordBoundaries
-  let sc ← UnicodeDataTest.Common.reportFailures "SentenceBreakTest" <|
-    runBoundaries "SentenceBreakTest.txt" s Unicode.segmentSentenceBoundaries
-  let lc ← UnicodeDataTest.Common.reportFailures "LineBreakTest" <|
-    runBoundaries "LineBreakTest.txt" l Unicode.segmentLineBoundaries
-  let mut failed := rc != 0
-  failed := failed || wc != 0
-  failed := failed || sc != 0
-  failed := failed || lc != 0
-  return if failed then 1 else 0
+public def spec : Spec.Spec := do
+  Spec.describe "Auxiliary" do
+    Spec.it "GraphemeBreakTest" do
+      let g ← UnicodeDataTest.Auxiliary.Data.GraphemeBreakTest.load
+      let rc ← UnicodeDataTest.Common.reportFailures "GraphemeBreakTest" <|
+        UnicodeDataTest.Auxiliary.Grapheme.runConformance "GraphemeBreakTest.txt" g
+      if rc != 0 then
+        Spec.Assert.fail "GraphemeBreakTest failed"
+
+    Spec.it "WordBreakTest" do
+      let w ← UnicodeDataTest.Auxiliary.Data.WordBreakTest.load
+      let wc ← UnicodeDataTest.Common.reportFailures "WordBreakTest" <|
+        runBoundaries "WordBreakTest.txt" w Unicode.segmentWordBoundaries
+      if wc != 0 then
+        Spec.Assert.fail "WordBreakTest failed"
+
+    Spec.it "SentenceBreakTest" do
+      let s ← UnicodeDataTest.Auxiliary.Data.SentenceBreakTest.load
+      let sc ← UnicodeDataTest.Common.reportFailures "SentenceBreakTest" <|
+        runBoundaries "SentenceBreakTest.txt" s Unicode.segmentSentenceBoundaries
+      if sc != 0 then
+        Spec.Assert.fail "SentenceBreakTest failed"
+
+    Spec.it "LineBreakTest" do
+      let l ← UnicodeDataTest.Auxiliary.Data.LineBreakTest.load
+      let lc ← UnicodeDataTest.Common.reportFailures "LineBreakTest" <|
+        runBoundaries "LineBreakTest.txt" l Unicode.segmentLineBoundaries
+      if lc != 0 then
+        Spec.Assert.fail "LineBreakTest failed"
 
 end UnicodeDataTest.Auxiliary
