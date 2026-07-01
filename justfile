@@ -40,4 +40,4 @@ test:
 check-ucd-text:
     node scripts/check_ucd_text_not_baked.ts
 
-update-all: clean download-ucd tables clib build test
+update-all: download-ucd tables clib build test
