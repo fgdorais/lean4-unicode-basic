@@ -3,7 +3,7 @@ Copyright © 2026 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 module
-public import UnicodeBasic.Types
+public import UnicodeBasic.Bidi
 
 open Unicode
 
@@ -31,13 +31,6 @@ public structure NormalizationTestCase where
   nfkd : Array UInt32
   comment : Option String := none
 deriving Inhabited, Repr
-
-/-- Paragraph direction used by `BidiCharacterTest.txt`. -/
-public inductive BidiParagraphDirection where
-  | ltr
-  | rtl
-  | autoLtr
-deriving Inhabited, Repr, BEq
 
 /-- Parsed `BidiCharacterTest.txt` row. -/
 public structure BidiCharacterTestCase where

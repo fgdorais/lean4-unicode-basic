@@ -32,11 +32,8 @@ After the first harness pattern is proven, add:
 
 Each should reuse the same fixture parser where possible.
 
-7. Defer bidi and normalization conformance
-Keep these as pending fixtures until real algorithm implementations exist:
-- `BidiCharacterTest.txt`
-- `BidiTest.txt`
-- `NormalizationTest.txt`
+7. Finish bidi and normalization conformance
+The public API exposes bidi property helpers in `UnicodeBasic` (`getBidiClass`, `isBidiControl`, bracket and mirroring lookups). The bidi conformance harness now runs `BidiCharacterTest.txt` and `BidiTest.txt` through the Unicode reference implementation, and normalization conformance is covered by the existing Lean runner.
 
 8. Regenerate reports and verify
 Run:
@@ -48,7 +45,7 @@ Run:
 End state:
 - usage report no longer calls conformance files simply `unused`
 - break test files have a reusable parser and at least one harness path
-- bidi/normalization files are clearly tracked as pending conformance fixtures, not missing library data.
+- bidi/normalization files are covered by conformance tests instead of being left as pending fixtures.
 
 
 **Expanded Plan**
@@ -283,7 +280,7 @@ What this validates:
 - compatibility decomposition
 - idempotence of all normalization forms
 
-Keep pending until normalization is implemented.
+Normalization conformance is now wired through the Lean runner.
 
 **BidiCharacterTest.txt**
 This tests UAX #9 bidi resolution for specific character sequences.
@@ -324,7 +321,7 @@ What this validates:
 - implicit level resolution
 - visual reordering
 
-This should wait until the repo has a real bidi algorithm, not just `Bidi_Class` lookup.
+This is now wired through the public `UnicodeBasic.Bidi` API and the Unicode reference implementation.
 
 **BidiTest.txt**
 This is broader and more synthetic than `BidiCharacterTest.txt`. It tests bidi classes directly rather than actual characters.
@@ -362,7 +359,7 @@ What this validates:
 - full class-level rule coverage
 - paragraph direction variants
 
-This is useful for debugging the bidi implementation because it isolates algorithm logic from code point properties.
+This remains useful for debugging because it isolates algorithm logic from code point properties, but it is now a public library feature rather than a test-only hook.
 
 **Usage Report Update**
 `ucd_txt_usage.ts` should distinguish these states:
@@ -370,7 +367,6 @@ This is useful for debugging the bidi implementation because it isolates algorit
 ```text
 used by library
 used by tests
-pending conformance fixture
 skipped non-machine-readable
 unused
 ```
@@ -378,20 +374,19 @@ unused
 Initial report classification:
 
 ```text
-GraphemeBreakTest.txt      pending conformance fixture
-WordBreakTest.txt          pending conformance fixture
-SentenceBreakTest.txt      pending conformance fixture
-LineBreakTest.txt          pending conformance fixture
-BidiCharacterTest.txt      pending conformance fixture
-BidiTest.txt               pending conformance fixture
-NormalizationTest.txt      pending conformance fixture
+GraphemeBreakTest.txt      used by tests
+WordBreakTest.txt          used by tests
+SentenceBreakTest.txt      used by tests
+LineBreakTest.txt          used by tests
+BidiCharacterTest.txt      used by tests
+BidiTest.txt               used by tests
+NormalizationTest.txt      used by tests
 ```
 
 After a parser harness exists but no algorithm exists:
 
 ```text
-used by tests: parser smoke test
-pending algorithm conformance
+used by tests
 ```
 
 After the algorithm exists and the test is wired into default tests:
@@ -404,4 +399,4 @@ used by tests
 1. Update `ucd_txt_usage.ts` classification first so these files stop appearing as plain `unused`.
 2. Add shared break-test parser and smoke tests.
 3. Add `testGraphemeBreak` as the first real conformance executable when grapheme segmentation exists.
-4. Add normalization and bidi parsers later when their algorithms are closer.
+4. Wire bidi conformance through the reference implementation and keep normalization covered by the Lean runner.

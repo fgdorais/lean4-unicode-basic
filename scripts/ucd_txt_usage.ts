@@ -35,7 +35,6 @@ type SkippedTarget = {
 type UsageLabel =
   | 'used by Lean library'
   | 'used by tests'
-  | 'used by tests: parser smoke (pending algorithm conformance)'
   | 'test fixture pending'
   | 'unused';
 
@@ -59,16 +58,8 @@ function isTestFixture(relativePath: string): boolean {
   return relativePath.includes('/conformance/') || path.posix.basename(relativePath).endsWith('Test.txt');
 }
 
-const parserSmokePendingFixtures = new Set<string>([
-  'data/ucd/conformance/BidiCharacterTest.txt',
-  'data/ucd/conformance/BidiTest.txt'
-]);
-
 function usageProfile(relativePath: string, matches: Match[]): UsageLabel {
   if (matches.length > 0) {
-    if (parserSmokePendingFixtures.has(relativePath)) {
-      return 'used by tests: parser smoke (pending algorithm conformance)';
-    }
     return isTestFixture(relativePath) ? 'used by tests' : 'used by Lean library';
   }
   return isTestFixture(relativePath) ? 'test fixture pending' : 'unused';
@@ -173,9 +164,6 @@ for (const report of reports) {
 
 const libraryUsedCount = reports.filter((r) => usageProfile(r.relativePath, r.matches) === 'used by Lean library').length;
 const testUsedCount = reports.filter((r) => usageProfile(r.relativePath, r.matches) === 'used by tests').length;
-const parserSmokePendingCount = reports.filter((r) =>
-  usageProfile(r.relativePath, r.matches) === 'used by tests: parser smoke (pending algorithm conformance)'
-).length;
 const testPendingCount = reports.filter((r) => usageProfile(r.relativePath, r.matches) === 'test fixture pending').length;
 const unusedCount = reports.filter((r) => usageProfile(r.relativePath, r.matches) === 'unused').length;
 
@@ -196,7 +184,6 @@ markdown += `## Summary\n\n`;
 markdown += `- Total txt files: ${reports.length}\n`;
 markdown += `- Used by Lean library: ${libraryUsedCount}\n`;
 markdown += `- Used by tests: ${testUsedCount}\n`;
-markdown += `- Parser smoke tests pending algorithm conformance: ${parserSmokePendingCount}\n`;
 markdown += `- Test fixtures pending: ${testPendingCount}\n`;
 markdown += `- Unused: ${unusedCount}\n\n`;
 

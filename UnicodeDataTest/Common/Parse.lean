@@ -41,7 +41,7 @@ public def parseOptNatArray (s : String) : Array (Option Nat) :=
   else
     s.splitOn " " |>.toArray.filter (· ≠ "") |>.map parseNatOrX?
 
-public def parseBidiParagraphDirection (s : String) : UnicodeDataTest.BidiParagraphDirection :=
+public def parseBidiParagraphDirection (s : String) : Unicode.BidiParagraphDirection :=
   match UCD.trimAsciiString s with
   | "0" => .ltr
   | "1" => .rtl

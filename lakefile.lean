@@ -38,6 +38,7 @@ lean_lib UnicodeBasic where
   roots := #[]
   globs := #[
     `UnicodeBasic,
+    `UnicodeBasic.Bidi,
     `UnicodeBasic.Segmentation,
     `UnicodeBasic.TableLookup
   ]
@@ -123,6 +124,7 @@ lean_lib UnicodeDataTest where
     Glob.one `UnicodeDataTest.Conformance.Data.BidiCharacterTest,
     Glob.one `UnicodeDataTest.Conformance.Data.BidiTest,
     Glob.one `UnicodeDataTest.Conformance.Data.NormalizationTest,
+    Glob.one `UnicodeDataTest.Conformance.Bidi,
     Glob.one `UnicodeDataTest.Conformance.Normalization,
     Glob.one `UnicodeDataTest.Conformance.Test
   ]
