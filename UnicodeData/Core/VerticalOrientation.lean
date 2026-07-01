@@ -8,12 +8,14 @@ import UnicodeBasic.CharacterDatabase
 
 namespace Unicode
 
+namespace VerticalOrientation
+
 /-- Raw string from `VerticalOrientation.txt` -/
-def VerticalOrientation.txt := include_str "../../data/ucd/core/VerticalOrientation.txt"
+def txt := include_str "../../data/ucd/core/VerticalOrientation.txt"
 
 /-- Parsed `VerticalOrientation.txt` records. -/
-public def VerticalOrientation.data : Array (UInt32 × UInt32 × VerticalOrientation) := Id.run do
-  let stream := UCDStream.ofString VerticalOrientation.txt
+public def data : Array (UInt32 × UInt32 × VerticalOrientation) := Id.run do
+  let stream := UCDStream.ofString txt
   let mut data := #[]
   for record in stream do
     let (c₀, c₁) : UInt32 × UInt32 :=
@@ -39,11 +41,13 @@ private partial def find (code : UInt32)
     none
 
 /-- Find the vertical orientation for a code point, if it is explicitly listed. -/
-public def lookupVerticalOrientation? (code : UInt32) : Option VerticalOrientation :=
-  find code VerticalOrientation.data 0 VerticalOrientation.data.size
+public def lookup? (code : UInt32) : Option VerticalOrientation :=
+  find code data 0 data.size
 
 /-- Find the vertical orientation for a code point, defaulting to `R`. -/
-public def lookupVerticalOrientation (code : UInt32) : VerticalOrientation :=
-  lookupVerticalOrientation? code |>.getD .rotated
+public def lookup (code : UInt32) : VerticalOrientation :=
+  lookup? code |>.getD .rotated
+
+end VerticalOrientation
 
 end Unicode

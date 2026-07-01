@@ -84,6 +84,99 @@ private def parsePropTable (s : String) : Thunk <| Array (UInt32 × UInt32) := I
 public def lookupBidiClass (c : UInt32) : BidiClass :=
   lookupDerivedBidiClass c
 
+/-- Get the bidi mirroring glyph for a code point, if it exists.
+
+  Unicode property: `Bidi_Mirroring_Glyph`
+-/
+public def lookupBidiMirroringGlyph? (c : UInt32) : Option UInt32 :=
+  let table := table.get
+  if table.size == 0 || c < table[0]!.1 then none else
+    let d := table[find c (fun i => table[i]!.1) 0 table.usize]!
+    if c = d.1 then some d.2 else none
+where
+  str : String := include_str "../data/table/Bidi_Mirroring_Glyph.txt"
+  table : Thunk <| Array (UInt32 × UInt32) :=
+    parseTable str fun _ x => ofHexString! x[0]!
+
+/-!
+  ## Bidi Brackets ##
+-/
+
+/-- Structure for `BidiBrackets.txt` table rows. -/
+public structure BidiBracket where
+  pairedBracket : UInt32
+  bracketType : BidiBracketType
+deriving Inhabited, Repr
+
+/-- Get bidi bracket data for a code point.
+
+  Unicode properties:
+    `Bidi_Paired_Bracket`
+    `Bidi_Paired_Bracket_Type`
+-/
+public def lookupBidiBracket? (c : UInt32) : Option BidiBracket :=
+  let table := table.get
+  if table.size == 0 || c < table[0]!.1 then none else
+    let d := table[find c (fun i => table[i]!.1) 0 table.usize]!
+    if c = d.1 then some d.2 else none
+where
+  str : String := include_str "../data/table/Bidi_Brackets.txt"
+  table : Thunk <| Array (UInt32 × BidiBracket) :=
+    parseTable str fun _ x => {
+      pairedBracket := ofHexString! x[0]!
+      bracketType := BidiBracketType.ofAbbrev! x[1]!
+    }
+
+/-- Get the bidi paired bracket for a code point. -/
+public def lookupBidiPairedBracket? (c : UInt32) : Option UInt32 :=
+  (lookupBidiBracket? c).map BidiBracket.pairedBracket
+
+/-- Get the bidi paired bracket type for a code point. -/
+public def lookupBidiPairedBracketType? (c : UInt32) : Option BidiBracketType :=
+  (lookupBidiBracket? c).map BidiBracket.bracketType
+
+/-- Get block name for a code point.
+
+  Unicode property: `Block`
+-/
+public def lookupBlockName (c : UInt32) : String :=
+  let table := table.get
+  if table.size == 0 || c < table[0]!.1 then "No_Block" else
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
+    | (_, stop, name) => if c ≤ stop then name else "No_Block"
+where
+  str : String := include_str "../data/table/Block_Name.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × String) :=
+    parseDataTable str fun _ _ x => x[0]!.toString
+
+/-- Get East Asian width for a code point.
+
+  Unicode property: `East_Asian_Width`
+-/
+public def lookupEastAsianWidth (c : UInt32) : EastAsianWidth :=
+  let table := table.get
+  if table.size == 0 || c < table[0]!.1 then .neutral else
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
+    | (_, stop, v) => if c ≤ stop then v else .neutral
+where
+  str : String := include_str "../data/table/East_Asian_Width.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × EastAsianWidth) :=
+    parseDataTable str fun _ _ x => EastAsianWidth.ofAbbrev! x[0]!
+
+/-- Get vertical orientation for a code point.
+
+  Unicode property: `Vertical_Orientation`
+-/
+public def lookupVerticalOrientation (c : UInt32) : VerticalOrientation :=
+  let table := table.get
+  if table.size == 0 || c < table[0]!.1 then .rotated else
+    match table[find c (fun i => table[i]!.1) 0 table.usize]! with
+    | (_, stop, v) => if c ≤ stop then v else .rotated
+where
+  str : String := include_str "../data/table/Vertical_Orientation.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × VerticalOrientation) :=
+    parseDataTable str fun _ _ x => VerticalOrientation.ofAbbrev! x[0]!
+
 /-- Get canonical combining class using lookup table
 
   Unicode property: `Canonical_Combining_Class` -/

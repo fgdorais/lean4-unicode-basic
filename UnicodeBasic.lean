@@ -5,11 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 module
 public import UnicodeBasic.Types
 public import UnicodeBasic.Bidi
-import UnicodeData.Core.BidiBrackets
-import UnicodeData.Core.BidiMirroring
-import UnicodeData.Core.Blocks
-import UnicodeData.Extracted.DerivedEastAsianWidth
-import UnicodeData.Core.VerticalOrientation
 public import UnicodeBasic.Segmentation
 public import UnicodeBasic.TableLookup
 

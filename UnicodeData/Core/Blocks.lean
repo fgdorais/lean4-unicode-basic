@@ -8,8 +8,10 @@ import UnicodeBasic.CharacterDatabase
 
 namespace Unicode
 
+namespace Blocks
+
 /-- Raw string from `Blocks.txt` -/
-def Blocks.txt := include_str "../../data/ucd/core/Blocks.txt"
+def txt := include_str "../../data/ucd/core/Blocks.txt"
 
 private partial def find (c : UInt32) (t : USize → UInt32) (lo hi : USize) : USize :=
   let mid := (lo + hi) / 2
@@ -20,9 +22,9 @@ private partial def find (c : UInt32) (t : USize → UInt32) (lo hi : USize) : U
   else
     find c t mid hi
 
-public def Blocks.data : Array (UInt32 × UInt32 × String) := Id.run do
+public def data : Array (UInt32 × UInt32 × String) := Id.run do
   let mut r := #[]
-  let mut stream := UCDStream.ofString Blocks.txt
+  let mut stream := UCDStream.ofString txt
   for record in stream do
     let (start, stop) : UInt32 × UInt32 :=
       match record[0]!.split ".." |>.toList with
@@ -33,11 +35,13 @@ public def Blocks.data : Array (UInt32 × UInt32 × String) := Id.run do
   return r
 
 /-- Get block name for a code point -/
-public def lookupBlockName (c : UInt32) : String :=
-  let table := Blocks.data
+public def lookupName (c : UInt32) : String :=
+  let table := data
   if table.size == 0 then "No_Block" else
     if c < table[0]!.1 then "No_Block" else
       match table[find c (fun i => table[i]!.1) 0 table.usize]! with
       | (_, v, n) => if c ≤ v then n else "No_Block"
+
+end Blocks
 
 end Unicode

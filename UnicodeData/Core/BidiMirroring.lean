@@ -9,12 +9,14 @@ import UnicodeBasic.CharacterDatabase
 
 namespace Unicode
 
+namespace BidiMirroring
+
 /-- Raw string from `BidiMirroring.txt` -/
-def BidiMirroring.txt := include_str "../../data/ucd/core/BidiMirroring.txt"
+def txt := include_str "../../data/ucd/core/BidiMirroring.txt"
 
 /-- Parsed `BidiMirroring.txt` mappings. -/
-public def BidiMirroring.data : Std.HashMap UInt32 UInt32 := Id.run do
-  let stream := UCDStream.ofString BidiMirroring.txt
+public def data : Std.HashMap UInt32 UInt32 := Id.run do
+  let stream := UCDStream.ofString txt
   let mut data : Std.HashMap UInt32 UInt32 := {}
   for record in stream do
     let c₀ := ofHexString! record[0]!
@@ -23,7 +25,9 @@ public def BidiMirroring.data : Std.HashMap UInt32 UInt32 := Id.run do
   return data
 
 /-- Find the bidi mirroring glyph for a code point, if it exists. -/
-public def lookupBidiMirroringGlyph? (code : UInt32) : Option UInt32 :=
-  BidiMirroring.data.get? code
+public def lookupGlyph? (code : UInt32) : Option UInt32 :=
+  data.get? code
+
+end BidiMirroring
 
 end Unicode

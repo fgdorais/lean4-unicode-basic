@@ -8,19 +8,23 @@ import UnicodeData.UcdParse
 
 namespace Unicode
 
+namespace EastAsianWidth
+
 /-- Raw string from `DerivedEastAsianWidth.txt` -/
-def EastAsianWidth.txt := include_str "../../data/ucd/extracted/DerivedEastAsianWidth.txt"
+def txt := include_str "../../data/ucd/extracted/DerivedEastAsianWidth.txt"
 
 /-- Parsed `EastAsianWidth.txt` records. -/
-public def EastAsianWidth.data : Array (UInt32 × UInt32 × EastAsianWidth) :=
-  UCD.parseRangeTable EastAsianWidth.txt fun parts => EastAsianWidth.ofAbbrev! parts[1]!
+public def data : Array (UInt32 × UInt32 × EastAsianWidth) :=
+  UCD.parseRangeTable txt fun parts => EastAsianWidth.ofAbbrev! parts[1]!
 
 /-- Find the East Asian width for a code point, if it is explicitly listed. -/
-public def lookupEastAsianWidth? (code : UInt32) : Option EastAsianWidth :=
-  UCD.lookupRange? code EastAsianWidth.data
+public def lookup? (code : UInt32) : Option EastAsianWidth :=
+  UCD.lookupRange? code data
 
 /-- Find the East Asian width for a code point, defaulting to `N`. -/
-public def lookupEastAsianWidth (code : UInt32) : EastAsianWidth :=
-  lookupEastAsianWidth? code |>.getD .neutral
+public def lookup (code : UInt32) : EastAsianWidth :=
+  lookup? code |>.getD .neutral
+
+end EastAsianWidth
 
 end Unicode

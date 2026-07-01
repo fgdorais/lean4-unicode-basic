@@ -91,6 +91,65 @@ def mkBidiMirrored : IO <| Array (UInt32 × UInt32) := do
         t := t.push (d.code, d.code)
   return t
 
+def mkBidiMirroringGlyph : Array (UInt32 × UInt32) := Id.run do
+  let mut t := #[]
+  let txt : String := include_str "data/ucd/core/BidiMirroring.txt"
+  let stream := UCDStream.ofString txt
+  for record in stream do
+    t := t.push (ofHexString! record[0]!, ofHexString! record[1]!)
+  return t
+
+def mkBidiBrackets : Array (UInt32 × UInt32 × BidiBracketType) := Id.run do
+  let mut t := #[]
+  let txt : String := include_str "data/ucd/core/BidiBrackets.txt"
+  let stream := UCDStream.ofString txt
+  for record in stream do
+    t := t.push (
+      ofHexString! record[0]!,
+      ofHexString! record[1]!,
+      BidiBracketType.ofAbbrev! record[2]!
+    )
+  return t
+
+def mkBlockName : Array (UInt32 × UInt32 × String) := Id.run do
+  let mut t := #[]
+  let txt : String := include_str "data/ucd/core/Blocks.txt"
+  let stream := UCDStream.ofString txt
+  for record in stream do
+    let (c₀, c₁) : UInt32 × UInt32 :=
+      match record[0]!.split ".." |>.toList with
+      | [c] => (ofHexString! c, ofHexString! c)
+      | [c₀, c₁] => (ofHexString! c₀, ofHexString! c₁)
+      | _ => panic! "invalid record in Blocks.txt"
+    t := t.push (c₀, c₁, record[1]!.toString)
+  return t
+
+def mkEastAsianWidth : Array (UInt32 × UInt32 × EastAsianWidth) := Id.run do
+  let mut t := #[]
+  let txt : String := include_str "data/ucd/extracted/DerivedEastAsianWidth.txt"
+  let stream := UCDStream.ofString txt
+  for record in stream do
+    let (c₀, c₁) : UInt32 × UInt32 :=
+      match record[0]!.split ".." |>.toList with
+      | [c] => (ofHexString! c, ofHexString! c)
+      | [c₀, c₁] => (ofHexString! c₀, ofHexString! c₁)
+      | _ => panic! "invalid record in DerivedEastAsianWidth.txt"
+    t := t.push (c₀, c₁, EastAsianWidth.ofAbbrev! record[1]!)
+  return t
+
+def mkVerticalOrientation : Array (UInt32 × UInt32 × VerticalOrientation) := Id.run do
+  let mut t := #[]
+  let txt : String := include_str "data/ucd/core/VerticalOrientation.txt"
+  let stream := UCDStream.ofString txt
+  for record in stream do
+    let (c₀, c₁) : UInt32 × UInt32 :=
+      match record[0]!.split ".." |>.toList with
+      | [c] => (ofHexString! c, ofHexString! c)
+      | [c₀, c₁] => (ofHexString! c₀, ofHexString! c₁)
+      | _ => panic! "invalid record in VerticalOrientation.txt"
+    t := t.push (c₀, c₁, VerticalOrientation.ofAbbrev! record[1]!)
+  return t
+
 def mkCanonicalCombiningClass : IO <| Array (UInt32 × UInt32 × Nat) := do
   let mut t := #[]
   for d in UnicodeData.data do
@@ -521,11 +580,15 @@ def mkWhiteSpace : Array (UInt32 × UInt32) :=
     | (c₀, some c₁) => (c₀, c₁)
     | (c₀, none) => (c₀, c₀)
 
-def mkScriptName : Array (UInt32 × String) :=
-  let t := PropertyAliases.getValues! "Script" |>.map fun name =>
-    let s := Script.ofAbbrev! <| PropertyValueAliases.getShortName! "Script" name
-    (s.code, name.toString)
-  t.qsort fun (a, _) (b, _) => a < b
+def mkScriptName : Array (UInt32 × String) := Id.run do
+  let mut t : Array (UInt32 × String) := #[]
+  let txt : String := include_str "data/ucd/core/PropertyValueAliases.txt"
+  let stream := UCDStream.ofString txt
+  for record in stream do
+    if record[0]! == "sc" then
+      let s := Script.ofAbbrev! record[1]!
+      t := t.push (s.code, record[2]!.toString)
+  return Array.qsort t fun (a, _) (b, _) => a < b
 
 
 
@@ -707,7 +770,10 @@ public def main (args : List String) : IO UInt32 := do
   let args := if args != [] then args else [
     "Alphabetic",
     "Bidi_Class",
+    "Bidi_Mirroring_Glyph",
     "Bidi_Mirrored",
+    "Bidi_Brackets",
+    "Block_Name",
     "Canonical_Combining_Class",
     "Canonical_Decomposition_Mapping",
     "Case_Mapping",
@@ -716,6 +782,7 @@ public def main (args : List String) : IO UInt32 := do
     "Default_Ignorable_Code_Point",
     "Dash",
     "Diacritic",
+    "East_Asian_Width",
     "Emoji",
     "Emoji_Component",
     "Emoji_Modifier",
@@ -756,6 +823,7 @@ public def main (args : List String) : IO UInt32 := do
     "Titlecase",
     "Uppercase",
     "Variation_Selector",
+    "Vertical_Orientation",
     "White_Space",
     "Word_Break",
     "XID_Continue",
@@ -794,6 +862,27 @@ public def main (args : List String) : IO UInt32 := do
           else
             file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+    | "Bidi_Mirroring_Glyph" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkBidiMirroringGlyph
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c, paired) in table do
+          file.putStrLn <| toHexStringRaw c ++ ";" ++ toHexStringRaw paired
+      IO.println s!"Size: {table.size}"
+    | "Bidi_Brackets" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkBidiBrackets
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c, paired, bracketType) in table do
+          file.putStrLn <| ";".intercalate [toHexStringRaw c, toHexStringRaw paired, toString bracketType]
+      IO.println s!"Size: {table.size}"
+    | "Block_Name" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkBlockName
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁, name) in table do
+          file.putStrLn <| ";".intercalate [toHexStringRaw c₀, toHexStringRaw c₁, name]
+      IO.println s!"Size: {table.size}"
     | "Canonical_Combining_Class" =>
       IO.println s!"Generating table {arg}"
       let table ← mkCanonicalCombiningClass
@@ -1124,6 +1213,16 @@ public def main (args : List String) : IO UInt32 := do
           else
             file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+    | "East_Asian_Width" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkEastAsianWidth
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁, v) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| ";".intercalate [toHexStringRaw c₀, "", toString v]
+          else
+            file.putStrLn <| ";".intercalate [toHexStringRaw c₀, toHexStringRaw c₁, toString v]
+      IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
     | "Sentence_Terminal" =>
       IO.println s!"Generating table {arg}"
       let table := mkSentenceTerminal
@@ -1323,6 +1422,16 @@ public def main (args : List String) : IO UInt32 := do
           else
             file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+    | "Vertical_Orientation" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkVerticalOrientation
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁, v) in table do
+          if c₀ == c₁ then
+            file.putStrLn <| ";".intercalate [toHexStringRaw c₀, "", toString v]
+          else
+            file.putStrLn <| ";".intercalate [toHexStringRaw c₀, toHexStringRaw c₁, toString v]
+      IO.println s!"Size: {(statsData table).1} + {(statsData table).2}"
     | "White_Space" =>
       IO.println s!"Generating table {arg}"
       let table := mkWhiteSpace
