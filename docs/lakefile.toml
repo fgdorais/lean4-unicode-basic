@@ -1,6 +1,6 @@
 name = "docs"
 reservoir = false
-packagesDir = "../.lake/packages"
+packagesDir = "../lib/.lake/packages"
 buildDir = "."
 
 [[require]]
@@ -10,4 +10,8 @@ rev = "main"
 
 [[require]]
 name = "UnicodeBasic"
-path = ".."
+path = "../lib"
+
+[[require]]
+name = "UnicodeData"
+path = "../table-generators"

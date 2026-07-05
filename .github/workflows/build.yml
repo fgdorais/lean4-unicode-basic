@@ -15,14 +15,51 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v7
 
-      - name: build
+      - name: Build Common
         uses: leanprover/lean-action@v1
         with:
           build: true
-          build-args: "--wfail UnicodeBasic UnicodeData lookup makeCLib makeTables"
-          test: true
+          build-args: "--wfail"
+          lake-package-directory: common
+          test: false
           use-mathlib-cache: false
+
+      - name: Build Table Generators
+        uses: leanprover/lean-action@v1
+        with:
+          build: true
+          build-args: "--wfail"
+          lake-package-directory: table-generators
+          test: false
+          use-mathlib-cache: false
+
+      - name: Build Library
+        uses: leanprover/lean-action@v1
+        with:
+          build: true
+          build-args: "--wfail"
+          lake-package-directory: lib
+          test: false
+
+      - name: Build Lean Scripts
+        uses: leanprover/lean-action@v1
+        with:
+          build: true
+          build-args: "--wfail"
+          lake-package-directory: lean-scripts
+          test: false
+
+      - name: Build Tests
+        uses: leanprover/lean-action@v1
+        with:
+          build: true
+          build-args: "--wfail"
+          lake-package-directory: tests
+          test: false
+
+      - name: Run Tests
+        working-directory: tests
+        run: lake exe testAll -- --timeout 120

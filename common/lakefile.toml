@@ -1,0 +1,31 @@
+name = "UnicodeBasicCommon"
+version = "0.1.0"
+defaultTargets = ["UnicodeBasicCommon"]
+
+[[lean_lib]]
+name = "UnicodeBasicCommon"
+roots = []
+globs = [
+  "UnicodeBasicCommon.CharacterDatabase",
+  "UnicodeBasicCommon.Hangul",
+  "UnicodeBasicCommon.Types.BidiBracketType",
+  "UnicodeBasicCommon.Types.EastAsianWidth",
+  "UnicodeBasicCommon.Types.GeneralCategory",
+  "UnicodeBasicCommon.Types.Hex",
+  "UnicodeBasicCommon.Types.VerticalOrientation",
+  "UnicodeBasicCommon.Types.BidiClass",
+  "UnicodeBasicCommon.Types.LineBreak",
+  "UnicodeBasicCommon.Types.NumericType",
+  "UnicodeBasicCommon.Types.DecompositionMapping",
+  "UnicodeBasicCommon.Types.Bounds",
+  "UnicodeBasicCommon.Types.Script.CodePoints",
+  "UnicodeBasicCommon.Types.Script.Common",
+  "UnicodeBasicCommon.Types.Script.IsValidCodePoint",
+  "UnicodeBasicCommon.Types.Script",
+  "UnicodeBasicCommon.Types.MaybeUnknownScript",
+]
+
+# [[require]]
+# name = "aesop"
+# scope = "leanprover-community"
+# rev = "v4.32.0-rc1"

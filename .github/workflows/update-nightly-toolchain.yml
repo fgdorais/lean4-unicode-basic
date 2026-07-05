@@ -9,33 +9,35 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v7
         with:
           ref: nightly-testing
           token: ${{ secrets.UNICODE_BASIC_TOKEN }}
 
-      - name: install jq
+      - name: Install jq
         uses: dcarbone/install-jq-action@v4
 
-      - name: set user
+      - name: Set User
         run: |
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
 
-      - name: get toochain tags
+      - name: Get Toolchain Tags
         id: toolchain-tag
         run: |
           LEAN_TAG=$(curl -s "https://api.github.com/repos/leanprover/lean4-nightly/releases" | jq -r '.[0].tag_name')
-          REPO_TAG=$(cut -d ':' -f2 lean-toolchain | tr -d '\n')
+          REPO_TAG=$(cut -d ':' -f2 common/lean-toolchain | tr -d '\n')
           echo "lean_tag=$LEAN_TAG" >> $GITHUB_OUTPUT
           echo "repo_tag=$REPO_TAG" >> $GITHUB_OUTPUT
 
-      - name: commit and push
+      - name: Update Toolchain Files
+        if: ${{ steps.toolchain-tag.outputs.lean_tag != steps.toolchain-tag.outputs.repo_tag }}
+        run: just set-toolchain "${{ steps.toolchain-tag.outputs.lean_tag }}"
+
+      - name: Commit and Push
         if: ${{ steps.toolchain-tag.outputs.lean_tag != steps.toolchain-tag.outputs.repo_tag }}
         run: |
-          echo "leanprover/lean4:${{ steps.toolchain-tag.outputs.lean_tag }}" > lean-toolchain
-          git add lean-toolchain
+          git add common/lean-toolchain lean-scripts/lean-toolchain lib/lean-toolchain table-generators/lean-toolchain tests/lean-toolchain
           git commit -m "chore: update toolchain ${{ steps.toolchain-tag.outputs.lean_tag }}"
           git push origin nightly-testing

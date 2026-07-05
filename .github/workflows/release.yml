@@ -12,17 +12,24 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Install Lean
+      - name: Build UnicodeBasic Docs
         uses: leanprover/lean-action@v1
         with:
-          build: false
+          build: true
+          build-args: "--keep-toolchain UnicodeBasic:docs"
+          lake-package-directory: lib
           test: false
-          lint: false
-          use-github-cache: true
+
+      - name: Build UnicodeData Docs
+        uses: leanprover/lean-action@v1
+        with:
+          build: true
+          build-args: "--wfail"
+          lake-package-directory: lib
+          test: false
 
       - name: Build Docs
         working-directory: docs
@@ -36,7 +43,7 @@ jobs:
           tar -czf docs-${TAG_NAME}.tar.gz doc doc-data
           zip -rq docs-${TAG_NAME}.zip doc doc-data
 
-      - name: Release
+      - name: Upload Release Assets
         uses: softprops/action-gh-release@v3
         with:
           files: |

@@ -1,0 +1,76 @@
+name = "UnicodeBasicTests"
+version = "0.1.0"
+defaultTargets = ["UnicodeData", "makeTablesForLookup"]
+
+[[require]]
+name = "UnicodeBasicCommon"
+path = "../common"
+
+[[lean_lib]]
+name = "UnicodeData"
+roots = []
+globs = [
+  "UnicodeData",
+  "UnicodeData.Basic",
+  "UnicodeData.UcdParse",
+  "UnicodeData.Auxiliary.BreakProperties",
+  "UnicodeData.Core.ArabicShaping",
+  "UnicodeData.Core.BidiBrackets",
+  "UnicodeData.Core.BidiMirroring",
+  "UnicodeData.Core.Blocks",
+  "UnicodeData.Core.CJKRadicals",
+  "UnicodeData.Core.CaseFolding",
+  "UnicodeData.Core.CompositionExclusions",
+  "UnicodeData.Core.DerivedAge",
+  "UnicodeData.Core.DerivedCoreProperties",
+  "UnicodeData.Core.DerivedNormalizationProps",
+  "UnicodeData.Core.EmojiSources",
+  "UnicodeData.Core.EquivalentUnifiedIdeograph",
+  "UnicodeData.Core.HangulSyllableType",
+  "UnicodeData.Core.IndicPositionalCategory",
+  "UnicodeData.Core.IndicSyllabicCategory",
+  "UnicodeData.Core.Jamo",
+  "UnicodeData.Core.NameAliases",
+  "UnicodeData.Core.NamedSequences",
+  "UnicodeData.Core.NamedSequencesProv",
+  "UnicodeData.Core.NormalizationCorrections",
+  "UnicodeData.Core.NushuSources",
+  "UnicodeData.Core.PropertyAliases",
+  "UnicodeData.Core.PropertyValueAliases",
+  "UnicodeData.Core.PropList",
+  "UnicodeData.Core.ScriptExtensions",
+  "UnicodeData.Core.Scripts",
+  "UnicodeData.Core.SpecialCasing",
+  "UnicodeData.Core.StandardizedVariants",
+  "UnicodeData.Core.TangutSources",
+  "UnicodeData.Core.USourceData",
+  "UnicodeData.Core.Unikemet",
+  "UnicodeData.Core.VerticalOrientation",
+  "UnicodeData.Emoji.Emoji",
+  "UnicodeData.Emoji.EmojiVariationSequences",
+  "UnicodeData.Extracted.DerivedBidiClass",
+  "UnicodeData.Extracted.DerivedBinaryProperties",
+  "UnicodeData.Extracted.DerivedCombiningClass",
+  "UnicodeData.Extracted.DerivedDecompositionType",
+  "UnicodeData.Extracted.DerivedEastAsianWidth",
+  "UnicodeData.Extracted.DerivedGeneralCategory",
+  "UnicodeData.Extracted.DerivedJoiningGroup",
+  "UnicodeData.Extracted.DerivedJoiningType",
+  "UnicodeData.Extracted.DerivedLineBreak",
+  "UnicodeData.Extracted.DerivedName",
+  "UnicodeData.Extracted.DerivedNumericType",
+  "UnicodeData.Extracted.DerivedNumericValues",
+  "UnicodeData.Unihan.UnihanDictionaryIndices",
+  "UnicodeData.Unihan.UnihanDictionaryLikeData",
+  "UnicodeData.Unihan.UnihanIRGSources",
+  "UnicodeData.Unihan.UnihanNumericValues",
+  "UnicodeData.Unihan.UnihanOtherMappings",
+  "UnicodeData.Unihan.UnihanRadicalStrokeCounts",
+  "UnicodeData.Unihan.UnihanReadings",
+  "UnicodeData.Unihan.UnihanVariants",
+  "MakeTablesForLookup.Common",
+]
+
+[[lean_exe]]
+name = "makeTablesForLookup"
+root = "makeTablesForLookup"

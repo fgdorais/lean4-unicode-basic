@@ -10,16 +10,24 @@ jobs:
   deploy-docs:
     runs-on: ubuntu-latest
     steps:
-
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Install Lean
+      - name: Build UnicodeBasic Docs
         uses: leanprover/lean-action@v1
         with:
+          build: true
+          build-args: "--keep-toolchain UnicodeBasic:docs"
+          lake-package-directory: lib
           test: false
-          lint: false
-          use-github-cache: true
+
+      - name: Build UnicodeData Docs
+        uses: leanprover/lean-action@v1
+        with:
+          build: true
+          build-args: "--keep-toolchain UnicodeData:docs"
+          lake-package-directory: table-generators
+          test: false
 
       - name: Build Docs
         working-directory: docs

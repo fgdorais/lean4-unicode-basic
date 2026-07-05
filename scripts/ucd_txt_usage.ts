@@ -1,0 +1,197 @@
+#!/usr/bin/env node
+
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { repoRoot, relPosix, walkFiles, walkFilesSkipping, writeText } from './lib/ucd_report_lib.ts';
+
+type MatchKind = 'direct';
+
+type Match = {
+  file: string;
+  line: number;
+  text: string;
+  kind: MatchKind;
+};
+
+type FileReport = {
+  absolutePath: string;
+  relativePath: string;
+  group: string;
+  matches: Match[];
+};
+
+type Target = {
+  absolutePath: string;
+  relativePath: string;
+  basename: string;
+  patterns: string[];
+};
+
+type SkippedTarget = {
+  relativePath: string;
+  reason: string;
+};
+
+type UsageLabel =
+  | 'used by Lean library'
+  | 'used by tests'
+  | 'test fixture pending'
+  | 'unused';
+
+const skippedTargets: SkippedTarget[] = [
+  {
+    relativePath: 'data/ucd/core/DoNotEmit.txt',
+    reason: 'editorial prose file with no machine-readable record schema'
+  },
+  {
+    relativePath: 'data/ucd/core/NamesList.txt',
+    reason: 'semi-structured reference text explicitly not intended for machine parsing'
+  }
+];
+
+function groupOf(relativePath: string): string {
+  const parts = relativePath.split('/');
+  return parts.length >= 3 ? parts[2] : 'root';
+}
+
+function isTestFixture(relativePath: string): boolean {
+  return relativePath.includes('/conformance/') || path.posix.basename(relativePath).endsWith('Test.txt');
+}
+
+function usageProfile(relativePath: string, matches: Match[]): UsageLabel {
+  if (matches.length > 0) {
+    return isTestFixture(relativePath) ? 'used by tests' : 'used by Lean library';
+  }
+  return isTestFixture(relativePath) ? 'test fixture pending' : 'unused';
+}
+
+function formatPlaces(matches: Match[]): string {
+  if (matches.length === 0) {
+    return '';
+  }
+  const sample = matches.slice(0, 4).map((m) => `${m.file}:${m.line} [${m.kind}]`).join(', ');
+  return matches.length > 4 ? `${sample}, ... (${matches.length} matches)` : `${sample} (${matches.length} matches)`;
+}
+
+function renderTable(rows: FileReport[]): string {
+  let out = '';
+  out += `| File | Usage | Places |\n`;
+  out += `| --- | --- | --- |\n`;
+  for (const row of rows) {
+    out += `| \`${row.relativePath}\` | ${usageProfile(row.relativePath, row.matches)} | ${formatPlaces(row.matches)} |\n`;
+  }
+  return out;
+}
+
+const scanFiles = walkFilesSkipping(repoRoot, {
+  skipDir: (absolutePath) => {
+    const relativePath = relPosix(absolutePath);
+    return (
+      relativePath === '.git' ||
+      relativePath === '.lake' ||
+      relativePath === 'data/ucd' ||
+      relativePath === 'data/table' ||
+      relativePath === 'docs/status' ||
+      relativePath.startsWith('.git/') ||
+      relativePath.startsWith('.lake/') ||
+      relativePath.startsWith('data/ucd/') ||
+      relativePath.startsWith('data/table/') ||
+      relativePath.startsWith('docs/status/')
+    );
+  },
+  includeFile: (absolutePath) => {
+    const relativePath = relPosix(absolutePath);
+    return (
+      relativePath === 'UnicodeBasic.lean' ||
+      relativePath === 'UnicodeData.lean' ||
+      (relativePath.startsWith('test') && relativePath.endsWith('.lean')) ||
+      relativePath.startsWith('UnicodeBasic/') ||
+      relativePath.startsWith('UnicodeData/') ||
+      relativePath.startsWith('UnicodeDataTest/')
+    );
+  }
+});
+
+const scanContents = new Map<string, string>();
+for (const absolutePath of scanFiles) {
+  scanContents.set(absolutePath, fs.readFileSync(absolutePath, 'utf8'));
+}
+
+const targets: Target[] = walkFiles(path.join(repoRoot, 'data', 'ucd'), (p) => p.endsWith('.txt')).map((absolutePath) => {
+  const relativePath = relPosix(absolutePath);
+  const basename = path.basename(absolutePath);
+  return {
+    absolutePath,
+    relativePath,
+    basename,
+    patterns: [relativePath, `../${relativePath}`, basename]
+  };
+}).filter((target) => !skippedTargets.some((skipped) => skipped.relativePath === target.relativePath));
+
+const reports: FileReport[] = targets.map((target) => {
+  const matches: Match[] = [];
+  for (const [scanPath, contents] of scanContents.entries()) {
+    const file = relPosix(scanPath);
+    if (!target.patterns.some((pattern) => contents.includes(pattern))) {
+      continue;
+    }
+    const lines = contents.split(/\r?\n/);
+    for (let lineNo = 0; lineNo < lines.length; lineNo += 1) {
+      const text = lines[lineNo];
+      for (const pattern of target.patterns) {
+        if (text.includes(pattern)) {
+          matches.push({ file, line: lineNo + 1, text, kind: 'direct' });
+          break;
+        }
+      }
+    }
+  }
+  matches.sort((a, b) => (a.file === b.file ? a.line - b.line : a.file.localeCompare(b.file)));
+  return {
+    absolutePath: target.absolutePath,
+    relativePath: target.relativePath,
+    group: groupOf(target.relativePath),
+    matches
+  };
+});
+
+const byGroup = new Map<string, FileReport[]>();
+for (const report of reports) {
+  const bucket = byGroup.get(report.group) ?? [];
+  bucket.push(report);
+  byGroup.set(report.group, bucket);
+}
+
+const libraryUsedCount = reports.filter((r) => usageProfile(r.relativePath, r.matches) === 'used by Lean library').length;
+const testUsedCount = reports.filter((r) => usageProfile(r.relativePath, r.matches) === 'used by tests').length;
+const testPendingCount = reports.filter((r) => usageProfile(r.relativePath, r.matches) === 'test fixture pending').length;
+const unusedCount = reports.filter((r) => usageProfile(r.relativePath, r.matches) === 'unused').length;
+
+let markdown = '';
+markdown += `# UCD TXT Usage\n\n`;
+markdown += `Generated from a repo scan of \`data/ucd/**/*.txt\` against Lean library files in \`UnicodeBasic/\`, \`UnicodeData/\`, and \`UnicodeDataTest/\`.\n\n`;
+if (skippedTargets.length > 0) {
+  markdown += `## Skipped\n\n`;
+  markdown += `These files are part of the UCD distribution but are intentionally excluded from Lean usage counts because they are not machine-readable property tables.\n\n`;
+  markdown += `| File | Reason |\n`;
+  markdown += `| --- | --- |\n`;
+  for (const skipped of skippedTargets.sort((a, b) => a.relativePath.localeCompare(b.relativePath))) {
+    markdown += `| \`${skipped.relativePath}\` | ${skipped.reason} |\n`;
+  }
+  markdown += `\n`;
+}
+markdown += `## Summary\n\n`;
+markdown += `- Total txt files: ${reports.length}\n`;
+markdown += `- Used by Lean library: ${libraryUsedCount}\n`;
+markdown += `- Used by tests: ${testUsedCount}\n`;
+markdown += `- Test fixtures pending: ${testPendingCount}\n`;
+markdown += `- Unused: ${unusedCount}\n\n`;
+
+for (const group of [...byGroup.keys()].sort()) {
+  markdown += `## ${group}\n\n`;
+  markdown += renderTable(byGroup.get(group)!.sort((a, b) => a.relativePath.localeCompare(b.relativePath)));
+  markdown += `\n`;
+}
+
+writeText(path.join(repoRoot, 'docs', 'status', 'ucd-txt-usage.md'), markdown);
+console.log(`Wrote docs/status/ucd-txt-usage.md for ${reports.length} files.`);

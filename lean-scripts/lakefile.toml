@@ -1,0 +1,19 @@
+name = "UnicodeBasicScripts"
+version = "0.1.0"
+defaultTargets = ["lookup"]
+
+[[require]]
+name = "UnicodeBasicCommon"
+path = "../common"
+
+[[require]]
+name = "UnicodeData"
+path = "../table-generators"
+
+[[require]]
+name = "UnicodeBasic"
+path = "../lib"
+
+[[lean_exe]]
+name = "lookup"
+root = "lookup"

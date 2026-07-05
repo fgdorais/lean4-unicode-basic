@@ -7,26 +7,62 @@ Unicode properties that are currently supported by `UnicodeBasic` include:
 * `Alphabetic`
 * `Bidi_Class`
 * `Bidi_Control`
+* `Bidi_Paired_Bracket`
+* `Bidi_Paired_Bracket_Type`
 * `Bidi_Mirrored`
+* `Bidi_Mirroring_Glyph`
 * `Canonical_Combining_Class`
+* `Case_Folding`
 * `Case_Ignorable`
 * `Cased`
+* `Dash`
 * `Decomposition_Mapping`
 * `Decomposition_Type`
 * `Default_Ignorable_Code_Point`
+* `Diacritic`
+* `East_Asian_Width`
+* `Emoji_Component`
+* `Emoji_Modifier_Base`
+* `Emoji_Modifier`
+* `Emoji_Presentation`
+* `Emoji`
+* `Extended_Pictographic`
+* `Extender`
+* `Block`
 * `General_Category`
+* `Grapheme_Base`
+* `Grapheme_Cluster_Break`
+* `Grapheme_Extend`
 * `Hex_Digit`
+* `Hyphen`
+* `ID_Continue`
+* `ID_Start`
+* `Line_Break`
+* `Lowercase`
 * `Math`
 * `Name`
+* `Noncharacter_Code_Point`
 * `Numeric_Type`
 * `Numeric_Value`
-* `Noncharacter_Code_Point`
+* `Pattern_Syntax`
+* `Pattern_White_Space`
+* `Quotation_Mark`
+* `Regional_Indicator`
+* `Script_Extensions`
+* `Script`
+* `Sentence_Break`
+* `Sentence_Terminal`
+* `Simple_Case_Folding`
 * `Simple_Lowercase_Mapping`
-* `Simple_Uppercase_Mapping`
 * `Simple_Titlecase_Mapping`
-* `Lowercase`
+* `Simple_Uppercase_Mapping`
+* `Terminal_Punctuation`
 * `Uppercase`
 * `White_Space`
+* `Word_Break`
+* `XID_Continue`
+* `XID_Start`
+* `Vertical_Orientation`
 
 To keep the `UnicodeBasic` library lightweight, only commonly used properties can be supported. If you need a property not yet in the list above, please submit a feature request!
 
@@ -39,13 +75,14 @@ Add the following dependency to your project's `lakefile.toml`:
 name = "UnicodeBasic"
 git = "https://github.com/fgdorais/lean4-unicode-basic.git"
 rev = "main" # or any specific revision
+subDir = "lib"
 ```
 
 Or this dependency to your project's `lakefile.lean`:
 
 ```lean4
 require UnicodeBasic from git
-  "https://github.com/fgdorais/lean4-unicode-basic.git" @ "main"
+  "https://github.com/fgdorais/lean4-unicode-basic.git" @ "main" / "lib"
 ```
 
 Then add `import UnicodeBasic` at the top of any Lean file where you plan to use this library.

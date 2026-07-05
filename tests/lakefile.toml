@@ -1,0 +1,27 @@
+name = "UnicodeBasicTests"
+version = "0.1.0"
+defaultTargets = ["testAll"]
+testDriver = "testAll"
+
+[[require]]
+name = "UnicodeBasic"
+path = "../lib"
+
+[[require]]
+name = "UnicodeData"
+path = "../table-generators"
+
+[[require]]
+name = "spec"
+git = "https://github.com/srghma/lean-spec.git"
+rev = "main"
+
+[[lean_lib]]
+name = "UnicodeDataTest"
+
+[[lean_lib]]
+name = "UnicodeTableTest"
+
+[[lean_exe]]
+name = "testAll"
+root = "Main"
