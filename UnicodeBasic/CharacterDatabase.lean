@@ -1,64 +1,82 @@
 /-
-Copyright © 2023 François G. Dorais. All rights reserved.
+Copyright © 2023-2026 François G. Dorais. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 module
 
+/-! # Stream types for Unicode Character Database (UCD) files.
+
+Unicode data files are semicolon `;` (U+003B) separated fields, except for
+Unihan files and a few others that are tab (U+0009) separated. White spaces
+around field values are not significant. Line comments are prefixed with a
+number sign `#` (U+0023).
+-/
+
 namespace Unicode
 
-/-- Stream type for Unicode Character Database (UCD) files
+/-- UCD stream type
 
-  Unicode data files are semicolon `;` (U+003B) separated fields, except for
-  Unihan files and a few others that are tab (U+0009) separated. White spaces
-  around field values are not significant. Line comments are prefixed with a
-  number sign `#` (U+0023).
+  Comments and blank lines are omitted in this stream type.
+  Use `UCDStreamWithComments` if you need comments.
 -/
-public structure UCDStream extends String.Slice where
+public structure UCDStream (withComments := false) extends String.Slice where
   /-- `isUnihan` is true if the records are tab separated -/
   isUnihan := false
 deriving Inhabited
 
+/-- UCD stream type with comments
+
+  Comments and blank lines are included in this stream type.
+  Use `UCDStream` if you do not need comments.
+-/
+public abbrev UCDStreamWithComments := UCDStream (withComments := true)
+
 namespace UCDStream
 
 /-- Make a `UCDStream` from a string slice -/
-public def ofStringSlice (str : String.Slice) : UCDStream := { str with }
+public abbrev ofStringSlice (str : String.Slice) (withComments := false) (isUnihan := false) :
+    UCDStream withComments := { str with isUnihan}
 
 /-- Make a `UCDStream` from a string -/
-public def ofString (str : String) : UCDStream := ofStringSlice str.toSlice
+public abbrev ofString (str : String) (withComments := false) (isUnihan := false) :
+    UCDStream withComments := ofStringSlice str.toSlice withComments isUnihan
 
 /-- Make a `UCDStream` from a substring -/
-public def ofSubstring (str : Substring.Raw) : UCDStream := ofStringSlice str.toString.toSlice
+public abbrev ofSubstring (str : Substring.Raw) (withComments := false) (isUnihan := false) :
+    UCDStream withComments := ofStringSlice str.toString.toSlice withComments isUnihan
 
 /-- Make a `UCDStream` from a file -/
-public def ofFile (path : System.FilePath) : IO UCDStream :=
-  ofString <$> IO.FS.readFile path
+public abbrev ofFile (path : System.FilePath) (withComments := false) (isUnihan := false) :
+    IO (UCDStream withComments) :=
+  ofString (withComments := withComments) (isUnihan := isUnihan) <$> IO.FS.readFile path
 
-/-- Get the next line from the `UCDStream`
-
-  Line comments are stripped and blank lines are skipped.
--/
-public protected partial def nextLine? (stream : UCDStream) : Option (String.Slice × UCDStream) := do
-  let line := stream.trimAsciiEnd.takeWhile (.!='\n')
+/-- Get the next line from the `UCDStream` -/
+public def nextLine? (stream : UCDStream withComments) :
+    Option (String.Slice × String.Slice × UCDStream withComments) := do
+  let line := stream.takeWhile (.!='\n')
   if h : line.rawEndPos < stream.rawEndPos then
     let nextPos := stream.posGT line.rawEndPos h
-    let line := (line.takeWhile (.!='#')).trimAsciiEnd
-    if line.isEmpty then
-      UCDStream.nextLine? {stream with toSlice := stream.sliceFrom nextPos}
-    else
-      return (line, {stream with toSlice := stream.sliceFrom nextPos})
+    let pos := line.find '#'
+    let row := line.subslice! line.startPos pos
+    let cmt := line.subslice! pos line.endPos
+    return (row.toSlice, cmt.toSlice, {stream with toSlice := stream.sliceFrom nextPos})
   else failure
 
-/-- Get the next record from the `UCDStream`
-
-  Spaces around field values are trimmed.
--/
-public protected def next? (stream : UCDStream) : Option (Array String.Slice × UCDStream) := do
-    let sep := if stream.isUnihan then "\t" else ";"
-    let mut arr := #[]
-    let (line, table) ← stream.nextLine?
-    for item in line.split sep do
-      arr := arr.push item.trimAscii
-    return (arr, table)
-
 public instance : Std.Stream UCDStream (Array String.Slice) where
-  next? := UCDStream.next?
+  next? stream := do
+    let mut row := "".toSlice
+    let mut stream := stream
+    while row.isEmpty do
+      let (row', _, stream') ← stream.nextLine?
+      row := row'
+      stream := stream'
+    let sep := if stream.isUnihan then "\t" else ";"
+    let dat : Array String.Slice := row.split sep |>.toArray.map (·.trimAscii)
+    return (dat, stream)
+
+public instance : Std.Stream UCDStreamWithComments (Array String.Slice × String.Slice) where
+  next? stream := do
+    let (row, cmt, stream) ← stream.nextLine?
+    let sep := if stream.isUnihan then "\t" else ";"
+    let dat : Array String.Slice := row.split sep |>.toArray.map (·.trimAscii)
+    return ((dat, cmt), stream)
