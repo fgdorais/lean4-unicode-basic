@@ -1,7 +1,5 @@
-name = "UnicodeBasicUtilities"
-precompileModules = true
-description = "Basic Unicode support for Lean 4"
-keywords = ["unicode"]
+name = "util"
+reservoir = false
 defaultTargets = ["MakeCLib", "MakeTables", "TestTables"]
 
 [[require]]
