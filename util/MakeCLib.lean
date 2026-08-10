@@ -3,7 +3,7 @@ import UnicodeData
 
 open Unicode
 
-def clibDir : System.FilePath := "."/"UnicodeCLib"
+def clibDir : System.FilePath := ".."/"UnicodeCLib"
 
 def Unicode.GC.BP : GC := (0x80000000 : UInt32)
 def Unicode.GC.LC0 : GC := GC.LC

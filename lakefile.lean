@@ -31,16 +31,7 @@ extern_lib libunicodeclib := UnicodeCLib.fetch
 lean_lib UnicodeBasic where
   moreLinkObjs := #[UnicodeCLib]
 
-lean_lib UnicodeData
-
 lean_exe lookup
-
-lean_exe makeTables
-
-lean_exe makeCLib
-
-@[test_driver]
-lean_exe testTables
 
 /-- Download datafile from the Unicode Character Database (UCD) -/
 script downloadUCD (args) do

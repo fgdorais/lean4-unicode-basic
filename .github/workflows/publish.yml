@@ -17,9 +17,8 @@ jobs:
       - name: Install Lean
         uses: leanprover/lean-action@v1
         with:
-          test: false
-          lint: false
-          use-github-cache: true
+          auto-config: false
+          use-github-cache: false
 
       - name: Build Docs
         working-directory: docs

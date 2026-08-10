@@ -22,7 +22,10 @@ jobs:
       - name: build
         uses: leanprover/lean-action@v1
         with:
+          auto-config: false
           build: true
-          build-args: "--wfail UnicodeBasic UnicodeData lookup makeCLib makeTables"
-          test: true
-          use-mathlib-cache: false
+          build-args: "--keep-toolchain --wfail"
+
+      - name: build-util
+        working-directory: util
+        run: lake --update --wfail build
