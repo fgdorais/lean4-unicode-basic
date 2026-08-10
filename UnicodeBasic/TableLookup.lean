@@ -78,7 +78,7 @@ public def lookupBidiClass (c : UInt32) : BidiClass :=
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
     | (_, v, bc) => if c ≤ v then bc else .BN
 where
-  str : String := include_str "../data/table/Bidi_Class.txt"
+  str : String := include_str "../data/Bidi_Class.txt"
   table : Thunk <| Array (UInt32 × UInt32 × BidiClass) :=
     parseDataTable str fun _ _ x => BidiClass.ofAbbrev! x[0]!
 
@@ -91,7 +91,7 @@ public def lookupCanonicalCombiningClass (c : UInt32) : Nat :=
     match t[find c (fun i => t[i]!.1) 0 t.size.toUSize]! with
     | (_, v, n) => if c ≤ v then n else 0
 where
-  str : String := include_str "../data/table/Canonical_Combining_Class.txt"
+  str : String := include_str "../data/Canonical_Combining_Class.txt"
   table : Thunk <| Array (UInt32 × UInt32 × Nat) :=
     parseDataTable str fun _ _ x => x[0]!.toNat?.get!
 
@@ -113,7 +113,7 @@ public def lookupCanonicalDecompositionMapping (c : UInt32) : List UInt32 :=
       match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
       | (v, l) => if c == v then l else [c]
 where
-  str : String := include_str "../data/table/Canonical_Decomposition_Mapping.txt"
+  str : String := include_str "../data/Canonical_Decomposition_Mapping.txt"
   table : Thunk <| Array (UInt32 × List UInt32) :=
     parseTable str fun _ x => (x.map ofHexString!).toList
 
@@ -153,7 +153,7 @@ public def lookupDecompositionMapping? (c : UInt32) : Option DecompositionMappin
         else
           none
 where
-  str : String := include_str "../data/table/Decomposition_Mapping.txt"
+  str : String := include_str "../data/Decomposition_Mapping.txt"
   table : Thunk <| Array (UInt32 × Option CompatibilityTag × Array UInt32) :=
     parseTable str fun _ x =>
       let tag :=
@@ -229,7 +229,7 @@ public def lookupName (c : UInt32) : String :=
         else String.Slice.copy d
       else s!"<noncharacter-{toHexStringRaw c}>"
 where
-  str : String := include_str "../data/table/Name.txt"
+  str : String := include_str "../data/Name.txt"
   table : Thunk <| Array (UInt32 × UInt32 × String.Slice) :=
     parseDataTable str fun _ _ x => x[0]!
 
@@ -260,7 +260,7 @@ public def lookupNumericValue (c : UInt32) : Option NumericType :=
     | ⟨v, _, n⟩ =>
       if c == v then some n else none
 where
-  str : String := include_str "../data/table/Numeric_Value.txt"
+  str : String := include_str "../data/Numeric_Value.txt"
   table : Thunk <| Array (UInt32 × UInt32 × NumericType) :=
     parseDataTable str fun _ _ a =>
       let s := a[0]!.copy
@@ -309,7 +309,7 @@ public def lookupBidiMirrored (c : UInt32) : Bool :=
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
     | (_, v) => c ≤ v
 where
-  str : String := include_str "../data/table/Bidi_Mirrored.txt"
+  str : String := include_str "../data/Bidi_Mirrored.txt"
   table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
 
 /-- Check if code point is a cased letter using lookup table
@@ -330,7 +330,7 @@ public def lookupDefaultIgnorableCodePoint (c : UInt32 ) : Bool :=
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
     | (_, v) => c ≤ v
 where
-  str : String := include_str "../data/table/Default_Ignorable_Code_Point.txt"
+  str : String := include_str "../data/Default_Ignorable_Code_Point.txt"
   table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
 
 /-- Check if code point is a lowercase letter using lookup table
@@ -381,7 +381,7 @@ public def lookupWhiteSpace (c : UInt32) : Bool :=
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
     | (_, v) => c ≤ v
 where
-  str : String := include_str "../data/table/White_Space.txt"
+  str : String := include_str "../data/White_Space.txt"
   table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
 
 /-- Get the script of a code point using lookup table
@@ -399,5 +399,5 @@ public def lookupScriptName (s : Script) : Option String.Slice :=
     match table[find s.code (fun i => table[i]!.1) 0 table.size.toUSize]! with
     | (c, v) => if s.code = c then some v else none
 where
-  str : String := include_str "../data/table/Script_Name.txt"
+  str : String := include_str "../data/Script_Name.txt"
   table : Thunk <| Array (UInt32 × String.Slice) := parseTable str fun _ n => n[0]!
