@@ -31,35 +31,4 @@ extern_lib libunicodeclib := UnicodeCLib.fetch
 lean_lib UnicodeBasic where
   moreLinkObjs := #[UnicodeCLib]
 
-lean_lib UnicodeData
-
 lean_exe lookup
-
-lean_exe makeTables
-
-lean_exe makeCLib
-
-@[test_driver]
-lean_exe testTables
-
-/-- Download datafile from the Unicode Character Database (UCD) -/
-script downloadUCD (args) do
-  let dir : System.FilePath := "./data"
-  let url := "https://www.unicode.org/Public/UCD/latest/ucd/"
-  let mut err : ExitCode := 0
-  for file in args do
-    IO.print s!"Downloading UCD/{file} ... "
-    match ← download (url ++ file) (dir/file) |>.run with
-    | .ok _ _ => IO.println "Done."
-    | .error _ _ => IO.println "Failed!"; err := err + 1
-  return err
-
-/-- Update data files from the Unicode Character Database (UCD) -/
-script updateUCD do downloadUCD [
-    "ReadMe.txt",
-    "UnicodeData.txt",
-    "PropList.txt",
-    "PropertyAliases.txt",
-    "PropertyValueAliases.txt",
-    "Scripts.txt",
-  ]

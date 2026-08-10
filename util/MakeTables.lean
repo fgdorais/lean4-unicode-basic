@@ -539,7 +539,7 @@ public def main (args : List String) : IO UInt32 := do
     "Numeric_Value",
     "Script_Name",
     "White_Space"]
-  let tableDir : System.FilePath := "."/"data"/"table"
+  let tableDir : System.FilePath := ".."/"data"/"table"
   IO.FS.createDirAll tableDir
   for arg in args do
     match arg with

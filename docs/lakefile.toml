@@ -1,6 +1,5 @@
 name = "docs"
 reservoir = false
-packagesDir = "../.lake/packages"
 buildDir = "."
 
 [[require]]
