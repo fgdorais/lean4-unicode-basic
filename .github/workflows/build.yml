@@ -28,4 +28,4 @@ jobs:
 
       - name: build-util
         working-directory: util
-        run: lake --update --wfail build
+        run: lake --keep-toolchain --update --wfail build
