@@ -533,13 +533,14 @@ public def main (args : List String) : IO UInt32 := do
     "Bidi_Mirrored",
     "Canonical_Combining_Class",
     "Canonical_Decomposition_Mapping",
+    "Case_Folding",
     "Decomposition_Mapping",
     "Default_Ignorable_Code_Point",
     "Name",
     "Numeric_Value",
     "Script_Name",
     "White_Space"]
-  let tableDir : System.FilePath := ".."/"data"/"table"
+  let tableDir : System.FilePath := ".."/"data"
   IO.FS.createDirAll tableDir
   for arg in args do
     match arg with
@@ -589,6 +590,19 @@ public def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c, l) in table do
           file.putStrLn <| toHexStringRaw c ++ ";" ++ ";".intercalate (l.map fun c => toHexStringRaw c.val)
+      IO.println s!"Size: {table.size}"
+    | "Case_Folding" =>
+      let table := Unicode.CaseFolding.data
+      IO.println s!"Generating table {arg}"
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c, s, f) in table do
+          file.putStr <| toHexStringRaw c ++ ";"
+          if s.isSome then
+              file.putStr <| toHexStringRaw s.get!
+          if 2 ≤ f.size  then
+            file.putStrLn <| ";" ++ " ".intercalate (f.toList.map toHexStringRaw)
+          else
+            file.putStrLn ";"
       IO.println s!"Size: {table.size}"
     | "Case_Mapping" =>
       IO.println s!"Generating table {arg}"

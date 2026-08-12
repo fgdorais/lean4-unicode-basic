@@ -47,6 +47,12 @@ def testCased (d : UnicodeData) : Bool :=
         || PropList.isOtherUppercase d.code
   v == lookupCased d.code
 
+def testCaseFolding (d : UnicodeData) : Bool :=
+  let (s, f) := lookupCaseFolding d.code
+  (d.uppercase.isNone || (s, f) == lookupCaseFolding d.uppercase.get!.val)
+    && (d.lowercase.isNone || (s, f) == lookupCaseFolding d.lowercase.get!.val)
+      && (d.titlecase.isNone || (s, f) == lookupCaseFolding d.titlecase.get!.val)
+
 def testCaseMapping (d : UnicodeData) : Bool :=
   let (mu, ml, mt) := lookupCaseMapping d.code
   mu == (d.uppercase.map Char.val).getD d.code
@@ -118,6 +124,7 @@ def tests : Array (String × (UnicodeData → Bool)) := #[
   ("Bidi_Mirrored", testBidiMirrored),
   ("Canonical_Combining_Class", testCanonicalCombiningClass),
   ("Canonical_Decomposition_Mapping", testCanonicalDecompositionMapping),
+  ("Case_Folding", testCaseMapping),
   ("Case_Mapping", testCaseMapping),
   ("Cased", testCased),
   ("Decomposition_Mapping", testDecompositionMapping),
