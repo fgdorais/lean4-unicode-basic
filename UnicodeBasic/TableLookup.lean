@@ -139,8 +139,8 @@ where
   table : Thunk <| Array (UInt32 × Option UInt32 × List UInt32) :=
     parseTable str fun _ x =>
       let s := if x[0]!.isEmpty then none else some (ofHexString! x[0]!)
-      let f := x[1]!.split " " |>.map ofHexString!
-      (s, f.toList)
+      let f := if x[1]!.isEmpty then [] else x[1]!.split " " |>.toList.map ofHexString!
+      (s, f)
 
 /-- Get simple case mappings of a code point using lookup table
 
