@@ -493,6 +493,37 @@ public def getTitleChar (char : Char) : Char :=
     match lookupCaseMapping char.val with
     | (_, _, tc) => Char.ofNat tc.toNat
 
+/-- Case fold a character
+
+  This function does not handle the case where case folding would
+  consist of more than one character.
+
+  Unicode property: `Simple_Case_Folding` -/
+@[inline]
+public def getCaseFoldingChar (char : Char) : Char :=
+  if char.val < 0x80 then
+    if 'A' ≤ char && char ≤ 'Z' then
+      Char.ofNat (char.val + 0x20).toNat
+    else
+      char
+  else
+    match lookupCaseFolding char.val with
+    | (fc, _) => Char.ofNat fc.toNat
+
+/-- Case fold a character
+
+  Unicode property: `Case_Folding` -/
+@[inline]
+public def getCaseFolding (char : Char) : String :=
+  if char.val < 0x80 then
+    if 'A' ≤ char && char ≤ 'Z' then
+      Char.ofNat (char.val + 0x20).toNat |>.toString
+    else
+      char.toString
+  else
+    match lookupCaseFolding char.val with
+    | (_, fc) => .ofList <| fc.map fun v => Char.ofNat v.toNat
+
 /-!
   ## Decomposition Type and Mapping ##
 -/
