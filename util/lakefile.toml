@@ -3,13 +3,13 @@ reservoir = false
 defaultTargets = ["MakeCLib", "MakeTables", "TestTables"]
 
 [[require]]
-name = "UnicodeBasic"
-path = ".."
-
-[[require]]
 name = "UnicodeData"
 git = "https://github.com/fgdorais/lean4-unicode-data"
 rev = "main"
+
+[[require]]
+name = "UnicodeBasic"
+path = ".."
 
 [[lean_exe]]
 name = "MakeCLib"
