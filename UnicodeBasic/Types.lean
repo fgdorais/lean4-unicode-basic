@@ -497,9 +497,9 @@ public inductive BidiClass
 | public nonspacingMark
 /-- (`BN`) boundary neutral: most format characters, control codes, or noncharacters -/
 | public boundaryNeutral
-/-- (`B`)	paragraph separator, various newline characters -/
+/-- (`B`) paragraph separator, various newline characters -/
 | public paragraphSeparator
-/-- (`S`)	segment separator, various segment-related control codes -/
+/-- (`S`) segment separator, various segment-related control codes -/
 | public segmentSeparator
 /-- (`WS`) white spaces -/
 | public whiteSpace
@@ -519,7 +519,7 @@ public inductive BidiClass
 | public leftToRightIsolate
 /-- (`RLI`) right-to-left isolate (U+2067: the RL isolate control) -/
 | public rightToLeftIsolate
-/-- (`FSI`)	first strong isolate (U+2068: the first strong isolate control) -/
+/-- (`FSI`) first strong isolate (U+2068: the first strong isolate control) -/
 | public firstStrongIsolate
 /-- (`PDI`) pop directional isolate (U+2069: terminates an isolate control) -/
 | public popDirectionalIsolate
