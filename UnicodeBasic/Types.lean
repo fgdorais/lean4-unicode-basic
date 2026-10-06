@@ -38,7 +38,7 @@ public protected abbrev maxLowSurrogate : UInt32 := 0xDFFF
 @[simp, grind =]
 public protected abbrev minSurrogate : UInt32 := Unicode.minHighSurrogate
 
-/-- Minimum surrogate code point -/
+/-- Maximum surrogate code point -/
 @[simp, grind =]
 public protected abbrev maxSurrogate : UInt32 := Unicode.maxLowSurrogate
 
@@ -459,7 +459,7 @@ public instance : ToString CompatibilityTag where
   | .fraction => "<fraction>"
   | .compat => "<compat>"
 
-/-- Decomposition maping
+/-- Decomposition mapping
 
   Unicode properties: `Decomposition_Type`, `Decomposition_Mapping` -/
 public structure DecompositionMapping where
@@ -485,7 +485,7 @@ public inductive BidiClass
 | public arabicLetter
 /-- (`EN`) ASCII digit or Eastern Arabic-Indic digit -/
 | public europeanNumber
-/-- (`ES`) European separator: plus and-/
+/-- (`ES`) European separator: plus and minus signs -/
 | public europeanSeparator
 /-- (`ET`) European terminator in a numeric format context, includes currency signs -/
 | public europeanTerminator
@@ -497,33 +497,36 @@ public inductive BidiClass
 | public nonspacingMark
 /-- (`BN`) boundary neutral: most format characters, control codes, or noncharacters -/
 | public boundaryNeutral
-/-- (`B`)	paragraph separator, various newline characters -/
+/-- (`B`) paragraph separator, various newline characters -/
 | public paragraphSeparator
-/-- (`S`)	segment separator, various segment-related control codes -/
+/-- (`S`) segment separator, various segment-related control codes -/
 | public segmentSeparator
 /-- (`WS`) white spaces -/
 | public whiteSpace
 /-- (`ON`) other neutral: most other symbols and punctuation marks -/
 | public otherNeutral
-/-- (`LRE`) left to right embedding (U+202A: the LR embedding control) -/
+/-- (`LRE`) left-to-right embedding (U+202A: the LR embedding control) -/
 | public leftToRightEmbedding
-/-- (`LRO`)	Left_To_Right_Override	(U+202D: the LR override control) -/
+/-- (`LRO`) left-to-right override (U+202D: the LR override control) -/
 | public leftToRightOverride
 /-- (`RLE`) right-to-left embedding (U+202B: the RL embedding control) -/
-| public rightToLeftEmbeding
+| public rightToLeftEmbedding
 /-- (`RLO`) right-to-left override (U+202E: the RL override control) -/
 | public rightToLeftOverride
 /-- (`PDF`) pop directional format (U+202C: terminates an embedding or override control) -/
 | public popDirectionalFormat
 /-- (`LRI`) left-to-right isolate (U+2066: the LR isolate control) -/
 | public leftToRightIsolate
-/-- (`RLI`) right-toleft isolate (U+2067: the RL isolate control) -/
+/-- (`RLI`) right-to-left isolate (U+2067: the RL isolate control) -/
 | public rightToLeftIsolate
-/-- (`FSI`)	first strong isolate (U+2068: the first strong isolate control) -/
+/-- (`FSI`) first strong isolate (U+2068: the first strong isolate control) -/
 | public firstStrongIsolate
 /-- (`PDI`) pop directional isolate (U+2069: terminates an isolate control) -/
 | public popDirectionalIsolate
 deriving Inhabited, DecidableEq
+
+@[deprecated BidiClass.rightToLeftEmbedding (since := "2026-10-06"), match_pattern]
+public abbrev BidiClass.rightToLeftEmbeding := BidiClass.rightToLeftEmbedding
 
 /-- Bidi class: strong left-to-right (`L`) -/
 public protected def BidiClass.L := leftToRight
@@ -558,7 +561,7 @@ public protected def BidiClass.LRE := leftToRightEmbedding
 /-- Bidi class: left-to-right override (`LRO`) -/
 public protected def BidiClass.LRO := leftToRightOverride
 /-- Bidi class: right-to-left embedding (`RLE`) -/
-public protected def BidiClass.RLE := rightToLeftEmbeding
+public protected def BidiClass.RLE := rightToLeftEmbedding
 /-- Bidi class: right-to-left override (`RLO`) -/
 public protected def BidiClass.RLO := rightToLeftOverride
 /-- Bidi class: pop directional format (`PDF`) -/
@@ -590,7 +593,7 @@ public def BidiClass.toAbbrev : BidiClass → String
 | otherNeutral => "ON"
 | leftToRightEmbedding => "LRE"
 | leftToRightOverride => "LRO"
-| rightToLeftEmbeding => "RLE"
+| rightToLeftEmbedding => "RLE"
 | rightToLeftOverride  => "RLO"
 | popDirectionalFormat => "PDF"
 | leftToRightIsolate => "LRI"
@@ -617,7 +620,7 @@ public def BidiClass.ofAbbrev? (abbr : String.Slice) : Option BidiClass :=
   | ['O', 'N'] => some otherNeutral
   | ['L', 'R', 'E'] => some leftToRightEmbedding
   | ['L', 'R', 'O'] => some leftToRightOverride
-  | ['R', 'L', 'E'] => some rightToLeftEmbeding
+  | ['R', 'L', 'E'] => some rightToLeftEmbedding
   | ['R', 'L', 'O'] => some rightToLeftOverride
   | ['P', 'D', 'F'] => some popDirectionalFormat
   | ['L', 'R', 'I'] => some leftToRightIsolate

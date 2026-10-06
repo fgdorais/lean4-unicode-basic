@@ -9,7 +9,7 @@ public import UnicodeBasic.TableLookup
 /-!
   # General API #
 
-  As a general rule, for a given a Unicode property called `Unicode_Property`,
+  As a general rule, for a given Unicode property called `Unicode_Property`,
   for example:
 
   - If the property is boolean valued then the implementation is called
@@ -36,7 +36,7 @@ public import UnicodeBasic.TableLookup
   a boolean algebra structure with inclusion `⊆`, meet/intersection `&&&`,
   join/union `|||` and complement `~~~`. The relation `∈` is provided to
   check whether a character belongs to a given category. For example,
-  `c ∈ (GC.L &&& ~~~GC.Lt) ||| GC.Z` checks whether `c` is a either a
+  `c ∈ (GC.L &&& ~~~GC.Lt) ||| GC.Z` checks whether `c` is either a
   non-titlecase letter or a separator.
 -/
 
@@ -146,222 +146,222 @@ namespace GeneralCategory
 
   This is a derived category (`L = Lu | Ll | Lt | Lm | Lo`).
 
-  Unicode Property: `General_Category=L` -/
+  Unicode property: `General_Category=L` -/
 public abbrev isLetter (char : Char) : Bool := char ∈ Unicode.GC.L
 
 /-- Check if lowercase letter character (`Ll`)
 
-  Unicode Property: `General_Category=Ll` -/
+  Unicode property: `General_Category=Ll` -/
 public abbrev isLowercaseLetter (char : Char) : Bool := char ∈ Unicode.GC.Ll
 
 /-- Check if titlecase letter character (`Lt`)
 
-  Unicode Property: `General_Category=Lt` -/
+  Unicode property: `General_Category=Lt` -/
 public abbrev isTitlecaseLetter (char : Char) : Bool := char ∈ Unicode.GC.Lt
 
 /-- Check if uppercase letter character (`Lu`)
 
-  Unicode Property: `General_Category=Lu` -/
+  Unicode property: `General_Category=Lu` -/
 public abbrev isUppercaseLetter (char : Char) : Bool := char ∈ Unicode.GC.Lu
 
 /-- Check if cased letter character (`LC`)
 
-  This is a derived category (`L = Lu | Ll | Lt`).
+  This is a derived category (`LC = Lu | Ll | Lt`).
 
-  Unicode Property: `General_Category=LC` -/
+  Unicode property: `General_Category=LC` -/
 public abbrev isCasedLetter (char : Char) : Bool := char ∈ Unicode.GC.LC
 
 /-- Check if modifier letter character (`Lm`)
 
-  Unicode Property: `General_Category=Lm`-/
+  Unicode property: `General_Category=Lm`-/
 public abbrev isModifierLetter (char : Char) : Bool := char ∈ Unicode.GC.Lm
 
 /-- Check if other letter character (`Lo`)
 
-  Unicode Property: `General_Category=Lo`-/
+  Unicode property: `General_Category=Lo`-/
 public abbrev isOtherLetter (char : Char) : Bool := char ∈ Unicode.GC.Lo
 
 /-- Check if mark character (`M`)
 
   This is a derived category (`M = Mn | Mc | Me`).
 
-  Unicode Property: `General_Category=M` -/
+  Unicode property: `General_Category=M` -/
 public abbrev isMark (char : Char) : Bool := char ∈ Unicode.GC.M
 
 /-- Check if nonspacing combining mark character (`Mn`)
 
-  Unicode Property: `General_Category=Mn` -/
+  Unicode property: `General_Category=Mn` -/
 public abbrev isNonspacingMark (char : Char) : Bool := char ∈ Unicode.GC.Mn
 
 /-- Check if spacing combining mark character (`Mc`)
 
-  Unicode Property: `General_Category=Mc` -/
+  Unicode property: `General_Category=Mc` -/
 public abbrev isSpacingMark (char : Char) : Bool := char ∈ Unicode.GC.Mc
 
 /-- Check if enclosing combining mark character (`Me`)
 
-  Unicode Property: `General_Category=Me` -/
+  Unicode property: `General_Category=Me` -/
 public abbrev isEnclosingMark (char : Char) : Bool := char ∈ Unicode.GC.Me
 
 /-- Check if number character (`N`)
 
   This is a derived category (`N = Nd | Nl | No`).
 
-  Unicode Property: `General_Category=N` -/
+  Unicode property: `General_Category=N` -/
 public abbrev isNumber (char : Char) : Bool := char ∈ Unicode.GC.N
 
 /-- Check if decimal number character (`Nd`)
 
-  Unicode Property: `General_Category=Nd` -/
+  Unicode property: `General_Category=Nd` -/
 public abbrev isDecimalNumber (char : Char) : Bool := char ∈ Unicode.GC.Nd
 
 /-- Check if letter number character (`Nl`)
 
-  Unicode Property: `General_Category=Nl` -/
+  Unicode property: `General_Category=Nl` -/
 public abbrev isLetterNumber (char : Char) : Bool := char ∈ Unicode.GC.Nl
 
 /-- Check if other number character (`No`)
 
-  Unicode Property: `General_Category=No` -/
+  Unicode property: `General_Category=No` -/
 public abbrev isOtherNumber (char : Char) : Bool := char ∈ Unicode.GC.No
 
 /-- Check if punctuation character (`P`)
 
   This is a derived category (`P = Pc | Pd | Ps | Pe | Pi | Pf | Po`).
 
-  Unicode Property: `General_Category=P` -/
+  Unicode property: `General_Category=P` -/
 public abbrev isPunctuation (char : Char) : Bool := char ∈ Unicode.GC.P
 
 /-- Check if connector punctuation character (`Pc`)
 
-  Unicode Property: `General_Category=Pc` -/
+  Unicode property: `General_Category=Pc` -/
 public abbrev isConnectorPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pc
 
 /-- Check if dash punctuation character (`Pd`)
 
-  Unicode Property: `General_Category=Pd` -/
+  Unicode property: `General_Category=Pd` -/
 public abbrev isDashPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pd
 
 /-- Check if grouping punctuation character (`PG`)
 
   This is a derived category (`PG = Ps | Pe`).
 
-  Unicode Property: `General_Category=PG` -/
+  Unicode property: `General_Category=PG` -/
 public abbrev isGroupPunctuation (char : Char) : Bool := char ∈ Unicode.GC.PG
 
 /-- Check if open punctuation character (`Ps`)
 
-  Unicode Property: `General_Category=Ps` -/
+  Unicode property: `General_Category=Ps` -/
 public abbrev isOpenPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Ps
 
 /-- Check if close punctuation character (`Pe`)
 
-  Unicode Property: `General_Category=Pe` -/
+  Unicode property: `General_Category=Pe` -/
 public abbrev isClosePunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pe
 
 /-- Check if quoting punctuation character (`PQ`)
 
   This is a derived category (`PQ = Pi | Pf`).
 
-  Unicode Property: `General_Category=PQ` -/
+  Unicode property: `General_Category=PQ` -/
 public abbrev isQuotePunctuation (char : Char) : Bool := char ∈ Unicode.GC.PQ
 
 /-- Check if initial punctuation character (`Pi`)
 
-  Unicode Property: `General_Category=Pi` -/
+  Unicode property: `General_Category=Pi` -/
 public abbrev isInitialPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pi
 
-/-- Check if initial punctuation character (`Pf`)
+/-- Check if final punctuation character (`Pf`)
 
-  Unicode Property: `General_Category=Pf` -/
+  Unicode property: `General_Category=Pf` -/
 public abbrev isFinalPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pf
 
 /-- Check if other punctuation character (`Po`)
 
-  Unicode Property: `General_Category=Po` -/
+  Unicode property: `General_Category=Po` -/
 public abbrev isOtherPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Po
 
 /-- Check if symbol character (`S`)
 
   This is a derived category (`S = Sm | Sc | Sk | So`).
 
-  Unicode Property: `General_Category=S` -/
+  Unicode property: `General_Category=S` -/
 public abbrev isSymbol (char : Char) : Bool := char ∈ Unicode.GC.S
 
 /-- Check if math symbol character (`Sm`)
 
-  Unicode Property: `General_Category=Sm` -/
+  Unicode property: `General_Category=Sm` -/
 public abbrev isMathSymbol (char : Char) : Bool := char ∈ Unicode.GC.Sm
 
 /-- Check if currency symbol character (`Sc`)
 
-  Unicode Property: `General_Category=Sc` -/
+  Unicode property: `General_Category=Sc` -/
 public abbrev isCurrencySymbol (char : Char) : Bool := char ∈ Unicode.GC.Sc
 
 /-- Check if modifier symbol character (`Sk`)
 
-  Unicode Property: `General_Category=Sk` -/
+  Unicode property: `General_Category=Sk` -/
 public abbrev isModifierSymbol (char : Char) : Bool := char ∈ Unicode.GC.Sk
 
 /-- Check if other symbol character (`So`)
 
-  Unicode Property: `General_Category=So` -/
+  Unicode property: `General_Category=So` -/
 public abbrev isOtherSymbol (char : Char) : Bool := char ∈ Unicode.GC.So
 
 /-- Check if separator character (`Z`)
 
   This is a derived property (`Z = Zs | Zl | Zp`).
 
-  Unicode Property: `General_Category=Z` -/
+  Unicode property: `General_Category=Z` -/
 public abbrev isSeparator (char : Char) : Bool := char ∈ Unicode.GC.Z
 
 /-- Check if space separator character (`Zs`)
 
-  Unicode Property: `General_Category=Zs` -/
+  Unicode property: `General_Category=Zs` -/
 public abbrev isSpaceSeparator (char : Char) : Bool := char ∈ Unicode.GC.Zs
 
 /-- Check if line separator character (`Zl`)
 
-  Unicode Property: `General_Category=Zl` -/
+  Unicode property: `General_Category=Zl` -/
 public abbrev isLineSeparator (char : Char) : Bool := char ∈ Unicode.GC.Zl
 
 /-- Check if paragraph separator character (`Zp`)
 
-  Unicode Property: `General_Category=Zp` -/
+  Unicode property: `General_Category=Zp` -/
 public abbrev isParagraphSeparator (char : Char) : Bool := char ∈ Unicode.GC.Zp
 
 /-- Check if other character (`C`)
 
   This is a derived category (`C = Cc | Cf | Cs | Co | Cn`).
 
-  Unicode Property: `General_Category=C` -/
+  Unicode property: `General_Category=C` -/
 public abbrev isOther (char : Char) : Bool := char ∈ Unicode.GC.C
 
 /-- Check if control character (`Cc`)
 
-  Unicode Property: `General_Category=Cc` -/
+  Unicode property: `General_Category=Cc` -/
 public abbrev isControl (char : Char) : Bool := char ∈ Unicode.GC.Cc
 
 /-- Check if format character (`Cf`)
 
-  Unicode Property: `General_Category=Cf` -/
+  Unicode property: `General_Category=Cf` -/
 public abbrev isFormat (char : Char) : Bool := char ∈ Unicode.GC.Cf
 
 /-- Check if surrogate character (`Cs`)
 
   Does not actually occur since Lean does not regard surrogate code points as characters.
 
-  Unicode Property: `General_Category=Cs` -/
+  Unicode property: `General_Category=Cs` -/
 public abbrev isSurrogate (char : Char) : Bool := char ∈ Unicode.GC.Cs
 
 /-- Check if private use character (`Co`)
 
-  Unicode Property: `General_Category=Co` -/
+  Unicode property: `General_Category=Co` -/
 public abbrev isPrivateUse (char : Char) : Bool := char ∈ Unicode.GC.Co
 
 /-- Check if unassigned character (`Cn`)
 
-  Unicode Property: `General_Category=Cn` -/
+  Unicode property: `General_Category=Cn` -/
 public abbrev isUnassigned (char : Char) : Bool := char ∈ Unicode.GC.Cn
 
 end GeneralCategory
@@ -742,7 +742,7 @@ public def isWhiteSpace (char : Char) : Bool :=
 
 /-- Check if mathematical symbol character
 
-  Generated by `GeneralCategory=Sm | Other_Math`.
+  Generated by `General_Category=Sm | Other_Math`.
 
   Unicode property: `Math` -/
 @[inline]
@@ -750,7 +750,7 @@ public def isMath (char : Char) : Bool := lookupMath char.val
 
 /-- Check if alphabetic character
 
-  Generated by `GeneralCategory=L | GeneralCategory=Nl | Other_Alphabetic`.
+  Generated by `General_Category=L | General_Category=Nl | Other_Alphabetic`.
 
   Unicode property: `Alphabetic` -/
 @[inline]
