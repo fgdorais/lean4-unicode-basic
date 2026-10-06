@@ -250,6 +250,10 @@ public def lookupName (c : UInt32) : String :=
             "TANGUT COMPONENT-" ++ i
           else if d == "<Tangut Ideograph>" then
             "TANGUT IDEOGRAPH-" ++ toHexStringRaw c
+          else if d == "<Jurchen Character>" then
+            "JURCHEN CHARACTER-" ++ toHexStringRaw c
+          else if d == "<Seal Character>" then
+            "SMALL SEAL CHARACTER-" ++ toHexStringRaw c
           else panic! s!"unknown name range {d.copy}"
         else String.Slice.copy d
       else s!"<noncharacter-{toHexStringRaw c}>"

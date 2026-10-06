@@ -60,6 +60,7 @@
 48756E67;Old_Hungarian
 4974616C;Old_Italic
 4A617661;Javanese
+4A757263;Jurchen
 4B616C69;Kayah_Li
 4B616E61;Katakana
 4B617769;Kawi
@@ -113,6 +114,7 @@
 4F756772;Old_Uyghur
 50616C6D;Palmyrene
 50617563;Pau_Cin_Hau
+5063756E;Proto_Cuneiform
 5065726D;Old_Permic
 50686167;Phags_Pa
 50686C69;Inscriptional_Pahlavi
@@ -126,6 +128,7 @@
 53616D72;Samaritan
 53617262;Old_South_Arabian
 53617572;Saurashtra
+5365616C;Seal
 53676E77;SignWriting
 53686177;Shavian
 53687264;Sharada
