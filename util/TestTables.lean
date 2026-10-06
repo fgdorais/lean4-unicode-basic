@@ -49,6 +49,10 @@ def testCased (d : UnicodeData) : Bool :=
 
 def testCaseFolding (d : UnicodeData) : Bool :=
   let (s, f) := lookupCaseFolding d.code
+  -- U+0130 and U+0131 have Turkic case mappings, which default case folding
+  -- ignores (see the `T` entries in `CaseFolding.txt`), so check them directly
+  if d.code == 0x0130 then (s, f) == (0x0130, [0x0069, 0x0307]) else
+  if d.code == 0x0131 then (s, f) == (0x0131, [0x0131]) else
   (d.uppercase.isNone || (s, f) == lookupCaseFolding d.uppercase.get!.val)
     && (d.lowercase.isNone || (s, f) == lookupCaseFolding d.lowercase.get!.val)
       && (d.titlecase.isNone || (s, f) == lookupCaseFolding d.titlecase.get!.val)
@@ -62,7 +66,7 @@ def testCaseMapping (d : UnicodeData) : Bool :=
 def testDecompositionMapping (d : UnicodeData) : Bool :=
   d.decomp == lookupDecompositionMapping? d.code
 
-def testDefautlIgnorableCodePoint (d : UnicodeData) : Bool :=
+def testDefaultIgnorableCodePoint (d : UnicodeData) : Bool :=
   let v :=
     d.gc == .Cf
       || PropList.isOtherDefaultIgnorableCodePoint d.code
@@ -118,17 +122,16 @@ def testWhiteSpace (d : UnicodeData) : Bool :=
   PropList.isWhiteSpace d.code == lookupWhiteSpace d.code
 
 def tests : Array (String × (UnicodeData → Bool)) := #[
-  ("Bidi_Class", testBidiClass),
   ("Alphabetic", testAlphabetic),
   ("Bidi_Class", testBidiClass),
   ("Bidi_Mirrored", testBidiMirrored),
   ("Canonical_Combining_Class", testCanonicalCombiningClass),
   ("Canonical_Decomposition_Mapping", testCanonicalDecompositionMapping),
-  ("Case_Folding", testCaseMapping),
+  ("Case_Folding", testCaseFolding),
   ("Case_Mapping", testCaseMapping),
   ("Cased", testCased),
   ("Decomposition_Mapping", testDecompositionMapping),
-  ("Default_Ignorable_Code_Point", testDefautlIgnorableCodePoint),
+  ("Default_Ignorable_Code_Point", testDefaultIgnorableCodePoint),
   ("Lowercase", testLowercase),
   ("Math", testMath),
   ("Name", testName),
