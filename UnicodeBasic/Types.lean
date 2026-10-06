@@ -505,9 +505,9 @@ public inductive BidiClass
 | public whiteSpace
 /-- (`ON`) other neutral: most other symbols and punctuation marks -/
 | public otherNeutral
-/-- (`LRE`) left to right embedding (U+202A: the LR embedding control) -/
+/-- (`LRE`) left-to-right embedding (U+202A: the LR embedding control) -/
 | public leftToRightEmbedding
-/-- (`LRO`)	Left_To_Right_Override	(U+202D: the LR override control) -/
+/-- (`LRO`) left-to-right override (U+202D: the LR override control) -/
 | public leftToRightOverride
 /-- (`RLE`) right-to-left embedding (U+202B: the RL embedding control) -/
 | public rightToLeftEmbedding
