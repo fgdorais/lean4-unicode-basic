@@ -9,6 +9,7 @@ Unicode properties that are currently supported by `UnicodeBasic` include:
 * `Bidi_Control`
 * `Bidi_Mirrored`
 * `Canonical_Combining_Class`
+* `Case_Folding`
 * `Case_Ignorable`
 * `Cased`
 * `Decomposition_Mapping`
@@ -16,15 +17,17 @@ Unicode properties that are currently supported by `UnicodeBasic` include:
 * `Default_Ignorable_Code_Point`
 * `General_Category`
 * `Hex_Digit`
+* `Lowercase`
 * `Math`
 * `Name`
+* `Noncharacter_Code_Point`
 * `Numeric_Type`
 * `Numeric_Value`
-* `Noncharacter_Code_Point`
+* `Script`
+* `Simple_Case_Folding`
 * `Simple_Lowercase_Mapping`
-* `Simple_Uppercase_Mapping`
 * `Simple_Titlecase_Mapping`
-* `Lowercase`
+* `Simple_Uppercase_Mapping`
 * `Uppercase`
 * `White_Space`
 
@@ -61,9 +64,9 @@ The remaining files are implementation details. Some of these may be of interest
 Current documentation can be found at [www.dorais.org/lean4-unicode-basic/doc](https://www.dorais.org/lean4-unicode-basic/doc/).
 Documentation is also provided for each release since version 1.1.0.
 
-Users can also generate documentation locally using `lake build UnicodeBasic:docs UnicodeData:docs` in the `docs` directory.
+Users can also generate documentation locally using `lake build UnicodeBasic:docs` in the `docs` directory.
 
 -----
 
-* The `Lean 4 / Unicode Basic` library is copyright © 2023-2025 François G. Dorais. The library is released under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0). See the file LICENSE for additional details.
-* The `UnicodeData.txt` and `PropList.txt` files are copyright © 1991-2025 Unicode®, Inc. The files are distributed under the [Unicode® Copyright and Terms of Use](https://www.unicode.org/copyright.html). See the file LICENSE-UNICODE for additional details.
+* The `Lean 4 / Unicode Basic` library is copyright © 2023-2026 François G. Dorais. The library is released under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0). See the file LICENSE for additional details.
+* The Unicode Character Database files are copyright © 1991-2026 Unicode®, Inc. The data tables in the `data` directory are derived from these files. The files are distributed under the [Unicode® Copyright and Terms of Use](https://www.unicode.org/copyright.html). See the file LICENSE-UNICODE for additional details.
