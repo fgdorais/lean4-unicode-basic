@@ -79,6 +79,26 @@ public def getScript (char : Char) : Script := lookupScript char.val
 public def getScriptName? (s : Script) : Option String :=
   lookupScriptName s |>.map toString
 
+/-- Check whether the script extensions of a character include the given script
+
+  For the character's primary script, use `getScript`.
+
+  Unicode property: `Script_Extensions`
+-/
+@[inline]
+public def hasScriptExtension (char : Char) (s : Script) : Bool :=
+  lookupScriptExtension char.val s
+
+/-- Get the code point ranges whose script extensions include the given script
+
+  The ranges are sorted and disjoint.
+
+  Unicode property: `Script_Extensions`
+-/
+@[inline]
+public def getScriptExtensionTable (s : Script) : Array (UInt32 × UInt32) :=
+  lookupScriptExtensionTable s
+
 /-!
   ## Bidirectional Properties ##
 -/

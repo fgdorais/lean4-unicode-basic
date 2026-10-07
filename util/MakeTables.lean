@@ -527,6 +527,10 @@ def mkScriptName : Array (UInt32 × String) :=
     (s.code, name.toString)
   t.qsort fun (a, _) (b, _) => a < b
 
+def mkScriptExtensions : Array (UInt32 × Array (UInt32 × UInt32)) :=
+  let t := ScriptExtensions.data.byScript.toArray.map fun (s, t) => (s.code, t.get)
+  t.qsort fun (a, _) (b, _) => a < b
+
 public def main (args : List String) : IO UInt32 := do
   let args := if args != [] then args else [
     "Bidi_Class",
@@ -538,6 +542,7 @@ public def main (args : List String) : IO UInt32 := do
     "Default_Ignorable_Code_Point",
     "Name",
     "Numeric_Value",
+    "Script_Extensions",
     "Script_Name",
     "White_Space"]
   let tableDir : System.FilePath := ".."/"data"
@@ -789,6 +794,17 @@ public def main (args : List String) : IO UInt32 := do
           else
             file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+    | "Script_Extensions" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkScriptExtensions
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (s, t) in table do
+          for (c₀, c₁) in t do
+            if c₀ == c₁ then
+              file.putStrLn <| toHexStringRaw s ++ ";" ++ toHexStringRaw c₀ ++ ";"
+            else
+              file.putStrLn <| toHexStringRaw s ++ ";" ++ toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
+      IO.println s!"Size: {table.size} + {table.foldl (fun n (_, t) => n + t.size) 0}"
     | "Script_Name" =>
       IO.println s!"Generating table {arg}"
       let table := mkScriptName

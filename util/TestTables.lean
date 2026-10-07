@@ -121,6 +121,11 @@ def testUppercase (d : UnicodeData) : Bool :=
 def testWhiteSpace (d : UnicodeData) : Bool :=
   PropList.isWhiteSpace d.code == lookupWhiteSpace d.code
 
+def testScriptExtensions (d : UnicodeData) : Bool :=
+  let scx := ScriptExtensions.get d.code
+  ScriptExtensions.data.byScript.keys.all fun s =>
+    lookupScriptExtension d.code s == scx.contains s
+
 def tests : Array (String × (UnicodeData → Bool)) := #[
   ("Alphabetic", testAlphabetic),
   ("Bidi_Class", testBidiClass),
@@ -139,6 +144,7 @@ def tests : Array (String × (UnicodeData → Bool)) := #[
   ("Titlecase", testTitlecase),
   ("Uppercase", testUppercase),
   ("Numeric_Value", testNumericValue),
+  ("Script_Extensions", testScriptExtensions),
   ("General_Category", testGeneralCategory),
   ("White_Space", testWhiteSpace)]
 

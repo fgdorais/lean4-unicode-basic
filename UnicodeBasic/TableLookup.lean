@@ -430,3 +430,41 @@ public def lookupScriptName (s : Script) : Option String.Slice :=
 where
   str : String := include_str "../data/Script_Name.txt"
   table : Thunk <| Array (UInt32 × String.Slice) := parseTable str fun _ n => n[0]!
+
+/-- Get the code point ranges whose script extensions include the given script, using
+  lookup table
+
+  Unicode property: `Script_Extensions` -/
+public def lookupScriptExtensionTable (s : Script) : Array (UInt32 × UInt32) :=
+  let table := table.get
+  if s.code < table[0]!.1 then #[] else
+    match table[find s.code (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (c, t) => if s.code = c then t else #[]
+where
+  str : String := include_str "../data/Script_Extensions.txt"
+  table : Thunk <| Array (UInt32 × Array (UInt32 × UInt32)) := Id.run do
+    let mut r : Array (UInt32 × Array (UInt32 × UInt32)) := #[]
+    for record in UCDStream.ofString str do
+      let s := ofHexString! record[0]!
+      let start := ofHexString! record[1]!
+      let stop := match record[2]? with
+        | some c => if c.isEmpty then start else ofHexString! c
+        | none => start
+      match r.back? with
+      | some (s', t) =>
+        if s == s' then
+          r := r.pop.push (s, t.push (start, stop))
+        else
+          r := r.push (s, #[(start, stop)])
+      | none => r := r.push (s, #[(start, stop)])
+    return r
+
+/-- Check whether the script extensions of a code point include the given script, using
+  lookup table
+
+  Unicode property: `Script_Extensions` -/
+public def lookupScriptExtension (c : UInt32) (s : Script) : Bool :=
+  let table := lookupScriptExtensionTable s
+  if table.isEmpty || c < table[0]!.1 then false else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, v) => c ≤ v
