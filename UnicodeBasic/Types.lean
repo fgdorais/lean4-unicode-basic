@@ -720,9 +720,13 @@ namespace ScriptSet
 public instance : Inhabited ScriptSet where
   default := ⟨#[], rfl⟩
 
+/-- List of the scripts in the set, sorted by script code -/
+@[inline]
+public def toList (s : ScriptSet) : List Script := s.toArray.toList
+
 /-- String of the script abbreviations in the set, separated by spaces -/
 public def toAbbrev (s : ScriptSet) : String :=
-  " ".intercalate <| s.toArray.toList.map Script.toAbbrev
+  " ".intercalate <| s.toList.map Script.toAbbrev
 
 /-- Check whether a script is in the set -/
 @[inline]
