@@ -434,7 +434,7 @@ where
   str : String := include_str "../data/Script_Name.txt"
   table : Thunk <| Array (UInt32 × String.Slice) := parseTable str fun _ n => n[0]!
 
-/-- Get the script extensions of a code point, using lookup table
+/-- Get the set of scripts a code point is commonly used with, using lookup table
 
   Unicode property: `Script_Extensions` -/
 public def lookupScriptSet (c : UInt32) : ScriptSet :=

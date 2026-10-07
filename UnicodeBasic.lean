@@ -79,15 +79,14 @@ public def getScript (char : Char) : Script := lookupScript char.val
 public def getScriptName? (s : Script) : Option String :=
   lookupScriptName s |>.map toString
 
-/-- Get character script extensions
+/-- Get the set of scripts a character is commonly used with
 
-  These are the scripts the character is commonly used with. When Unicode lists no
-  extensions for the character, this is just `getScript char`.
+  If Unicode lists no such set for the character, this contains only `getScript char`.
 
   Unicode property: `Script_Extensions`
 -/
 @[inline]
-public def getScriptExtensions (char : Char) : ScriptSet := lookupScriptSet char.val
+public def getScriptSet (char : Char) : ScriptSet := lookupScriptSet char.val
 
 /-!
   ## Bidirectional Properties ##

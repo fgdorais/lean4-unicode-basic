@@ -707,7 +707,7 @@ where
   | s₁ :: s₂ :: ss => s₁.code < s₂.code && go (s₂ :: ss)
   | _ => true
 
-/-- Set of scripts, such as the script extensions of a character -/
+/-- Set of scripts, such as the scripts a character is commonly used with -/
 public structure ScriptSet where
   /-- Scripts in the set, sorted by script code -/
   public toArray : Array Script
