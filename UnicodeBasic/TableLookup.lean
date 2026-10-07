@@ -433,3 +433,20 @@ public def lookupScriptName (s : Script) : Option String.Slice :=
 where
   str : String := include_str "../data/Script_Name.txt"
   table : Thunk <| Array (UInt32 × String.Slice) := parseTable str fun _ n => n[0]!
+
+/-- Get the set of scripts a code point is commonly used with, using lookup table
+
+  Unicode property: `Script_Extensions` -/
+public def lookupScriptSet (c : UInt32) : ScriptSet :=
+  let table := table.get
+  if c < table[0]!.1 then ⟨#[lookupScript c], rfl⟩ else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, c₁, v) => if c ≤ c₁ then v else ⟨#[lookupScript c], rfl⟩
+where
+  str : String := include_str "../data/Script_Extensions.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × ScriptSet) :=
+    parseDataTable str fun _ _ x =>
+      let a := x[0]!.split ' ' |>.toArray.map fun s =>
+        let s := ofHexString! s
+        if h : Script.isValid s then ⟨s, h⟩ else panic! "invalid script code"
+      if h : ScriptSet.isSorted a then ⟨a, h⟩ else panic! "unsorted script set"

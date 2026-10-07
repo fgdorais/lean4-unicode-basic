@@ -79,6 +79,21 @@ public def getScript (char : Char) : Script := lookupScript char.val
 public def getScriptName? (s : Script) : Option String :=
   lookupScriptName s |>.map toString
 
+/-- Get the set of scripts a character is commonly used with
+
+  If Unicode lists no such set for the character, this contains only `getScript char`.
+
+  Note: despite its name, the `Script_Extensions` property does not extend the `Script`
+  property. A set contains either one implicit script (`Zyyy` or `Zinh`) or one or more
+  explicit scripts ([UAX #24, Section 3.1](https://www.unicode.org/reports/tr24/#Script_Extensions_Def)).
+  So a character whose script is `Zyyy` (Common) or `Zinh` (Inherited) may get a set that
+  excludes its script: U+00B7 MIDDLE DOT has script `Zyyy`, but its set is `Avst Cari Copt …`.
+
+  Unicode property: `Script_Extensions`
+-/
+@[inline]
+public def getScriptSet (char : Char) : ScriptSet := lookupScriptSet char.val
+
 /-!
   ## Bidirectional Properties ##
 -/
