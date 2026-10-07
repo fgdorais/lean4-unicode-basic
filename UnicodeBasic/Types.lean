@@ -697,3 +697,46 @@ public def ofAbbrev? (abbr : String.Slice) : Option Script :=
 public def ofAbbrev! (abbr : String.Slice) : Script := ofAbbrev? abbr |>.get!
 
 end Script
+
+/-- Check if an array of scripts is strictly sorted by script code -/
+@[expose]
+public def ScriptSet.isSorted (a : Array Script) : Bool :=
+  loop a.toList
+where
+  loop : List Script → Bool
+  | s₁ :: s₂ :: ss => s₁.code < s₂.code && loop (s₂ :: ss)
+  | _ => true
+
+/-- Set of scripts, such as the scripts a character is commonly used with -/
+public structure ScriptSet where
+  /-- Scripts in the set, sorted by script code -/
+  public toArray : Array Script
+  public is_sorted : ScriptSet.isSorted toArray
+deriving BEq
+
+namespace ScriptSet
+
+/-- Default value is the empty set -/
+public instance : Inhabited ScriptSet where
+  default := ⟨#[], rfl⟩
+
+/-- List of the scripts in the set, sorted by script code -/
+@[inline]
+public def toList (s : ScriptSet) : List Script := s.toArray.toList
+
+/-- String of the script abbreviations in the set, separated by spaces -/
+public def toAbbrev (s : ScriptSet) : String :=
+  " ".intercalate <| s.toList.map Script.toAbbrev
+
+/-- Check whether a script is in the set -/
+@[inline]
+public def contains (s : ScriptSet) (sc : Script) : Bool :=
+  s.toArray.contains sc
+
+public instance : Membership Script ScriptSet where
+  mem s sc := s.contains sc
+
+public instance (sc : Script) (s : ScriptSet) : Decidable (sc ∈ s) :=
+  inferInstanceAs (Decidable (_ = true))
+
+end ScriptSet

@@ -24,6 +24,7 @@ Unicode properties that are currently supported by `UnicodeBasic` include:
 * `Numeric_Type`
 * `Numeric_Value`
 * `Script`
+* `Script_Extensions`
 * `Simple_Case_Folding`
 * `Simple_Lowercase_Mapping`
 * `Simple_Titlecase_Mapping`

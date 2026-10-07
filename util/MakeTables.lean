@@ -527,6 +527,19 @@ def mkScriptName : Array (UInt32 × String) :=
     (s.code, name.toString)
   t.qsort fun (a, _) (b, _) => a < b
 
+def mkScriptExtensions : Array (UInt32 × UInt32 × Array Script) := Id.run do
+  let mut r := #[]
+  for (c₀, c₁, v) in ScriptExtensions.data.byCode do
+    let v := v.qsort fun a b => a.code < b.code
+    match r.back? with
+    | some (d₀, d₁, w) =>
+      if d₁ + 1 == c₀ && v == w then
+        r := r.pop.push (d₀, c₁, v)
+      else
+        r := r.push (c₀, c₁, v)
+    | none => r := r.push (c₀, c₁, v)
+  return r
+
 public def main (args : List String) : IO UInt32 := do
   let args := if args != [] then args else [
     "Bidi_Class",
@@ -538,6 +551,7 @@ public def main (args : List String) : IO UInt32 := do
     "Default_Ignorable_Code_Point",
     "Name",
     "Numeric_Value",
+    "Script_Extensions",
     "Script_Name",
     "White_Space"]
   let tableDir : System.FilePath := ".."/"data"
@@ -789,6 +803,17 @@ public def main (args : List String) : IO UInt32 := do
           else
             file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
       IO.println s!"Size: {(statsProp table).1} + {(statsProp table).2}"
+    | "Script_Extensions" =>
+      IO.println s!"Generating table {arg}"
+      let table := mkScriptExtensions
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c₀, c₁, v) in table do
+          let v := " ".intercalate (v.toList.map fun s => toHexStringRaw s.code)
+          if c₀ == c₁ then
+            file.putStrLn <| toHexStringRaw c₀ ++ ";;" ++ v
+          else
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁ ++ ";" ++ v
+      IO.println s!"Size: {table.size}"
     | "Script_Name" =>
       IO.println s!"Generating table {arg}"
       let table := mkScriptName
