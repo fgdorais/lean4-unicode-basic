@@ -701,10 +701,10 @@ end Script
 /-- Check if an array of scripts is strictly sorted by script code -/
 @[expose]
 public def ScriptSet.isSorted (a : Array Script) : Bool :=
-  go a.toList
+  loop a.toList
 where
-  go : List Script → Bool
-  | s₁ :: s₂ :: ss => s₁.code < s₂.code && go (s₂ :: ss)
+  loop : List Script → Bool
+  | s₁ :: s₂ :: ss => s₁.code < s₂.code && loop (s₂ :: ss)
   | _ => true
 
 /-- Set of scripts, such as the scripts a character is commonly used with -/
