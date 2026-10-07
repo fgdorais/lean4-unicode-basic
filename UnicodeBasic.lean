@@ -86,44 +86,8 @@ public def getScriptName? (s : Script) : Option String :=
 
   Unicode property: `Script_Extensions`
 -/
-public def getScriptExtensions (char : Char) : ScriptSet :=
-  lookupScriptExtensions? char.val |>.getD ⟨#[getScript char], rfl⟩
-
-/-- Table of the characters whose script extensions include a given script
-
-  Make one with `getScriptExtensionTable` and reuse it for many queries.
-
-  Unicode property: `Script_Extensions`
--/
-public structure ScriptExtensionTable where
-  /-- Script of the table -/
-  script : Script
-  /-- Sorted ranges of code points `c` where `getScript c == script` does not tell whether the
-    script extensions of `c` include `script`, each marked with the correct answer -/
-  exceptions : Array (UInt32 × UInt32 × Bool)
-
-/-- Get the table of characters whose script extensions include the given script
-
-  Make the table once and reuse it for many queries.
-
-  Unicode property: `Script_Extensions`
--/
-public def getScriptExtensionTable (s : Script) : ScriptExtensionTable :=
-  { script := s, exceptions := lookupScriptExtensionExceptions s }
-
-/-- Check whether the script extensions of a character include the script of the table
-
-  Unicode property: `Script_Extensions`
--/
 @[inline]
-public def ScriptExtensionTable.contains (t : ScriptExtensionTable) (char : Char) : Bool :=
-  lookupScriptExtension char.val t.script t.exceptions
-
-public instance : Membership Char ScriptExtensionTable where
-  mem t c := t.contains c
-
-public instance (char : Char) (t : ScriptExtensionTable) : Decidable (char ∈ t) :=
-  inferInstanceAs (Decidable (t.contains char))
+public def getScriptExtensions (char : Char) : ScriptSet := lookupScriptSet char.val
 
 /-!
   ## Bidirectional Properties ##

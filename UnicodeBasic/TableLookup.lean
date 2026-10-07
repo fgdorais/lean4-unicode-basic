@@ -434,17 +434,14 @@ where
   str : String := include_str "../data/Script_Name.txt"
   table : Thunk <| Array (UInt32 × String.Slice) := parseTable str fun _ n => n[0]!
 
-/-- Get the script extensions of a code point if they differ from its script, using lookup
-  table
-
-  Returns `none` when the script extensions are just the script of the code point.
+/-- Get the script extensions of a code point, using lookup table
 
   Unicode property: `Script_Extensions` -/
-public def lookupScriptExtensions? (c : UInt32) : Option ScriptSet :=
+public def lookupScriptSet (c : UInt32) : ScriptSet :=
   let table := table.get
-  if c < table[0]!.1 then none else
+  if c < table[0]!.1 then ⟨#[lookupScript c], rfl⟩ else
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
-    | (_, c₁, v) => if c ≤ c₁ then some v else none
+    | (_, c₁, v) => if c ≤ c₁ then v else ⟨#[lookupScript c], rfl⟩
 where
   str : String := include_str "../data/Script_Extensions.txt"
   table : Thunk <| Array (UInt32 × UInt32 × ScriptSet) :=
@@ -453,33 +450,3 @@ where
         let s := ofHexString! s
         if h : Script.isValid s then ⟨s, h⟩ else panic! "invalid script code"
       if h : ScriptSet.isSorted a then ⟨a, h⟩ else panic! "unsorted script set"
-
-/-- Get the sorted ranges of code points `c` where `lookupScript c == s` does not tell whether
-  the script extensions of `c` include `s`, each marked with the correct answer
-
-  Unicode property: `Script_Extensions` -/
-public def lookupScriptExtensionExceptions (s : Script) : Array (UInt32 × UInt32 × Bool) := Id.run do
-  let mut r := #[]
-  for (c₀, c₁, v) in lookupScriptExtensions?.table.get do
-    let b := v.contains s
-    for c in [c₀.toNat:c₁.toNat+1] do
-      let c := c.toUInt32
-      if b != (lookupScript c == s) then
-        match r.back? with
-        | some (d₀, d₁, b') =>
-          if d₁ + 1 == c && b' == b then
-            r := r.pop.push (d₀, c, b)
-          else
-            r := r.push (c, c, b)
-        | none => r := r.push (c, c, b)
-  return r
-
-/-- Check whether the script extensions of a code point include the given script, using the
-  table from `lookupScriptExtensionExceptions s`
-
-  Unicode property: `Script_Extensions` -/
-public def lookupScriptExtension (c : UInt32) (s : Script)
-    (exceptions : Array (UInt32 × UInt32 × Bool)) : Bool :=
-  if exceptions.isEmpty || c < exceptions[0]!.1 then lookupScript c == s else
-    match exceptions[find c (fun i => exceptions[i]!.1) 0 exceptions.size.toUSize]! with
-    | (_, c₁, b) => if c ≤ c₁ then b else lookupScript c == s
