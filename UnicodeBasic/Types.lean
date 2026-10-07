@@ -698,20 +698,44 @@ public def ofAbbrev! (abbr : String.Slice) : Script := ofAbbrev? abbr |>.get!
 
 end Script
 
+/-- Check if an array of scripts is strictly sorted by script code -/
+public def ScriptSet.isSorted (a : Array Script) : Bool :=
+  go a.toList
+where
+  go : List Script → Bool
+  | s₁ :: s₂ :: ss => s₁.code < s₂.code && go (s₂ :: ss)
+  | _ => true
+
 /-- Set of scripts, such as the script extensions of a character -/
-@[expose]
-public def ScriptSet := Array Script deriving Inhabited, DecidableEq
+public structure ScriptSet where
+  /-- Scripts in the set, sorted by script code -/
+  public toArray : Array Script
+  public is_sorted : ScriptSet.isSorted toArray
+deriving DecidableEq
 
 namespace ScriptSet
 
+/-- Default value is the empty set -/
+public instance : Inhabited ScriptSet where
+  default := ⟨#[], by decide⟩
+
+/-- Set containing a single script -/
+public def singleton (s : Script) : ScriptSet := ⟨#[s], by simp [isSorted, isSorted.go]⟩
+
+/-- Make a set from an array of scripts, which is sorted and deduplicated as needed -/
+public def ofArray (a : Array Script) : ScriptSet :=
+  let a := if isSorted a then a else
+    (a.qsort fun s₁ s₂ => s₁.code < s₂.code).toList.eraseDups.toArray
+  if h : isSorted a then ⟨a, h⟩ else panic! "unsorted script set"
+
 /-- String of the script abbreviations in the set, separated by spaces -/
 public def toAbbrev (s : ScriptSet) : String :=
-  " ".intercalate <| Array.toList s |>.map Script.toAbbrev
+  " ".intercalate <| s.toArray.toList.map Script.toAbbrev
 
 /-- Check whether a script is in the set -/
 @[inline]
 public def contains (s : ScriptSet) (sc : Script) : Bool :=
-  Array.contains s sc
+  s.toArray.contains sc
 
 public instance : Membership Script ScriptSet where
   mem s sc := s.contains sc

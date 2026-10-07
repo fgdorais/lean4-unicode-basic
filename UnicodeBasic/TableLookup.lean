@@ -448,9 +448,11 @@ public def lookupScriptExtensions? (c : UInt32) : Option ScriptSet :=
 where
   str : String := include_str "../data/Script_Extensions.txt"
   table : Thunk <| Array (UInt32 × UInt32 × ScriptSet) :=
-    parseDataTable str fun _ _ x => x[0]!.split ' ' |>.toArray.map fun s =>
-      let s := ofHexString! s
-      if h : Script.isValid s then ⟨s, h⟩ else panic! "invalid script code"
+    parseDataTable str fun _ _ x =>
+      let a := x[0]!.split ' ' |>.toArray.map fun s =>
+        let s := ofHexString! s
+        if h : Script.isValid s then ⟨s, h⟩ else panic! "invalid script code"
+      if h : ScriptSet.isSorted a then ⟨a, h⟩ else panic! "unsorted script set"
 
 /-- Get the sorted ranges of code points `c` where `lookupScript c == s` does not tell whether
   the script extensions of `c` include `s`, each marked with the correct answer

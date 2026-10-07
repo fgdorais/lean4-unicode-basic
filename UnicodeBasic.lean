@@ -82,12 +82,12 @@ public def getScriptName? (s : Script) : Option String :=
 /-- Get character script extensions
 
   These are the scripts the character is commonly used with. When Unicode lists no
-  extensions for the character, this is just `#[getScript char]`.
+  extensions for the character, this is just `getScript char`.
 
   Unicode property: `Script_Extensions`
 -/
 public def getScriptExtensions (char : Char) : ScriptSet :=
-  lookupScriptExtensions? char.val |>.getD #[getScript char]
+  lookupScriptExtensions? char.val |>.getD (.singleton (getScript char))
 
 /-- Table of the characters whose script extensions include a given script
 
