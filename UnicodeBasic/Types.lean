@@ -699,4 +699,24 @@ public def ofAbbrev! (abbr : String.Slice) : Script := ofAbbrev? abbr |>.get!
 end Script
 
 /-- Set of scripts, such as the script extensions of a character -/
-public abbrev ScriptSet := Array Script
+@[expose]
+public def ScriptSet := Array Script deriving Inhabited, DecidableEq
+
+namespace ScriptSet
+
+/-- String of the script abbreviations in the set, separated by spaces -/
+public def toAbbrev (s : ScriptSet) : String :=
+  " ".intercalate <| Array.toList s |>.map Script.toAbbrev
+
+/-- Check whether a script is in the set -/
+@[inline]
+public def contains (s : ScriptSet) (sc : Script) : Bool :=
+  Array.contains s sc
+
+public instance : Membership Script ScriptSet where
+  mem s sc := s.contains sc
+
+public instance (sc : Script) (s : ScriptSet) : Decidable (sc ∈ s) :=
+  inferInstanceAs (Decidable (s.contains sc))
+
+end ScriptSet

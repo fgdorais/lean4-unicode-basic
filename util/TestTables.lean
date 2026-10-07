@@ -127,7 +127,7 @@ def scxTables : Array ScriptExtensionTable :=
 def testScriptExtensions (d : UnicodeData) : Bool :=
   let scx := ScriptExtensions.get d.code
   let v := lookupScriptExtensions? d.code |>.getD #[lookupScript d.code]
-  v.all scx.contains && scx.all v.contains &&
+  Array.all v scx.contains && scx.all v.contains &&
   scxTables.all fun t =>
     lookupScriptExtension d.code t.script t.exceptions == scx.contains t.script
 
