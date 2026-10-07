@@ -431,29 +431,54 @@ where
   str : String := include_str "../data/Script_Name.txt"
   table : Thunk <| Array (UInt32 × String.Slice) := parseTable str fun _ n => n[0]!
 
-/-- Get the code point ranges whose script extensions include the given script, using
-  lookup table
+/-- Parse a script abbreviation without calling `Script.ofAbbrev!`, which is implemented in C
+  and so unavailable while tables are initialized at compile time -/
+private def parseScript (abbr : String.Slice) : Script :=
+  let code : UInt32 := abbr.foldl (fun code c => code <<< 8 ||| c.val) 0
+  if h : Script.isValid code then ⟨code, h⟩ else panic! "invalid script abbreviation"
 
-  Only the line for the given script is parsed. The result is sorted and disjoint.
+/-- Get the script extensions of a code point if they differ from its script, using lookup
+  table
+
+  Returns `none` when the script extensions are just the script of the code point.
 
   Unicode property: `Script_Extensions` -/
-public def lookupScriptExtensionTable (s : Script) : Array (UInt32 × UInt32) := Id.run do
-  let key := toHexStringRaw s.code ++ ";"
-  for line in str.split '\n' do
-    if let some ranges := line.dropPrefix? key then
-      let mut r := #[]
-      for range in ranges.split ' ' do
-        match range.split ".." |>.toArray with
-        | #[c] => let c := ofHexString! c; r := r.push (c, c)
-        | #[c₀, c₁] => r := r.push (ofHexString! c₀, ofHexString! c₁)
-        | _ => panic! "invalid Script_Extensions table"
-      return r
-  return #[]
+public def lookupScriptExtensions? (c : UInt32) : Option (Array Script) :=
+  let table := table.get
+  if c < table[0]!.1 then none else
+    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
+    | (_, c₁, v) => if c ≤ c₁ then some v else none
 where
   str : String := include_str "../data/Script_Extensions.txt"
+  table : Thunk <| Array (UInt32 × UInt32 × Array Script) :=
+    parseDataTable str fun _ _ x => x[0]!.split ' ' |>.toArray.map parseScript
 
-/-- Check whether a code point belongs to a table of sorted disjoint code point ranges -/
-public def lookupScriptExtension (c : UInt32) (table : Array (UInt32 × UInt32)) : Bool :=
-  if table.isEmpty || c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
-    | (_, v) => c ≤ v
+/-- Get the sorted ranges of code points `c` where `lookupScript c == s` does not tell whether
+  the script extensions of `c` include `s`, each marked with the correct answer
+
+  Unicode property: `Script_Extensions` -/
+public def lookupScriptExtensionExceptions (s : Script) : Array (UInt32 × UInt32 × Bool) := Id.run do
+  let mut r := #[]
+  for (c₀, c₁, v) in lookupScriptExtensions?.table.get do
+    let b := v.contains s
+    for c in [c₀.toNat:c₁.toNat+1] do
+      let c := c.toUInt32
+      if b != (lookupScript c == s) then
+        match r.back? with
+        | some (d₀, d₁, b') =>
+          if d₁ + 1 == c && b' == b then
+            r := r.pop.push (d₀, c, b)
+          else
+            r := r.push (c, c, b)
+        | none => r := r.push (c, c, b)
+  return r
+
+/-- Check whether the script extensions of a code point include the given script, using the
+  table from `lookupScriptExtensionExceptions s`
+
+  Unicode property: `Script_Extensions` -/
+public def lookupScriptExtension (c : UInt32) (s : Script)
+    (exceptions : Array (UInt32 × UInt32 × Bool)) : Bool :=
+  if exceptions.isEmpty || c < exceptions[0]!.1 then lookupScript c == s else
+    match exceptions[find c (fun i => exceptions[i]!.1) 0 exceptions.size.toUSize]! with
+    | (_, c₁, b) => if c ≤ c₁ then b else lookupScript c == s

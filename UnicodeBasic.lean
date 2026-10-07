@@ -79,6 +79,16 @@ public def getScript (char : Char) : Script := lookupScript char.val
 public def getScriptName? (s : Script) : Option String :=
   lookupScriptName s |>.map toString
 
+/-- Get character script extensions
+
+  These are the scripts the character is commonly used with. When Unicode lists no
+  extensions for the character, this is just `#[getScript char]`.
+
+  Unicode property: `Script_Extensions`
+-/
+public def getScriptExtensions (char : Char) : Array Script :=
+  lookupScriptExtensions? char.val |>.getD #[getScript char]
+
 /-- Table of the characters whose script extensions include a given script
 
   Make one with `getScriptExtensionTable` and reuse it for many queries.
@@ -88,18 +98,18 @@ public def getScriptName? (s : Script) : Option String :=
 public structure ScriptExtensionTable where
   /-- Script of the table -/
   script : Script
-  /-- Sorted, disjoint code point ranges whose script extensions include `script` -/
-  ranges : Array (UInt32 × UInt32)
+  /-- Sorted ranges of code points `c` where `getScript c == script` does not tell whether the
+    script extensions of `c` include `script`, each marked with the correct answer -/
+  exceptions : Array (UInt32 × UInt32 × Bool)
 
 /-- Get the table of characters whose script extensions include the given script
 
-  This parses the data for `s` on each call, so make the table once and reuse it.
-  For the character's primary script, use `getScript`.
+  Make the table once and reuse it for many queries.
 
   Unicode property: `Script_Extensions`
 -/
 public def getScriptExtensionTable (s : Script) : ScriptExtensionTable :=
-  { script := s, ranges := lookupScriptExtensionTable s }
+  { script := s, exceptions := lookupScriptExtensionExceptions s }
 
 /-- Check whether the script extensions of a character include the script of the table
 
@@ -107,7 +117,7 @@ public def getScriptExtensionTable (s : Script) : ScriptExtensionTable :=
 -/
 @[inline]
 public def ScriptExtensionTable.contains (t : ScriptExtensionTable) (char : Char) : Bool :=
-  lookupScriptExtension char.val t.ranges
+  lookupScriptExtension char.val t.script t.exceptions
 
 public instance : Membership Char ScriptExtensionTable where
   mem t c := t.contains c

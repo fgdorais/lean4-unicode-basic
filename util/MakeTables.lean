@@ -527,9 +527,19 @@ def mkScriptName : Array (UInt32 × String) :=
     (s.code, name.toString)
   t.qsort fun (a, _) (b, _) => a < b
 
-def mkScriptExtensions : Array (UInt32 × Array (UInt32 × UInt32)) :=
-  let t := ScriptExtensions.data.byScript.toArray.map fun (s, t) => (s.code, t.get)
-  t.qsort fun (a, _) (b, _) => a < b
+def mkScriptExtensions : Array (UInt32 × UInt32 × Array Script) := Id.run do
+  let t := ScriptExtensions.data.byCode.qsort fun (a, _) (b, _) => a < b
+  let mut r := #[]
+  for (c₀, c₁, v) in t do
+    let v := v.qsort fun a b => a.code < b.code
+    match r.back? with
+    | some (d₀, d₁, w) =>
+      if d₁ + 1 == c₀ && v == w then
+        r := r.pop.push (d₀, c₁, v)
+      else
+        r := r.push (c₀, c₁, v)
+    | none => r := r.push (c₀, c₁, v)
+  return r
 
 public def main (args : List String) : IO UInt32 := do
   let args := if args != [] then args else [
@@ -798,11 +808,13 @@ public def main (args : List String) : IO UInt32 := do
       IO.println s!"Generating table {arg}"
       let table := mkScriptExtensions
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
-        for (s, t) in table do
-          let ranges := t.toList.map fun (c₀, c₁) =>
-            if c₀ == c₁ then toHexStringRaw c₀ else toHexStringRaw c₀ ++ ".." ++ toHexStringRaw c₁
-          file.putStrLn <| toHexStringRaw s ++ ";" ++ " ".intercalate ranges
-      IO.println s!"Size: {table.size} + {table.foldl (fun n (_, t) => n + t.size) 0}"
+        for (c₀, c₁, v) in table do
+          let v := " ".intercalate (v.toList.map Script.toAbbrev)
+          if c₀ == c₁ then
+            file.putStrLn <| toHexStringRaw c₀ ++ ";;" ++ v
+          else
+            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁ ++ ";" ++ v
+      IO.println s!"Size: {table.size}"
     | "Script_Name" =>
       IO.println s!"Generating table {arg}"
       let table := mkScriptName
