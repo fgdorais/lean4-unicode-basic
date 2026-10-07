@@ -809,7 +809,7 @@ public def main (args : List String) : IO UInt32 := do
       let table := mkScriptExtensions
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c₀, c₁, v) in table do
-          let v := " ".intercalate (v.toList.map Script.toAbbrev)
+          let v := " ".intercalate (v.toList.map fun s => toHexStringRaw s.code)
           if c₀ == c₁ then
             file.putStrLn <| toHexStringRaw c₀ ++ ";;" ++ v
           else

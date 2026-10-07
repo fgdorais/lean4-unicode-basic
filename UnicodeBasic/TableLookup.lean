@@ -434,12 +434,6 @@ where
   str : String := include_str "../data/Script_Name.txt"
   table : Thunk <| Array (UInt32 × String.Slice) := parseTable str fun _ n => n[0]!
 
-/-- Parse a script abbreviation without calling `Script.ofAbbrev!`, which is implemented in C
-  and so unavailable while tables are initialized at compile time -/
-private def parseScript (abbr : String.Slice) : Script :=
-  let code : UInt32 := abbr.foldl (fun code c => code <<< 8 ||| c.val) 0
-  if h : Script.isValid code then ⟨code, h⟩ else panic! "invalid script abbreviation"
-
 /-- Get the script extensions of a code point if they differ from its script, using lookup
   table
 
@@ -454,7 +448,9 @@ public def lookupScriptExtensions? (c : UInt32) : Option (Array Script) :=
 where
   str : String := include_str "../data/Script_Extensions.txt"
   table : Thunk <| Array (UInt32 × UInt32 × Array Script) :=
-    parseDataTable str fun _ _ x => x[0]!.split ' ' |>.toArray.map parseScript
+    parseDataTable str fun _ _ x => x[0]!.split ' ' |>.toArray.map fun s =>
+      let s := ofHexString! s
+      if h : Script.isValid s then ⟨s, h⟩ else panic! "invalid script code"
 
 /-- Get the sorted ranges of code points `c` where `lookupScript c == s` does not tell whether
   the script extensions of `c` include `s`, each marked with the correct answer
