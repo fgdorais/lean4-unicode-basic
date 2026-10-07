@@ -737,6 +737,6 @@ public instance : Membership Script ScriptSet where
   mem s sc := s.contains sc
 
 public instance (sc : Script) (s : ScriptSet) : Decidable (sc ∈ s) :=
-  inferInstanceAs (Decidable (s.contains sc))
+  inferInstanceAs (Decidable (_ = true))
 
 end ScriptSet

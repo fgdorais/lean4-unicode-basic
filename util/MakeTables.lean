@@ -528,9 +528,8 @@ def mkScriptName : Array (UInt32 × String) :=
   t.qsort fun (a, _) (b, _) => a < b
 
 def mkScriptExtensions : Array (UInt32 × UInt32 × Array Script) := Id.run do
-  let t := ScriptExtensions.data.byCode.qsort fun (a, _) (b, _) => a < b
   let mut r := #[]
-  for (c₀, c₁, v) in t do
+  for (c₀, c₁, v) in ScriptExtensions.data.byCode do
     let v := v.qsort fun a b => a.code < b.code
     match r.back? with
     | some (d₀, d₁, w) =>
