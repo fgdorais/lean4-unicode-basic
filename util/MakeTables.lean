@@ -799,11 +799,9 @@ public def main (args : List String) : IO UInt32 := do
       let table := mkScriptExtensions
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (s, t) in table do
-          for (c₀, c₁) in t do
-            if c₀ == c₁ then
-              file.putStrLn <| toHexStringRaw s ++ ";" ++ toHexStringRaw c₀ ++ ";"
-            else
-              file.putStrLn <| toHexStringRaw s ++ ";" ++ toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁
+          let ranges := t.toList.map fun (c₀, c₁) =>
+            if c₀ == c₁ then toHexStringRaw c₀ else toHexStringRaw c₀ ++ ".." ++ toHexStringRaw c₁
+          file.putStrLn <| toHexStringRaw s ++ ";" ++ " ".intercalate ranges
       IO.println s!"Size: {table.size} + {table.foldl (fun n (_, t) => n + t.size) 0}"
     | "Script_Name" =>
       IO.println s!"Generating table {arg}"

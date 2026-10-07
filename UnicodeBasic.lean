@@ -79,25 +79,41 @@ public def getScript (char : Char) : Script := lookupScript char.val
 public def getScriptName? (s : Script) : Option String :=
   lookupScriptName s |>.map toString
 
-/-- Check whether the script extensions of a character include the given script
+/-- Table of the characters whose script extensions include a given script
 
+  Make one with `getScriptExtensionTable` and reuse it for many queries.
+
+  Unicode property: `Script_Extensions`
+-/
+public structure ScriptExtensionTable where
+  /-- Script of the table -/
+  script : Script
+  /-- Sorted, disjoint code point ranges whose script extensions include `script` -/
+  ranges : Array (UInt32 × UInt32)
+
+/-- Get the table of characters whose script extensions include the given script
+
+  This parses the data for `s` on each call, so make the table once and reuse it.
   For the character's primary script, use `getScript`.
 
   Unicode property: `Script_Extensions`
 -/
-@[inline]
-public def hasScriptExtension (char : Char) (s : Script) : Bool :=
-  lookupScriptExtension char.val s
+public def getScriptExtensionTable (s : Script) : ScriptExtensionTable :=
+  { script := s, ranges := lookupScriptExtensionTable s }
 
-/-- Get the code point ranges whose script extensions include the given script
-
-  The ranges are sorted and disjoint.
+/-- Check whether the script extensions of a character include the script of the table
 
   Unicode property: `Script_Extensions`
 -/
 @[inline]
-public def getScriptExtensionTable (s : Script) : Array (UInt32 × UInt32) :=
-  lookupScriptExtensionTable s
+public def ScriptExtensionTable.contains (t : ScriptExtensionTable) (char : Char) : Bool :=
+  lookupScriptExtension char.val t.ranges
+
+public instance : Membership Char ScriptExtensionTable where
+  mem t c := t.contains c
+
+public instance (char : Char) (t : ScriptExtensionTable) : Decidable (char ∈ t) :=
+  inferInstanceAs (Decidable (t.contains char))
 
 /-!
   ## Bidirectional Properties ##

@@ -434,37 +434,26 @@ where
 /-- Get the code point ranges whose script extensions include the given script, using
   lookup table
 
+  Only the line for the given script is parsed. The result is sorted and disjoint.
+
   Unicode property: `Script_Extensions` -/
-public def lookupScriptExtensionTable (s : Script) : Array (UInt32 × UInt32) :=
-  let table := table.get
-  if s.code < table[0]!.1 then #[] else
-    match table[find s.code (fun i => table[i]!.1) 0 table.size.toUSize]! with
-    | (c, t) => if s.code = c then t else #[]
+public def lookupScriptExtensionTable (s : Script) : Array (UInt32 × UInt32) := Id.run do
+  let key := toHexStringRaw s.code ++ ";"
+  for line in str.split '\n' do
+    if let some ranges := line.dropPrefix? key then
+      let mut r := #[]
+      for range in ranges.split ' ' do
+        match range.split ".." |>.toArray with
+        | #[c] => let c := ofHexString! c; r := r.push (c, c)
+        | #[c₀, c₁] => r := r.push (ofHexString! c₀, ofHexString! c₁)
+        | _ => panic! "invalid Script_Extensions table"
+      return r
+  return #[]
 where
   str : String := include_str "../data/Script_Extensions.txt"
-  table : Thunk <| Array (UInt32 × Array (UInt32 × UInt32)) := Id.run do
-    let mut r : Array (UInt32 × Array (UInt32 × UInt32)) := #[]
-    for record in UCDStream.ofString str do
-      let s := ofHexString! record[0]!
-      let start := ofHexString! record[1]!
-      let stop := match record[2]? with
-        | some c => if c.isEmpty then start else ofHexString! c
-        | none => start
-      match r.back? with
-      | some (s', t) =>
-        if s == s' then
-          r := r.pop.push (s, t.push (start, stop))
-        else
-          r := r.push (s, #[(start, stop)])
-      | none => r := r.push (s, #[(start, stop)])
-    return r
 
-/-- Check whether the script extensions of a code point include the given script, using
-  lookup table
-
-  Unicode property: `Script_Extensions` -/
-public def lookupScriptExtension (c : UInt32) (s : Script) : Bool :=
-  let table := lookupScriptExtensionTable s
+/-- Check whether a code point belongs to a table of sorted disjoint code point ranges -/
+public def lookupScriptExtension (c : UInt32) (table : Array (UInt32 × UInt32)) : Bool :=
   if table.isEmpty || c < table[0]!.1 then false else
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
     | (_, v) => c ≤ v
