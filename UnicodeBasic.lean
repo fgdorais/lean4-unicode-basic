@@ -432,7 +432,7 @@ public def isCased (char : Char) : Bool :=
   Unicode property: `Case_Ignorable` -/
 @[inline]
 public def isCaseIgnorable (char : Char) : Bool :=
-  char ∈ Unicode.GC.Lm ||| GC.Mn ||| GC.Sk ||| GC.Cf || other.elem char.val
+  char ∈ Unicode.GC.Lm ||| GC.Mn ||| GC.Me ||| GC.Sk ||| GC.Cf || other.elem char.val
 where
   /-- Auxiliary data for `isCaseIgnorable`
 
@@ -703,25 +703,22 @@ public def isHexDigit (char : Char) : Bool :=
   Unicode property: `Hex_Digit` -/
 @[inline]
 public def getHexDigit? (char : Char) : Option (Fin 16) :=
-  if char.toNat < 0x30 then
+  -- Map fullwidth forms U+FF10..U+FF46 onto ASCII U+0030..U+0066
+  let n := if char.toNat < 0xFF10 then char.toNat else char.toNat - 0xFEE0
+  if n < 0x30 then
     none
+  else if h : n - 0x30 < 10 then
+    some ⟨n - 0x30, by omega⟩
+  else if n < 0x41 then
+    none
+  else if h : n - 0x41 < 6 then
+    some ⟨n - 0x41 + 10, by omega⟩
+  else if n < 0x61 then
+    none
+  else if h : n - 0x61 < 6 then
+    some ⟨n - 0x61 + 10, by omega⟩
   else
-    let n := if char.toNat < 0xFF10 then char.toNat - 0x0030 else char.toNat - 0xFF10
-    if h : n < 10 then
-      some ⟨n, Nat.lt_trans h (by decide)⟩
-    else if n >= 17 then
-      let n := n - 7
-      if h : n < 16 then
-        some ⟨n, h⟩
-      else if n >= 32 then
-        if h : n - 32 < 16 then
-          some ⟨n - 32, h⟩
-        else
-          none
-      else
-        none
-    else
-      none
+    none
 
 /-!
   ## Other Properties ##
@@ -753,7 +750,8 @@ public def isWhiteSpace (char : Char) : Bool :=
   if char.val < 0x80 then
     char == ' ' || char >= '\t' && char <= '\r'
   else
-    GeneralCategory.isSeparator char
+    -- U+0085 NEXT LINE is the only non-ASCII white space outside `GC.Z`
+    char.val == 0x85 || GeneralCategory.isSeparator char
 
 /-- Check if mathematical symbol character
 
