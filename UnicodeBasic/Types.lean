@@ -699,7 +699,6 @@ public def ofAbbrev! (abbr : String.Slice) : Script := ofAbbrev? abbr |>.get!
 end Script
 
 /-- Check if an array of scripts is strictly sorted by script code -/
-@[expose]
 public def ScriptSet.isSorted (a : Array Script) : Bool :=
   go a.toList
 where
@@ -718,7 +717,7 @@ namespace ScriptSet
 
 /-- Default value is the empty set -/
 public instance : Inhabited ScriptSet where
-  default := ⟨#[], rfl⟩
+  default := ⟨#[], by decide⟩
 
 /-- List of the scripts in the set, sorted by script code -/
 @[inline]
