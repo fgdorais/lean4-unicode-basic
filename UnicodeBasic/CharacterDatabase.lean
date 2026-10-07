@@ -15,6 +15,17 @@ number sign `#` (U+0023).
 
 namespace Unicode
 
+/-- Get the script with the given four-letter short name, as found in UCD files.
+
+This is a pure Lean version of `Script.ofAbbrev!` for code that parses UCD data in
+initializers, which may run in the interpreter where the UnicodeBasic C library is not
+available. Use `Script.ofAbbrev!` everywhere else.
+-/
+public def Script.ofUCD! (name : String.Slice) : Script :=
+  let code := name.bytes.fold (init := 0) fun (c : UInt32) b => (c <<< 8) ||| b.toUInt32
+  if h : name.utf8ByteSize = 4 ∧ Script.isValid code then ⟨code, h.2⟩ else
+    panic! s!"invalid script name {name}"
+
 /-- UCD stream type
 
   Comments and blank lines are omitted in this stream type.
@@ -81,16 +92,3 @@ public instance : Std.Stream UCDStreamWithComments (Array String.Slice × String
     let sep := if stream.isUnihan then "\t" else ";"
     let dat : Array String.Slice := row.split sep |>.toArray.map (·.trimAscii)
     return ((dat, cmt), stream)
-
-end UCDStream
-
-/-- Get the script with the given four-letter short name, as found in UCD files.
-
-This is a pure Lean version of `Script.ofAbbrev!` for code that parses UCD data in
-initializers, which may run in the interpreter where the UnicodeBasic C library is not
-available. Use `Script.ofAbbrev!` everywhere else.
--/
-public def Script.ofUCD! (name : String.Slice) : Script :=
-  let code := name.bytes.fold (init := 0) fun (c : UInt32) b => (c <<< 8) ||| b.toUInt32
-  if h : name.utf8ByteSize = 4 ∧ Script.isValid code then ⟨code, h.2⟩ else
-    panic! s!"invalid script name {name}"
