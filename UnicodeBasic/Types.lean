@@ -697,3 +697,6 @@ public def ofAbbrev? (abbr : String.Slice) : Option Script :=
 public def ofAbbrev! (abbr : String.Slice) : Script := ofAbbrev? abbr |>.get!
 
 end Script
+
+/-- Set of scripts, such as the script extensions of a character -/
+public abbrev ScriptSet := Array Script

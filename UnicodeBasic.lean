@@ -86,7 +86,7 @@ public def getScriptName? (s : Script) : Option String :=
 
   Unicode property: `Script_Extensions`
 -/
-public def getScriptExtensions (char : Char) : Array Script :=
+public def getScriptExtensions (char : Char) : ScriptSet :=
   lookupScriptExtensions? char.val |>.getD #[getScript char]
 
 /-- Table of the characters whose script extensions include a given script

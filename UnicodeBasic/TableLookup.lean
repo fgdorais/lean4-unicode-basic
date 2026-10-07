@@ -440,14 +440,14 @@ where
   Returns `none` when the script extensions are just the script of the code point.
 
   Unicode property: `Script_Extensions` -/
-public def lookupScriptExtensions? (c : UInt32) : Option (Array Script) :=
+public def lookupScriptExtensions? (c : UInt32) : Option ScriptSet :=
   let table := table.get
   if c < table[0]!.1 then none else
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
     | (_, c₁, v) => if c ≤ c₁ then some v else none
 where
   str : String := include_str "../data/Script_Extensions.txt"
-  table : Thunk <| Array (UInt32 × UInt32 × Array Script) :=
+  table : Thunk <| Array (UInt32 × UInt32 × ScriptSet) :=
     parseDataTable str fun _ _ x => x[0]!.split ' ' |>.toArray.map fun s =>
       let s := ofHexString! s
       if h : Script.isValid s then ⟨s, h⟩ else panic! "invalid script code"
