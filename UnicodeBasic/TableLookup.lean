@@ -39,35 +39,38 @@ private partial def find (c : UInt32) (t : USize → UInt32) (lo hi : USize) : U
     find c t mid hi
 
 /-- Parse a simple table -/
-private def parseTable (s : String) (f : UInt32 → Array String.Slice → α) : Thunk <| Array (UInt32 × α) := Id.run do
-  let mut r := #[]
-  let mut stream := UCDStream.ofString s
-  for record in stream do
-    let start := ofHexString! record[0]!
-    let val := f start record[1:]
-    r := r.push (start, val)
-  return r
+private def parseTable (s : String) (f : UInt32 → Array String.Slice → α) : Thunk <| Array (UInt32 × α) :=
+  .mk fun _ => Id.run do
+    let mut r := #[]
+    let mut stream := UCDStream.ofString s
+    for record in stream do
+      let start := ofHexString! record[0]!
+      let val := f start record[1:]
+      r := r.push (start, val)
+    return r
 
 /-- Parse a range compressed data table -/
-private def parseDataTable (s : String) (f : UInt32 → UInt32 → Array String.Slice → α) : Thunk <| Array (UInt32 × UInt32 × α) := Id.run do
-  let mut r := #[]
-  let mut stream := UCDStream.ofString s
-  for record in stream do
-    let start := ofHexString! record[0]!
-    let stop := if record[1]!.isEmpty then start else ofHexString! record[1]!
-    let val := f start stop record[2:]
-    r := r.push (start, stop, val)
-  return r
+private def parseDataTable (s : String) (f : UInt32 → UInt32 → Array String.Slice → α) : Thunk <| Array (UInt32 × UInt32 × α) :=
+  .mk fun _ => Id.run do
+    let mut r := #[]
+    let mut stream := UCDStream.ofString s
+    for record in stream do
+      let start := ofHexString! record[0]!
+      let stop := if record[1]!.isEmpty then start else ofHexString! record[1]!
+      let val := f start stop record[2:]
+      r := r.push (start, stop, val)
+    return r
 
 /-- Parse a range compressed property table -/
-private def parsePropTable (s : String) : Thunk <| Array (UInt32 × UInt32) := Id.run do
-  let mut r := #[]
-  let mut stream := UCDStream.ofString s
-  for record in stream do
-    let start := ofHexString! record[0]!
-    let stop := if record[1]!.isEmpty then start else ofHexString! record[1]!
-    r := r.push (start, stop)
-  return r
+private def parsePropTable (s : String) : Thunk <| Array (UInt32 × UInt32) :=
+  .mk fun _ => Id.run do
+    let mut r := #[]
+    let mut stream := UCDStream.ofString s
+    for record in stream do
+      let start := ofHexString! record[0]!
+      let stop := if record[1]!.isEmpty then start else ofHexString! record[1]!
+      r := r.push (start, stop)
+    return r
 
 /-- Get bidirectional class using lookup table
 
