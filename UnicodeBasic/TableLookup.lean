@@ -225,8 +225,8 @@ public def lookupName (c : UInt32) : String :=
             s!"<control-{toHexStringRaw c}>"
           else if d == "<Private Use>" then
             s!"<private-use-{toHexStringRaw c}>"
-          else if d == "<Noncharacter>" then
-            s!"<noncharacter-{toHexStringRaw c}>"
+          else if d == "<Reserved>" then
+            s!"<reserved-{toHexStringRaw c}>"
           else if d == "<Surrogate>" then
             s!"<surrogate-{toHexStringRaw c}>"
           else if d == "<CJK Unified Ideograph>" then
@@ -259,7 +259,7 @@ public def lookupName (c : UInt32) : String :=
             "SMALL SEAL CHARACTER-" ++ toHexStringRaw c
           else panic! s!"unknown name range {d.copy}"
         else String.Slice.copy d
-      else s!"<reserved-{toHexStringRaw c}>"
+      else s!"<noncharacter-{toHexStringRaw c}>"
 where
   str : String := include_str "../data/Name.txt"
   table : Thunk <| Array (UInt32 × UInt32 × String.Slice) :=

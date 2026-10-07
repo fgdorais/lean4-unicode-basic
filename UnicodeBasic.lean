@@ -64,7 +64,7 @@ namespace Unicode
 
   When the Unicode property `Name` is empty, a unique code point label is
   returned as recommended in Unicode Standard, section 4.8, for example
-  `<control-0009>` or `<reserved-0378>`. These labels start with `'<'`
+  `<control-0009>` or `<private-use-E000>`. These labels start with `'<'`
   (U+003C) and end with `'>'` (U+003E) so they are distinguishable from
   actual name values.
 

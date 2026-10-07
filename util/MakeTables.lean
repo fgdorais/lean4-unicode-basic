@@ -367,7 +367,7 @@ def mkName : IO <| Array (UInt32 × UInt32 × String) := do
           t := t.pop.push (c₀, c, n)
         else
           t := t.push (c, c, n)
-  return mergeData #[t, mkNoncharacterCodePoint.map fun (c₀, c₁) => (c₀, c₁, "<Noncharacter>")]
+  return mergeData #[t, mkNoncharacterCodePoint.map fun (c₀, c₁) => (c₀, c₁, "<Reserved>")]
 
 def mkNumericValue : IO <| Array (UInt32 × UInt32 × NumericType) := do
   let mut t := #[]
