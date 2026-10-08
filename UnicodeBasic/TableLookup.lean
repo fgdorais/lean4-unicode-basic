@@ -237,6 +237,8 @@ public def lookupName (c : UInt32) : String :=
             "HANGUL SYLLABLE " ++ (Hangul.getSyllable! c).getShortName
           else if d == "<khitan small script character>" then
             "KHITAN SMALL SCRIPT CHARACTER-" ++ toHexStringRaw c
+          else if d == "<egyptian hieroglyph>" then
+            "EGYPTIAN HIEROGLYPH-" ++ toHexStringRaw c
           else if d == "<nushu character>" then
             "NUSHU CHARACTER-" ++ toHexStringRaw c
           else if d == "<tangut component>" then

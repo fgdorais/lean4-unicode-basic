@@ -346,6 +346,13 @@ def mkName : IO <| Array (UInt32 × UInt32 × String) := do
           t := t.pop.push (c₀, c, n)
         else
           t := t.push (c, c, "<khitan small script character>")
+    else if "EGYPTIAN HIEROGLYPH-".isPrefixOf n then
+      match t.back! with
+      | (c₀, c₁, n) =>
+        if c == c₁ + 1 && n == "<egyptian hieroglyph>" then
+          t := t.pop.push (c₀, c, n)
+        else
+          t := t.push (c, c, "<egyptian hieroglyph>")
     else if "NUSHU CHARACTER-".isPrefixOf n then
       match t.back! with
       | (c₀, c₁, n) =>
