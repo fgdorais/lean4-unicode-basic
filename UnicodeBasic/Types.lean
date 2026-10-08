@@ -109,10 +109,9 @@ public def ofHexString! (str : String.Slice) : UInt32 :=
 
 /-- General category (GC)
 
-  A value of this type is a set of general categories, encoded as a bit set
-  with one bit for each basic category (such as `GC.Lu`). Derived categories
-  (such as `GC.L`) are unions of basic categories, `GC.none` is the empty set
-  and `GC.univ` is the set of all categories.
+  A value of this type is a set of general categories. Derived categories
+  (such as `GC.L`) are unions of basic categories (such as `GC.Lu`),
+  `GC.none` is the empty set and `GC.univ` is the set of all categories.
 
   Unicode property: `General_Category` -/
 @[expose]
@@ -665,10 +664,9 @@ public def Script.isValid (c : UInt32) : Bool :=
   Latin. Use `Script.ofAbbrev?` and `Script.toAbbrev` to convert from and to
   this code. -/
 public structure Script where
-  /-- The four letters of the code as bytes, most significant byte first -/
   public code : UInt32
-  /-- The code consists of an uppercase ASCII letter followed by three
-    lowercase ASCII letters -/
+  /-- The code consists of an uppercase letter followed by three lowercase
+    letters -/
   public is_valid : Script.isValid code
 deriving DecidableEq, Hashable
 

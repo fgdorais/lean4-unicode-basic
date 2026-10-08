@@ -596,9 +596,9 @@ public def getCanonicalCombiningClass (char : Char) : Nat :=
 
 /-- Get full canonical decomposition of character (`NFD`)
 
-  Canonical decomposition mappings are applied recursively, including the
-  algorithmic decomposition of Hangul syllables. Returns the character itself
-  if it has no canonical decomposition.
+  Returns the full canonical decomposition of the character, including for
+  Hangul syllables. Returns the character itself if it has no canonical
+  decomposition.
 
   Unicode properties:
     `Decomposition_Mapping`
@@ -612,8 +612,8 @@ public def getCanonicalDecomposition (char : Char) : String :=
 
   Returns `none` if the character has no decomposition mapping. The `tag`
   field is `none` for a canonical mapping and `some _` for a compatibility
-  mapping. The mapping is not applied recursively; this is a building block for
-  normalization to canonical decomposition (`NFD`) and compatibility
+  mapping. This is a single decomposition step, not the full decomposition
+  used in normalization to canonical decomposition (`NFD`) and compatibility
   decomposition (`NFKD`).
 
   Unicode properties:
