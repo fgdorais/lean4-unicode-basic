@@ -8,27 +8,29 @@ import UnicodeData
 
 open Unicode
 
+/-- Character for a code point; surrogates are skipped by `main` -/
+def Unicode.UnicodeData.char (d : UnicodeData) : Char := Char.ofNat d.code.toNat
+
 def testAlphabetic (d : UnicodeData) : Bool :=
   let v :=
     if d.gc ∈ [.Lu, .Ll, .Lt, .Lm, .Lo, .Nl] then true
     else PropList.isOtherAlphabetic d.code
-  v == lookupAlphabetic d.code
+  v == isAlphabetic d.char
 
 def testBidiClass (d : UnicodeData) : Bool :=
-  d.bidi == lookupBidiClass d.code
+  d.bidi == getBidiClass d.char
 
 def testBidiMirrored (d : UnicodeData) : Bool :=
-  d.bidiMirrored == lookupBidiMirrored d.code
+  d.bidiMirrored == isBidiMirrored d.char
 
 def testCanonicalCombiningClass (d : UnicodeData) : Bool :=
-  d.cc == lookupCanonicalCombiningClass d.code
+  d.cc == getCanonicalCombiningClass d.char
 
 partial def testCanonicalDecompositionMapping (d : UnicodeData) : Bool :=
-  let m := lookupCanonicalDecompositionMapping d.code
   let l := match d.decomp with
     | some ⟨none, l⟩ => mapping (l.map Char.val)
     | _ => [d.code]
-  m == l
+  getCanonicalDecomposition d.char == String.ofList (l.map fun c => Char.ofNat c.toNat)
 where
   mapping : List UInt32 → List UInt32
   | [] => unreachable!
@@ -45,26 +47,23 @@ def testCased (d : UnicodeData) : Bool :=
     | _ =>
       PropList.isOtherLowercase d.code
         || PropList.isOtherUppercase d.code
-  v == lookupCased d.code
+  v == isCased d.char
 
 def testCaseFolding (d : UnicodeData) : Bool :=
-  let (s, f) := lookupCaseFolding d.code
-  -- U+0130 and U+0131 have Turkic case mappings, which default case folding
-  -- ignores (see the `T` entries in `CaseFolding.txt`), so check them directly
-  if d.code == 0x0130 then (s, f) == (0x0130, [0x0069, 0x0307]) else
-  if d.code == 0x0131 then (s, f) == (0x0131, [0x0131]) else
-  (d.uppercase.isNone || (s, f) == lookupCaseFolding d.uppercase.get!.val)
-    && (d.lowercase.isNone || (s, f) == lookupCaseFolding d.lowercase.get!.val)
-      && (d.titlecase.isNone || (s, f) == lookupCaseFolding d.titlecase.get!.val)
+  let s := (CaseFolding.getSimple? d.code).getD d.code
+  let f := match CaseFolding.getFull d.code with
+    | #[] => [d.code]
+    | f => f.toList
+  getCaseFoldingChar d.char == Char.ofNat s.toNat
+    && getCaseFolding d.char == String.ofList (f.map fun c => Char.ofNat c.toNat)
 
 def testCaseMapping (d : UnicodeData) : Bool :=
-  let (mu, ml, mt) := lookupCaseMapping d.code
-  mu == (d.uppercase.map Char.val).getD d.code
-    && ml == (d.lowercase.map Char.val).getD d.code
-      && mt == (d.titlecase.map Char.val).getD d.code
+  getUpperChar d.char == d.uppercase.getD d.char
+    && getLowerChar d.char == d.lowercase.getD d.char
+      && getTitleChar d.char == d.titlecase.getD d.char
 
 def testDecompositionMapping (d : UnicodeData) : Bool :=
-  d.decomp == lookupDecompositionMapping? d.code
+  d.decomp == getDecompositionMapping? d.char
 
 def testDefaultIgnorableCodePoint (d : UnicodeData) : Bool :=
   let v :=
@@ -76,54 +75,65 @@ def testDefaultIgnorableCodePoint (d : UnicodeData) : Bool :=
       && !(0x13430 ≤ d.code && d.code ≤ 0x1343F)
         && !PropList.isWhiteSpace d.code
           && !PropList.isPrependedConcatenationMark d.code
-  v == lookupDefaultIgnorableCodePoint d.code
+  v == isDefaultIgnorableCodePoint d.char
 
 def testGeneralCategory (d : UnicodeData) : Bool :=
-  d.gc == lookupGC d.code
+  d.gc == getGC d.char
 
 def testLowercase (d : UnicodeData) : Bool :=
   let v :=
     match d.gc with
     | .Ll => true
     | _ => PropList.isOtherLowercase d.code
-  v == lookupLowercase d.code
+  v == isLowercase d.char
 
 def testMath (d : UnicodeData) : Bool :=
   let v :=
     match d.gc with
     | .Sm => true
     | _ => PropList.isOtherMath d.code
-  v == lookupMath d.code
+  v == isMath d.char
 
 def testName (d : UnicodeData) : Bool :=
-  d.name == lookupName d.code
+  d.name == getName d.char
 
 def testNoncharacterCodePoint (d : UnicodeData) : Bool :=
-  PropList.isNoncharacterCodePoint d.code == lookupNoncharacterCodePoint d.code
+  PropList.isNoncharacterCodePoint d.code == isNoncharacterCodePoint d.char
 
 def testNumericValue (d : UnicodeData) : Bool :=
-  d.numeric == lookupNumericValue d.code
-
-def testTitlecase (d : UnicodeData) : Bool :=
-  let v :=
-    match d.gc with
-    | .Lt => true
-    | _ => false
-  v == lookupTitlecase d.code
+  let c := d.char
+  -- `isNumeric` also covers Han ideographs whose numeric values are only
+  -- listed in the Unihan database, which is not available here
+  let numeric := isNumeric c == d.numeric.isSome
+    || (isNumeric c && (getScript c).toAbbrev == "Hani")
+  match d.numeric with
+  | some (.decimal v) =>
+    let first := Char.ofNat (d.code.toNat - v.val)
+    numeric && isDigit c && isDecimal c && getDigit? c == some v
+      && getDecimalRange? c == some (first, Char.ofNat (first.toNat + 9))
+  | some (.digit v) =>
+    numeric && isDigit c && !isDecimal c && getDigit? c == some v
+      && getDecimalRange? c == none
+  | _ =>
+    numeric && !isDigit c && !isDecimal c && getDigit? c == none
+      && getDecimalRange? c == none
 
 def testUppercase (d : UnicodeData) : Bool :=
   let v :=
     match d.gc with
     | .Lu => true
     | _ => PropList.isOtherUppercase d.code
-  v == lookupUppercase d.code
+  v == isUppercase d.char
 
 def testWhiteSpace (d : UnicodeData) : Bool :=
-  PropList.isWhiteSpace d.code == lookupWhiteSpace d.code
+  PropList.isWhiteSpace d.code == isWhiteSpace d.char
+
+def testScript (d : UnicodeData) : Bool :=
+  Scripts.get d.code == getScript d.char
 
 def testScriptExtensions (d : UnicodeData) : Bool :=
   let scx := ScriptExtensions.get d.code
-  let v := lookupScriptSet d.code
+  let v := getScriptSet d.char
   v.toArray.all scx.contains && scx.all v.contains
 
 def tests : Array (String × (UnicodeData → Bool)) := #[
@@ -141,9 +151,9 @@ def tests : Array (String × (UnicodeData → Bool)) := #[
   ("Math", testMath),
   ("Name", testName),
   ("Noncharacter_Code_Point", testNoncharacterCodePoint),
-  ("Titlecase", testTitlecase),
   ("Uppercase", testUppercase),
   ("Numeric_Value", testNumericValue),
+  ("Script", testScript),
   ("Script_Extensions", testScriptExtensions),
   ("General_Category", testGeneralCategory),
   ("White_Space", testWhiteSpace)]
@@ -153,6 +163,8 @@ public def main (args : List String) : IO UInt32 := do
   let stream : UnicodeDataStream := {}
   let mut err : UInt32 := 0
   for d in stream do
+    -- surrogate code points are not characters
+    if d.gc == .Cs then continue
     for t in tests do
       if t.1 ∈ args && !t.2 d then
         err := 1
