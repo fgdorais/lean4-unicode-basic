@@ -300,27 +300,27 @@ def mkNoncharacterCodePoint : Array (UInt32 × UInt32) :=
     | (c₀, none) => (c₀, c₀)
 
 def mkName : IO <| Array (UInt32 × UInt32 × String) := do
-  let mut t := #[(0,0,"<Control>")]
+  let mut t := #[(0,0,"<control>")]
   for i in [1:UnicodeData.data.size] do
     let data := UnicodeData.data[i]!
     let c := data.code
     let n := data.name.copy
     if n.takeEnd 8 == ", First>" then
       if "<CJK Ideograph".isPrefixOf n then
-        t := t.push (c, c, "<CJK Unified Ideograph>")
+        t := t.push (c, c, "<cjk unified ideograph>")
       else if "<Tangut Ideograph".isPrefixOf n then
-        t := t.push (c, c, "<Tangut Ideograph>")
+        t := t.push (c, c, "<tangut ideograph>")
       else if n.takeEnd 17 == "Surrogate, First>" then
         match t.back! with
         | (c₀, c₁, n₀) =>
-          if c == c₁ + 1 && n₀ == "<Surrogate>" then
-            t := t.pop.push (c₀, c, "<Surrogate>")
+          if c == c₁ + 1 && n₀ == "<surrogate>" then
+            t := t.pop.push (c₀, c, "<surrogate>")
           else
-            t := t.push (c, c, "<Surrogate>")
+            t := t.push (c, c, "<surrogate>")
       else if n.takeEnd 19 == "Private Use, First>" then
-        t := t.push (c, c, "<Private Use>")
+        t := t.push (c, c, "<private use>")
       else
-        t := t.push (c, c, (n.dropEnd 8).copy ++ ">")
+        t := t.push (c, c, ((n.dropEnd 8).copy ++ ">").toLower)
     else if n.takeEnd 7 == ", Last>" then
       match t.back! with
       | (c₀, _, n₀) =>
@@ -328,38 +328,45 @@ def mkName : IO <| Array (UInt32 × UInt32 × String) := do
     else if n == "<control>" then
       match t.back! with
       | (c₀, _, n₀) =>
-        if n₀ == "<Control>" then
+        if n₀ == "<control>" then
           t := t.pop.push (c₀, c, n₀)
         else
-          t := t.push (c, c, "<Control>")
+          t := t.push (c, c, "<control>")
     else if "CJK COMPATIBILITY IDEOGRAPH-".isPrefixOf n then
       match t.back! with
       | (c₀, c₁, n) =>
-        if c == c₁ + 1 && n == "<CJK Compatibility Ideograph>" then
+        if c == c₁ + 1 && n == "<cjk compatibility ideograph>" then
           t := t.pop.push (c₀, c, n)
         else
-          t := t.push (c, c, "<CJK Compatibility Ideograph>")
+          t := t.push (c, c, "<cjk compatibility ideograph>")
     else if "KHITAN SMALL SCRIPT CHARACTER-".isPrefixOf n then
       match t.back! with
       | (c₀, c₁, n) =>
-        if c == c₁ + 1 && n == "<Khitan Small Script Character>" then
+        if c == c₁ + 1 && n == "<khitan small script character>" then
           t := t.pop.push (c₀, c, n)
         else
-          t := t.push (c, c, "<Khitan Small Script Character>")
+          t := t.push (c, c, "<khitan small script character>")
+    else if "EGYPTIAN HIEROGLYPH-".isPrefixOf n then
+      match t.back! with
+      | (c₀, c₁, n) =>
+        if c == c₁ + 1 && n == "<egyptian hieroglyph>" then
+          t := t.pop.push (c₀, c, n)
+        else
+          t := t.push (c, c, "<egyptian hieroglyph>")
     else if "NUSHU CHARACTER-".isPrefixOf n then
       match t.back! with
       | (c₀, c₁, n) =>
-        if c == c₁ + 1 && n == "<Nushu Character>" then
+        if c == c₁ + 1 && n == "<nushu character>" then
           t := t.pop.push (c₀, c, n)
         else
-          t := t.push (c, c, "<Nushu Character>")
+          t := t.push (c, c, "<nushu character>")
     else if "TANGUT COMPONENT-".isPrefixOf n then
       match t.back! with
       | (c₀, c₁, n) =>
-        if c == c₁ + 1 && n == "<Tangut Component>" then
+        if c == c₁ + 1 && n == "<tangut component>" then
           t := t.pop.push (c₀, c, n)
         else
-          t := t.push (c, c, "<Tangut Component>")
+          t := t.push (c, c, "<tangut component>")
     else
       match t.back! with
       | (c₀, c₁, n₀) =>
@@ -367,7 +374,7 @@ def mkName : IO <| Array (UInt32 × UInt32 × String) := do
           t := t.pop.push (c₀, c, n)
         else
           t := t.push (c, c, n)
-  return mergeData #[t, mkNoncharacterCodePoint.map fun (c₀, c₁) => (c₀, c₁, "<Reserved>")]
+  return mergeData #[t, mkNoncharacterCodePoint.map fun (c₀, c₁) => (c₀, c₁, "<noncharacter>")]
 
 def mkNumericValue : IO <| Array (UInt32 × UInt32 × NumericType) := do
   let mut t := #[]

@@ -221,25 +221,27 @@ public def lookupName (c : UInt32) : String :=
     | (_, v, d) =>
       if c ≤ v then
         if Char.ofUInt8 (d.getUTF8Byte! 0) == '<' then
-          if d == "<Control>" then
+          if d == "<control>" then
             s!"<control-{toHexStringRaw c}>"
-          else if d == "<Private Use>" then
+          else if d == "<private use>" then
             s!"<private-use-{toHexStringRaw c}>"
-          else if d == "<Reserved>" then
-            s!"<reserved-{toHexStringRaw c}>"
-          else if d == "<Surrogate>" then
+          else if d == "<noncharacter>" then
+            s!"<noncharacter-{toHexStringRaw c}>"
+          else if d == "<surrogate>" then
             s!"<surrogate-{toHexStringRaw c}>"
-          else if d == "<CJK Unified Ideograph>" then
+          else if d == "<cjk unified ideograph>" then
             "CJK UNIFIED IDEOGRAPH-" ++ toHexStringRaw c
-          else if d == "<CJK Compatibility Ideograph>" then
+          else if d == "<cjk compatibility ideograph>" then
             "CJK COMPATIBILITY IDEOGRAPH-" ++ toHexStringRaw c
-          else if d == "<Hangul Syllable>" then
+          else if d == "<hangul syllable>" then
             "HANGUL SYLLABLE " ++ (Hangul.getSyllable! c).getShortName
-          else if d == "<Khitan Small Script Character>" then
+          else if d == "<khitan small script character>" then
             "KHITAN SMALL SCRIPT CHARACTER-" ++ toHexStringRaw c
-          else if d == "<Nushu Character>" then
+          else if d == "<egyptian hieroglyph>" then
+            "EGYPTIAN HIEROGLYPH-" ++ toHexStringRaw c
+          else if d == "<nushu character>" then
             "NUSHU CHARACTER-" ++ toHexStringRaw c
-          else if d == "<Tangut Component>" then
+          else if d == "<tangut component>" then
             let i := if c.toNat < 0x18B00 then
                 -- Tangut Component
                 toString <| c.toNat - 0x18800 + 1
@@ -251,15 +253,15 @@ public def lookupName (c : UInt32) : String :=
               else if i.length == 2 then "0" ++ i
               else i
             "TANGUT COMPONENT-" ++ i
-          else if d == "<Tangut Ideograph>" then
+          else if d == "<tangut ideograph>" then
             "TANGUT IDEOGRAPH-" ++ toHexStringRaw c
-          else if d == "<Jurchen Character>" then
+          else if d == "<jurchen character>" then
             "JURCHEN CHARACTER-" ++ toHexStringRaw c
-          else if d == "<Seal Character>" then
+          else if d == "<seal character>" then
             "SMALL SEAL CHARACTER-" ++ toHexStringRaw c
           else panic! s!"unknown name range {d.copy}"
         else String.Slice.copy d
-      else s!"<noncharacter-{toHexStringRaw c}>"
+      else s!"<reserved-{toHexStringRaw c}>"
 where
   str : String := include_str "../data/Name.txt"
   table : Thunk <| Array (UInt32 × UInt32 × String.Slice) :=
