@@ -80,6 +80,7 @@ def testDefaultIgnorableCodePoint (d : UnicodeData) : Bool :=
 
 def testGeneralCategory (d : UnicodeData) : Bool :=
   d.gc == lookupGC d.code
+    && (d.code ≥ 128 || d.gc == getGC (Char.ofNat d.code.toNat))
 
 def testLowercase (d : UnicodeData) : Bool :=
   let v :=
