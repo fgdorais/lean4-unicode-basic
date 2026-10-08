@@ -646,7 +646,10 @@ public instance : Repr BidiClass where
   ## Scripts ##
 -/
 
-/-- Check if valid script identifier -/
+/-- Check if valid script identifier
+
+  A valid script identifier consists of an uppercase letter followed by three
+  lowercase letters. -/
 @[inline]
 public def Script.isValid (c : UInt32) : Bool :=
   let c0 := (c >>> 24).toUInt8
@@ -665,8 +668,6 @@ public def Script.isValid (c : UInt32) : Bool :=
   this code. -/
 public structure Script where
   public code : UInt32
-  /-- The code consists of an uppercase letter followed by three lowercase
-    letters -/
   public is_valid : Script.isValid code
 deriving DecidableEq, Hashable
 
@@ -721,7 +722,6 @@ where
 public structure ScriptSet where
   /-- Scripts in the set, sorted by script code -/
   public toArray : Array Script
-  /-- The scripts in `toArray` are strictly sorted by script code -/
   public is_sorted : ScriptSet.isSorted toArray
 deriving BEq
 
