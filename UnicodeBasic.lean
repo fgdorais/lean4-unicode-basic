@@ -766,15 +766,15 @@ public def getHexDigit? (char : Char) : Option (Fin 16) :=
   if n < 0x30 then
     none
   else if h : n - 0x30 < 10 then
-    some ⟨n - 0x30, by omega⟩
+    some ⟨n - 0x30, by lia⟩
   else if n < 0x41 then
     none
   else if h : n - 0x41 < 6 then
-    some ⟨n - 0x41 + 10, by omega⟩
+    some ⟨n - 0x41 + 10, by lia⟩
   else if n < 0x61 then
     none
   else if h : n - 0x61 < 6 then
-    some ⟨n - 0x61 + 10, by omega⟩
+    some ⟨n - 0x61 + 10, by lia⟩
   else
     none
 
