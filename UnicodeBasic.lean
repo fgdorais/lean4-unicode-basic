@@ -594,6 +594,18 @@ private def unconsCaseFolding (char : Char) : UInt32 × List UInt32 :=
     | (some s, []) => (s, [])
     | (none, []) => (char.val, [])
 
+/-- Full case folding of a character, in continuation-passing style
+
+  Calls `k` with the first character of the full case folding of `char` and
+  the list of its remaining characters. For example, for U+00DF LATIN SMALL
+  LETTER SHARP S, `k` is called with `'s'` and `['s']`.
+
+  Unicode property: `Case_Folding` -/
+@[inline]
+public def withCaseFolding (char : Char) (k : Char → List Char → β) : β :=
+  match unconsCaseFolding char with
+  | (v, f) => k (Char.ofNat v.toNat) (f.map fun v => Char.ofNat v.toNat)
+
 /-- Case-insensitive prefix match
 
   If `pat` matches a prefix of `s` up to full case folding, returns that prefix
