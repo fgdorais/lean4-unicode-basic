@@ -558,7 +558,7 @@ public def getCaseFoldingChar (char : Char) : Char :=
       char
   else
     match lookupCaseFolding char.val with
-    | (some s, _) => s
+    | (some s, _) => Char.ofNat s.toNat
     | (none, _) => char
 
 /-- Full case folding of a character
@@ -576,9 +576,23 @@ public def getCaseFolding (char : Char) : String :=
       char.toString
   else
     match lookupCaseFolding char.val with
-    | (_, f@(_ :: _)) => String.ofList f
-    | (some s, []) => s.toString
+    | (_, f@(_ :: _)) => f.foldl (fun s v => s.push (Char.ofNat v.toNat)) ""
+    | (some s, []) => (Char.ofNat s.toNat).toString
     | (none, []) => char.toString
+
+/-- Full case folding of a character as its first code point and the rest -/
+@[inline]
+private def unconsCaseFolding (char : Char) : UInt32 × List UInt32 :=
+  if char.val < 0x80 then
+    if 'A' ≤ char && char ≤ 'Z' then
+      (char.val + 0x20, [])
+    else
+      (char.val, [])
+  else
+    match lookupCaseFolding char.val with
+    | (_, v :: f) => (v, f)
+    | (some s, []) => (s, [])
+    | (none, []) => (char.val, [])
 
 /-- Full case folding of a character, in continuation-passing style
 
@@ -589,16 +603,8 @@ public def getCaseFolding (char : Char) : String :=
   Unicode property: `Case_Folding` -/
 @[inline]
 public def withCaseFolding (char : Char) (k : Char → List Char → β) : β :=
-  if char.val < 0x80 then
-    if 'A' ≤ char && char ≤ 'Z' then
-      k (Char.ofNat (char.val + 0x20).toNat) []
-    else
-      k char []
-  else
-    match lookupCaseFolding char.val with
-    | (_, c :: f) => k c f
-    | (some s, []) => k s []
-    | (none, []) => k char []
+  match unconsCaseFolding char with
+  | (v, f) => k (Char.ofNat v.toNat) (f.map fun v => Char.ofNat v.toNat)
 
 /-- Case-insensitive prefix match
 
@@ -616,7 +622,7 @@ public def matchPrefixCaseInsensitive? (pat s : String.Slice) :
   loop s.startPos pat.startPos [] []
 where
   loop (i : s.Pos) (j : pat.Pos) :
-      List Char → List Char → Option (String.Slice × String.Slice)
+      List UInt32 → List UInt32 → Option (String.Slice × String.Slice)
     | a :: as, b :: bs => if a == b then loop i j as bs else none
     | [], [] =>
       if hj : j = pat.endPos then
@@ -624,21 +630,20 @@ where
       else if hi : i = s.endPos then
         none
       else
-        withCaseFolding (i.get hi) fun a as =>
-          withCaseFolding (j.get hj) fun b bs =>
-            if a == b then loop (i.next hi) (j.next hj) as bs else none
+        match unconsCaseFolding (i.get hi), unconsCaseFolding (j.get hj) with
+        | (a, as), (b, bs) => if a == b then loop (i.next hi) (j.next hj) as bs else none
     | a :: as, [] =>
       if hj : j = pat.endPos then
         none
       else
-        withCaseFolding (j.get hj) fun b bs =>
-          if a == b then loop i (j.next hj) as bs else none
+        match unconsCaseFolding (j.get hj) with
+        | (b, bs) => if a == b then loop i (j.next hj) as bs else none
     | [], b :: bs =>
       if hi : i = s.endPos then
         none
       else
-        withCaseFolding (i.get hi) fun a as =>
-          if a == b then loop (i.next hi) j as bs else none
+        match unconsCaseFolding (i.get hi) with
+        | (a, as) => if a == b then loop (i.next hi) j as bs else none
   termination_by as bs => (i.remainingBytes + j.remainingBytes, as.length + bs.length)
   decreasing_by
     all_goals first
