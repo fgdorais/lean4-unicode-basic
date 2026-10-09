@@ -15,7 +15,7 @@ def Unicode.GC.PQ1 : GC := GC.PQ ||| GC.BP
 
 def propTable : Array (UInt32 × UInt32 × UInt64) := Id.run do
   let mut t : Array (UInt32 × UInt32 × UInt64) := #[(0, 0, GC.Cc.toUInt64)]
-  for data in UnicodeData.data[1:] do
+  for data in UnicodeData.data.get[1:] do
     let c := data.code
     let gc := data.gc
     let mut op : UInt64 := 0
@@ -144,7 +144,7 @@ static const unicode_data_t table[] = {"
 
 def caseTable : Array (UInt32 × UInt32 × UInt64) := Id.run do
   let mut t := #[]
-  for data in UnicodeData.data do
+  for data in UnicodeData.data.get do
     match data with
     | ⟨_, _, _, _, _, _, _, _, none, none, none⟩ => continue
     | ⟨c, _, _, _, _, _, _, _, um, lm, tm⟩ =>
@@ -193,7 +193,7 @@ static const unicode_data_t table[] = {"
     file.putStrLn "};"
 
 def scriptTable : Array (UInt32 × UInt32 × UInt64) :=
-  let t := Scripts.data.toArray.flatMap fun (sc, t) =>
+  let t := Scripts.data.get.toArray.flatMap fun (sc, t) =>
     let sc := Script.ofAbbrev! <| PropertyValueAliases.getShortName! "sc" sc
     t.map fun (c₀, c₁) => (c₀, c₁, sc.code.toUInt64)
   t.qsort fun (a, _) (b, _) => a < b
