@@ -47,15 +47,13 @@ public protected abbrev maxSurrogate : UInt32 := Unicode.maxLowSurrogate
   Same as `toHexString` but without the `U+` prefix. -/
 public def toHexStringRaw (code : UInt32) : String := Id.run do
   let hex := #['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F']
-  let mut code := code
-  let mut dgts := []
-  for _ in [:4] do
-    dgts := hex[(code &&& 0xF).toNat]! :: dgts
-    code := code >>> 4
-  while code != 0 do
-    dgts := hex[(code &&& 0xF).toNat]! :: dgts
-    code := code >>> 4
-  return String.ofList dgts
+  let mut n := 4
+  while n < 8 && code >>> (4 * n).toUInt32 != 0 do
+    n := n + 1
+  let mut str := ""
+  for i in [:n] do
+    str := str.push hex[(code >>> (4 * (n - 1 - i)).toUInt32 &&& 0xF).toNat]!
+  return str
 
 /-- Hexadecimal string representation of a code point
 

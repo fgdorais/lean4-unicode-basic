@@ -154,6 +154,7 @@ where
     `Simple_Lowercase_Mapping`
     `Simple_Uppercase_Mapping`
     `Simple_Titlecase_Mapping` -/
+@[inline]
 public def lookupCaseMapping (c : UInt32) : UInt32 × UInt32 × UInt32 :=
   let v : UInt64 := CLib.lookupCase c
   if v == 0 then (c, c, c) else
@@ -178,14 +179,10 @@ public def lookupDecompositionMapping? (c : UInt32) : Option DecompositionMappin
     let table := table.get
     if c < table[0]!.1 then none else
       match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
-      | (v, t, l) =>
-        if c == v then
-          some <| .mk t (l.map fun c => Char.ofNat c.toNat).toList
-        else
-          none
+      | (v, m) => if c == v then m else none
 where
   str : String := include_str "../data/Decomposition_Mapping.txt"
-  table : Thunk <| Array (UInt32 × Option CompatibilityTag × Array UInt32) :=
+  table : Thunk <| Array (UInt32 × Option DecompositionMapping) :=
     parseTable str fun _ x =>
       let tag :=
         if x[0]! == "" then none
@@ -206,7 +203,7 @@ where
         else if x[0]! == "<fraction>" then some .fraction
         else if x[0]! == "<compat>" then some .compat
         else panic! s!"invalid compatibility tag {x[0]!.copy}"
-      (tag, x[1:].toArray.map ofHexString!)
+      some ⟨tag, x[1:].toArray.toList.map fun s => Char.ofNat (ofHexString! s).toNat⟩
 
 /-- Get general category of a code point using lookup table
 
@@ -430,14 +427,14 @@ public def lookupScript (c : UInt32) : Script := CLib.lookupScript c
 /-- Get the name of a script
 
   Unicode property: `Script` -/
-public def lookupScriptName (s : Script) : Option String.Slice :=
+public def lookupScriptName (s : Script) : Option String :=
   let table := table.get
   if s.code < table[0]!.1 then none else
     match table[find s.code (fun i => table[i]!.1) 0 table.size.toUSize]! with
-    | (c, v) => if s.code = c then some v else none
+    | (c, v) => if s.code = c then v else none
 where
   str : String := include_str "../data/Script_Name.txt"
-  table : Thunk <| Array (UInt32 × String.Slice) := parseTable str fun _ n => n[0]!
+  table : Thunk <| Array (UInt32 × Option String) := parseTable str fun _ n => some n[0]!.copy
 
 /-- Get the set of scripts a code point is commonly used with, using lookup table
 
