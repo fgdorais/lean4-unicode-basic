@@ -70,13 +70,13 @@ public instance : Std.Stream UCDStream (Array String.Slice) where
       let (row', _, stream') ← stream.nextLine?
       row := row'
       stream := stream'
-    let sep := if stream.isUnihan then "\t" else ";"
+    let sep := if stream.isUnihan then '\t' else ';'
     let dat : Array String.Slice := row.split sep |>.toArray.map (·.trimAscii)
     return (dat, stream)
 
 public instance : Std.Stream UCDStreamWithComments (Array String.Slice × String.Slice) where
   next? stream := do
     let (row, cmt, stream) ← stream.nextLine?
-    let sep := if stream.isUnihan then "\t" else ";"
+    let sep := if stream.isUnihan then '\t' else ';'
     let dat : Array String.Slice := row.split sep |>.toArray.map (·.trimAscii)
     return ((dat, cmt), stream)
