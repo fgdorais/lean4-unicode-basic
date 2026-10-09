@@ -60,7 +60,7 @@ def statsProp (array : Array (UInt32 × UInt32)) : Id <| Nat × Nat := do
 
 def mkBidiClass : IO <| Array (UInt32 × UInt32 × BidiClass) := do
   let mut t := #[]
-  for d in UnicodeData.data do
+  for d in UnicodeData.data.get do
     if d.name.takeEnd 7 == ", Last>" then
       match t.back? with
       | some (c₀, _, bc) =>
@@ -79,7 +79,7 @@ def mkBidiClass : IO <| Array (UInt32 × UInt32 × BidiClass) := do
 
 def mkBidiMirrored : IO <| Array (UInt32 × UInt32) := do
   let mut t := #[]
-  for d in UnicodeData.data do
+  for d in UnicodeData.data.get do
     if d.bidiMirrored then
       match t.back? with
       | some (c₀, c₁) =>
@@ -93,7 +93,7 @@ def mkBidiMirrored : IO <| Array (UInt32 × UInt32) := do
 
 def mkCanonicalCombiningClass : IO <| Array (UInt32 × UInt32 × Nat) := do
   let mut t := #[]
-  for d in UnicodeData.data do
+  for d in UnicodeData.data.get do
     if d.cc > 0 then
       match t.back? with
       | some (c₀, c₁, cc) =>
@@ -107,7 +107,7 @@ def mkCanonicalCombiningClass : IO <| Array (UInt32 × UInt32 × Nat) := do
 
 partial def mkCanonicalDecompositionMapping : IO <| Array (UInt32 × List Char) := do
   let mut t := #[]
-  for data in UnicodeData.data do
+  for data in UnicodeData.data.get do
     match data.decomp with
     | some ⟨none, l⟩ =>
       t := t.push (data.code, fullDecomposition l)
@@ -123,7 +123,7 @@ where
 
 def mkCaseMapping : IO <| Array (UInt32 × UInt32 × UInt32 × UInt32 × UInt32) := do
   let mut t := #[]
-  for data in UnicodeData.data do
+  for data in UnicodeData.data.get do
     match data with
     | ⟨_, _, _, _, _, _, _, _, none, none, none⟩ => continue
     | ⟨c, _, _, _, _, _, _, _, um, lm, tm⟩ =>
@@ -142,7 +142,7 @@ def mkCaseMapping : IO <| Array (UInt32 × UInt32 × UInt32 × UInt32 × UInt32)
 
 def mkDecompositionMapping : IO <| Array (UInt32 × String) := do
   let mut t := #[]
-  for data in UnicodeData.data do
+  for data in UnicodeData.data.get do
     match data.decomp with
     | some ⟨none, l⟩ =>
       t := t.push (data.code, ";" ++ ";".intercalate (l.map (toHexStringRaw <| Char.val .)))
@@ -161,8 +161,8 @@ def Unicode.GC.PQ1 : GC := .PQ ||| .PB
 
 def mkGC : IO <| Array (UInt32 × UInt32 × UInt32) := do
   let mut t := #[(0,0,GC.Cc)]
-  for i in [1:UnicodeData.data.size] do
-    let data := UnicodeData.data[i]!
+  for i in [1:UnicodeData.data.get.size] do
+    let data := UnicodeData.data.get[i]!
     let c := data.code
     let k := data.gc
     if data.name.takeEnd 8 == ", First>" then
@@ -249,8 +249,8 @@ def mkGC : IO <| Array (UInt32 × UInt32 × UInt32) := do
 
 def mkGeneralCategory : IO <| Array (UInt32 × UInt32 × GC) := do
   let mut t := #[(0,0,.Cc)]
-  for i in [1:UnicodeData.data.size] do
-    let data := UnicodeData.data[i]!
+  for i in [1:UnicodeData.data.get.size] do
+    let data := UnicodeData.data.get[i]!
     let c := data.code
     let k := data.gc
     if data.name.takeEnd 8 == ", First>" then
@@ -261,28 +261,28 @@ def mkGeneralCategory : IO <| Array (UInt32 × UInt32 × GC) := do
         t := t.pop.push (c₀, c, k)
     else
       let k :=
-        if k == .Lu && (c &&& 1) == 0 && UnicodeData.data[i+1]!.code == c+1 then
-          if UnicodeData.data[i+1]!.gc == .Ll
+        if k == .Lu && (c &&& 1) == 0 && UnicodeData.data.get[i+1]!.code == c+1 then
+          if UnicodeData.data.get[i+1]!.gc == .Ll
           then .LC
           else k
-        else if k == .Ll && (c &&& 1) != 0 && UnicodeData.data[i-1]!.code == c-1 then
-          if UnicodeData.data[i-1]!.gc == .Lu
+        else if k == .Ll && (c &&& 1) != 0 && UnicodeData.data.get[i-1]!.code == c-1 then
+          if UnicodeData.data.get[i-1]!.gc == .Lu
           then .LC
           else k
-        else if k == .Ps && (c &&& 1) == 0 && UnicodeData.data[i+1]!.code == c+1 then
-          if UnicodeData.data[i+1]!.gc == .Pe
+        else if k == .Ps && (c &&& 1) == 0 && UnicodeData.data.get[i+1]!.code == c+1 then
+          if UnicodeData.data.get[i+1]!.gc == .Pe
           then .PG
           else k
-        else if k == .Pe && (c &&& 1) != 0 && UnicodeData.data[i-1]!.code == c-1 then
-          if UnicodeData.data[i-1]!.gc == .Ps
+        else if k == .Pe && (c &&& 1) != 0 && UnicodeData.data.get[i-1]!.code == c-1 then
+          if UnicodeData.data.get[i-1]!.gc == .Ps
           then .PG
           else k
-        else if k == .Pi && (c &&& 1) == 0 && UnicodeData.data[i+1]!.code == c+1 then
-          if UnicodeData.data[i+1]!.gc == .Pf
+        else if k == .Pi && (c &&& 1) == 0 && UnicodeData.data.get[i+1]!.code == c+1 then
+          if UnicodeData.data.get[i+1]!.gc == .Pf
           then .PQ
           else k
-        else if k == .Pf && (c &&& 1) != 0 && UnicodeData.data[i-1]!.code == c-1 then
-          if UnicodeData.data[i-1]!.gc == .Pi
+        else if k == .Pf && (c &&& 1) != 0 && UnicodeData.data.get[i-1]!.code == c-1 then
+          if UnicodeData.data.get[i-1]!.gc == .Pi
           then .PQ
           else k
         else k
@@ -295,14 +295,14 @@ def mkGeneralCategory : IO <| Array (UInt32 × UInt32 × GC) := do
   return t
 
 def mkNoncharacterCodePoint : Array (UInt32 × UInt32) :=
-  PropList.data.noncharacterCodePoint.map fun
+  PropList.data.get.noncharacterCodePoint.map fun
     | (c₀, some c₁) => (c₀, c₁)
     | (c₀, none) => (c₀, c₀)
 
 def mkName : IO <| Array (UInt32 × UInt32 × String) := do
   let mut t := #[(0,0,"<control>")]
-  for i in [1:UnicodeData.data.size] do
-    let data := UnicodeData.data[i]!
+  for i in [1:UnicodeData.data.get.size] do
+    let data := UnicodeData.data.get[i]!
     let c := data.code
     let n := data.name.copy
     if n.takeEnd 8 == ", First>" then
@@ -378,7 +378,7 @@ def mkName : IO <| Array (UInt32 × UInt32 × String) := do
 
 def mkNumericValue : IO <| Array (UInt32 × UInt32 × NumericType) := do
   let mut t := #[]
-  for d in UnicodeData.data do
+  for d in UnicodeData.data.get do
     match d.numeric with
     | some (.decimal 0) =>
       t := t.push (d.code, d.code + 9, NumericType.decimal 0)
@@ -398,37 +398,37 @@ def mkNumericValue : IO <| Array (UInt32 × UInt32 × NumericType) := do
   return t
 
 def mkOtherAlphabetic : Array (UInt32 × UInt32) :=
-  PropList.data.otherAlphabetic.map fun
+  PropList.data.get.otherAlphabetic.map fun
     | (c₀, some c₁) => (c₀, c₁)
     | (c₀, none) => (c₀, c₀)
 
 def mkOtherLowercase : Array (UInt32 × UInt32) :=
-  PropList.data.otherLowercase.map fun
+  PropList.data.get.otherLowercase.map fun
     | (c₀, some c₁) => (c₀, c₁)
     | (c₀, none) => (c₀, c₀)
 
 def mkOtherMath : Array (UInt32 × UInt32) :=
-  PropList.data.otherMath.map fun
+  PropList.data.get.otherMath.map fun
     | (c₀, some c₁) => (c₀, c₁)
     | (c₀, none) => (c₀, c₀)
 
 def mkOtherUppercase : Array (UInt32 × UInt32) :=
-  PropList.data.otherUppercase.map fun
+  PropList.data.get.otherUppercase.map fun
     | (c₀, some c₁) => (c₀, c₁)
     | (c₀, none) => (c₀, c₀)
 
 def mkOtherDefaultIgnorableCodePoint : Array (UInt32 × UInt32) :=
-  PropList.data.otherDefaultIgnorableCodePoint.map fun
+  PropList.data.get.otherDefaultIgnorableCodePoint.map fun
     | (c₀, some c₁) => (c₀, c₁)
     | (c₀, none) => (c₀, c₀)
 
 def mkPrependedConcatenationMark : Array (UInt32 × UInt32) :=
-  PropList.data.prependedConcatenationMark.map fun
+  PropList.data.get.prependedConcatenationMark.map fun
     | (c₀, some c₁) => (c₀, c₁)
     | (c₀, none) => (c₀, c₀)
 
 def mkVariationSelector : Array (UInt32 × UInt32) :=
-  PropList.data.variationSelector.map fun
+  PropList.data.get.variationSelector.map fun
     | (c₀, some c₁) => (c₀, c₁)
     | (c₀, none) => (c₀, c₀)
 
@@ -524,7 +524,7 @@ def mkUppercase : IO <| Array (UInt32 × UInt32) := do
   return mergeProp #[t, mkOtherUppercase]
 
 def mkWhiteSpace : Array (UInt32 × UInt32) :=
-  PropList.data.whiteSpace.map fun
+  PropList.data.get.whiteSpace.map fun
     | (c₀, some c₁) => (c₀, c₁)
     | (c₀, none) => (c₀, c₀)
 
@@ -536,7 +536,7 @@ def mkScriptName : Array (UInt32 × String) :=
 
 def mkScriptExtensions : Array (UInt32 × UInt32 × Array Script) := Id.run do
   let mut r := #[]
-  for (c₀, c₁, v) in ScriptExtensions.data.byCode do
+  for (c₀, c₁, v) in ScriptExtensions.data.get.byCode do
     let v := v.qsort fun a b => a.code < b.code
     match r.back? with
     | some (d₀, d₁, w) =>
@@ -613,7 +613,7 @@ public def main (args : List String) : IO UInt32 := do
           file.putStrLn <| toHexStringRaw c ++ ";" ++ ";".intercalate (l.map fun c => toHexStringRaw c.val)
       IO.println s!"Size: {table.size}"
     | "Case_Folding" =>
-      let table := Unicode.CaseFolding.data
+      let table := Unicode.CaseFolding.data.get
       IO.println s!"Generating table {arg}"
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c, s, f) in table do
