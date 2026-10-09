@@ -96,7 +96,7 @@ public def getScript (char : Char) : Script := lookupScript char.val
 -/
 @[inline]
 public def getScriptName? (s : Script) : Option String :=
-  lookupScriptName s |>.map toString
+  lookupScriptName s
 
 /-- Get the set of scripts a character is commonly used with
 
@@ -669,7 +669,7 @@ public def getCanonicalCombiningClass (char : Char) : Nat :=
 public def getCanonicalDecomposition (char : Char) : String :=
   -- ASCII shortcut
   if char.val < 0x80 then char.toString else
-    String.ofList <| (lookupCanonicalDecompositionMapping char.val).map fun c => Char.ofNat c.toNat
+    (lookupCanonicalDecompositionMapping char.val).foldl (fun s c => s.push (Char.ofNat c.toNat)) ""
 
 /-- Get decomposition mapping of a character
 
