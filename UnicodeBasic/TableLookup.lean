@@ -7,6 +7,12 @@ import UnicodeBasic.CharacterDatabase
 import UnicodeBasic.Hangul
 public import UnicodeBasic.Types
 
+/-! # Table lookups
+
+The functions in this module are not part of the public API and may change at
+any time. Use the functions in `UnicodeBasic` instead.
+-/
+
 namespace Unicode
 
 namespace CLib
