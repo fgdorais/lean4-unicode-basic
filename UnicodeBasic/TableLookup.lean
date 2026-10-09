@@ -122,21 +122,18 @@ where
 
 /-- Get simple and full case foldings of a code point using lookup table
 
+  Returns `(s, f)` where `s` is the simple case folding, or `none` if the code
+  point folds to itself, and `f` is the full case folding, or `[]` if it agrees
+  with the simple case folding.
+
   Unicode properties:
     `Case_Folding`
     `Simple_Case_Folding` -/
-public def lookupCaseFolding (c : UInt32) : UInt32 × List UInt32 :=
+public def lookupCaseFolding (c : UInt32) : Option UInt32 × List UInt32 :=
   let t := table.get
-  if c < t[0]!.1 then (c, [c]) else
+  if c < t[0]!.1 then (none, []) else
     match t[find c (fun i => t[i]!.1) 0 t.size.toUSize]! with
-    | (c', s, f) =>
-      if c == c' then
-        let s := s.getD c
-        if f.isEmpty then
-          (s, [s])
-        else
-          (s, f)
-      else (c, [c])
+    | (c', v) => if c == c' then v else (none, [])
 where
   str : String := include_str "../data/Case_Folding.txt"
   table : Thunk <| Array (UInt32 × Option UInt32 × List UInt32) :=
