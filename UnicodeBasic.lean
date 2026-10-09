@@ -558,7 +558,8 @@ public def getCaseFoldingChar (char : Char) : Char :=
       char
   else
     match lookupCaseFolding char.val with
-    | (fc, _) => Char.ofNat fc.toNat
+    | (some s, _) => Char.ofNat s.toNat
+    | (none, _) => char
 
 /-- Full case folding of a character
 
@@ -575,7 +576,9 @@ public def getCaseFolding (char : Char) : String :=
       char.toString
   else
     match lookupCaseFolding char.val with
-    | (_, fc) => .ofList <| fc.map fun v => Char.ofNat v.toNat
+    | (_, f@(_ :: _)) => f.foldl (fun s v => s.push (Char.ofNat v.toNat)) ""
+    | (some s, []) => (Char.ofNat s.toNat).toString
+    | (none, []) => char.toString
 
 /-!
   ## Decomposition Type and Mapping ##
