@@ -580,19 +580,25 @@ public def getCaseFolding (char : Char) : String :=
     | (some s, []) => (Char.ofNat s.toNat).toString
     | (none, []) => char.toString
 
-/-- Full case folding of a character as its first code point and the rest -/
+/-- Full case folding of a character, in continuation-passing style
+
+  Calls `k` with the first code point of the full case folding of `char` and
+  the list of its remaining code points. For example, for U+00DF LATIN SMALL
+  LETTER SHARP S, `k` is called with `0x73` and `[0x73]`.
+
+  Unicode property: `Case_Folding` -/
 @[inline]
-private def unconsCaseFolding (char : Char) : UInt32 × List UInt32 :=
+public def withCaseFolding (char : Char) (k : UInt32 → List UInt32 → β) : β :=
   if char.val < 0x80 then
     if 'A' ≤ char && char ≤ 'Z' then
-      (char.val + 0x20, [])
+      k (char.val + 0x20) []
     else
-      (char.val, [])
+      k char.val []
   else
     match lookupCaseFolding char.val with
-    | (_, v :: f) => (v, f)
-    | (some s, []) => (s, [])
-    | (none, []) => (char.val, [])
+    | (_, v :: f) => k v f
+    | (some s, []) => k s []
+    | (none, []) => k char.val []
 
 /-- Case-insensitive prefix match
 
@@ -618,20 +624,21 @@ where
       else if hi : i = s.endPos then
         none
       else
-        match unconsCaseFolding (i.get hi), unconsCaseFolding (j.get hj) with
-        | (a, as), (b, bs) => if a == b then loop (i.next hi) (j.next hj) as bs else none
+        withCaseFolding (i.get hi) fun a as =>
+          withCaseFolding (j.get hj) fun b bs =>
+            if a == b then loop (i.next hi) (j.next hj) as bs else none
     | a :: as, [] =>
       if hj : j = pat.endPos then
         none
       else
-        match unconsCaseFolding (j.get hj) with
-        | (b, bs) => if a == b then loop i (j.next hj) as bs else none
+        withCaseFolding (j.get hj) fun b bs =>
+          if a == b then loop i (j.next hj) as bs else none
     | [], b :: bs =>
       if hi : i = s.endPos then
         none
       else
-        match unconsCaseFolding (i.get hi) with
-        | (a, as) => if a == b then loop (i.next hi) j as bs else none
+        withCaseFolding (i.get hi) fun a as =>
+          if a == b then loop (i.next hi) j as bs else none
   termination_by as bs => (i.remainingBytes + j.remainingBytes, as.length + bs.length)
   decreasing_by
     all_goals first
