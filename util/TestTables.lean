@@ -54,8 +54,16 @@ def testCaseFolding (d : UnicodeData) : Bool :=
   let f := match CaseFolding.getFull d.code with
     | #[] => [d.code]
     | f => f.toList
+  let f := String.ofList (f.map fun c => Char.ofNat c.toNat)
+  let c := d.char.toString
   getCaseFoldingChar d.char == Char.ofNat s.toNat
-    && getCaseFolding d.char == String.ofList (f.map fun c => Char.ofNat c.toNat)
+    && getCaseFolding d.char == f
+    && test (c ++ "!") f == some (c, "!")
+    && test (f ++ "!") c == some (f, "!")
+    && (f.length < 2 || test (c ++ "!") (f.take 1).copy == none)
+where
+  test (s pat : String) : Option (String × String) :=
+    matchPrefixCaseInsensitive? s.toSlice pat.toSlice |>.map fun (p, t) => (p.copy, t.copy)
 
 def testCaseMapping (d : UnicodeData) : Bool :=
   getUpperChar d.char == d.uppercase.getD d.char
