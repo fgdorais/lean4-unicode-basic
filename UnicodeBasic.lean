@@ -647,9 +647,9 @@ public def isNumeric (char : Char) : Bool :=
   else
     match lookupNumericValue char.val with
     | some _ => true
-    | _ => otherNumeric.elem char.val
+    | _ => otherNumeric.binSearchContains char.val (· < ·)
 where
-  -- CJK ideographs whose numeric values come from the Unihan database
+  -- CJK ideographs whose numeric values come from the Unihan database, sorted for binary search
   otherNumeric := #[
     0x3405, 0x3431, 0x3483, 0x3576, 0x382A, 0x3B4D, 0x4E00, 0x4E03, 0x4E07, 0x4E09,
     0x4E24, 0x4E59, 0x4E5D, 0x4E86, 0x4E8C, 0x4E94, 0x4E96, 0x4EAC, 0x4EBF, 0x4EC0,
