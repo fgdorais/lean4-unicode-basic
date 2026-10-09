@@ -596,16 +596,16 @@ private def unconsCaseFolding (char : Char) : UInt32 × List UInt32 :=
 
 /-- Case-insensitive prefix match
 
-  If a prefix of `s` matches `pat` up to full case folding, returns that prefix
-  and the rest of `s`. Otherwise, returns `none`. For example, `"STRASSE"`
-  matches `"straße"`, but `"S"` does not match `"ß"`, since the full case
+  If `pat` matches a prefix of `s` up to full case folding, returns that prefix
+  and the rest of `s`. Otherwise, returns `none`. For example, `"straße"`
+  matches `"STRASSE"`, but `"ß"` does not match `"S"`, since the full case
   folding of `"ß"` is `"ss"`.
 
   This is default caseless matching, as defined in the Unicode Standard; it
   does not normalize either string.
 
   Unicode property: `Case_Folding` -/
-public def matchPrefixCaseInsensitive? (s pat : String.Slice) :
+public def matchPrefixCaseInsensitive? (pat s : String.Slice) :
     Option (String.Slice × String.Slice) :=
   loop s.startPos pat.startPos [] []
 where
