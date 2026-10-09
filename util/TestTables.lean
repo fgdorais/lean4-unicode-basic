@@ -54,8 +54,8 @@ def testCaseFolding (d : UnicodeData) : Bool :=
   let f := match CaseFolding.getFull d.code with
     | #[] => [d.code]
     | f => f.toList
-  let w := withCaseFolding d.char List.cons == f
   let f := String.ofList (f.map fun c => Char.ofNat c.toNat)
+  let w := String.ofList (withCaseFolding d.char List.cons) == f
   let c := d.char.toString
   getCaseFoldingChar d.char == Char.ofNat s.toNat
     && getCaseFolding d.char == f

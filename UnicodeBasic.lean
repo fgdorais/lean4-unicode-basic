@@ -558,7 +558,7 @@ public def getCaseFoldingChar (char : Char) : Char :=
       char
   else
     match lookupCaseFolding char.val with
-    | (some s, _) => Char.ofNat s.toNat
+    | (some s, _) => s
     | (none, _) => char
 
 /-- Full case folding of a character
@@ -576,29 +576,29 @@ public def getCaseFolding (char : Char) : String :=
       char.toString
   else
     match lookupCaseFolding char.val with
-    | (_, f@(_ :: _)) => f.foldl (fun s v => s.push (Char.ofNat v.toNat)) ""
-    | (some s, []) => (Char.ofNat s.toNat).toString
+    | (_, f@(_ :: _)) => String.ofList f
+    | (some s, []) => s.toString
     | (none, []) => char.toString
 
 /-- Full case folding of a character, in continuation-passing style
 
-  Calls `k` with the first code point of the full case folding of `char` and
-  the list of its remaining code points. For example, for U+00DF LATIN SMALL
-  LETTER SHARP S, `k` is called with `0x73` and `[0x73]`.
+  Calls `k` with the first character of the full case folding of `char` and
+  the list of its remaining characters. For example, for U+00DF LATIN SMALL
+  LETTER SHARP S, `k` is called with `'s'` and `['s']`.
 
   Unicode property: `Case_Folding` -/
 @[inline]
-public def withCaseFolding (char : Char) (k : UInt32 → List UInt32 → β) : β :=
+public def withCaseFolding (char : Char) (k : Char → List Char → β) : β :=
   if char.val < 0x80 then
     if 'A' ≤ char && char ≤ 'Z' then
-      k (char.val + 0x20) []
+      k (Char.ofNat (char.val + 0x20).toNat) []
     else
-      k char.val []
+      k char []
   else
     match lookupCaseFolding char.val with
-    | (_, v :: f) => k v f
+    | (_, c :: f) => k c f
     | (some s, []) => k s []
-    | (none, []) => k char.val []
+    | (none, []) => k char []
 
 /-- Case-insensitive prefix match
 
@@ -616,7 +616,7 @@ public def matchPrefixCaseInsensitive? (pat s : String.Slice) :
   loop s.startPos pat.startPos [] []
 where
   loop (i : s.Pos) (j : pat.Pos) :
-      List UInt32 → List UInt32 → Option (String.Slice × String.Slice)
+      List Char → List Char → Option (String.Slice × String.Slice)
     | a :: as, b :: bs => if a == b then loop i j as bs else none
     | [], [] =>
       if hj : j = pat.endPos then

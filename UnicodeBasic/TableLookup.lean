@@ -135,17 +135,18 @@ where
   Unicode properties:
     `Case_Folding`
     `Simple_Case_Folding` -/
-public def lookupCaseFolding (c : UInt32) : Option UInt32 × List UInt32 :=
+public def lookupCaseFolding (c : UInt32) : Option Char × List Char :=
   let t := table.get
   if c < t[0]!.1 then (none, []) else
     match t[find c (fun i => t[i]!.1) 0 t.size.toUSize]! with
     | (c', v) => if c == c' then v else (none, [])
 where
   str : String := include_str "../data/Case_Folding.txt"
-  table : Thunk <| Array (UInt32 × Option UInt32 × List UInt32) :=
+  table : Thunk <| Array (UInt32 × Option Char × List Char) :=
     parseTable str fun _ x =>
-      let s := if x[0]!.isEmpty then none else some (ofHexString! x[0]!)
-      let f := if x[1]!.isEmpty then [] else x[1]!.split " " |>.toList.map ofHexString!
+      let s := if x[0]!.isEmpty then none else some (Char.ofNat (ofHexString! x[0]!).toNat)
+      let f := if x[1]!.isEmpty then [] else
+        x[1]!.split " " |>.toList.map fun v => Char.ofNat (ofHexString! v).toNat
       (s, f)
 
 /-- Get simple case mappings of a code point using lookup table
