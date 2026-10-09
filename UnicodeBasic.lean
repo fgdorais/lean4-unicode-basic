@@ -27,10 +27,11 @@ public import UnicodeBasic.TableLookup
 
   - If the output type is `Option _` then the suffix `?` may be appended to
     indicate that this is a partial function. In this case, a companion
-    function with the suffix `!` may be implemented. This function will
-    perform the same calculation as the original but it assumes the user has
-    checked that the input is in the domain, the function may panic if this
-    is not the case.
+    function with the suffix `!` may be implemented. This function performs
+    the same calculation as the original but assumes that the input is in the
+    domain; it may panic if this is not the case.
+
+  ## General Categories ##
 
   Unicode general categories are encoded using the type `GC`. This type has
   a boolean algebra structure with inclusion `⊆`, meet/intersection `&&&`,
@@ -38,6 +39,19 @@ public import UnicodeBasic.TableLookup
   check whether a character belongs to a given category. For example,
   `c ∈ (GC.L &&& ~~~GC.Lt) ||| GC.Z` checks whether `c` is either a
   non-titlecase letter or a separator.
+
+  The namespace `Unicode.GeneralCategory` provides a predicate for each
+  general category, for example `GeneralCategory.isLetter` for `GC.L` and
+  `GeneralCategory.isMathSymbol` for `GC.Sm`.
+
+  ## Scripts ##
+
+  Scripts are identified by their four-letter ISO 15924 codes using the type
+  `Script`, for example `Script.ofAbbrev! "Latn"`. The function `getScript`
+  returns the script of a character and `getScriptName?` returns the long
+  name of a script, such as `"Latin"`. The function `getScriptSet` returns the
+  `ScriptSet` of scripts a character is commonly used with; use `∈` to check
+  membership, as in `Script.ofAbbrev! "Grek" ∈ getScriptSet c`.
 -/
 
 namespace Unicode
@@ -48,9 +62,10 @@ namespace Unicode
 
 /-- Get character name
 
-  When the Unicode property `Name` is empty, a unique code label is returned
-  as recommended in Unicode Standard, section 4.8. These labels start with
-  `'<'` (U+003C) and end with `'>'` (U+003E) so they are distinguishable from
+  When the Unicode property `Name` is empty, a unique code point label is
+  returned as recommended in Unicode Standard, section 4.8, for example
+  `<control-0009>` or `<private-use-E000>`. These labels start with `'<'`
+  (U+003C) and end with `'>'` (U+003E) so they are distinguishable from
   actual name values.
 
   Unicode property: `Name`
@@ -64,6 +79,9 @@ public def getName (char : Char) : String := lookupName char.val
 
 /-- Get character script
 
+  Returns `Zzzz` (Unknown) for unassigned, private use and noncharacter code
+  points.
+
   Unicode property: `Script`
 -/
 @[inline]
@@ -71,7 +89,8 @@ public def getScript (char : Char) : Script := lookupScript char.val
 
 /-- Get script name
 
-  Returns `none` if the script code is unassigned.
+  Returns the long name of the script, for example `"Latin"` for `Latn`.
+  Returns `none` if the script code is not assigned to a script.
 
   Unicode property: `Script`
 -/
@@ -128,8 +147,8 @@ public def isBidiControl (char : Char) : Bool :=
 /-- Get character general category
 
   *Caveat*: This function never returns a derived general category. Use
-  `Unicode.isInGeneralCategory` to check whether a character belongs to a
-  general category (derived or not).
+  `char ∈ cat` to check whether a character belongs to a general category
+  `cat` (derived or not).
 
   Unicode property: `General_Category` -/
 @[inline]
@@ -150,6 +169,7 @@ where
       .Sk, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll,
       .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ps, .Sm, .Pe, .Sm, .Cc]
 
+/-- `char ∈ cat` holds when the general category of `char` is included in `cat` -/
 public instance : Membership Char GC where
   mem cat char := getGC char ⊆ cat
 
@@ -188,12 +208,12 @@ public abbrev isCasedLetter (char : Char) : Bool := char ∈ Unicode.GC.LC
 
 /-- Check if modifier letter character (`Lm`)
 
-  Unicode property: `General_Category=Lm`-/
+  Unicode property: `General_Category=Lm` -/
 public abbrev isModifierLetter (char : Char) : Bool := char ∈ Unicode.GC.Lm
 
 /-- Check if other letter character (`Lo`)
 
-  Unicode property: `General_Category=Lo`-/
+  Unicode property: `General_Category=Lo` -/
 public abbrev isOtherLetter (char : Char) : Bool := char ∈ Unicode.GC.Lo
 
 /-- Check if mark character (`M`)
@@ -259,7 +279,8 @@ public abbrev isDashPunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pd
 
 /-- Check if grouping punctuation character (`PG`)
 
-  This is a derived category (`PG = Ps | Pe`).
+  This is a derived category (`PG = Ps | Pe`). It is not defined by Unicode
+  but is provided for convenience.
 
   Unicode property: `General_Category=PG` -/
 public abbrev isGroupPunctuation (char : Char) : Bool := char ∈ Unicode.GC.PG
@@ -276,7 +297,8 @@ public abbrev isClosePunctuation (char : Char) : Bool := char ∈ Unicode.GC.Pe
 
 /-- Check if quoting punctuation character (`PQ`)
 
-  This is a derived category (`PQ = Pi | Pf`).
+  This is a derived category (`PQ = Pi | Pf`). It is not defined by Unicode
+  but is provided for convenience.
 
   Unicode property: `General_Category=PQ` -/
 public abbrev isQuotePunctuation (char : Char) : Bool := char ∈ Unicode.GC.PQ
@@ -325,7 +347,7 @@ public abbrev isOtherSymbol (char : Char) : Bool := char ∈ Unicode.GC.So
 
 /-- Check if separator character (`Z`)
 
-  This is a derived property (`Z = Zs | Zl | Zp`).
+  This is a derived category (`Z = Zs | Zl | Zp`).
 
   Unicode property: `General_Category=Z` -/
 public abbrev isSeparator (char : Char) : Bool := char ∈ Unicode.GC.Z
@@ -385,7 +407,10 @@ end GeneralCategory
   ## Case Type and Mapping ##
 -/
 
-/-- Check if lowercase letter character
+/-- Check if lowercase character
+
+  This includes some characters that are not letters, such as U+24D0 CIRCLED
+  LATIN SMALL LETTER A.
 
   Generated by `General_Category=Ll | Other_Lowercase`.
 
@@ -398,7 +423,10 @@ public def isLowercase (char : Char) : Bool :=
   else
     lookupLowercase char.val
 
-/-- Check if uppercase letter character
+/-- Check if uppercase character
+
+  This includes some characters that are not letters, such as U+24B6 CIRCLED
+  LATIN CAPITAL LETTER A.
 
   Generated by `General_Category=Lu | Other_Uppercase`.
 
@@ -411,7 +439,10 @@ public def isUppercase (char : Char) : Bool :=
   else
     lookupUppercase char.val
 
-/-- Check if cased letter character
+/-- Check if cased character
+
+  This includes some characters that are not letters, such as U+24B6 CIRCLED
+  LATIN CAPITAL LETTER A.
 
   Generated by `General_Category=LC | Other_Lowercase | Other_Uppercase`.
 
@@ -427,12 +458,12 @@ public def isCased (char : Char) : Bool :=
 /-- Check if character is ignorable for casing purposes
 
   Generated from general categories `Lm`, `Mn`, `Me`, `Sk`, `Cf`, and word
-  break properties `MidLetter`, `MidNumLet`, `Single_Quote`.
+  break property values `MidLetter`, `MidNumLet`, `Single_Quote`.
 
   Unicode property: `Case_Ignorable` -/
 @[inline]
 public def isCaseIgnorable (char : Char) : Bool :=
-  char ∈ Unicode.GC.Lm ||| GC.Mn ||| GC.Sk ||| GC.Cf || other.elem char.val
+  char ∈ Unicode.GC.Lm ||| GC.Mn ||| GC.Me ||| GC.Sk ||| GC.Cf || other.elem char.val
 where
   /-- Auxiliary data for `isCaseIgnorable`
 
@@ -458,8 +489,9 @@ where
 
 /-- Map character to lowercase
 
-  This function does not handle the case where the lowercase mapping would
-  consist of more than one character.
+  Returns the character itself if it has no lowercase mapping. This function
+  does not handle the case where the full lowercase mapping would consist of
+  more than one character, for example U+0130 LATIN CAPITAL LETTER I WITH DOT ABOVE.
 
   Unicode property: `Simple_Lowercase_Mapping` -/
 @[inline]
@@ -476,8 +508,9 @@ public def getLowerChar (char : Char) : Char :=
 
 /-- Map character to uppercase
 
-  This function does not handle the case where the uppercase mapping would
-  consist of more than one character.
+  Returns the character itself if it has no uppercase mapping. This function
+  does not handle the case where the full uppercase mapping would consist of
+  more than one character, for example U+00DF LATIN SMALL LETTER SHARP S.
 
   Unicode property: `Simple_Uppercase_Mapping` -/
 @[inline]
@@ -493,8 +526,9 @@ public def getUpperChar (char : Char) : Char :=
 
 /-- Map character to titlecase
 
-  This function does not handle the case where the titlecase mapping would
-  consist of more than one character.
+  Returns the character itself if it has no titlecase mapping. This function
+  does not handle the case where the full titlecase mapping would consist of
+  more than one character, for example U+00DF LATIN SMALL LETTER SHARP S.
 
   Unicode property: `Simple_Titlecase_Mapping` -/
 @[inline]
@@ -508,10 +542,11 @@ public def getTitleChar (char : Char) : Char :=
     match lookupCaseMapping char.val with
     | (_, _, tc) => Char.ofNat tc.toNat
 
-/-- Case fold a character
+/-- Simple case folding of a character
 
-  This function does not handle the case where case folding would
-  consist of more than one character.
+  Returns the character itself if it has no case folding. This function does
+  not handle the case where case folding would consist of more than one
+  character; use `getCaseFolding` for full case folding.
 
   Unicode property: `Simple_Case_Folding` -/
 @[inline]
@@ -525,7 +560,10 @@ public def getCaseFoldingChar (char : Char) : Char :=
     match lookupCaseFolding char.val with
     | (fc, _) => Char.ofNat fc.toNat
 
-/-- Case fold a character
+/-- Full case folding of a character
+
+  The result may consist of more than one character, for example `"ss"` for
+  U+00DF LATIN SMALL LETTER SHARP S.
 
   Unicode property: `Case_Folding` -/
 @[inline]
@@ -545,6 +583,9 @@ public def getCaseFolding (char : Char) : String :=
 
 /-- Get canonical combining class of character
 
+  Characters with combining class `0` are called starters. These include all
+  characters that are not combining marks, as well as some combining marks.
+
   Unicode property: `Canonical_Combining_Class`
 -/
 public def getCanonicalCombiningClass (char : Char) : Nat :=
@@ -554,7 +595,11 @@ public def getCanonicalCombiningClass (char : Char) : Nat :=
   else
     lookupCanonicalCombiningClass char.val
 
-/-- Get canonical decomposition of character (`NFD`)
+/-- Get full canonical decomposition of character (`NFD`)
+
+  Returns the full canonical decomposition of the character, including for
+  Hangul syllables. Returns the character itself if it has no canonical
+  decomposition.
 
   Unicode properties:
     `Decomposition_Mapping`
@@ -566,12 +611,15 @@ public def getCanonicalDecomposition (char : Char) : String :=
 
 /-- Get decomposition mapping of a character
 
-  This is used in normalization to canonical decomposition (`NFD`) and compatibility
+  Returns `none` if the character has no decomposition mapping. The `tag`
+  field is `none` for a canonical mapping and `some _` for a compatibility
+  mapping. This is a single decomposition step, not the full decomposition
+  used in normalization to canonical decomposition (`NFD`) and compatibility
   decomposition (`NFKD`).
 
   Unicode properties:
-  `Decomposition_Type`
-  `Decomposition_Mapping` -/
+    `Decomposition_Type`
+    `Decomposition_Mapping` -/
 public def getDecompositionMapping? (char : Char) : Option DecompositionMapping :=
   -- ASCII shortcut
   if char.val < 0x80 then
@@ -585,7 +633,9 @@ public def getDecompositionMapping? (char : Char) : Option DecompositionMapping 
 
 /-- Check if character represents a numerical value
 
-  Unicode property: `Numeric_Type=Numeric` -/
+  This includes decimal digits and other digits.
+
+  Unicode property: `Numeric_Type` (any value other than `None`) -/
 @[inline]
 public def isNumeric (char : Char) : Bool :=
   -- ASCII shortcut
@@ -596,7 +646,7 @@ public def isNumeric (char : Char) : Bool :=
     | some _ => true
     | _ => otherNumeric.elem char.val
 where
-  -- Extracted
+  -- CJK ideographs whose numeric values come from the Unihan database
   otherNumeric := #[
     0x3405, 0x3431, 0x3483, 0x3576, 0x382A, 0x3B4D, 0x4E00, 0x4E03, 0x4E07, 0x4E09,
     0x4E24, 0x4E59, 0x4E5D, 0x4E86, 0x4E8C, 0x4E94, 0x4E96, 0x4EAC, 0x4EBF, 0x4EC0,
@@ -618,7 +668,10 @@ where
 
 /-- Check if character represents a digit in base 10
 
-  Unicode property: `Numeric_Type=Digit` -/
+  This includes decimal digits as well as other digits such as U+00B2
+  SUPERSCRIPT TWO.
+
+  Unicode property: `Numeric_Type=Decimal | Numeric_Type=Digit` -/
 @[inline]
 public def isDigit (char : Char) : Bool :=
   -- ASCII shortcut
@@ -632,8 +685,10 @@ public def isDigit (char : Char) : Bool :=
 
 /-- Get value of digit
 
+  Returns `none` if the character is not a digit in the sense of `isDigit`.
+
   Unicode properties:
-    `Numeric_Type=Digit`
+    `Numeric_Type=Decimal | Numeric_Type=Digit`
     `Numeric_Value` -/
 @[inline]
 public def getDigit? (char : Char) : Option (Fin 10) :=
@@ -708,34 +763,34 @@ public def isHexDigit (char : Char) : Bool :=
 
 /-- Get value of a hexadecimal digit
 
+  Returns `none` if the character is not a hexadecimal digit in the sense of
+  `isHexDigit`. Both ASCII and fullwidth forms are accepted.
+
   Unicode property: `Hex_Digit` -/
 @[inline]
 public def getHexDigit? (char : Char) : Option (Fin 16) :=
-  if char.toNat < 0x30 then
+  -- Map fullwidth forms U+FF10..U+FF46 onto ASCII U+0030..U+0066
+  let n := if char.toNat < 0xFF10 then char.toNat else char.toNat - 0xFEE0
+  if n < 0x30 then
     none
+  else if h : n - 0x30 < 10 then
+    some ⟨n - 0x30, by lia⟩
+  else if n < 0x41 then
+    none
+  else if h : n - 0x41 < 6 then
+    some ⟨n - 0x41 + 10, by lia⟩
+  else if n < 0x61 then
+    none
+  else if h : n - 0x61 < 6 then
+    some ⟨n - 0x61 + 10, by lia⟩
   else
-    let n := if char.toNat < 0xFF10 then char.toNat - 0x0030 else char.toNat - 0xFF10
-    if h : n < 10 then
-      some ⟨n, Nat.lt_trans h (by decide)⟩
-    else if n >= 17 then
-      let n := n - 7
-      if h : n < 16 then
-        some ⟨n, h⟩
-      else if n >= 32 then
-        if h : n - 32 < 16 then
-          some ⟨n - 32, h⟩
-        else
-          none
-      else
-        none
-    else
-      none
+    none
 
 /-!
   ## Other Properties ##
 -/
 
-/-- Check if noncharacter
+/-- Check if noncharacter code point
 
   Unicode property: `Noncharacter_Code_Point`
 -/
@@ -743,7 +798,7 @@ public def getHexDigit? (char : Char) : Option (Fin 16) :=
 public def isNoncharacterCodePoint (char : Char) : Bool :=
   lookupNoncharacterCodePoint char.val
 
-/-- Check if ignorable character
+/-- Check if default ignorable character
 
   Unicode property: `Default_Ignorable_Code_Point`
 -/
@@ -761,7 +816,8 @@ public def isWhiteSpace (char : Char) : Bool :=
   if char.val < 0x80 then
     char == ' ' || char >= '\t' && char <= '\r'
   else
-    GeneralCategory.isSeparator char
+    -- U+0085 NEXT LINE is the only non-ASCII white space outside `GC.Z`
+    char.val == 0x85 || GeneralCategory.isSeparator char
 
 /-- Check if mathematical symbol character
 

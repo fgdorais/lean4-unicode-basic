@@ -109,6 +109,10 @@ public def ofHexString! (str : String.Slice) : UInt32 :=
 
 /-- General category (GC)
 
+  A value of this type is a set of general categories. Derived categories
+  (such as `GC.L`) are unions of basic categories (such as `GC.Lu`),
+  `GC.none` is the empty set and `GC.univ` is the set of all categories.
+
   Unicode property: `General_Category` -/
 @[expose]
 public def GC := UInt32 deriving DecidableEq, Inhabited
@@ -642,7 +646,10 @@ public instance : Repr BidiClass where
   ## Scripts ##
 -/
 
-/-- Check if valid script identifier -/
+/-- Check if valid script identifier
+
+  A valid script identifier consists of an uppercase letter followed by three
+  lowercase letters. -/
 @[inline]
 public def Script.isValid (c : UInt32) : Bool :=
   let c0 := (c >>> 24).toUInt8
@@ -654,7 +661,11 @@ public def Script.isValid (c : UInt32) : Bool :=
       && (c2 ≤ 'z'.toUInt8 && 'a'.toUInt8 ≤ c2)
         && (c3 ≤ 'z'.toUInt8 && 'a'.toUInt8 ≤ c3)
 
-/-- Script identifier type -/
+/-- Script identifier type
+
+  A script is identified by its four-letter ISO 15924 code, such as `Latn` for
+  Latin. Use `Script.ofAbbrev?` and `Script.toAbbrev` to convert from and to
+  this code. -/
 public structure Script where
   public code : UInt32
   public is_valid : Script.isValid code
