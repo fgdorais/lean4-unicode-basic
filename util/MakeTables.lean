@@ -560,6 +560,7 @@ public def main (args : List String) : IO UInt32 := do
     "Numeric_Value",
     "Script_Extensions",
     "Script_Name",
+    "Special_Casing",
     "White_Space"]
   let tableDir : System.FilePath := ".."/"data"
   IO.FS.createDirAll tableDir
@@ -827,6 +828,20 @@ public def main (args : List String) : IO UInt32 := do
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
         for (c, name) in table do
           file.putStrLn <| toHexStringRaw c ++ ";" ++ name
+      IO.println s!"Size: {table.size}"
+    | "Special_Casing" =>
+      let table := Unicode.SpecialCasing.data.get
+      IO.println s!"Generating table {arg}"
+      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
+        for (c, l, t, u) in table do
+          let d := getUnicodeData! c
+          let sl := (d.lowercase.map Char.val).getD c
+          let st := ((d.titlecase <|> d.uppercase).map Char.val).getD c
+          let su := (d.uppercase.map Char.val).getD c
+          let l := if l == #[sl] then "" else " ".intercalate (l.toList.map toHexStringRaw)
+          let t := if t == #[st] then "" else " ".intercalate (t.toList.map toHexStringRaw)
+          let u := if u == #[su] then "" else " ".intercalate (u.toList.map toHexStringRaw)
+          file.putStrLn <| toHexStringRaw c ++ ";" ++ l ++ ";" ++ t ++ ";" ++ u
       IO.println s!"Size: {table.size}"
     | "Titlecase" =>
       IO.println s!"Generating table {arg}"
