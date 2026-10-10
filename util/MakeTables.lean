@@ -833,13 +833,15 @@ public def main (args : List String) : IO UInt32 := do
       let table := Unicode.SpecialCasing.data.get
       IO.println s!"Generating table {arg}"
       IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
-        for (c, l, _, u) in table do
+        for (c, l, t, u) in table do
           let d := getUnicodeData! c
           let sl := (d.lowercase.map Char.val).getD c
+          let st := ((d.titlecase <|> d.uppercase).map Char.val).getD c
           let su := (d.uppercase.map Char.val).getD c
           let l := if l == #[sl] then "" else " ".intercalate (l.toList.map toHexStringRaw)
+          let t := if t == #[st] then "" else " ".intercalate (t.toList.map toHexStringRaw)
           let u := if u == #[su] then "" else " ".intercalate (u.toList.map toHexStringRaw)
-          file.putStrLn <| toHexStringRaw c ++ ";" ++ l ++ ";" ++ u
+          file.putStrLn <| toHexStringRaw c ++ ";" ++ l ++ ";" ++ t ++ ";" ++ u
       IO.println s!"Size: {table.size}"
     | "Titlecase" =>
       IO.println s!"Generating table {arg}"

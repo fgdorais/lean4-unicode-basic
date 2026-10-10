@@ -491,7 +491,8 @@ where
 
   Returns the character itself if it has no lowercase mapping. This function
   does not handle the case where the full lowercase mapping would consist of
-  more than one character, for example U+0130 LATIN CAPITAL LETTER I WITH DOT ABOVE.
+  more than one character, for example U+0130 LATIN CAPITAL LETTER I WITH DOT ABOVE;
+  use `getLower` for the full lowercase mapping.
 
   Unicode property: `Simple_Lowercase_Mapping` -/
 @[inline]
@@ -510,7 +511,8 @@ public def getLowerChar (char : Char) : Char :=
 
   Returns the character itself if it has no uppercase mapping. This function
   does not handle the case where the full uppercase mapping would consist of
-  more than one character, for example U+00DF LATIN SMALL LETTER SHARP S.
+  more than one character, for example U+00DF LATIN SMALL LETTER SHARP S; use
+  `getUpper` for the full uppercase mapping.
 
   Unicode property: `Simple_Uppercase_Mapping` -/
 @[inline]
@@ -534,8 +536,8 @@ private def unconsLowercasing (char : Char) : UInt32 × List UInt32 :=
       (char.val, [])
   else
     match lookupSpecialCasing char.val with
-    | (v :: l, _) => (v, l)
-    | ([], _) =>
+    | (v :: l, _, _) => (v, l)
+    | ([], _, _) =>
       match lookupCaseMapping char.val with
       | (_, lc, _) => (lc, [])
 
@@ -549,8 +551,8 @@ private def unconsUppercasing (char : Char) : UInt32 × List UInt32 :=
       (char.val, [])
   else
     match lookupSpecialCasing char.val with
-    | (_, v :: u) => (v, u)
-    | (_, []) =>
+    | (_, _, v :: u) => (v, u)
+    | (_, _, []) =>
       match lookupCaseMapping char.val with
       | (uc, _, _) => (uc, [])
 
@@ -580,11 +582,31 @@ public def withUppercasing (char : Char) (k : Char → List Char → β) : β :=
   match unconsUppercasing char with
   | (v, u) => k (Char.ofNat v.toNat) (u.map fun v => Char.ofNat v.toNat)
 
+/-- Full lowercase mapping of a character
+
+  The result may consist of more than one character, for example `"i\u0307"`
+  for U+0130 LATIN CAPITAL LETTER I WITH DOT ABOVE. Conditional mappings, such
+  as for final sigma, are not applied.
+
+  Unicode property: `Lowercase_Mapping` -/
+public def getLower (char : Char) : String :=
+  withLowercasing char fun c l => l.foldl String.push c.toString
+
+/-- Full uppercase mapping of a character
+
+  The result may consist of more than one character, for example `"SS"` for
+  U+00DF LATIN SMALL LETTER SHARP S. Conditional mappings are not applied.
+
+  Unicode property: `Uppercase_Mapping` -/
+public def getUpper (char : Char) : String :=
+  withUppercasing char fun c u => u.foldl String.push c.toString
+
 /-- Map character to titlecase
 
   Returns the character itself if it has no titlecase mapping. This function
   does not handle the case where the full titlecase mapping would consist of
-  more than one character, for example U+00DF LATIN SMALL LETTER SHARP S.
+  more than one character, for example U+00DF LATIN SMALL LETTER SHARP S; use
+  `getTitle` for the full titlecase mapping.
 
   Unicode property: `Simple_Titlecase_Mapping` -/
 @[inline]
@@ -597,6 +619,43 @@ public def getTitleChar (char : Char) : Char :=
   else
     match lookupCaseMapping char.val with
     | (_, _, tc) => Char.ofNat tc.toNat
+
+/-- Full titlecase mapping of a character as its first code point and the rest -/
+@[inline]
+private def unconsTitlecasing (char : Char) : UInt32 × List UInt32 :=
+  if char.val < 0x80 then
+    if 'a' ≤ char && char ≤ 'z' then
+      (char.val - 0x20, [])
+    else
+      (char.val, [])
+  else
+    match lookupSpecialCasing char.val with
+    | (_, v :: t, _) => (v, t)
+    | (_, [], _) =>
+      match lookupCaseMapping char.val with
+      | (_, _, tc) => (tc, [])
+
+/-- Full titlecase mapping of a character, in continuation-passing style
+
+  Calls `k` with the first character of the full titlecase mapping of `char`
+  and the list of its remaining characters. For example, for U+00DF LATIN SMALL
+  LETTER SHARP S, `k` is called with `'S'` and `['s']`. Conditional mappings
+  are not applied.
+
+  Unicode property: `Titlecase_Mapping` -/
+@[inline]
+public def withTitlecasing (char : Char) (k : Char → List Char → β) : β :=
+  match unconsTitlecasing char with
+  | (v, t) => k (Char.ofNat v.toNat) (t.map fun v => Char.ofNat v.toNat)
+
+/-- Full titlecase mapping of a character
+
+  The result may consist of more than one character, for example `"Ss"` for
+  U+00DF LATIN SMALL LETTER SHARP S. Conditional mappings are not applied.
+
+  Unicode property: `Titlecase_Mapping` -/
+public def getTitle (char : Char) : String :=
+  withTitlecasing char fun c t => t.foldl String.push c.toString
 
 /-- Simple case folding of a character
 
