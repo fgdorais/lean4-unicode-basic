@@ -163,6 +163,28 @@ public def lookupCaseMapping (c : UInt32) : UInt32 × UInt32 × UInt32 :=
     let ct : UInt32 := (v >>> 42).toUInt32 &&& 0x001FFFFF
     (cu, cl, ct)
 
+/-- Get full lowercase and uppercase mappings of a code point using lookup table
+
+  Returns `(l, u)` where `l` is the full lowercase mapping, or `[]` if it agrees
+  with the simple lowercase mapping, and similarly `u` for uppercase. Only
+  unconditional mappings are included.
+
+  Unicode properties:
+    `Lowercase_Mapping`
+    `Uppercase_Mapping` -/
+public def lookupSpecialCasing (c : UInt32) : List UInt32 × List UInt32 :=
+  let t := table.get
+  if c < t[0]!.1 then ([], []) else
+    match t[find c (fun i => t[i]!.1) 0 t.size.toUSize]! with
+    | (c', v) => if c == c' then v else ([], [])
+where
+  str : String := include_str "../data/Special_Casing.txt"
+  table : Thunk <| Array (UInt32 × List UInt32 × List UInt32) :=
+    parseTable str fun _ x =>
+      let l := if x[0]!.isEmpty then [] else x[0]!.split " " |>.toList.map ofHexString!
+      let u := if x[1]!.isEmpty then [] else x[1]!.split " " |>.toList.map ofHexString!
+      (l, u)
+
 /-- Get decomposition mapping using lookup table
 
   Unicode properties:

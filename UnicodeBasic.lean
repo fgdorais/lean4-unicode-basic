@@ -524,6 +524,62 @@ public def getUpperChar (char : Char) : Char :=
     match lookupCaseMapping char.val with
     | (uc, _, _) => Char.ofNat uc.toNat
 
+/-- Full lowercase mapping of a character as its first code point and the rest -/
+@[inline]
+private def unconsLowercasing (char : Char) : UInt32 × List UInt32 :=
+  if char.val < 0x80 then
+    if 'A' ≤ char && char ≤ 'Z' then
+      (char.val + 0x20, [])
+    else
+      (char.val, [])
+  else
+    match lookupSpecialCasing char.val with
+    | (v :: l, _) => (v, l)
+    | ([], _) =>
+      match lookupCaseMapping char.val with
+      | (_, lc, _) => (lc, [])
+
+/-- Full uppercase mapping of a character as its first code point and the rest -/
+@[inline]
+private def unconsUppercasing (char : Char) : UInt32 × List UInt32 :=
+  if char.val < 0x80 then
+    if 'a' ≤ char && char ≤ 'z' then
+      (char.val - 0x20, [])
+    else
+      (char.val, [])
+  else
+    match lookupSpecialCasing char.val with
+    | (_, v :: u) => (v, u)
+    | (_, []) =>
+      match lookupCaseMapping char.val with
+      | (uc, _, _) => (uc, [])
+
+/-- Full lowercase mapping of a character, in continuation-passing style
+
+  Calls `k` with the first character of the full lowercase mapping of `char`
+  and the list of its remaining characters. For example, for U+0130 LATIN
+  CAPITAL LETTER I WITH DOT ABOVE, `k` is called with `'i'` and `['\u0307']`.
+  Conditional mappings, such as for final sigma, are not applied.
+
+  Unicode property: `Lowercase_Mapping` -/
+@[inline]
+public def withLowercasing (char : Char) (k : Char → List Char → β) : β :=
+  match unconsLowercasing char with
+  | (v, l) => k (Char.ofNat v.toNat) (l.map fun v => Char.ofNat v.toNat)
+
+/-- Full uppercase mapping of a character, in continuation-passing style
+
+  Calls `k` with the first character of the full uppercase mapping of `char`
+  and the list of its remaining characters. For example, for U+00DF LATIN SMALL
+  LETTER SHARP S, `k` is called with `'S'` and `['S']`. Conditional mappings
+  are not applied.
+
+  Unicode property: `Uppercase_Mapping` -/
+@[inline]
+public def withUppercasing (char : Char) (k : Char → List Char → β) : β :=
+  match unconsUppercasing char with
+  | (v, u) => k (Char.ofNat v.toNat) (u.map fun v => Char.ofNat v.toNat)
+
 /-- Map character to titlecase
 
   Returns the character itself if it has no titlecase mapping. This function

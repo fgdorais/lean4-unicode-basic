@@ -68,9 +68,17 @@ where
     matchPrefixCaseInsensitive? pat.toSlice s.toSlice |>.map fun (p, t) => (p.copy, t.copy)
 
 def testCaseMapping (d : UnicodeData) : Bool :=
+  let l := match SpecialCasing.getLower? d.code with
+    | some l => l.toList.map fun c => Char.ofNat c.toNat
+    | none => [d.lowercase.getD d.char]
+  let u := match SpecialCasing.getUpper? d.code with
+    | some u => u.toList.map fun c => Char.ofNat c.toNat
+    | none => [d.uppercase.getD d.char]
   getUpperChar d.char == d.uppercase.getD d.char
     && getLowerChar d.char == d.lowercase.getD d.char
       && getTitleChar d.char == d.titlecase.getD d.char
+        && withLowercasing d.char List.cons == l
+          && withUppercasing d.char List.cons == u
 
 def testDecompositionMapping (d : UnicodeData) : Bool :=
   d.decomp == getDecompositionMapping? d.char
