@@ -1,0 +1,65 @@
+name: Update Util
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *'
+
+jobs:
+  update-util:
+    name: update util
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: checkout
+        uses: actions/checkout@v7
+        with:
+          ref: main
+
+      - name: get revisions
+        id: rev
+        run: |
+          CURRENT_REV=$(jq -r '.packages[] | select(.name == "UnicodeData") | .rev' util/lake-manifest.json)
+          DATA_REV=$(git ls-remote --exit-code \
+            https://github.com/fgdorais/lean4-unicode-data.git \
+            refs/heads/main | cut -f1)
+          DATA_TOOLCHAIN=$(curl --fail --silent --show-error --location \
+            "https://raw.githubusercontent.com/fgdorais/lean4-unicode-data/${DATA_REV}/lean-toolchain" | tr -d '\n')
+          if [[ "$DATA_TOOLCHAIN" != leanprover/lean4:* ]]; then
+            echo "::error::Unexpected UnicodeData toolchain: ${DATA_TOOLCHAIN}"
+            exit 1
+          fi
+          echo "data_rev=$DATA_REV" >> $GITHUB_OUTPUT
+          echo "data_short_rev=${DATA_REV:0:7}" >> $GITHUB_OUTPUT
+          echo "data_toolchain=$DATA_TOOLCHAIN" >> $GITHUB_OUTPUT
+          if [ "$CURRENT_REV" = "$DATA_REV" ]; then
+            echo "updated=false" >> $GITHUB_OUTPUT
+          else
+            echo "updated=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: install elan
+        if: ${{ steps.rev.outputs.updated == 'true' }}
+        run: |
+          curl --fail --silent --show-error --location \
+            https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+
+      - name: update util
+        if: ${{ steps.rev.outputs.updated == 'true' }}
+        working-directory: util
+        run: |
+          echo "${{ steps.rev.outputs.data_toolchain }}" > lean-toolchain
+          lake update
+
+      - name: create pull request
+        if: ${{ steps.rev.outputs.updated == 'true' }}
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.UNICODE_BASIC_TOKEN }}
+          commit-message: "chore: update util to UnicodeData ${{ steps.rev.outputs.data_short_rev }}"
+          branch: update-util
+          base: main
+          delete-branch: true
+          title: "chore: update util to UnicodeData ${{ steps.rev.outputs.data_short_rev }}"
