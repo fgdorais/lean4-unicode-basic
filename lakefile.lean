@@ -23,8 +23,7 @@ target UnicodeCLib pkg : FilePath := do
   let name := nameToStaticLib "unicodeclib"
   buildStaticLib (pkg.sharedLibDir / name) oFiles
 
--- temporary fix for Windows
-meta if System.Platform.isWindows then
+-- Imported precompiled modules also need the Unicode C symbols.
 extern_lib libunicodeclib := UnicodeCLib.fetch
 
 @[default_target]
