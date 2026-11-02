@@ -129,6 +129,20 @@ public instance : HasSubset GC where
 
 public instance (x y : GC) : Decidable (x ⊆ y) := inferInstanceAs (Decidable (_ == _))
 
+/-- Every general category is included in itself -/
+@[simp] public theorem subset_refl (x : GC) : x ⊆ x :=
+  beq_iff_eq.2 (UInt32.and_self (a := x))
+
+private theorem and_eq_of_and_eq {x y z : UInt32} (h₁ : x &&& y = x) (h₂ : y &&& z = y) :
+    x &&& z = x := by
+  rw [← h₁, UInt32.and_assoc, h₂]
+
+/-- Inclusion of general categories is transitive -/
+public theorem subset_trans {x y z : GC} (h₁ : x ⊆ y) (h₂ : y ⊆ z) : x ⊆ z := by
+  have h₁ : x &&& y = x := beq_iff_eq.1 h₁
+  have h₂ : y &&& z = y := beq_iff_eq.1 h₂
+  exact beq_iff_eq.2 (and_eq_of_and_eq h₁ h₂)
+
 /-- Empty set of general categories -/
 public protected abbrev none : GC := (0x00000000 : UInt32)
 /-- Set of all general categories -/
@@ -422,6 +436,7 @@ deriving Inhabited, DecidableEq, Repr
 
   Unicode property: `Numeric_Type`
 -/
+@[expose]
 public def NumericType.isDecimal : NumericType → Bool
 | decimal _ => true
 | _ => false
@@ -432,6 +447,7 @@ public def NumericType.isDecimal : NumericType → Bool
 
   Unicode property: `Numeric_Type`
 -/
+@[expose]
 public def NumericType.isDigit : NumericType → Bool
 | decimal _ => true
 | digit _ => true
@@ -583,51 +599,51 @@ deriving Inhabited, DecidableEq
 public abbrev BidiClass.rightToLeftEmbeding := BidiClass.rightToLeftEmbedding
 
 /-- Bidi class: strong left-to-right (`L`) -/
-public protected def BidiClass.L := leftToRight
+public protected abbrev BidiClass.L := leftToRight
 /-- Bidi class: strong right-to-left (`R`) -/
-public protected def BidiClass.R := rightToLeft
+public protected abbrev BidiClass.R := rightToLeft
 /-- Bidi class: arabic letter (`AL`) -/
-public protected def BidiClass.AL := arabicLetter
+public protected abbrev BidiClass.AL := arabicLetter
 /-- Bidi class: european number (`EN`) -/
-public protected def BidiClass.EN := europeanNumber
+public protected abbrev BidiClass.EN := europeanNumber
 /-- Bidi class: european separator (`ES`) -/
-public protected def BidiClass.ES := europeanSeparator
+public protected abbrev BidiClass.ES := europeanSeparator
 /-- Bidi class: european terminator (`ET`) -/
-public protected def BidiClass.ET := europeanTerminator
+public protected abbrev BidiClass.ET := europeanTerminator
 /-- Bidi class: arabic number (`AN`) -/
-public protected def BidiClass.AN := arabicNumber
+public protected abbrev BidiClass.AN := arabicNumber
 /-- Bidi class: common separator (`CS`) -/
-public protected def BidiClass.CS := commonSeparator
+public protected abbrev BidiClass.CS := commonSeparator
 /-- Bidi class: nonspacing mark (`NSM`) -/
-public protected def BidiClass.NSM := nonspacingMark
+public protected abbrev BidiClass.NSM := nonspacingMark
 /-- Bidi class: boundary neutral (`BN`) -/
-public protected def BidiClass.BN := boundaryNeutral
+public protected abbrev BidiClass.BN := boundaryNeutral
 /-- Bidi class: paragraph separator (`B`) -/
-public protected def BidiClass.B := paragraphSeparator
+public protected abbrev BidiClass.B := paragraphSeparator
 /-- Bidi class: segment separator (`S`) -/
-public protected def BidiClass.S := segmentSeparator
+public protected abbrev BidiClass.S := segmentSeparator
 /-- Bidi class: white space (`WS`) -/
-public protected def BidiClass.WS := whiteSpace
+public protected abbrev BidiClass.WS := whiteSpace
 /-- Bidi class: other neutral (`ON`) -/
-public protected def BidiClass.ON := otherNeutral
+public protected abbrev BidiClass.ON := otherNeutral
 /-- Bidi class: left-to-right embedding (`LRE`) -/
-public protected def BidiClass.LRE := leftToRightEmbedding
+public protected abbrev BidiClass.LRE := leftToRightEmbedding
 /-- Bidi class: left-to-right override (`LRO`) -/
-public protected def BidiClass.LRO := leftToRightOverride
+public protected abbrev BidiClass.LRO := leftToRightOverride
 /-- Bidi class: right-to-left embedding (`RLE`) -/
-public protected def BidiClass.RLE := rightToLeftEmbedding
+public protected abbrev BidiClass.RLE := rightToLeftEmbedding
 /-- Bidi class: right-to-left override (`RLO`) -/
-public protected def BidiClass.RLO := rightToLeftOverride
+public protected abbrev BidiClass.RLO := rightToLeftOverride
 /-- Bidi class: pop directional format (`PDF`) -/
-public protected def BidiClass.PDF := popDirectionalFormat
+public protected abbrev BidiClass.PDF := popDirectionalFormat
 /-- Bidi class: left-to-right isolate (`LRI`) -/
-public protected def BidiClass.LRI := leftToRightIsolate
+public protected abbrev BidiClass.LRI := leftToRightIsolate
 /-- Bidi class: right-to-left isolate (`RLI`) -/
-public protected def BidiClass.RLI := rightToLeftIsolate
+public protected abbrev BidiClass.RLI := rightToLeftIsolate
 /-- Bidi class: first strong isolate (`FSI`) -/
-public protected def BidiClass.FSI := firstStrongIsolate
+public protected abbrev BidiClass.FSI := firstStrongIsolate
 /-- Bidi class: pop directional isolate (`PDI`) -/
-public protected def BidiClass.PDI := popDirectionalIsolate
+public protected abbrev BidiClass.PDI := popDirectionalIsolate
 
 /-- String abbreviation for bidi class -/
 public def BidiClass.toAbbrev : BidiClass → String
@@ -700,7 +716,7 @@ public instance : Repr BidiClass where
 
   A valid script identifier consists of an uppercase letter followed by three
   lowercase letters. -/
-@[inline]
+@[expose, inline]
 public def Script.isValid (c : UInt32) : Bool :=
   let c0 := (c >>> 24).toUInt8
   let c1 := (c >>> 16).toUInt8
@@ -782,7 +798,7 @@ public instance : Inhabited ScriptSet where
   default := ⟨#[], rfl⟩
 
 /-- List of the scripts in the set, sorted by script code -/
-@[inline]
+@[expose, inline]
 public def toList (s : ScriptSet) : List Script := s.toArray.toList
 
 /-- String of the script abbreviations in the set, separated by spaces -/
@@ -790,7 +806,7 @@ public def toAbbrev (s : ScriptSet) : String :=
   " ".intercalate <| s.toList.map Script.toAbbrev
 
 /-- Check whether a script is in the set -/
-@[inline]
+@[expose, inline]
 public def contains (s : ScriptSet) (sc : Script) : Bool :=
   s.toArray.contains sc
 
