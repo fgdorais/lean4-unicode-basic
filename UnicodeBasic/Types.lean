@@ -129,6 +129,20 @@ public instance : HasSubset GC where
 
 public instance (x y : GC) : Decidable (x ⊆ y) := inferInstanceAs (Decidable (_ == _))
 
+/-- Every general category is included in itself -/
+@[simp] public theorem subset_refl (x : GC) : x ⊆ x :=
+  beq_iff_eq.2 (UInt32.and_self (a := x))
+
+private theorem and_eq_of_and_eq {x y z : UInt32} (h₁ : x &&& y = x) (h₂ : y &&& z = y) :
+    x &&& z = x := by
+  rw [← h₁, UInt32.and_assoc, h₂]
+
+/-- Inclusion of general categories is transitive -/
+public theorem subset_trans {x y z : GC} (h₁ : x ⊆ y) (h₂ : y ⊆ z) : x ⊆ z := by
+  have h₁ : x &&& y = x := beq_iff_eq.1 h₁
+  have h₂ : y &&& z = y := beq_iff_eq.1 h₂
+  exact beq_iff_eq.2 (and_eq_of_and_eq h₁ h₂)
+
 public protected abbrev none : GC := (0x00000000 : UInt32)
 public protected abbrev univ : GC := (0x3FFFFFFF : UInt32)
 
