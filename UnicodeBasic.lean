@@ -175,6 +175,11 @@ public instance : Membership Char GC where
 
 public instance (char : Char) (cat : GC) : Decidable (char ∈ cat) := inferInstanceAs (Decidable (_ ⊆ _))
 
+/-- A character in a general category is also in every category that includes it -/
+public theorem GC.mem_of_subset_of_mem {char : Char} {x y : GC} (h : x ⊆ y) :
+    char ∈ x → char ∈ y :=
+  fun hc => subset_trans hc h
+
 namespace GeneralCategory
 
 /-- Check if letter character (`L`)
