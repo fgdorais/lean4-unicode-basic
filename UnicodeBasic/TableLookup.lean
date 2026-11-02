@@ -20,11 +20,16 @@ namespace CLib
 @[extern "unicode_case_lookup"]
 protected opaque lookupCase (c : UInt32) : UInt64
 
+/-- `Other_Uppercase` bit of `CLib.lookupProp` (internal use only) -/
 public protected abbrev oUpper : UInt64 := 0x100000000
+/-- `Other_Lowercase` bit of `CLib.lookupProp` (internal use only) -/
 public protected abbrev oLower : UInt64 := 0x200000000
+/-- `Other_Alphabetic` bit of `CLib.lookupProp` (internal use only) -/
 public protected abbrev oAlpha : UInt64 := 0x400000000
+/-- `Other_Math` bit of `CLib.lookupProp` (internal use only) -/
 public protected abbrev oMath  : UInt64 := 0x800000000
 
+/-- General category and `Other_*` property bits of a code point (internal use only) -/
 @[extern "unicode_prop_lookup"]
 public protected opaque lookupProp (c : UInt32) : UInt64
 

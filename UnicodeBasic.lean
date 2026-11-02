@@ -507,7 +507,9 @@ public def getLowerChar (char : Char) : Char :=
     match lookupCaseMapping char.val with
     | (_, lc, _) => Char.ofNat lc.toNat
 
-/-- Full lowercase mapping of a character as its first code point and the rest -/
+/-- Full lowercase mapping of a character as its first code point and the rest
+
+  Internal use only. -/
 @[expose, inline]
 public def unconsLowercasing (char : Char) : UInt32 × List UInt32 :=
   if char.val < 0x80 then
@@ -565,7 +567,9 @@ public def getUpperChar (char : Char) : Char :=
     match lookupCaseMapping char.val with
     | (uc, _, _) => Char.ofNat uc.toNat
 
-/-- Full uppercase mapping of a character as its first code point and the rest -/
+/-- Full uppercase mapping of a character as its first code point and the rest
+
+  Internal use only. -/
 @[expose, inline]
 public def unconsUppercasing (char : Char) : UInt32 × List UInt32 :=
   if char.val < 0x80 then
@@ -622,7 +626,9 @@ public def getTitleChar (char : Char) : Char :=
     match lookupCaseMapping char.val with
     | (_, _, tc) => Char.ofNat tc.toNat
 
-/-- Full titlecase mapping of a character as its first code point and the rest -/
+/-- Full titlecase mapping of a character as its first code point and the rest
+
+  Internal use only. -/
 @[expose, inline]
 public def unconsTitlecasing (char : Char) : UInt32 × List UInt32 :=
   if char.val < 0x80 then
@@ -679,7 +685,9 @@ public def getCaseFoldingChar (char : Char) : Char :=
     | (some s, _) => Char.ofNat s.toNat
     | (none, _) => char
 
-/-- Full case folding of a character as its first code point and the rest -/
+/-- Full case folding of a character as its first code point and the rest
+
+  Internal use only. -/
 @[expose, inline]
 public def unconsCaseFolding (char : Char) : UInt32 × List UInt32 :=
   if char.val < 0x80 then
