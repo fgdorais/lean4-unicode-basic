@@ -20,13 +20,18 @@ namespace CLib
 @[extern "unicode_case_lookup"]
 protected opaque lookupCase (c : UInt32) : UInt64
 
-protected abbrev oUpper : UInt64 := 0x100000000
-protected abbrev oLower : UInt64 := 0x200000000
-protected abbrev oAlpha : UInt64 := 0x400000000
-protected abbrev oMath  : UInt64 := 0x800000000
+/-- `Other_Uppercase` bit of `CLib.lookupProp` (internal use only) -/
+public protected abbrev oUpper : UInt64 := 0x100000000
+/-- `Other_Lowercase` bit of `CLib.lookupProp` (internal use only) -/
+public protected abbrev oLower : UInt64 := 0x200000000
+/-- `Other_Alphabetic` bit of `CLib.lookupProp` (internal use only) -/
+public protected abbrev oAlpha : UInt64 := 0x400000000
+/-- `Other_Math` bit of `CLib.lookupProp` (internal use only) -/
+public protected abbrev oMath  : UInt64 := 0x800000000
 
+/-- General category and `Other_*` property bits of a code point (internal use only) -/
 @[extern "unicode_prop_lookup"]
-protected opaque lookupProp (c : UInt32) : UInt64
+public protected opaque lookupProp (c : UInt32) : UInt64
 
 @[extern "unicode_script_lookup"]
 protected opaque lookupScript (c : UInt32) : Script
@@ -231,7 +236,7 @@ where
 /-- Get general category of a code point using lookup table
 
   Unicode property: `General_Category` -/
-@[inline]
+@[expose, inline]
 public def lookupGC (c : UInt32) : GC := CLib.lookupProp c |>.toUInt32
 
 /-- Get name of a code point using lookup table
@@ -351,7 +356,7 @@ public def lookupOther (c : UInt32) : UInt32 :=
 /-- Check if code point is alphabetic using lookup table
 
   Unicode property: `Alphabetic` -/
-@[inline]
+@[expose, inline]
 public def lookupAlphabetic (c : UInt32) : Bool :=
   let m := CLib.oAlpha ||| (GC.L ||| GC.Nl).toUInt64
   CLib.lookupProp c &&& m != 0
@@ -372,7 +377,7 @@ where
 /-- Check if code point is a cased letter using lookup table
 
   Unicode property: `Cased` -/
-@[inline]
+@[expose, inline]
 public def lookupCased (c : UInt32 ) : Bool :=
   let m := CLib.oUpper ||| CLib.oLower ||| GC.LC.toUInt64
   CLib.lookupProp c &&& m != 0
@@ -393,7 +398,7 @@ where
 /-- Check if code point is a lowercase letter using lookup table
 
   Unicode property: `Lowercase` -/
-@[inline]
+@[expose, inline]
 public def lookupLowercase (c : UInt32) : Bool :=
   let m := CLib.oLower ||| GC.Ll.toUInt64
   CLib.lookupProp c &&& m != 0
@@ -402,7 +407,7 @@ public def lookupLowercase (c : UInt32) : Bool :=
 /-- Check if code point is a mathematical symbol using lookup table
 
   Unicode property: `Math` -/
-@[inline]
+@[expose, inline]
 public def lookupMath (c : UInt32) : Bool :=
   let m := CLib.oMath ||| GC.Sm.toUInt64
   CLib.lookupProp c &&& m != 0
@@ -410,7 +415,7 @@ public def lookupMath (c : UInt32) : Bool :=
 /-- Check if code point is a noncharacter code point
 
   Unicode property: `Noncharacter_Code_Point` -/
-@[inline]
+@[expose, inline]
 public def lookupNoncharacterCodePoint (c : UInt32) : Bool :=
   (c ≤ 0xFDEF && 0xFDD0 ≤ c) || (c ≤ Unicode.max && c &&& 0xFFFE == 0xFFFE)
 
@@ -424,7 +429,7 @@ public def lookupTitlecase (c : UInt32) : Bool :=
 /-- Check if code point is an uppercase letter using lookup table
 
   Unicode property: `Uppercase` -/
-@[inline]
+@[expose, inline]
 public def lookupUppercase (c : UInt32) : Bool :=
   let m := CLib.oUpper ||| GC.Lu.toUInt64
   CLib.lookupProp c &&& m != 0
