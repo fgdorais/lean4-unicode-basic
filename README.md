@@ -34,7 +34,7 @@ Unicode properties that are currently supported by `UnicodeBasic` include:
 
 To keep the `UnicodeBasic` library lightweight, only commonly used properties can be supported. If you need a property not yet in the list above, please submit a feature request!
 
-## The `lean4-unicode-*` family
+## The Lean4 / Unicode family
 
 This library is one of a small family of Lean 4 Unicode libraries. Each one has a narrow job, so
 you only depend on what you need.
