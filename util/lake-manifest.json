@@ -13,7 +13,7 @@
    "type": "git",
    "subDir": null,
    "scope": "",
-   "rev": "84cf39c75b215b7a12a3a85cf7c9c0584d4dbf07",
+   "rev": "728e0362daa5799a9d727e6758b6cbf941b85052",
    "name": "UnicodeData",
    "manifestFile": "lake-manifest.json",
    "inputRev": "main",
