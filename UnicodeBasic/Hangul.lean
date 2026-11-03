@@ -6,29 +6,43 @@ module
 
 namespace Unicode.Hangul
 
+/-- Short names of the leading consonants (L parts) of Hangul syllables -/
 public def shortNameL : Array String :=
   #["G", "GG", "N", "D", "DD", "R", "M", "B", "BB", "S",
     "SS", "", "J", "JJ", "C", "K", "T", "P", "H"]
 
+/-- Short names of the vowels (V parts) of Hangul syllables -/
 public def shortNameV : Array String :=
   #["A", "AE", "YA", "YAE", "EO", "E", "YEO", "YE", "O", "WA",
     "WAE", "OE", "YO", "U", "WEO", "WE", "WI", "YU", "EU", "YI",
     "I"]
 
+/-- Short names of the trailing consonants (T parts) of Hangul syllables
+
+  The first name is empty and stands for no trailing consonant. -/
 public def shortNameT : Array String :=
   #["", "G", "GG", "GS", "N", "NJ", "NH", "D", "L", "LG",
     "LM", "LB", "LS", "LT", "LP", "LH", "M", "B", "BS", "S",
     "SS", "NG", "J", "C", "K", "T", "P", "H"]
 
+/-- Number of leading consonants (L parts) -/
 public abbrev sizeL := shortNameL.size -- 19
+/-- Number of vowels (V parts) -/
 public abbrev sizeV := shortNameV.size -- 21
+/-- Number of trailing consonants (T parts), including none -/
 public abbrev sizeT := shortNameT.size -- 28
+/-- Number of LV syllables -/
 public abbrev sizeLV := sizeL * sizeV -- 399
+/-- Number of VT combinations -/
 public abbrev sizeVT := sizeV * sizeT -- 588
+/-- Number of LVT syllables -/
 public abbrev sizeLVT := sizeL * sizeV * sizeT -- 11172
 
+/-- First leading consonant (L part) code point -/
 public abbrev baseL : UInt32 := 0x1100
+/-- First vowel (V part) code point -/
 public abbrev baseV : UInt32 := 0x1161
+/-- Code point before the first trailing consonant (T part) -/
 public abbrev baseT : UInt32 := 0x11A7
 
 /-- Number of Hangul syllables -/
@@ -62,6 +76,7 @@ public def Syllable.toLV : Syllable → Fin sizeLV
       _ ≤ sizeL * sizeV := by apply Nat.mul_le_mul_right; exact hl
     ⟨l * sizeV + v, this⟩
 
+/-- Index of syllable among all Hangul syllables -/
 public def Syllable.index (s : Syllable) : Fin Syllable.size :=
   match s.toLV, s.toT with
   | ⟨lv, hlv⟩, ⟨t, ht⟩ =>

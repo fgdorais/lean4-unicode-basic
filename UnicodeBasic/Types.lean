@@ -143,54 +143,96 @@ public theorem subset_trans {x y z : GC} (h₁ : x ⊆ y) (h₂ : y ⊆ z) : x �
   have h₂ : y &&& z = y := beq_iff_eq.1 h₂
   exact beq_iff_eq.2 (and_eq_of_and_eq h₁ h₂)
 
+/-- Empty set of general categories -/
 public protected abbrev none : GC := (0x00000000 : UInt32)
+/-- Set of all general categories -/
 public protected abbrev univ : GC := (0x3FFFFFFF : UInt32)
 
+/-- General category: uppercase letter -/
 public protected abbrev Lu  : GC := (0x00000001 : UInt32)
+/-- General category: lowercase letter -/
 public protected abbrev Ll  : GC := (0x00000002 : UInt32)
+/-- General category: titlecase letter -/
 public protected abbrev Lt  : GC := (0x00000004 : UInt32)
+/-- General category: modifier letter -/
 public protected abbrev Lm  : GC := (0x00000008 : UInt32)
+/-- General category: other letter -/
 public protected abbrev Lo  : GC := (0x00000010 : UInt32)
+/-- General category: cased letter (`Lu | Ll | Lt`) -/
 public protected abbrev LC  : GC := .Lu ||| .Ll ||| .Lt
+/-- General category: letter (`Lu | Ll | Lt | Lm | Lo`) -/
 public protected abbrev L   : GC := .Lu ||| .Ll ||| .Lt ||| .Lm ||| .Lo
 
+/-- General category: nonspacing mark -/
 public protected abbrev Mn  : GC := (0x00000020 : UInt32)
+/-- General category: spacing mark -/
 public protected abbrev Mc  : GC := (0x00000040 : UInt32)
+/-- General category: enclosing mark -/
 public protected abbrev Me  : GC := (0x00000080 : UInt32)
+/-- General category: mark (`Mn | Mc | Me`) -/
 public protected abbrev M   : GC := .Mn ||| .Mc ||| .Me
 
+/-- General category: decimal number -/
 public protected abbrev Nd  : GC := (0x00000100 : UInt32)
+/-- General category: letter number -/
 public protected abbrev Nl  : GC := (0x00000200 : UInt32)
+/-- General category: other number -/
 public protected abbrev No  : GC := (0x00000400 : UInt32)
+/-- General category: number (`Nd | Nl | No`) -/
 public protected abbrev N   : GC := .Nd ||| .Nl ||| .No
 
+/-- General category: connector punctuation -/
 public protected abbrev Pc  : GC := (0x00000800 : UInt32)
+/-- General category: dash punctuation -/
 public protected abbrev Pd  : GC := (0x00001000 : UInt32)
+/-- General category: open punctuation -/
 public protected abbrev Ps  : GC := (0x00002000 : UInt32)
+/-- General category: close punctuation -/
 public protected abbrev Pe  : GC := (0x00004000 : UInt32)
+/-- General category: initial punctuation -/
 public protected abbrev Pi  : GC := (0x00008000 : UInt32)
+/-- General category: final punctuation -/
 public protected abbrev Pf  : GC := (0x00010000 : UInt32)
+/-- General category: other punctuation -/
 public protected abbrev Po  : GC := (0x00020000 : UInt32)
+/-- General category: grouping punctuation (`Ps | Pe`, not defined by Unicode) -/
 public protected abbrev PG  : GC := .Ps ||| .Pe
+/-- General category: quoting punctuation (`Pi | Pf`, not defined by Unicode) -/
 public protected abbrev PQ  : GC := .Pi ||| .Pf
+/-- General category: punctuation (`Pc | Pd | Ps | Pe | Pi | Pf | Po`) -/
 public protected abbrev P   : GC := .Pc ||| .Pd ||| .Ps ||| .Pe ||| .Pi ||| .Pf ||| .Po
 
+/-- General category: math symbol -/
 public protected abbrev Sm  : GC := (0x00040000 : UInt32)
+/-- General category: currency symbol -/
 public protected abbrev Sc  : GC := (0x00080000 : UInt32)
+/-- General category: modifier symbol -/
 public protected abbrev Sk  : GC := (0x00100000 : UInt32)
+/-- General category: other symbol -/
 public protected abbrev So  : GC := (0x00200000 : UInt32)
+/-- General category: symbol (`Sm | Sc | Sk | So`) -/
 public protected abbrev S   : GC := .Sm ||| .Sc ||| .Sk ||| .So
 
+/-- General category: space separator -/
 public protected abbrev Zs  : GC := (0x00400000 : UInt32)
+/-- General category: line separator -/
 public protected abbrev Zl  : GC := (0x00800000 : UInt32)
+/-- General category: paragraph separator -/
 public protected abbrev Zp  : GC := (0x01000000 : UInt32)
+/-- General category: separator (`Zs | Zl | Zp`) -/
 public protected abbrev Z   : GC := .Zs ||| .Zl ||| .Zp
 
+/-- General category: control -/
 public protected abbrev Cc  : GC := (0x02000000 : UInt32)
+/-- General category: format -/
 public protected abbrev Cf  : GC := (0x04000000 : UInt32)
+/-- General category: surrogate -/
 public protected abbrev Cs  : GC := (0x08000000 : UInt32)
+/-- General category: private use -/
 public protected abbrev Co  : GC := (0x10000000 : UInt32)
+/-- General category: unassigned -/
 public protected abbrev Cn  : GC := (0x20000000 : UInt32)
+/-- General category: other (`Cc | Cf | Cs | Co | Cn`) -/
 public protected abbrev C   : GC := .Cc ||| .Cf ||| .Cs ||| .Co ||| .Cn
 
 def reprAux (x : GC) (extra := false) : List String := Id.run do
@@ -287,6 +329,9 @@ def reprAux (x : GC) (extra := false) : List String := Id.run do
       c := c.push "Cn"
   return c.toList
 
+/-- Abbreviation of a single general category, such as `"Lu"`
+
+  Panics if `x` is not a single basic or derived category. -/
 @[inline]
 public def toAbbrev! (x : GC) : String :=
   match reprAux x true with
@@ -294,12 +339,15 @@ public def toAbbrev! (x : GC) : String :=
   | _ => panic! "invalid general category"
 
 open Std.Format Repr in
+/-- Representation of a set of general categories as a union of `Unicode.GC` constants -/
 public def reprPrec (x : GC) := addAppParen (group (joinSep (reprAux x |>.map (text "Unicode.GC." ++ text ·)) (text " |||" ++ line)) .fill)
 public instance : Repr GC where reprPrec
 
+/-- Abbreviations of a set of general categories, separated by `" | "` -/
 public def toString (x : GC) := " | ".intercalate (reprAux x)
 public instance : ToString GC where toString
 
+/-- Get general category from abbreviation, such as `"Lu"` or `"L"` -/
 public def ofAbbrev? (s : String.Slice) : Option GC :=
   match s.chars.take 3 |>.toList with
   | ['C'] => some .C
@@ -344,17 +392,20 @@ public def ofAbbrev? (s : String.Slice) : Option GC :=
   | ['Z', 'p'] => some .Zp
   | _ => none
 
+@[inherit_doc ofAbbrev?]
 public def ofAbbrev! (s : String.Slice) : GC :=
   match ofAbbrev? s with
   | .some c => c
   | none => panic! "invalid general category"
 
+/-- Get set of general categories from abbreviations separated by `"|"`, such as `"Lu | Ll"` -/
 public def ofString? (s : String.Slice) : Option GC := do
   let mut c := .none
   for a in s.split "|" do
     c := c ||| (← GC.ofAbbrev? a.trimAscii)
   return c
 
+@[inherit_doc ofString?]
 public def ofString! (s : String.Slice) : GC :=
   match ofString? s with
   | .some c => c
@@ -543,6 +594,7 @@ public inductive BidiClass
 | public popDirectionalIsolate
 deriving Inhabited, DecidableEq
 
+/-- Misspelled alias of `BidiClass.rightToLeftEmbedding` -/
 @[deprecated BidiClass.rightToLeftEmbedding (since := "2026-10-06"), match_pattern]
 public abbrev BidiClass.rightToLeftEmbeding := BidiClass.rightToLeftEmbedding
 
