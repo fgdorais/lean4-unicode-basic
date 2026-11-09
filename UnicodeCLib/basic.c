@@ -1,9 +1,4 @@
 #include <lean/lean.h>
-#ifdef _WIN32
-#include <winsock2.h>
-#else
-#include <arpa/inet.h>
-#endif
 #include "basic.h"
 
 static inline int unicode_script_is_valid(uint32_t c) {
@@ -19,16 +14,19 @@ static inline int unicode_script_is_valid(uint32_t c) {
 }
 
 uint32_t unicode_script_of_abbrev(b_lean_obj_arg abbr) {
-  lean_string_object * str = lean_to_string(abbr);
-  assert(str->m_size > 4);
-  uint32_t val = *((uint32_t*)(str->m_data));
-  return ntohl(val);
+  assert(lean_string_size(abbr) > 4);
+  const unsigned char * s = (const unsigned char *)lean_string_cstr(abbr);
+  return (uint32_t)s[0] << 24 | (uint32_t)s[1] << 16 | (uint32_t)s[2] << 8 | (uint32_t)s[3];
 }
 
 lean_obj_res unicode_script_to_abbrev(uint32_t scr) {
   assert(unicode_script_is_valid(scr));
   lean_object * abbr = lean_alloc_string(5, 5, 4);
-  lean_to_string(abbr)->m_data[4] = 0;
-  *((uint32_t*)lean_to_string(abbr)->m_data) = htonl(scr);
+  char * s = lean_to_string(abbr)->m_data;
+  s[0] = (char)(scr >> 24 & 0xff);
+  s[1] = (char)(scr >> 16 & 0xff);
+  s[2] = (char)(scr >> 8 & 0xff);
+  s[3] = (char)(scr & 0xff);
+  s[4] = 0;
   return abbr;
 }
