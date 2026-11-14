@@ -37,7 +37,7 @@ UnicodeBasic by path (`path = ".."`), and it has three executables:
 
 `util` pins its own `lean-toolchain` and commits its own `lake-manifest.json`, so the UCD version
 the tables are built from is whatever UnicodeData revision that manifest names. The Update Util
-workflow (`.github/workflows/update-util.yml`) bumps that pin when UnicodeData's `main` moves. By
+workflow (`.github/workflows/update-util.yml`) updates that pin when UnicodeData's `main` moves. By
 hand: copy UnicodeData's `lean-toolchain` into `util/lean-toolchain` and run `lake update` in
 `util`.
 
@@ -273,7 +273,7 @@ declaration.
 ## 8. Updating to a new Unicode version
 
 1. UnicodeData updates its `data/ucd/` files.
-2. Bump `util`'s pin (the Update Util workflow does this daily).
+2. Update `util`'s pin (the Update Util workflow does this daily).
 3. Regenerate: `lake exe MakeTables && lake exe MakeCLib` in `util`.
 4. Check the diff. New derived-name blocks (for example a new `… CHARACTER-XXXX` range) show up as
    thousands of new `Name.txt` lines and need a new tag in `MakeTables.mkName` and a new case in
