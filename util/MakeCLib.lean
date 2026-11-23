@@ -232,52 +232,58 @@ static const unicode_data_t table[] = {"
       file.putStrLn s!"\{UINT32_C({c₀}),UINT32_C({c₁}),UINT64_C({d})},"
     file.putStrLn "};"
 
-/-- Maximum number of ranges in a leaf of `Internal.propTree` -/
-def propLeafSize : Nat := 64
+/-- Maximum number of ranges in a leaf of the `Internal.BTree` copies of the C tables -/
+def leafSize : Nat := 64
 
 /-- `n` as a Lean raw hexadecimal literal -/
 def natLit (n : Nat) : String :=
   "(nat_lit 0x" ++ (String.ofList (Nat.toDigits 16 n)).toUpper ++ ")"
 
-/-- B-tree on `propTable` entries `lo` to `hi - 1`, as Lean source, following the C search -/
-partial def propBTree (indent : String) (lo hi : Nat) : String :=
+/-- B-tree on entries `lo` to `hi - 1` of `table`, as Lean source, following the C search; the
+values of a leaf are packed `width` bits each -/
+partial def btree (table : Array (UInt32 × UInt32 × UInt64)) (width : Nat) (indent : String)
+    (lo hi : Nat) : String :=
   let indent' := indent ++ "  "
-  if hi - lo ≤ propLeafSize then
-    let rows := propTable[lo:hi].toArray.zipIdx
+  if hi - lo ≤ leafSize then
+    let rows := table[lo:hi].toArray.zipIdx
     let keys := rows.foldl (init := 0) fun n ((c₀, c₁, _), k) =>
       n ||| (c₀.toNat ||| c₁.toNat <<< 21) <<< (42 * k)
-    let block := rows.foldl (init := 0) fun n ((_, _, d), k) => n ||| d.toNat <<< (36 * k)
+    let block := rows.foldl (init := 0) fun n ((_, _, d), k) => n ||| d.toNat <<< (width * k)
     s!".leaf {lo} {hi}\n{indent'}{natLit keys}\n{indent'}{natLit block}"
   else
     let mid := (lo + hi) / 2
-    s!".node {natLit propTable[mid]!.1.toNat}\n{indent'}({propBTree indent' lo mid})"
-      ++ s!"\n{indent'}({propBTree indent' mid hi})"
+    s!".node {natLit table[mid]!.1.toNat}\n{indent'}({btree table width indent' lo mid})"
+      ++ s!"\n{indent'}({btree table width indent' mid hi})"
 
-def makePropLean : IO Unit :=
-  IO.FS.withFile (libDir / "Internal" / "PropTree.lean") .write fun file => do
+/-- Write `UnicodeBasic/Internal/<module>.lean` with `table` as the B-tree `Internal.<name>` -/
+def makeTreeLean (module name c : String) (table : Array (UInt32 × UInt32 × UInt64))
+    (width : Nat) : IO Unit :=
+  IO.FS.withFile (libDir / "Internal" / s!"{module}.lean") .write fun file => do
     file.putStrLn s!"/- THIS IS A GENERATED FILE - DO NOT EDIT -/
 module
 public import UnicodeBasic.Internal.BTree
 
-/-! # Kernel copy of the `prop` table
+/-! # Kernel copy of the `{c}` table
 
-This module holds the same table as `UnicodeCLib/prop.c` as a B-tree, for the kernel to read
-through `CLib.lookupPropIn`. It is internal and may change at any time.
+This module holds the same table as `UnicodeCLib/{c}.c` as a B-tree, for the kernel to read. It is
+internal and may change at any time.
 -/
 
 namespace Unicode.Internal
 
--- The block of each leaf holds the `prop.c` data of its ranges, 36 bits each.
+-- The block of each leaf holds the `{c}.c` data of its ranges, {width} bits each.
 --
 -- This must stay `noncomputable`: compiled code uses the C table, and a computable definition
 -- would build this tree when a program starts.
-/-- The `prop` table (internal use only) -/
-@[expose] public noncomputable def propTree : BTree Nat :=
-  {propBTree "  " 0 propTable.size}"
+/-- The `{c}` table (internal use only) -/
+@[expose] public noncomputable def {name} : BTree Nat :=
+  {btree table width "  " 0 table.size}"
 
 public def main : IO UInt32 := do
   makeCaseC
+  makeTreeLean "CaseTree" "caseTree" "case" caseTable 63
   makePropC
-  makePropLean
+  makeTreeLean "PropTree" "propTree" "prop" propTable 36
   makeScriptC
+  makeTreeLean "ScriptTree" "scriptTree" "script" scriptTable 32
   return 0

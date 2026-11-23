@@ -4,8 +4,8 @@ public import UnicodeBasic.Internal.BTree
 
 /-! # Kernel copy of the `prop` table
 
-This module holds the same table as `UnicodeCLib/prop.c` as a B-tree, for the kernel to read
-through `CLib.lookupPropIn`. It is internal and may change at any time.
+This module holds the same table as `UnicodeCLib/prop.c` as a B-tree, for the kernel to read. It is
+internal and may change at any time.
 -/
 
 namespace Unicode.Internal

@@ -84,7 +84,7 @@ public def getName (char : Char) : String := lookupName char.val
 
   Unicode property: `Script`
 -/
-@[inline]
+@[expose, inline]
 public def getScript (char : Char) : Script := lookupScript char.val
 
 /-- Get script name

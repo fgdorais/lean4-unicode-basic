@@ -19,6 +19,11 @@ example : GeneralCategory.isLetter '\u0378' = false := by decide +kernel
 example : isAlphabetic 'ا' = true := by decide +kernel
 example : isUppercase 'Σ' = true := by decide +kernel
 example : isLowercase 'ς' = true := by decide +kernel
+example : getUpperChar 'é' = 'É' := by decide +kernel
+example : getLowerChar 'Σ' = 'σ' := by decide +kernel
+example : getTitleChar 'ǆ' = 'ǅ' := by decide +kernel
+example : (getScript 'ا').code = 0x41726162 := by decide +kernel -- Arab
+example : (getScript '日').code = 0x48616E69 := by decide +kernel -- Hani
 
 /-! Agreement of the kernel copy of the `prop` table with the C table -/
 
@@ -29,17 +34,20 @@ elab "body_of% " id:ident : term => do
     | throwError "{id} is not a definition"
   return d.value
 
+/-- Computable copy of `Internal.caseTree` -/
+def caseTree : Internal.BTree Nat := body_of% Unicode.Internal.caseTree
+
 /-- Computable copy of `Internal.propTree` -/
 def propTree : Internal.BTree Nat := body_of% Unicode.Internal.propTree
 
-/-- Code points where `CLib.lookupPropIn` and the C table disagree -/
-def testPropTree : Array UInt32 := Id.run do
-  let mut r := #[]
-  for n in [0:0x110000] do
-    let c := n.toUInt32
-    if CLib.lookupPropIn propTree n != CLib.lookupProp c then
-      r := r.push c
-  return r
+/-- Computable copy of `Internal.scriptTree` -/
+def scriptTree : Internal.BTree Nat := body_of% Unicode.Internal.scriptTree
+
+/-- Code points where the B-tree copies of the C tables and the C tables disagree -/
+def treeTests : Array (String × (UInt32 → Bool)) := #[
+  ("CaseTree", fun c => CLib.lookupCaseIn caseTree c.toNat == CLib.lookupCase c),
+  ("PropTree", fun c => CLib.lookupPropIn propTree c.toNat == CLib.lookupProp c),
+  ("ScriptTree", fun c => CLib.lookupScriptIn scriptTree c.toNat == CLib.lookupScript c)]
 
 /-- Character for a code point; surrogates are skipped by `main` -/
 def Unicode.UnicodeData.char (d : UnicodeData) : Char := Char.ofNat d.code.toNat
@@ -215,13 +223,15 @@ def tests : Array (String × (UnicodeData → Bool)) := #[
   ("White_Space", testWhiteSpace)]
 
 public def main (args : List String) : IO UInt32 := do
-  let args := if args.isEmpty then tests.map Prod.fst |>.push "PropTree" else args.toArray
+  let args := if args.isEmpty then tests.map Prod.fst ++ treeTests.map Prod.fst else args.toArray
   let stream : UnicodeDataStream := {}
   let mut err : UInt32 := 0
-  if "PropTree" ∈ args then
-    for c in testPropTree do
-      err := 1
-      IO.println s!"Error: PropTree {toHexStringRaw c}"
+  for (name, test) in treeTests do
+    if name ∈ args then
+      for n in [0:0x110000] do
+        if !test n.toUInt32 then
+          err := 1
+          IO.println s!"Error: {name} {toHexStringRaw n.toUInt32}"
   for d in stream do
     -- surrogate code points are not characters
     if d.gc == .Cs then continue
