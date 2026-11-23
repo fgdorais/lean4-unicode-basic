@@ -5,8 +5,41 @@ Released under Apache 2.0 license as described in the file LICENSE.
 module
 import UnicodeBasic
 import UnicodeData
+public meta import Lean.Elab.Term
 
 open Unicode
+
+/-! Kernel reduction of property lookups -/
+
+example : GeneralCategory.isLetter 'é' = true := by decide +kernel
+example : GeneralCategory.isMark '\u0301' = true := by decide +kernel
+example : GeneralCategory.isNumber '٣' = true := by decide +kernel
+example : GeneralCategory.isLetter '日' = true := by decide +kernel
+example : GeneralCategory.isLetter '\u0378' = false := by decide +kernel
+example : isAlphabetic 'ا' = true := by decide +kernel
+example : isUppercase 'Σ' = true := by decide +kernel
+example : isLowercase 'ς' = true := by decide +kernel
+
+/-! Agreement of the kernel copy of the `prop` table with the C table -/
+
+open Lean Elab Term in
+/-- The body of a definition, so that compiled code can run a `noncomputable` definition -/
+elab "body_of% " id:ident : term => do
+  let some (.defnInfo d) := (← getEnv).find? id.getId
+    | throwError "{id} is not a definition"
+  return d.value
+
+/-- Computable copy of `PropTable.chunk` -/
+def propChunk : Nat → Nat := body_of% Unicode.PropTable.chunk
+
+/-- Code points where `CLib.lookupPropWith` and the C table disagree -/
+def testPropTable : Array UInt32 := Id.run do
+  let mut r := #[]
+  for n in [0:0x110000] do
+    let c := n.toUInt32
+    if CLib.lookupPropWith propChunk n != CLib.lookupProp c then
+      r := r.push c
+  return r
 
 /-- Character for a code point; surrogates are skipped by `main` -/
 def Unicode.UnicodeData.char (d : UnicodeData) : Char := Char.ofNat d.code.toNat
@@ -182,9 +215,13 @@ def tests : Array (String × (UnicodeData → Bool)) := #[
   ("White_Space", testWhiteSpace)]
 
 public def main (args : List String) : IO UInt32 := do
-  let args := if args.isEmpty then tests.map Prod.fst else args.toArray
+  let args := if args.isEmpty then tests.map Prod.fst |>.push "PropTable" else args.toArray
   let stream : UnicodeDataStream := {}
   let mut err : UInt32 := 0
+  if "PropTable" ∈ args then
+    for c in testPropTable do
+      err := 1
+      IO.println s!"Error: PropTable {toHexStringRaw c}"
   for d in stream do
     -- surrogate code points are not characters
     if d.gc == .Cs then continue

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 module
 import UnicodeBasic.CharacterDatabase
 import UnicodeBasic.Hangul
+public import UnicodeBasic.PropTable
 public import UnicodeBasic.Types
 
 /-! # Table lookups
@@ -29,9 +30,46 @@ public protected abbrev oAlpha : UInt64 := 0x400000000
 /-- `Other_Math` bit of `CLib.lookupProp` (internal use only) -/
 public protected abbrev oMath  : UInt64 := 0x800000000
 
+/-- Kernel-reducible lookup in the `prop` table, given its chunks (internal use only) -/
+@[expose] public protected def lookupPropWith (chunk : Nat → Nat) (c : Nat) : UInt64 :=
+  let entry (i : Nat) : Nat :=
+    chunk (i / PropTable.chunkSize) >>> (80 * (i % PropTable.chunkSize)) &&& (2 ^ 80 - 1)
+  let cmin (i : Nat) : Nat := entry i &&& 0x1FFFFF
+  let i := loop c cmin PropTable.size 0 PropTable.size
+  let e := entry i
+  if c < cmin 0 || (e >>> 21 &&& 0x1FFFFF) < c then
+    0x20000000 -- Cn
+  else
+    let d := e >>> 42
+    let gc := d &&& 0x3FFFFFFF
+    let pb := d >>> 31 &&& 1
+    let op := d &&& 0xFFFFFFFF00000000
+    -- Alternating pairs, see `UnicodeCLib/prop.c`
+    let gc :=
+      if gc == 0x7 then -- LC
+        if c % 2 == pb then 0x1 else 0x2 -- Lu, Ll
+      else if gc == 0x6000 then -- PG
+        if c % 2 == pb then 0x2000 else 0x4000 -- Ps, Pe
+      else if gc == 0x18000 then -- PQ
+        if c % 2 == pb then 0x8000 else 0x10000 -- Pi, Pf
+      else gc
+    (op ||| gc).toUInt64
+where
+  /-- Binary search with fuel (internal use only) -/
+  loop (c : Nat) (cmin : Nat → Nat) : Nat → Nat → Nat → Nat
+    | 0, lo, _ => lo
+    | fuel + 1, lo, hi =>
+      let mid := (lo + hi) / 2
+      if lo == mid then lo
+      else if c < cmin mid then loop c cmin fuel lo mid
+      else loop c cmin fuel mid hi
+
 /-- General category and `Other_*` property bits of a code point (internal use only) -/
-@[extern "unicode_prop_lookup"]
-public protected opaque lookupProp (c : UInt32) : UInt64
+-- Compiled code calls the C table. The kernel unfolds the body, which reads the same table from
+-- `UnicodeBasic.PropTable`. `util/TestTables` checks that the two agree on every code point.
+@[extern "unicode_prop_lookup", expose]
+public protected def lookupProp (c : UInt32) : UInt64 :=
+  CLib.lookupPropWith PropTable.chunk c.toNat
 
 @[extern "unicode_script_lookup"]
 protected opaque lookupScript (c : UInt32) : Script

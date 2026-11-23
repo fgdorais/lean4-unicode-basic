@@ -5,6 +5,8 @@ open Unicode
 
 def clibDir : System.FilePath := ".."/"UnicodeCLib"
 
+def libDir : System.FilePath := ".."/"UnicodeBasic"
+
 def Unicode.GC.BP : GC := (0x80000000 : UInt32)
 def Unicode.GC.LC0 : GC := GC.LC
 def Unicode.GC.LC1 : GC := GC.LC ||| GC.BP
@@ -230,8 +232,68 @@ static const unicode_data_t table[] = {"
       file.putStrLn s!"\{UINT32_C({c₀}),UINT32_C({c₁}),UINT64_C({d})},"
     file.putStrLn "};"
 
+/-- Number of `propTable` entries per chunk of `UnicodeBasic/PropTable.lean` -/
+def propChunkSize : Nat := 256
+
+/-- `propTable` entries packed into `Nat` chunks, 80 bits per entry -/
+def propChunks : Array Nat := Id.run do
+  let mut r := #[]
+  let mut n := 0
+  let mut k := 0
+  for (c₀, c₁, d) in propTable do
+    n := n ||| (c₀.toNat ||| c₁.toNat <<< 21 ||| d.toNat <<< 42) <<< (80 * k)
+    k := k + 1
+    if k == propChunkSize then
+      r := r.push n
+      n := 0
+      k := 0
+  if k != 0 then
+    r := r.push n
+  return r
+
+/-- Binary decision tree on `j` returning chunk `j` of `propChunks` -/
+partial def propChunkTree (indent : String) (lo hi : Nat) : String :=
+  if lo + 1 == hi then
+    indent ++ "0x" ++ String.ofList (Nat.toDigits 16 propChunks[lo]!)
+  else
+    let mid := (lo + hi) / 2
+    let indent' := indent ++ "  "
+    indent ++ s!"if j < {mid} then\n" ++ propChunkTree indent' lo mid ++ "\n"
+      ++ indent ++ "else\n" ++ propChunkTree indent' mid hi
+
+def makePropLean : IO Unit :=
+  IO.FS.withFile (libDir / "PropTable.lean") .write fun file => do
+    file.putStrLn s!"/- THIS IS A GENERATED FILE - DO NOT EDIT -/
+module
+
+/-! # Kernel copy of the `prop` table
+
+This module holds the same table as `UnicodeCLib/prop.c`, for the kernel to read through
+`CLib.lookupPropWith`. It is internal and may change at any time.
+-/
+
+namespace Unicode.PropTable
+
+/-- Number of entries in the table (internal use only) -/
+@[expose] public def size : Nat := {propTable.size}
+
+/-- Number of entries in each chunk (internal use only) -/
+@[expose] public def chunkSize : Nat := {propChunkSize}
+
+-- Entry `k` of a chunk is bits `80*k` to `80*k+79`: `cmin` in bits 0-20, `cmax` in bits 21-41
+-- and the `prop.c` data in bits 42-79. The table is split into chunks because the time Lean
+-- takes to process a `Nat` literal grows quadratically with its length.
+--
+-- This must stay `noncomputable`: compiled code uses the C table, and a computable definition
+-- would build these numbers when a program starts.
+/-- Chunk `j` of the table (internal use only) -/
+@[expose] public noncomputable def chunk (j : Nat) : Nat :=
+{propChunkTree "  " 0 propChunks.size}"
+
+
 public def main : IO UInt32 := do
   makeCaseC
   makePropC
+  makePropLean
   makeScriptC
   return 0
