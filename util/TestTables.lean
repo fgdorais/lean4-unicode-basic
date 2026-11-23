@@ -29,15 +29,15 @@ elab "body_of% " id:ident : term => do
     | throwError "{id} is not a definition"
   return d.value
 
-/-- Computable copy of `PropTable.chunk` -/
-def propChunk : Nat → Nat := body_of% Unicode.PropTable.chunk
+/-- Computable copy of `Internal.propTree` -/
+def propTree : Internal.BTree Nat := body_of% Unicode.Internal.propTree
 
-/-- Code points where `CLib.lookupPropWith` and the C table disagree -/
-def testPropTable : Array UInt32 := Id.run do
+/-- Code points where `CLib.lookupPropIn` and the C table disagree -/
+def testPropTree : Array UInt32 := Id.run do
   let mut r := #[]
   for n in [0:0x110000] do
     let c := n.toUInt32
-    if CLib.lookupPropWith propChunk n != CLib.lookupProp c then
+    if CLib.lookupPropIn propTree n != CLib.lookupProp c then
       r := r.push c
   return r
 
@@ -215,13 +215,13 @@ def tests : Array (String × (UnicodeData → Bool)) := #[
   ("White_Space", testWhiteSpace)]
 
 public def main (args : List String) : IO UInt32 := do
-  let args := if args.isEmpty then tests.map Prod.fst |>.push "PropTable" else args.toArray
+  let args := if args.isEmpty then tests.map Prod.fst |>.push "PropTree" else args.toArray
   let stream : UnicodeDataStream := {}
   let mut err : UInt32 := 0
-  if "PropTable" ∈ args then
-    for c in testPropTable do
+  if "PropTree" ∈ args then
+    for c in testPropTree do
       err := 1
-      IO.println s!"Error: PropTable {toHexStringRaw c}"
+      IO.println s!"Error: PropTree {toHexStringRaw c}"
   for d in stream do
     -- surrogate code points are not characters
     if d.gc == .Cs then continue

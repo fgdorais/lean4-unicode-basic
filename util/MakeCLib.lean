@@ -232,64 +232,48 @@ static const unicode_data_t table[] = {"
       file.putStrLn s!"\{UINT32_C({c₀}),UINT32_C({c₁}),UINT64_C({d})},"
     file.putStrLn "};"
 
-/-- Number of `propTable` entries per chunk of `UnicodeBasic/PropTable.lean` -/
-def propChunkSize : Nat := 256
+/-- Maximum number of ranges in a leaf of `Internal.propTree` -/
+def propLeafSize : Nat := 64
 
-/-- `propTable` entries packed into `Nat` chunks, 80 bits per entry -/
-def propChunks : Array Nat := Id.run do
-  let mut r := #[]
-  let mut n := 0
-  let mut k := 0
-  for (c₀, c₁, d) in propTable do
-    n := n ||| (c₀.toNat ||| c₁.toNat <<< 21 ||| d.toNat <<< 42) <<< (80 * k)
-    k := k + 1
-    if k == propChunkSize then
-      r := r.push n
-      n := 0
-      k := 0
-  if k != 0 then
-    r := r.push n
-  return r
+/-- `n` as a Lean raw hexadecimal literal -/
+def natLit (n : Nat) : String :=
+  "(nat_lit 0x" ++ (String.ofList (Nat.toDigits 16 n)).toUpper ++ ")"
 
-/-- Binary decision tree on `j` returning chunk `j` of `propChunks` -/
-partial def propChunkTree (indent : String) (lo hi : Nat) : String :=
-  if lo + 1 == hi then
-    indent ++ "0x" ++ String.ofList (Nat.toDigits 16 propChunks[lo]!)
+/-- B-tree on `propTable` entries `lo` to `hi - 1`, as Lean source, following the C search -/
+partial def propBTree (indent : String) (lo hi : Nat) : String :=
+  let indent' := indent ++ "  "
+  if hi - lo ≤ propLeafSize then
+    let rows := propTable[lo:hi].toArray.zipIdx
+    let keys := rows.foldl (init := 0) fun n ((c₀, c₁, _), k) =>
+      n ||| (c₀.toNat ||| c₁.toNat <<< 21) <<< (42 * k)
+    let block := rows.foldl (init := 0) fun n ((_, _, d), k) => n ||| d.toNat <<< (36 * k)
+    s!".leaf {lo} {hi}\n{indent'}{natLit keys}\n{indent'}{natLit block}"
   else
     let mid := (lo + hi) / 2
-    let indent' := indent ++ "  "
-    indent ++ s!"if j < {mid} then\n" ++ propChunkTree indent' lo mid ++ "\n"
-      ++ indent ++ "else\n" ++ propChunkTree indent' mid hi
+    s!".node {natLit propTable[mid]!.1.toNat}\n{indent'}({propBTree indent' lo mid})"
+      ++ s!"\n{indent'}({propBTree indent' mid hi})"
 
 def makePropLean : IO Unit :=
-  IO.FS.withFile (libDir / "PropTable.lean") .write fun file => do
+  IO.FS.withFile (libDir / "Internal" / "PropTree.lean") .write fun file => do
     file.putStrLn s!"/- THIS IS A GENERATED FILE - DO NOT EDIT -/
 module
+public import UnicodeBasic.Internal.BTree
 
 /-! # Kernel copy of the `prop` table
 
-This module holds the same table as `UnicodeCLib/prop.c`, for the kernel to read through
-`CLib.lookupPropWith`. It is internal and may change at any time.
+This module holds the same table as `UnicodeCLib/prop.c` as a B-tree, for the kernel to read
+through `CLib.lookupPropIn`. It is internal and may change at any time.
 -/
 
-namespace Unicode.PropTable
+namespace Unicode.Internal
 
-/-- Number of entries in the table (internal use only) -/
-@[expose] public def size : Nat := {propTable.size}
-
-/-- Number of entries in each chunk (internal use only) -/
-@[expose] public def chunkSize : Nat := {propChunkSize}
-
--- Entry `k` of a chunk is bits `80*k` to `80*k+79`: `cmin` in bits 0-20, `cmax` in bits 21-41
--- and the `prop.c` data in bits 42-79. The table is split into chunks because the time Lean
--- takes to process a `Nat` literal grows quadratically with its length.
+-- The block of each leaf holds the `prop.c` data of its ranges, 36 bits each.
 --
 -- This must stay `noncomputable`: compiled code uses the C table, and a computable definition
--- would build these numbers when a program starts.
-/-- Chunk `j` of the table (internal use only) -/
-@[expose] public noncomputable def chunk (j : Nat) : Nat :=
-{propChunkTree "  " 0 propChunks.size}"
-
+-- would build this tree when a program starts.
+/-- The `prop` table (internal use only) -/
+@[expose] public noncomputable def propTree : BTree Nat :=
+  {propBTree "  " 0 propTable.size}"
 
 public def main : IO UInt32 := do
   makeCaseC

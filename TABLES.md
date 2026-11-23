@@ -13,7 +13,7 @@ tables, plus a Lean copy of one of them, all committed to the repository:
 | --- | --- | --- | --- |
 | `data/*.txt` | `util/MakeTables.lean` | `UnicodeBasic/TableLookup.lean`, via `include_str` | Most properties |
 | `UnicodeCLib/{prop,case,script}.c` | `util/MakeCLib.lean` | `UnicodeBasic/TableLookup.lean`, via `@[extern]` | The hottest lookups: general category, `Other_*` bits, simple case mappings, script |
-| `UnicodeBasic/PropTable.lean` | `util/MakeCLib.lean` | The kernel, through the body of `CLib.lookupProp` | Proofs by `decide` about general category and `Other_*` bits |
+| `UnicodeBasic/Internal/PropTree.lean` | `util/MakeCLib.lean` | The kernel, through the body of `CLib.lookupProp` | Proofs by `decide +kernel` about general category and `Other_*` bits |
 
 The data flow is:
 
@@ -188,13 +188,15 @@ are never returned.
 `UnicodeBasic/Types.lean`) and the prototypes. `basic.c` is hand-written (script abbreviation
 conversions) and is not generated.
 
-**Kernel copy of `prop.c`.** `MakeCLib` also writes `UnicodeBasic/PropTable.lean`, the same rows
-as `prop.c` packed into `Nat` literals: 80 bits per row, with `cmin` in bits 0–20, `cmax` in bits
-21–41 and the `prop.c` data in bits 42–79. The rows are split into chunks of 256
-(`PropTable.chunkSize`), and `PropTable.chunk j` picks chunk `j` with a binary tree of `if`s. Lean
-takes time quadratic in the length of a `Nat` literal to process it, so one literal for the whole
-table would be slow to build, and an `Array` literal of this size does not elaborate at all.
-`PropTable.chunk` is `noncomputable` so that programs never build these numbers.
+**Kernel copy of `prop.c`.** `MakeCLib` also writes `UnicodeBasic/Internal/PropTree.lean`, the
+same rows as `prop.c` as a B-tree, `Internal.propTree : Internal.BTree Nat`. The tree follows the
+C binary search: each internal node `node key left right` is one step of it, with `key` the
+`cmin` of the middle row, and the search continues in a leaf once at most 64 rows are left. A leaf
+`leaf lo hi keys block` holds rows `lo` to `hi - 1`, with their `cmin` and `cmax` packed 42 bits
+per row in `keys` and their `prop.c` data packed 36 bits per row in `block`. `Internal.BTree`
+(in `UnicodeBasic/Internal/BTree.lean`) is generic in the block type, so tables whose values are
+not numbers can use it too. `Internal.propTree` is `noncomputable` so that programs never build
+it.
 
 `lakefile.lean` compiles every `UnicodeCLib/*.c` with the system C compiler into a static
 `libunicodeclib`, links it into the library (`moreLinkObjs`), and declares it as an `extern_lib`
@@ -232,10 +234,10 @@ properties → `false`, `Script_Extensions` → the singleton set of `lookupScri
 
 **C tables.** `TableLookup.CLib` declares the C functions as `@[extern]` constants (`lookupProp`,
 `lookupCase`, `lookupScript`), plus the `Other_*` bit masks. `lookupCase` and `lookupScript` are
-opaque. `lookupProp` is a definition whose body, `CLib.lookupPropWith PropTable.chunk`, does the
-same lookup as `prop.c` in pure Lean: compiled code calls C, and the kernel unfolds the body, so
-`decide +kernel` can prove facts such as `GeneralCategory.isLetter 'é' = true`. The derived properties
-are bit tests on one `lookupProp` call, for example
+opaque. `lookupProp` is a definition whose body, `CLib.lookupPropIn Internal.propTree c.toNat`,
+does the same lookup as `prop.c` in pure Lean: compiled code calls C, and the kernel unfolds the
+body, so `decide +kernel` can prove facts such as `GeneralCategory.isLetter 'é' = true`. The
+derived properties are bit tests on one `lookupProp` call, for example
 
 ```lean
 lookupAlphabetic c = (CLib.lookupProp c &&& (oAlpha ||| (GC.L ||| GC.Nl))) != 0
@@ -260,13 +262,13 @@ never mention tables, encodings or shortcuts; implementation notes go in `--` co
 `Char`s) and compares the **public** function (`getGC`, `isAlphabetic`, `getName`, …) against the
 value UnicodeData computes from the UCD. It does not test the `lookup*` functions directly. Run all
 tests with `lake exe TestTables` in `util`, or a few by name (`lake exe TestTables Name`). Any
-mismatch prints `Error: <test> <code point>` and the exit code is 1.
-
-The `PropTable` test is the exception: it compares `CLib.lookupPropWith` on a computable copy of
-`PropTable.chunk` with the C `CLib.lookupProp` on every code point, since nothing proves they
-agree. `TestTables` also has a few `decide +kernel` examples, which fail to build if the kernel can
-no longer reduce property lookups. CI builds `util` and runs it
+mismatch prints `Error: <test> <code point>` and the exit code is 1. CI builds `util` and runs it
 on every pull request.
+
+The `PropTree` test is the exception: it compares `CLib.lookupPropIn` on a computable copy of
+`Internal.propTree` with the C `CLib.lookupProp` on every code point, since nothing proves they
+agree. `TestTables` also has a few `decide +kernel` examples, which fail to build if the kernel can
+no longer reduce property lookups.
 
 ## 7. Adding a table
 
