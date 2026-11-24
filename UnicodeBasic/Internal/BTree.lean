@@ -8,9 +8,8 @@ module
 
 A `BTree β` is a range table in a form the kernel can evaluate. It is a binary search over the
 rows of the table: each internal node is one step of that search, and each leaf holds a block of
-consecutive ranges, where the search continues. The bounds of the ranges in a
-leaf are packed into one `Nat`; their values are in a block of type `β`, whose layout is up to each
-table.
+consecutive ranges, where the search continues. The bounds of the ranges in a leaf are packed into
+one `Nat`; their values are in a block of type `β`, whose layout is up to each table.
 
 This module is internal and may change at any time.
 -/

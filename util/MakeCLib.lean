@@ -311,7 +311,6 @@ static const {if wide then "uint64_t" else type} value[]{if wide then "[2]" else
       h.putStrLn s!"{lit v},"
     h.putStrLn "};"
 
-
 /-- Maximum number of ranges in a leaf of the `Internal.BTree` copies of the C tables -/
 def leafSize : Nat := 64
 
