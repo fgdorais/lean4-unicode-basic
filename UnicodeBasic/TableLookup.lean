@@ -7,8 +7,10 @@ import UnicodeBasic.CharacterDatabase
 import UnicodeBasic.Hangul
 public import UnicodeBasic.Internal.BidiClassTree
 public import UnicodeBasic.Internal.BidiMirroredTree
+public import UnicodeBasic.Internal.CaseFoldingTree
 public import UnicodeBasic.Internal.CaseTree
 public import UnicodeBasic.Internal.CombiningClassTree
+public import UnicodeBasic.Internal.DecompositionTree
 public import UnicodeBasic.Internal.DefaultIgnorableTree
 public import UnicodeBasic.Internal.NumericTree
 public import UnicodeBasic.Internal.PropTree
@@ -174,6 +176,56 @@ public protected def lookupProp (c : UInt32) : UInt64 :=
 public protected def lookupScript (c : UInt32) : Script :=
   CLib.lookupScriptIn Internal.scriptTree c.toNat
 
+/-- The two 64-bit words of a 128-bit row of a C table (internal use only) -/
+public structure Row where
+  /-- Low 64 bits (internal use only) -/
+  lo : UInt64
+  /-- High 64 bits (internal use only) -/
+  hi : UInt64
+deriving BEq
+
+/-- Data of a code point, looked up in the B-tree `t` with data `width` bits wide, or `0`, as a
+`Row` (internal use only) -/
+@[expose] public protected def lookupRowIn (t : Internal.BTree Nat) (width c : Nat) : Row :=
+  let d := match t.find? c with
+    | none => 0
+    | some (block, k) => block >>> (width * k) &&& (1 <<< width) - 1
+  ⟨(d &&& 0xFFFFFFFFFFFFFFFF).toUInt64, (d >>> 64).toUInt64⟩
+
+/-- Encoded case foldings of a code point, looked up in the B-tree `t` (internal use only) -/
+@[expose] public protected def lookupCaseFoldingIn (t : Internal.BTree Nat) (c : Nat) : Row :=
+  CLib.lookupRowIn t 85 c
+
+/-- Encoded case foldings of a code point, see `UnicodeCLib/case_folding.c` (internal use only) -/
+-- Compiled code calls the C table. The kernel unfolds the body, which reads the same table from
+-- `UnicodeBasic.Internal.CaseFoldingTree`. `util/TestTables` checks that the two agree on every
+-- code point.
+@[extern "unicode_case_folding_lookup", expose]
+public protected def lookupCaseFolding (c : UInt32) : Row :=
+  CLib.lookupCaseFoldingIn Internal.caseFoldingTree c.toNat
+
+/-- Encoded canonical decomposition of a code point, looked up in the B-tree `t` (internal use
+only) -/
+@[expose] public protected def lookupDecompositionIn (t : Internal.BTree Nat) (c : Nat) : Row :=
+  CLib.lookupRowIn t 84 c
+
+/-- Encoded canonical decomposition of a code point, see `UnicodeCLib/decomposition.c` (internal
+use only) -/
+-- Compiled code calls the C table. The kernel unfolds the body, which reads the same table from
+-- `UnicodeBasic.Internal.DecompositionTree`. `util/TestTables` checks that the two agree on every
+-- code point.
+@[extern "unicode_decomposition_lookup", expose]
+public protected def lookupDecomposition (c : UInt32) : Row :=
+  CLib.lookupDecompositionIn Internal.decompositionTree c.toNat
+
+/-- Code points packed 21 bits each in `d`, up to the first `0`, at most `n` of them (internal
+use only) -/
+@[expose] public protected def unpackCodes (d : Nat) : (n : Nat) → List UInt32
+  | 0 => []
+  | n + 1 =>
+    let x := d &&& 0x1FFFFF
+    if x == 0 then [] else x.toUInt32 :: CLib.unpackCodes (d >>> 21) n
+
 end CLib
 
 /-- Binary search -/
@@ -240,22 +292,20 @@ public def lookupCanonicalCombiningClass (c : UInt32) : Nat :=
   Unicode properties:
     `Decomposition_Mapping`
     `Decomposition_Type=Canonical` -/
+@[expose]
 public def lookupCanonicalDecompositionMapping (c : UInt32) : List UInt32 :=
-  -- Hangul syllables
-  if Hangul.Syllable.base ≤ c && c ≤ Hangul.Syllable.last then
-    let s := Hangul.getSyllable! c
-    match s.getTChar? with
-    | some t => [s.getLChar.val, s.getVChar.val, t.val]
-    | none => [s.getLChar.val, s.getVChar.val]
+  -- Hangul syllables, by the algorithm in Section 3.12 of the Standard
+  if 0xAC00 ≤ c && c ≤ 0xD7A3 then
+    let i := c - 0xAC00
+    let l := 0x1100 + i / 588
+    let v := 0x1161 + i % 588 / 28
+    let t := i % 28
+    if t == 0 then [l, v] else [l, v, 0x11A7 + t]
   else
-    let table := table.get
-    if c < table[0]!.1 then [c] else
-      match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
-      | (v, l) => if c == v then l else [c]
-where
-  str : String := include_str "../data/Canonical_Decomposition_Mapping.txt"
-  table : Thunk <| Array (UInt32 × List UInt32) :=
-    parseTable str fun _ x => (x.map ofHexString!).toList
+    let r := CLib.lookupDecomposition c
+    match CLib.unpackCodes (r.lo.toNat ||| r.hi.toNat <<< 64) 4 with
+    | [] => [c]
+    | l => l
 
 /-- Get simple and full case foldings of a code point using lookup table
 
@@ -266,18 +316,13 @@ where
   Unicode properties:
     `Case_Folding`
     `Simple_Case_Folding` -/
+@[expose]
 public def lookupCaseFolding (c : UInt32) : Option UInt32 × List UInt32 :=
-  let t := table.get
-  if c < t[0]!.1 then (none, []) else
-    match t[find c (fun i => t[i]!.1) 0 t.size.toUSize]! with
-    | (c', v) => if c == c' then v else (none, [])
-where
-  str : String := include_str "../data/Case_Folding.txt"
-  table : Thunk <| Array (UInt32 × Option UInt32 × List UInt32) :=
-    parseTable str fun _ x =>
-      let s := if x[0]!.isEmpty then none else some (ofHexString! x[0]!)
-      let f := if x[1]!.isEmpty then [] else x[1]!.split " " |>.toList.map ofHexString!
-      (s, f)
+  let r := CLib.lookupCaseFolding c
+  let d := r.lo.toNat ||| r.hi.toNat <<< 64
+  let s := d &&& 0x3FFFFF
+  let s := if s == 0 then none else some ((c.toNat + s) % 0x400000).toUInt32
+  (s, CLib.unpackCodes (d >>> 22) 3)
 
 /-- Get simple case mappings of a code point using lookup table
 

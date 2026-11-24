@@ -9,8 +9,6 @@ open Unicode
 
 public def main (args : List String) : IO UInt32 := do
   let args := if args != [] then args else [
-    "Canonical_Decomposition_Mapping",
-    "Case_Folding",
     "Decomposition_Mapping",
     "Name",
     "Script_Extensions",
