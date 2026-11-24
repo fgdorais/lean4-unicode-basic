@@ -59,19 +59,6 @@ extern "C" {
 #define UNICODE_GC_Cn UINT32_C(0x20000000)
 #define UNICODE_GC_C (UNICODE_GC_Cc | UNICODE_GC_Cf | UNICODE_GC_Cs | UNICODE_GC_Co | UNICODE_GC_Cn)
 
-typedef struct {
-  uint32_t cmin;
-  uint32_t cmax;
-  uint64_t data;
-} unicode_data_t;
-
-typedef struct {
-  uint32_t cmin;
-  uint32_t cmax;
-  uint64_t lo;
-  uint64_t hi;
-} unicode_wide_data_t;
-
 /* A `Unicode.CLib.Row` with fields `lo` and `hi` */
 static inline lean_obj_res unicode_row(uint64_t lo, uint64_t hi) {
   lean_object * r = lean_alloc_ctor(0, 0, 2 * sizeof(uint64_t));

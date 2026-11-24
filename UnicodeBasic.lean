@@ -153,21 +153,7 @@ public def isBidiControl (char : Char) : Bool :=
   Unicode property: `General_Category` -/
 @[expose, inline]
 public def getGC (char : Char) : GC :=
-  -- ASCII shortcut
-  if h : char.toNat < table.size then
-    table[char.toNat]
-  else
-    lookupGC char.val
-where
-  table : Array GC :=
-    #[.Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc,
-      .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc, .Cc,
-      .Zs, .Po, .Po, .Po, .Sc, .Po, .Po, .Po, .Ps, .Pe, .Po, .Sm, .Po, .Pd, .Po, .Po,
-      .Nd, .Nd, .Nd, .Nd, .Nd, .Nd, .Nd, .Nd, .Nd, .Nd, .Po, .Po, .Sm, .Sm, .Sm, .Po,
-      .Po, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu,
-      .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Lu, .Ps, .Po, .Pe, .Sk, .Pc,
-      .Sk, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll,
-      .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ll, .Ps, .Sm, .Pe, .Sm, .Cc]
+  lookupGC char.val
 
 /-- `char ∈ cat` holds when the general category of `char` is included in `cat` -/
 public instance : Membership Char GC where
