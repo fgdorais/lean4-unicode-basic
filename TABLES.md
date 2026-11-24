@@ -157,6 +157,11 @@ uint64_t unicode_xxx_lookup(uint32_t c);  // binary search on cmin, then check c
 Rows are sorted and non-overlapping, with values written as `UINT32_C(…)`/`UINT64_C(…)` decimal
 literals. A code point outside every row gets the function's default.
 
+When a table has a row below U+0080, the file also holds `ascii[128]`, the lookup's value at each
+ASCII code point, and the lookup returns `ascii[c]` for `c < 128` before searching. The generator
+fills it from the same rows, so it agrees with the table by construction; `TestTables` checks it
+with every other code point.
+
 - **`case.c`**, `unicode_case_lookup`: `data` packs the simple uppercase, lowercase and titlecase
   mappings, 21 bits each: bits 0–20 uppercase, 21–41 lowercase, 42–62 titlecase. Missing
   mappings are filled in with the code point itself (titlecase defaults to uppercase). Only code

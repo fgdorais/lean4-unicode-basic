@@ -7,20 +7,44 @@ def clibDir : System.FilePath := ".."/"UnicodeCLib"
 
 def libDir : System.FilePath := ".."/"UnicodeBasic"
 
+/-- Data of `table` at each ASCII code point, or `default` (`table` is sorted) -/
+def asciiData {α} (table : Array (UInt32 × UInt32 × α)) (default : α) : Array α :=
+  (Array.range 128).map fun c =>
+    match table.find? fun (c₀, c₁, _) => c₀.toNat ≤ c && c ≤ c₁.toNat with
+    | some (_, _, d) => d
+    | none => default
+
+/-- Whether `table` has a range below U+0080 -/
+def hasAscii {α} (table : Array (UInt32 × UInt32 × α)) : Bool :=
+  table.any fun (c₀, _, _) => c₀ < 128
+
+/-- Write the C array `ascii` of the 128 values `data` -/
+def putAsciiC (h : IO.FS.Handle) (data : Array UInt64) : IO Unit := do
+  h.putStrLn "
+static const uint64_t ascii[] = {"
+  for d in data do
+    h.putStrLn s!"UINT64_C({d}),"
+  h.putStrLn "};"
+
+/-- `Other_*` property bits of a code point -/
+def propOther (c : UInt32) : UInt64 := Id.run do
+  let mut op : UInt64 := 0
+  if PropList.isOtherUppercase c then
+    op := op ||| 0x100000000
+  if PropList.isOtherLowercase c then
+    op := op ||| 0x200000000
+  if PropList.isOtherAlphabetic c then
+    op := op ||| 0x400000000
+  if PropList.isOtherMath c then
+    op := op ||| 0x800000000
+  return op
+
 def propTable : Array (UInt32 × UInt32 × UInt64) := Id.run do
   let mut t : Array (UInt32 × UInt32 × UInt64) := #[(0, 0, GC.Cc.toUInt64)]
   for data in UnicodeData.data.get[1:] do
     let c := data.code
     let gc := data.gc
-    let mut op : UInt64 := 0
-    if PropList.isOtherUppercase c then
-      op := op ||| 0x100000000
-    if PropList.isOtherLowercase c then
-      op := op ||| 0x200000000
-    if PropList.isOtherAlphabetic c then
-      op := op ||| 0x400000000
-    if PropList.isOtherMath c then
-      op := op ||| 0x800000000
+    let op := propOther c
     let d := op ||| gc.toUInt64
     let (c₀, c₁, d₀) := t.back!
     if data.name.takeEnd 7 == ", Last>" then
@@ -98,8 +122,11 @@ def makePropC : IO Unit :=
     file.putStrLn "
 static const unicode_data_t table[TABLE_SIZE];
 
+static const uint64_t ascii[128];
+
 uint64_t unicode_prop_lookup(uint32_t c) {
   unicode_data_t v;
+  if (c < 128) return ascii[c];
   if (c >= table[0].cmin) {
     unsigned int lo = 0;
     unsigned int hi = TABLE_SIZE;
@@ -136,6 +163,8 @@ static const unicode_data_t table[] = {"
     for (c₀, c₁, d) in propTable do
       file.putStrLn s!"\{UINT32_C({c₀}),UINT32_C({c₁}),UINT64_C({d})},"
     file.putStrLn "};"
+    putAsciiC file <| UnicodeData.data.get[:128].toArray.map fun data =>
+      propOther data.code ||| data.gc.toUInt64
 
 def caseTable : Array (UInt32 × UInt32 × UInt64) := Id.run do
   let mut t := #[]
@@ -166,8 +195,11 @@ def makeCaseC : IO Unit :=
     file.putStrLn "
 static const unicode_data_t table[TABLE_SIZE];
 
+static const uint64_t ascii[128];
+
 uint64_t unicode_case_lookup(uint32_t c) {
   unicode_data_t v;
+  if (c < 128) return ascii[c];
   if (c >= table[0].cmin) {
     unsigned int lo = 0;
     unsigned int hi = TABLE_SIZE;
@@ -186,6 +218,7 @@ static const unicode_data_t table[] = {"
     for (c₀, c₁, d) in caseTable do
       file.putStrLn s!"\{UINT32_C({c₀}),UINT32_C({c₁}),UINT64_C({d})},"
     file.putStrLn "};"
+    putAsciiC file (asciiData caseTable 0)
 
 def scriptTable : Array (UInt32 × UInt32 × UInt64) :=
   let t := Scripts.data.get.toArray.flatMap fun (sc, t) =>
@@ -203,8 +236,11 @@ def makeScriptC : IO Unit :=
     file.putStrLn "
 static const unicode_data_t table[TABLE_SIZE];
 
+static const uint64_t ascii[128];
+
 uint32_t unicode_script_lookup(uint32_t c) {
   unicode_data_t v;
+  if (c < 128) return (uint32_t)ascii[c];
   if (c >= table[0].cmin) {
     unsigned int lo = 0;
     unsigned int hi = TABLE_SIZE;
@@ -223,6 +259,7 @@ static const unicode_data_t table[] = {"
     for (c₀, c₁, d) in scriptTable do
       file.putStrLn s!"\{UINT32_C({c₀}),UINT32_C({c₁}),UINT64_C({d})},"
     file.putStrLn "};"
+    putAsciiC file (asciiData scriptTable (Script.ofAbbrev! "Zzzz").code.toUInt64)
 
 /-- Drop the rows of `table` with data `default` and merge adjacent rows with equal data -/
 def compressTable (table : Array (UInt32 × UInt32 × UInt64)) (default : UInt64) :
@@ -251,9 +288,9 @@ def makeTableC (file : String) (table : Array (UInt32 × UInt32 × UInt64)) (def
 #define DEFAULT UINT64_C({default})
 
 static const unicode_data_t table[TABLE_SIZE];
-
+{if hasAscii table then "\nstatic const uint64_t ascii[128];\n" else ""}
 uint64_t unicode_{file}_lookup(uint32_t c) \{
-  if (c >= table[0].cmin) \{
+{if hasAscii table then "  if (c < 128) return ascii[c];\n" else ""}  if (c >= table[0].cmin) \{
     unsigned int lo = 0;
     unsigned int hi = TABLE_SIZE;
     unsigned int i = (lo + hi)/2;
@@ -271,6 +308,7 @@ static const unicode_data_t table[] = \{"
     for (c₀, c₁, d) in table do
       h.putStrLn s!"\{UINT32_C({c₀}),UINT32_C({c₁}),UINT64_C({d})},"
     h.putStrLn "};"
+    if hasAscii table then putAsciiC h (asciiData table default)
 
 /-- `Bidi_Class` table: constructor index of the class, default `BN` -/
 def bidiClassTable : IO (Array (UInt32 × UInt32 × UInt64)) := do
@@ -327,10 +365,10 @@ def makeWideTableC (file : String) (table : Array (UInt32 × UInt32 × Nat)) : I
 #define TABLE_SIZE {table.size}
 
 static const unicode_wide_data_t table[TABLE_SIZE];
-
+{if hasAscii table then "\nstatic const uint64_t ascii[128][2];\n" else ""}
 lean_obj_res unicode_{file}_lookup(uint32_t c) \{
   uint64_t lo = 0, hi = 0;
-  if (c >= table[0].cmin) \{
+{if hasAscii table then "  if (c < 128) return unicode_row(ascii[c][0], ascii[c][1]);\n" else ""}  if (c >= table[0].cmin) \{
     unsigned int l = 0;
     unsigned int h = TABLE_SIZE;
     unsigned int i = (l + h)/2;
@@ -353,6 +391,12 @@ static const unicode_wide_data_t table[] = \{"
       h.putStrLn
         s!"\{UINT32_C({c₀}),UINT32_C({c₁}),UINT64_C({d % 2 ^ 64}),UINT64_C({d / 2 ^ 64})},"
     h.putStrLn "};"
+    if hasAscii table then
+      h.putStrLn "
+static const uint64_t ascii[][2] = {"
+      for d in asciiData table 0 do
+        h.putStrLn s!"\{UINT64_C({d % 2 ^ 64}),UINT64_C({d / 2 ^ 64})},"
+      h.putStrLn "};"
 
 /-- Merge adjacent rows of `table` with equal data -/
 def mergeRows (table : Array (UInt32 × UInt32 × Nat)) :
