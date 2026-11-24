@@ -37,6 +37,7 @@ jobs:
           echo "leanprover/lean4:${{ steps.toolchain-tag.outputs.lean_tag }}" > lean-toolchain
 
       - name: create pull request
+        id: cpr
         if: ${{ steps.toolchain-tag.outputs.lean_tag != steps.toolchain-tag.outputs.repo_tag }}
         uses: peter-evans/create-pull-request@v8
         with:
@@ -46,3 +47,18 @@ jobs:
           base: main
           delete-branch: true
           title: "chore: update toolchain ${{ steps.toolchain-tag.outputs.lean_tag }}"
+
+      - name: merge pull request when checks pass
+        if: ${{ steps.cpr.outputs.pull-request-operation == 'created' || steps.cpr.outputs.pull-request-operation == 'updated' }}
+        timeout-minutes: 180
+        env:
+          GH_TOKEN: ${{ secrets.UNICODE_BASIC_TOKEN }}
+          PR: ${{ steps.cpr.outputs.pull-request-number }}
+        run: |
+          # wait for the pull request's checks to start, then for them to pass
+          for i in $(seq 1 30); do
+            if [ "$(gh pr checks "$PR" --repo "$GITHUB_REPOSITORY" --json name --jq length 2>/dev/null || echo 0)" != "0" ]; then break; fi
+            sleep 20
+          done
+          gh pr checks "$PR" --repo "$GITHUB_REPOSITORY" --watch --fail-fast --interval 60
+          gh pr merge "$PR" --repo "$GITHUB_REPOSITORY" --squash --delete-branch
