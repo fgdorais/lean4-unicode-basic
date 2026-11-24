@@ -65,6 +65,21 @@ typedef struct {
   uint64_t data;
 } unicode_data_t;
 
+typedef struct {
+  uint32_t cmin;
+  uint32_t cmax;
+  uint64_t lo;
+  uint64_t hi;
+} unicode_wide_data_t;
+
+/* A `Unicode.CLib.Row` with fields `lo` and `hi` */
+static inline lean_obj_res unicode_row(uint64_t lo, uint64_t hi) {
+  lean_object * r = lean_alloc_ctor(0, 0, 2 * sizeof(uint64_t));
+  lean_ctor_set_uint64(r, 0, lo);
+  lean_ctor_set_uint64(r, sizeof(uint64_t), hi);
+  return r;
+}
+
 LEAN_EXPORT uint64_t unicode_prop_lookup(uint32_t c);
 
 LEAN_EXPORT uint64_t unicode_case_lookup(uint32_t c);
@@ -80,6 +95,10 @@ LEAN_EXPORT uint64_t unicode_combining_class_lookup(uint32_t c);
 LEAN_EXPORT uint64_t unicode_default_ignorable_lookup(uint32_t c);
 
 LEAN_EXPORT uint64_t unicode_numeric_lookup(uint32_t c);
+
+LEAN_EXPORT lean_obj_res unicode_case_folding_lookup(uint32_t c);
+
+LEAN_EXPORT lean_obj_res unicode_decomposition_lookup(uint32_t c);
 
 LEAN_EXPORT uint32_t unicode_script_of_abbrev(b_lean_obj_arg abbr);
 

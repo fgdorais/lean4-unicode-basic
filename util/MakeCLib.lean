@@ -316,6 +316,94 @@ def numericTable : IO (Array (UInt32 × UInt32 × UInt64)) := do
     (c₀, c₁, d)
   return compressTable t 0
 
+/-- Write `UnicodeCLib/<file>.c` with `table`, whose data has at most 128 bits, and the C
+function `unicode_<file>_lookup`, which returns the data of the range containing a code point, or
+`0`, as a `CLib.Row` -/
+def makeWideTableC (file : String) (table : Array (UInt32 × UInt32 × Nat)) : IO Unit :=
+  IO.FS.withFile (clibDir / s!"{file}.c") .write fun h => do
+    h.putStrLn s!"/* THIS IS A GENERATED FILE - DO NOT EDIT */
+#include \"basic.h\"
+
+#define TABLE_SIZE {table.size}
+
+static const unicode_wide_data_t table[TABLE_SIZE];
+
+lean_obj_res unicode_{file}_lookup(uint32_t c) \{
+  uint64_t lo = 0, hi = 0;
+  if (c >= table[0].cmin) \{
+    unsigned int l = 0;
+    unsigned int h = TABLE_SIZE;
+    unsigned int i = (l + h)/2;
+    while (i != l) \{
+      if (c < table[i].cmin) h = i;
+      else l = i;
+      i = (l + h)/2;
+    }
+    if (c <= table[i].cmax) \{
+      lo = table[i].lo;
+      hi = table[i].hi;
+    }
+  }
+  return unicode_row(lo, hi);
+}
+
+static const unicode_wide_data_t table[] = \{"
+    for (c₀, c₁, d) in table do
+      if d ≥ 2 ^ 128 then throw <| .userError s!"{file}: data too wide at {toHexStringRaw c₀}"
+      h.putStrLn
+        s!"\{UINT32_C({c₀}),UINT32_C({c₁}),UINT64_C({d % 2 ^ 64}),UINT64_C({d / 2 ^ 64})},"
+    h.putStrLn "};"
+
+/-- Merge adjacent rows of `table` with equal data -/
+def mergeRows (table : Array (UInt32 × UInt32 × Nat)) :
+    Array (UInt32 × UInt32 × Nat) := Id.run do
+  let mut t := #[]
+  for (c₀, c₁, d) in table do
+    match t.back? with
+    | some (a, b, e) =>
+      if c₀ == b + 1 && d == e then
+        t := t.pop.push (a, c₁, d)
+      else
+        t := t.push (c₀, c₁, d)
+    | none => t := t.push (c₀, c₁, d)
+  return t
+
+/-- `Case_Folding` table, default `0` (folds to itself)
+
+* bits 0-21: the simple case folding minus the code point, modulo `2^22`, or `0` for none;
+* bits 22-84: the full case folding, 21 bits per code point, ended by `0`, when it has at least two
+  code points.
+
+The Stability Policy limits full case foldings to three code points, and the generator fails if
+one is longer. -/
+def caseFoldingTable : IO (Array (UInt32 × UInt32 × Nat)) := do
+  let mut t := #[]
+  for (c, s, f) in Unicode.CaseFolding.data.get do
+    let sd := match s with
+      | some s => (s.toNat + 2 ^ 22 - c.toNat) % 2 ^ 22
+      | none => 0
+    let f := if 2 ≤ f.size then f.toList else []
+    if f.length > 3 then
+      throw <| .userError s!"full case folding of {toHexStringRaw c} has more than 3 code points"
+    let fd := f.zipIdx.foldl (init := 0) fun n (x, k) => n ||| x.toNat <<< (21 * k)
+    let d := sd ||| fd <<< 22
+    if d != 0 then
+      t := t.push (c, c, d)
+  return mergeRows t
+
+/-- `Canonical_Decomposition_Mapping` table, full canonical decompositions of code points other
+than Hangul syllables, 21 bits per code point, ended by `0`, default `0` (no decomposition). The
+generator fails if a decomposition has more than four code points. -/
+def decompositionTable : IO (Array (UInt32 × UInt32 × Nat)) := do
+  let mut t := #[]
+  for (c, l) in ← mkCanonicalDecompositionMapping do
+    if l.length > 4 then
+      throw <| .userError
+        s!"canonical decomposition of {toHexStringRaw c} has more than 4 code points"
+    let d := l.zipIdx.foldl (init := 0) fun n (x, k) => n ||| x.toNat <<< (21 * k)
+    t := t.push (c, c, d)
+  return mergeRows t
+
 /-- Maximum number of ranges in a leaf of the `Internal.BTree` copies of the C tables -/
 def leafSize : Nat := 64
 
@@ -325,25 +413,29 @@ def natLit (n : Nat) : String :=
 
 /-- B-tree on entries `lo` to `hi - 1` of `table`, as Lean source, following the C search; the
 values of a leaf are packed `width` bits each -/
-partial def btree (table : Array (UInt32 × UInt32 × UInt64)) (width : Nat) (indent : String)
+partial def btree (table : Array (UInt32 × UInt32 × Nat)) (width : Nat) (indent : String)
     (lo hi : Nat) : String :=
   let indent' := indent ++ "  "
   if hi - lo ≤ leafSize then
     let rows := table[lo:hi].toArray.zipIdx
     let keys := rows.foldl (init := 0) fun n ((c₀, c₁, _), k) =>
       n ||| (c₀.toNat ||| c₁.toNat <<< 21) <<< (42 * k)
-    let block := rows.foldl (init := 0) fun n ((_, _, d), k) => n ||| d.toNat <<< (width * k)
+    let block := rows.foldl (init := 0) fun n ((_, _, d), k) => n ||| d <<< (width * k)
     s!".leaf {lo} {hi}\n{indent'}{natLit keys}\n{indent'}{natLit block}"
   else
     let mid := (lo + hi) / 2
     s!".node {natLit table[mid]!.1.toNat}\n{indent'}({btree table width indent' lo mid})"
       ++ s!"\n{indent'}({btree table width indent' mid hi})"
 
+/-- `table` with its data as `Nat` -/
+def natData (table : Array (UInt32 × UInt32 × UInt64)) : Array (UInt32 × UInt32 × Nat) :=
+  table.map fun (c₀, c₁, d) => (c₀, c₁, d.toNat)
+
 /-- `n` bits, in words -/
 def bits (n : Nat) : String := if n == 1 then "1 bit" else s!"{n} bits"
 
 /-- Write `UnicodeBasic/Internal/<module>.lean` with `table` as the B-tree `Internal.<name>` -/
-def makeTreeLean (module name c : String) (table : Array (UInt32 × UInt32 × UInt64))
+def makeTreeLean (module name c : String) (table : Array (UInt32 × UInt32 × Nat))
     (width : Nat) : IO Unit :=
   IO.FS.withFile (libDir / "Internal" / s!"{module}.lean") .write fun file => do
     file.putStrLn s!"/- THIS IS A GENERATED FILE - DO NOT EDIT -/
@@ -368,11 +460,11 @@ namespace Unicode.Internal
 
 public def main : IO UInt32 := do
   makeCaseC
-  makeTreeLean "CaseTree" "caseTree" "case" caseTable 63
+  makeTreeLean "CaseTree" "caseTree" "case" (natData caseTable) 63
   makePropC
-  makeTreeLean "PropTree" "propTree" "prop" propTable 36
+  makeTreeLean "PropTree" "propTree" "prop" (natData propTable) 36
   makeScriptC
-  makeTreeLean "ScriptTree" "scriptTree" "script" scriptTable 32
+  makeTreeLean "ScriptTree" "scriptTree" "script" (natData scriptTable) 32
   for (module, name, file, table, default, width) in [
       ("BidiClassTree", "bidiClassTree", "bidi_class", ← bidiClassTable,
         BidiClass.boundaryNeutral.ctorIdx.toUInt64, 5),
@@ -383,5 +475,10 @@ public def main : IO UInt32 := do
         ← defaultIgnorableTable, 0, 1),
       ("NumericTree", "numericTree", "numeric", ← numericTable, 0, 52)] do
     makeTableC file table default
+    makeTreeLean module name file (natData table) width
+  for (module, name, file, table, width) in [
+      ("CaseFoldingTree", "caseFoldingTree", "case_folding", ← caseFoldingTable, 85),
+      ("DecompositionTree", "decompositionTree", "decomposition", ← decompositionTable, 84)] do
+    makeWideTableC file table
     makeTreeLean module name file table width
   return 0
