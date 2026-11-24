@@ -48,7 +48,7 @@ namespace CLib
   CLib.lookupIn t 5 9 c -- default BN
 
 /-- Code of the bidi class of a code point, an index into `CLib.bidiClasses` (internal use only) -/
--- Compiled code calls the C table. The kernel unfolds the body, which reads the same table from
+-- Compiled code calls the C table. The kernel unfolds the body, which reads the same data from
 -- `UnicodeBasic.Internal.BidiClassTree`. `util/TestTables` checks that the two agree on every
 -- code point.
 @[extern "unicode_bidi_class_lookup", expose]
@@ -61,7 +61,7 @@ use only) -/
   CLib.lookupIn t 1 0 c
 
 /-- `1` if a code point is bidi mirrored, `0` otherwise (internal use only) -/
--- Compiled code calls the C table. The kernel unfolds the body, which reads the same table from
+-- Compiled code calls the C table. The kernel unfolds the body, which reads the same data from
 -- `UnicodeBasic.Internal.BidiMirroredTree`. `util/TestTables` checks that the two agree on every
 -- code point.
 @[extern "unicode_bidi_mirrored_lookup", expose]
@@ -73,7 +73,7 @@ public protected def lookupBidiMirrored (c : UInt32) : UInt64 :=
   CLib.lookupIn t 8 0 c
 
 /-- Canonical combining class of a code point (internal use only) -/
--- Compiled code calls the C table. The kernel unfolds the body, which reads the same table from
+-- Compiled code calls the C table. The kernel unfolds the body, which reads the same data from
 -- `UnicodeBasic.Internal.CombiningClassTree`. `util/TestTables` checks that the two agree on
 -- every code point.
 @[extern "unicode_combining_class_lookup", expose]
@@ -87,7 +87,7 @@ public protected def lookupCombiningClass (c : UInt32) : UInt64 :=
   CLib.lookupIn t 1 0 c
 
 /-- `1` if a code point is default ignorable, `0` otherwise (internal use only) -/
--- Compiled code calls the C table. The kernel unfolds the body, which reads the same table from
+-- Compiled code calls the C table. The kernel unfolds the body, which reads the same data from
 -- `UnicodeBasic.Internal.DefaultIgnorableTree`. `util/TestTables` checks that the two agree on
 -- every code point.
 @[extern "unicode_default_ignorable_lookup", expose]
@@ -101,7 +101,7 @@ only) -/
 
 /-- Encoded numeric type and value of a code point, see `UnicodeCLib/numeric.c` (internal use
 only) -/
--- Compiled code calls the C table. The kernel unfolds the body, which reads the same table from
+-- Compiled code calls the C table. The kernel unfolds the body, which reads the same data from
 -- `UnicodeBasic.Internal.NumericTree`. `util/TestTables` checks that the two agree on every code
 -- point.
 @[extern "unicode_numeric_lookup", expose]
@@ -115,7 +115,7 @@ public protected def lookupNumeric (c : UInt32) : UInt64 :=
   | some (block, k) => (block >>> (63 * k) &&& 0x7FFFFFFFFFFFFFFF).toUInt64
 
 /-- Simple case mappings of a code point (internal use only) -/
--- Compiled code calls the C table. The kernel unfolds the body, which reads the same table from
+-- Compiled code calls the C table. The kernel unfolds the body, which reads the same data from
 -- `UnicodeBasic.Internal.CaseTree`. `util/TestTables` checks that the two agree on every code
 -- point.
 @[extern "unicode_case_lookup", expose]
@@ -153,7 +153,7 @@ public protected abbrev oMath  : UInt64 := 0x800000000
     (op ||| gc).toUInt64
 
 /-- General category and `Other_*` property bits of a code point (internal use only) -/
--- Compiled code calls the C table. The kernel unfolds the body, which reads the same table from
+-- Compiled code calls the C table. The kernel unfolds the body, which reads the same data from
 -- `UnicodeBasic.Internal.PropTree`. `util/TestTables` checks that the two agree on every code
 -- point.
 @[extern "unicode_prop_lookup", expose]
@@ -169,7 +169,7 @@ public protected def lookupProp (c : UInt32) : UInt64 :=
   if h : Script.isValid v then ⟨v, h⟩ else default
 
 /-- Script of a code point (internal use only) -/
--- Compiled code calls the C table. The kernel unfolds the body, which reads the same table from
+-- Compiled code calls the C table. The kernel unfolds the body, which reads the same data from
 -- `UnicodeBasic.Internal.ScriptTree`. `util/TestTables` checks that the two agree on every code
 -- point.
 @[extern "unicode_script_lookup", expose]
@@ -197,7 +197,7 @@ deriving BEq
   CLib.lookupRowIn t 85 c
 
 /-- Encoded case foldings of a code point, see `UnicodeCLib/case_folding.c` (internal use only) -/
--- Compiled code calls the C table. The kernel unfolds the body, which reads the same table from
+-- Compiled code calls the C table. The kernel unfolds the body, which reads the same data from
 -- `UnicodeBasic.Internal.CaseFoldingTree`. `util/TestTables` checks that the two agree on every
 -- code point.
 @[extern "unicode_case_folding_lookup", expose]
@@ -211,7 +211,7 @@ only) -/
 
 /-- Encoded canonical decomposition of a code point, see `UnicodeCLib/decomposition.c` (internal
 use only) -/
--- Compiled code calls the C table. The kernel unfolds the body, which reads the same table from
+-- Compiled code calls the C table. The kernel unfolds the body, which reads the same data from
 -- `UnicodeBasic.Internal.DecompositionTree`. `util/TestTables` checks that the two agree on every
 -- code point.
 @[extern "unicode_decomposition_lookup", expose]
