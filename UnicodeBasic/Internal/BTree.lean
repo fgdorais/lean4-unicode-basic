@@ -6,9 +6,9 @@ module
 
 /-! # B-trees for kernel-reducible table lookups
 
-A `BTree β` is a range table in a form the kernel can evaluate. It follows the binary search in
-the C tables (see `UnicodeCLib`): each internal node is one step of that search, and each leaf
-holds a block of consecutive ranges, where the search continues. The bounds of the ranges in a
+A `BTree β` is a range table in a form the kernel can evaluate. It is a binary search over the
+rows of the table: each internal node is one step of that search, and each leaf holds a block of
+consecutive ranges, where the search continues. The bounds of the ranges in a
 leaf are packed into one `Nat`; their values are in a block of type `β`, whose layout is up to each
 table.
 

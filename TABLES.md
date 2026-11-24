@@ -146,21 +146,24 @@ one ASCII byte per letter: `Latn` is `0x4C61746E`. Tables write the code in hex.
 ## 3. The C tables
 
 For the properties every string operation touches, a Lean binary search over a parsed array is
-too slow, so `MakeCLib` writes them as static C arrays. Each file has the same shape:
+too slow, so `MakeCLib` writes them as static C arrays. `MakeCLib` first builds each table as
+sorted, non-overlapping rows `(cmin, cmax, data)`, which the kernel copies below keep. The C file
+holds the same data as a three-stage table, so that its lookup is one line with no search:
 
 ```c
-typedef struct { uint32_t cmin; uint32_t cmax; uint64_t data; } unicode_data_t;  // basic.h
-static const unicode_data_t table[TABLE_SIZE] = { {cmin, cmax, data}, … };
-uint64_t unicode_xxx_lookup(uint32_t c);  // binary search on cmin, then check c <= cmax
+static const uint8_t stage1[0x1100];     // block number of each 256-code-point block
+static const uint8_t stage2[N][256];     // index into value of each code point of each block
+static const uint64_t value[M];          // the distinct values
+uint64_t unicode_xxx_lookup(uint32_t c) {
+  if (c > 0x10FFFF) return DEFAULT;
+  return value[stage2[stage1[c >> 8]][c & 0xFF]];
+}
 ```
 
-Rows are sorted and non-overlapping, with values written as `UINT32_C(…)`/`UINT64_C(…)` decimal
-literals. A code point outside every row gets the function's default.
-
-When a table has a row below U+0080, the file also holds `ascii[128]`, the lookup's value at each
-ASCII code point, and the lookup returns `ascii[c]` for `c < 128` before searching. The generator
-fills it from the same rows, so it agrees with the table by construction; `TestTables` checks it
-with every other code point.
+Equal blocks share one `stage2` entry, and the index types are `uint8_t` or `uint16_t`, whichever
+fits. Values are written as `UINT32_C(…)`/`UINT64_C(…)` decimal literals. A code point outside
+every row gets the default value. The value of a code point is the `data` of its row, except in
+`prop.c` (see below). All ten files come from one writer, `makeStageC`.
 
 - **`case.c`**, `unicode_case_lookup`: `data` packs the simple uppercase, lowercase and titlecase
   mappings, 21 bits each: bits 0–20 uppercase, 21–41 lowercase, 42–62 titlecase. Missing
@@ -184,13 +187,12 @@ with every other code point.
   `c - first + value`. For `Numeric`, bit 2 is the sign, bits 3–11 the denominator (`0` for none)
   and bits 12–51 the absolute value of the numerator. Default: `0` (no numeric value).
 
-These five files come from one generic writer, `makeTableC`, which drops rows with the default
-value and merges adjacent rows with equal data.
+The rows of these five tables drop the default value and merge adjacent rows with equal data
+(`compressTable`).
 
-Two tables need up to 128 bits of data per row. Their rows are `unicode_wide_data_t`
-(`cmin`, `cmax`, then the low and high 64 bits of the data as `lo` and `hi`), and their lookups
-return a Lean `CLib.Row`, built by `unicode_row` in `basic.h`. Their writer is `makeWideTableC`;
-the default is `0`.
+Two tables need up to 128 bits of data. Their values are `uint64_t value[M][2]` (the low and high
+64 bits), and their lookups return a Lean `CLib.Row`, built by `unicode_row` in `basic.h`. The
+default is `0`.
 
 - **`decomposition.c`**, `unicode_decomposition_lookup`: the full (recursive) canonical
   decomposition of the code point, so the lookup needs no recursion, 21 bits per code point and
@@ -203,23 +205,25 @@ the default is `0`.
   three times the length of the string, and the generator fails if one is longer than three code
   points.
 
-`prop.c` also folds alternating case pairs. A run like `Lu Ll Lu Ll …` (Latin Extended-A, Greek,
-Cyrillic) is stored as one row whose category is the union `LC` (= `Lu|Ll|Lt`), with bit 31 saying
-which parity is uppercase: if `(c & 1) == bit31` the code point is `Lu`, otherwise `Ll`. The same
-trick folds alternating `Ps`/`Pe` runs (stored as `PG`) and `Pi`/`Pf` runs (stored as `PQ`). The
-lookup decodes this, so callers always get exactly one category bit. Bit 31 and the union masks
-are never returned.
+The `prop` rows also fold alternating case pairs. A run like `Lu Ll Lu Ll …` (Latin Extended-A,
+Greek, Cyrillic) is stored as one row whose category is the union `LC` (= `Lu|Ll|Lt`), with bit 31
+saying which parity is uppercase: if `(c & 1) == bit31` the code point is `Lu`, otherwise `Ll`.
+The same trick folds alternating `Ps`/`Pe` runs (stored as `PG`) and `Pi`/`Pf` runs (stored as
+`PQ`). Only the rows (and so the kernel copy, through `CLib.lookupPropIn`) use this encoding:
+`MakeCLib` decodes it (`propValue`) before writing `prop.c`, so the C values always have exactly
+one category bit.
 
-`basic.h` holds the shared struct, the `UNICODE_GC_*` masks (which must match `GC` in
+`basic.h` holds the shared types, the `UNICODE_GC_*` masks (which must match `GC` in
 `UnicodeBasic/Types.lean`) and the prototypes. `basic.c` is hand-written (script abbreviation
 conversions) and is not generated.
 
 **Kernel copies of the C tables.** For each C table `foo.c`, `MakeCLib` also writes
 `UnicodeBasic/Internal/FooTree.lean` (for example `PropTree.lean`, `BidiClassTree.lean`) with the
-same rows as a B-tree `Internal.fooTree : Internal.BTree Nat`. A tree follows the C binary search: each internal node
+rows of the table as a B-tree `Internal.fooTree : Internal.BTree Nat`. A tree is a binary search
+over the rows: each internal node
 `node key left right` is one step of it, with `key` the `cmin` of the middle row, and the search
 continues in a leaf once at most 64 rows are left. A leaf `leaf lo hi keys block` holds rows `lo`
-to `hi - 1`, with their `cmin` and `cmax` packed 42 bits per row in `keys` and their C data packed
+to `hi - 1`, with their `cmin` and `cmax` packed 42 bits per row in `keys` and their data packed
 in `block`: 63 bits per row for `case`, 36 for `prop`, 32 for `script`, 5 for `bidi_class`, 8 for
 `combining_class`, 52 for `numeric`, 1 for `bidi_mirrored` and `default_ignorable`, 84 for
 `decomposition` and 85 for `case_folding`. `Internal.BTree` (in

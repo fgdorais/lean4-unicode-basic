@@ -7,44 +7,20 @@ def clibDir : System.FilePath := ".."/"UnicodeCLib"
 
 def libDir : System.FilePath := ".."/"UnicodeBasic"
 
-/-- Data of `table` at each ASCII code point, or `default` (`table` is sorted) -/
-def asciiData {α} (table : Array (UInt32 × UInt32 × α)) (default : α) : Array α :=
-  (Array.range 128).map fun c =>
-    match table.find? fun (c₀, c₁, _) => c₀.toNat ≤ c && c ≤ c₁.toNat with
-    | some (_, _, d) => d
-    | none => default
-
-/-- Whether `table` has a range below U+0080 -/
-def hasAscii {α} (table : Array (UInt32 × UInt32 × α)) : Bool :=
-  table.any fun (c₀, _, _) => c₀ < 128
-
-/-- Write the C array `ascii` of the 128 values `data` -/
-def putAsciiC (h : IO.FS.Handle) (data : Array UInt64) : IO Unit := do
-  h.putStrLn "
-static const uint64_t ascii[] = {"
-  for d in data do
-    h.putStrLn s!"UINT64_C({d}),"
-  h.putStrLn "};"
-
-/-- `Other_*` property bits of a code point -/
-def propOther (c : UInt32) : UInt64 := Id.run do
-  let mut op : UInt64 := 0
-  if PropList.isOtherUppercase c then
-    op := op ||| 0x100000000
-  if PropList.isOtherLowercase c then
-    op := op ||| 0x200000000
-  if PropList.isOtherAlphabetic c then
-    op := op ||| 0x400000000
-  if PropList.isOtherMath c then
-    op := op ||| 0x800000000
-  return op
-
 def propTable : Array (UInt32 × UInt32 × UInt64) := Id.run do
   let mut t : Array (UInt32 × UInt32 × UInt64) := #[(0, 0, GC.Cc.toUInt64)]
   for data in UnicodeData.data.get[1:] do
     let c := data.code
     let gc := data.gc
-    let op := propOther c
+    let mut op : UInt64 := 0
+    if PropList.isOtherUppercase c then
+      op := op ||| 0x100000000
+    if PropList.isOtherLowercase c then
+      op := op ||| 0x200000000
+    if PropList.isOtherAlphabetic c then
+      op := op ||| 0x400000000
+    if PropList.isOtherMath c then
+      op := op ||| 0x800000000
     let d := op ||| gc.toUInt64
     let (c₀, c₁, d₀) := t.back!
     if data.name.takeEnd 7 == ", Last>" then
@@ -113,59 +89,6 @@ def propTable : Array (UInt32 × UInt32 × UInt64) := Id.run do
     t := t.push (c, c, d)
   return t
 
-def makePropC : IO Unit :=
-  IO.FS.withFile (clibDir / "prop.c") .write fun file => do
-    file.putStrLn s!"/* THIS IS A GENERATED FILE - DO NOT EDIT */
-#include \"basic.h\"
-
-#define TABLE_SIZE {propTable.size}"
-    file.putStrLn "
-static const unicode_data_t table[TABLE_SIZE];
-
-static const uint64_t ascii[128];
-
-uint64_t unicode_prop_lookup(uint32_t c) {
-  unicode_data_t v;
-  if (c < 128) return ascii[c];
-  if (c >= table[0].cmin) {
-    unsigned int lo = 0;
-    unsigned int hi = TABLE_SIZE;
-    unsigned int i = (lo + hi)/2;
-    while (i != lo) {
-      if (c < table[i].cmin) hi = i;
-      else lo = i;
-      i = (lo + hi)/2;
-    }
-    v = table[i];
-    if (c <= v.cmax) {
-      uint32_t gc = v.data & UNICODE_GC;
-      uint32_t pb = (v.data >> 31) & 1;
-      uint64_t op = v.data & UINT64_C(0xffffffff00000000);
-      if (gc == UNICODE_GC_LC) {
-        if ((c & 1) == pb) return op | UNICODE_GC_Lu;
-        else return op | UNICODE_GC_Ll;
-      }
-      if (gc == UNICODE_GC_PG) {
-        if ((c & 1) == pb) return op | UNICODE_GC_Ps;
-        else return op | UNICODE_GC_Pe;
-      }
-      if (gc == UNICODE_GC_PQ) {
-        if ((c & 1) == pb) return op | UNICODE_GC_Pi;
-        else return op | UNICODE_GC_Pf;
-      }
-      return op | gc;
-    }
-  }
-  return UNICODE_GC_Cn;
-}
-
-static const unicode_data_t table[] = {"
-    for (c₀, c₁, d) in propTable do
-      file.putStrLn s!"\{UINT32_C({c₀}),UINT32_C({c₁}),UINT64_C({d})},"
-    file.putStrLn "};"
-    putAsciiC file <| UnicodeData.data.get[:128].toArray.map fun data =>
-      propOther data.code ||| data.gc.toUInt64
-
 def caseTable : Array (UInt32 × UInt32 × UInt64) := Id.run do
   let mut t := #[]
   for data in UnicodeData.data.get do
@@ -186,80 +109,11 @@ def caseTable : Array (UInt32 × UInt32 × UInt64) := Id.run do
           t := t.push (c, c, v)
   return t
 
-def makeCaseC : IO Unit :=
-  IO.FS.withFile (clibDir / "case.c") .write fun file => do
-    file.putStrLn s!"/* THIS IS A GENERATED FILE - DO NOT EDIT */
-#include \"basic.h\"
-
-#define TABLE_SIZE {caseTable.size}"
-    file.putStrLn "
-static const unicode_data_t table[TABLE_SIZE];
-
-static const uint64_t ascii[128];
-
-uint64_t unicode_case_lookup(uint32_t c) {
-  unicode_data_t v;
-  if (c < 128) return ascii[c];
-  if (c >= table[0].cmin) {
-    unsigned int lo = 0;
-    unsigned int hi = TABLE_SIZE;
-    unsigned int i = (lo + hi)/2;
-    while (i != lo) {
-      if (c < table[i].cmin) hi = i;
-      else lo = i;
-      i = (lo + hi)/2;
-    }
-    if (c <= table[i].cmax) return table[i].data;
-  }
-  return 0;
-}
-
-static const unicode_data_t table[] = {"
-    for (c₀, c₁, d) in caseTable do
-      file.putStrLn s!"\{UINT32_C({c₀}),UINT32_C({c₁}),UINT64_C({d})},"
-    file.putStrLn "};"
-    putAsciiC file (asciiData caseTable 0)
-
 def scriptTable : Array (UInt32 × UInt32 × UInt64) :=
   let t := Scripts.data.get.toArray.flatMap fun (sc, t) =>
     let sc := Script.ofAbbrev! <| PropertyValueAliases.getShortName! "sc" sc
     t.map fun (c₀, c₁) => (c₀, c₁, sc.code.toUInt64)
   t.qsort fun (a, _) (b, _) => a < b
-
-def makeScriptC : IO Unit :=
-  IO.FS.withFile (clibDir / "script.c") .write fun file => do
-    file.putStrLn s!"/* THIS IS A GENERATED FILE - DO NOT EDIT */
-#include \"basic.h\"
-
-#define TABLE_SIZE {scriptTable.size}
-#define SCRIPT_UNKNOWN UINT32_C({Script.ofAbbrev! "Zzzz" |>.code})"
-    file.putStrLn "
-static const unicode_data_t table[TABLE_SIZE];
-
-static const uint64_t ascii[128];
-
-uint32_t unicode_script_lookup(uint32_t c) {
-  unicode_data_t v;
-  if (c < 128) return (uint32_t)ascii[c];
-  if (c >= table[0].cmin) {
-    unsigned int lo = 0;
-    unsigned int hi = TABLE_SIZE;
-    unsigned int i = (lo + hi)/2;
-    while (i != lo) {
-      if (c < table[i].cmin) hi = i;
-      else lo = i;
-      i = (lo + hi)/2;
-    }
-    if (c <= table[i].cmax) return (uint32_t)table[i].data;
-  }
-  return SCRIPT_UNKNOWN;
-}
-
-static const unicode_data_t table[] = {"
-    for (c₀, c₁, d) in scriptTable do
-      file.putStrLn s!"\{UINT32_C({c₀}),UINT32_C({c₁}),UINT64_C({d})},"
-    file.putStrLn "};"
-    putAsciiC file (asciiData scriptTable (Script.ofAbbrev! "Zzzz").code.toUInt64)
 
 /-- Drop the rows of `table` with data `default` and merge adjacent rows with equal data -/
 def compressTable (table : Array (UInt32 × UInt32 × UInt64)) (default : UInt64) :
@@ -275,40 +129,6 @@ def compressTable (table : Array (UInt32 × UInt32 × UInt64)) (default : UInt64
         t := t.push (c₀, c₁, d)
     | none => t := t.push (c₀, c₁, d)
   return t
-
-/-- Write `UnicodeCLib/<file>.c` with `table` and the C function `unicode_<file>_lookup`, which
-returns the data of the range containing a code point, or `default` -/
-def makeTableC (file : String) (table : Array (UInt32 × UInt32 × UInt64)) (default : UInt64) :
-    IO Unit :=
-  IO.FS.withFile (clibDir / s!"{file}.c") .write fun h => do
-    h.putStrLn s!"/* THIS IS A GENERATED FILE - DO NOT EDIT */
-#include \"basic.h\"
-
-#define TABLE_SIZE {table.size}
-#define DEFAULT UINT64_C({default})
-
-static const unicode_data_t table[TABLE_SIZE];
-{if hasAscii table then "\nstatic const uint64_t ascii[128];\n" else ""}
-uint64_t unicode_{file}_lookup(uint32_t c) \{
-{if hasAscii table then "  if (c < 128) return ascii[c];\n" else ""}  if (c >= table[0].cmin) \{
-    unsigned int lo = 0;
-    unsigned int hi = TABLE_SIZE;
-    unsigned int i = (lo + hi)/2;
-    while (i != lo) \{
-      if (c < table[i].cmin) hi = i;
-      else lo = i;
-      i = (lo + hi)/2;
-    }
-    if (c <= table[i].cmax) return table[i].data;
-  }
-  return DEFAULT;
-}
-
-static const unicode_data_t table[] = \{"
-    for (c₀, c₁, d) in table do
-      h.putStrLn s!"\{UINT32_C({c₀}),UINT32_C({c₁}),UINT64_C({d})},"
-    h.putStrLn "};"
-    if hasAscii table then putAsciiC h (asciiData table default)
 
 /-- `Bidi_Class` table: constructor index of the class, default `BN` -/
 def bidiClassTable : IO (Array (UInt32 × UInt32 × UInt64)) := do
@@ -353,50 +173,6 @@ def numericTable : IO (Array (UInt32 × UInt32 × UInt64)) := do
           (3 : UInt64) ||| sign ||| d.toUInt64 <<< 3 ||| n.natAbs.toUInt64 <<< 12
     (c₀, c₁, d)
   return compressTable t 0
-
-/-- Write `UnicodeCLib/<file>.c` with `table`, whose data has at most 128 bits, and the C
-function `unicode_<file>_lookup`, which returns the data of the range containing a code point, or
-`0`, as a `CLib.Row` -/
-def makeWideTableC (file : String) (table : Array (UInt32 × UInt32 × Nat)) : IO Unit :=
-  IO.FS.withFile (clibDir / s!"{file}.c") .write fun h => do
-    h.putStrLn s!"/* THIS IS A GENERATED FILE - DO NOT EDIT */
-#include \"basic.h\"
-
-#define TABLE_SIZE {table.size}
-
-static const unicode_wide_data_t table[TABLE_SIZE];
-{if hasAscii table then "\nstatic const uint64_t ascii[128][2];\n" else ""}
-lean_obj_res unicode_{file}_lookup(uint32_t c) \{
-  uint64_t lo = 0, hi = 0;
-{if hasAscii table then "  if (c < 128) return unicode_row(ascii[c][0], ascii[c][1]);\n" else ""}  if (c >= table[0].cmin) \{
-    unsigned int l = 0;
-    unsigned int h = TABLE_SIZE;
-    unsigned int i = (l + h)/2;
-    while (i != l) \{
-      if (c < table[i].cmin) h = i;
-      else l = i;
-      i = (l + h)/2;
-    }
-    if (c <= table[i].cmax) \{
-      lo = table[i].lo;
-      hi = table[i].hi;
-    }
-  }
-  return unicode_row(lo, hi);
-}
-
-static const unicode_wide_data_t table[] = \{"
-    for (c₀, c₁, d) in table do
-      if d ≥ 2 ^ 128 then throw <| .userError s!"{file}: data too wide at {toHexStringRaw c₀}"
-      h.putStrLn
-        s!"\{UINT32_C({c₀}),UINT32_C({c₁}),UINT64_C({d % 2 ^ 64}),UINT64_C({d / 2 ^ 64})},"
-    h.putStrLn "};"
-    if hasAscii table then
-      h.putStrLn "
-static const uint64_t ascii[][2] = {"
-      for d in asciiData table 0 do
-        h.putStrLn s!"\{UINT64_C({d % 2 ^ 64}),UINT64_C({d / 2 ^ 64})},"
-      h.putStrLn "};"
 
 /-- Merge adjacent rows of `table` with equal data -/
 def mergeRows (table : Array (UInt32 × UInt32 × Nat)) :
@@ -448,6 +224,94 @@ def decompositionTable : IO (Array (UInt32 × UInt32 × Nat)) := do
     t := t.push (c, c, d)
   return mergeRows t
 
+/-- Value of a `prop` row at code point `c`: the `GC` pairs `LC`, `PG` and `PQ`, which alternate
+between their two categories, are resolved to the category of `c` -/
+def propValue (c : UInt32) (d : Nat) : Nat :=
+  let gc := d % 0x40000000
+  let pb := (d >>> 31) % 2
+  let op := d - d % 0x100000000
+  let pick (a b : Nat) : Nat := if c.toNat % 2 == pb then a else b
+  if gc == GC.LC.toUInt64.toNat then op ||| pick GC.Lu.toUInt64.toNat GC.Ll.toUInt64.toNat
+  else if gc == GC.PG.toUInt64.toNat then op ||| pick GC.Ps.toUInt64.toNat GC.Pe.toUInt64.toNat
+  else if gc == GC.PQ.toUInt64.toNat then op ||| pick GC.Pi.toUInt64.toNat GC.Pf.toUInt64.toNat
+  else op ||| gc
+
+/-- Values of `table` at every code point, `default` outside its rows; `value c d` is the value
+at `c` in a row with data `d` -/
+def expand (table : Array (UInt32 × UInt32 × Nat)) (default : Nat)
+    (value : UInt32 → Nat → Nat := fun _ d => d) : Array Nat := Id.run do
+  let mut v := Array.replicate 0x110000 default
+  for (c₀, c₁, d) in table do
+    for c in [c₀.toNat:c₁.toNat+1] do
+      v := v.set! c (value c.toUInt32 d)
+  return v
+
+/-- Smallest C unsigned type that holds `0` to `n - 1` -/
+def indexType (n : Nat) : String := if n ≤ 0x100 then "uint8_t" else "uint16_t"
+
+/-- Write `UnicodeCLib/<file>.c` with the three-stage table of `values` (one per code point) and
+the C function `unicode_<file>_lookup`. Stage 1 gives the number of the 256-code-point block of
+each code point, stage 2 the index in `value` of each code point of each distinct block, and
+`value` the distinct values. With `wide`, values have 128 bits and the lookup returns a
+`CLib.Row`; otherwise the lookup returns them as `type`. -/
+def makeStageC (file type : String) (values : Array Nat) (default : Nat) (wide := false) :
+    IO Unit := do
+  let distinct : Array Nat := Id.run do
+    let mut seen : Std.HashMap Nat Unit := {}
+    for v in values do seen := seen.insert v ()
+    return seen.keys.toArray.qsort (· < ·)
+  let index : Std.HashMap Nat Nat := distinct.foldl (init := {}) fun m v => m.insert v m.size
+  let mut blocks : Std.HashMap (Array Nat) Nat := {}
+  let mut stage1 : Array Nat := #[]
+  let mut stage2 : Array (Array Nat) := #[]
+  for b in [0:0x1100] do
+    let block := (values.extract (b * 256) (b * 256 + 256)).map (index[·]!)
+    match blocks[block]? with
+    | some n => stage1 := stage1.push n
+    | none =>
+      blocks := blocks.insert block stage2.size
+      stage1 := stage1.push stage2.size
+      stage2 := stage2.push block
+  if stage2.size > 0x10000 || distinct.size > 0x10000 then
+    throw <| .userError s!"{file}: too many blocks or values"
+  let lit (v : Nat) : String :=
+    if wide then s!"\{UINT64_C({v % 2 ^ 64}),UINT64_C({v / 2 ^ 64})}"
+    else if type == "uint32_t" then s!"UINT32_C({v})" else s!"UINT64_C({v})"
+  let valueDecl := if wide then s!"static const uint64_t value[{distinct.size}][2];"
+    else s!"static const {type} value[{distinct.size}];"
+  let body := if wide then s!"  if (c > 0x10FFFF) return unicode_row(0, 0);
+  const uint64_t *v = value[stage2[stage1[c >> 8]][c & 0xFF]];
+  return unicode_row(v[0], v[1]);"
+    else s!"  if (c > 0x10FFFF) return {lit default};
+  return value[stage2[stage1[c >> 8]][c & 0xFF]];"
+  IO.FS.withFile (clibDir / s!"{file}.c") .write fun h => do
+    h.putStrLn s!"/* THIS IS A GENERATED FILE - DO NOT EDIT */
+#include \"basic.h\"
+
+static const {indexType stage2.size} stage1[0x1100];
+static const {indexType distinct.size} stage2[{stage2.size}][256];
+{valueDecl}
+
+{if wide then "lean_obj_res" else type} unicode_{file}_lookup(uint32_t c) \{
+{body}
+}
+
+static const {indexType stage2.size} stage1[] = \{"
+    for i in [0:stage1.size:32] do
+      h.putStrLn <| ",".intercalate (stage1.extract i (i + 32) |>.toList.map toString) ++ ","
+    h.putStrLn ("};
+
+static const " ++ indexType distinct.size ++ " stage2[][256] = {")
+    for block in stage2 do
+      h.putStrLn <| "{" ++ ",".intercalate (block.toList.map toString) ++ "},"
+    h.putStrLn s!"};
+
+static const {if wide then "uint64_t" else type} value[]{if wide then "[2]" else ""} = \{"
+    for v in distinct do
+      h.putStrLn s!"{lit v},"
+    h.putStrLn "};"
+
+
 /-- Maximum number of ranges in a leaf of the `Internal.BTree` copies of the C tables -/
 def leafSize : Nat := 64
 
@@ -455,7 +319,7 @@ def leafSize : Nat := 64
 def natLit (n : Nat) : String :=
   "(nat_lit 0x" ++ (String.ofList (Nat.toDigits 16 n)).toUpper ++ ")"
 
-/-- B-tree on entries `lo` to `hi - 1` of `table`, as Lean source, following the C search; the
+/-- B-tree on entries `lo` to `hi - 1` of `table`, as Lean source, bisecting the rows; the
 values of a leaf are packed `width` bits each -/
 partial def btree (table : Array (UInt32 × UInt32 × Nat)) (width : Nat) (indent : String)
     (lo hi : Nat) : String :=
@@ -488,7 +352,7 @@ public import UnicodeBasic.Internal.BTree
 
 /-! # Kernel copy of the `{c}` table
 
-This module holds the same table as `UnicodeCLib/{c}.c` as a B-tree, for the kernel
+This module holds the same data as `UnicodeCLib/{c}.c` as a B-tree, for the kernel
 to read. It is internal and may change at any time.
 -/
 
@@ -503,11 +367,13 @@ namespace Unicode.Internal
   {btree table width "  " 0 table.size}"
 
 public def main : IO UInt32 := do
-  makeCaseC
+  makeStageC "case" "uint64_t" (expand (natData caseTable) 0) 0
   makeTreeLean "CaseTree" "caseTree" "case" (natData caseTable) 63
-  makePropC
+  makeStageC "prop" "uint64_t" (expand (natData propTable) GC.Cn.toUInt64.toNat propValue)
+    GC.Cn.toUInt64.toNat
   makeTreeLean "PropTree" "propTree" "prop" (natData propTable) 36
-  makeScriptC
+  let unknown := (Script.ofAbbrev! "Zzzz").code.toNat
+  makeStageC "script" "uint32_t" (expand (natData scriptTable) unknown) unknown
   makeTreeLean "ScriptTree" "scriptTree" "script" (natData scriptTable) 32
   for (module, name, file, table, default, width) in [
       ("BidiClassTree", "bidiClassTree", "bidi_class", ← bidiClassTable,
@@ -518,11 +384,11 @@ public def main : IO UInt32 := do
       ("DefaultIgnorableTree", "defaultIgnorableTree", "default_ignorable",
         ← defaultIgnorableTable, 0, 1),
       ("NumericTree", "numericTree", "numeric", ← numericTable, 0, 52)] do
-    makeTableC file table default
+    makeStageC file "uint64_t" (expand (natData table) default.toNat) default.toNat
     makeTreeLean module name file (natData table) width
   for (module, name, file, table, width) in [
       ("CaseFoldingTree", "caseFoldingTree", "case_folding", ← caseFoldingTable, 85),
       ("DecompositionTree", "decompositionTree", "decomposition", ← decompositionTable, 84)] do
-    makeWideTableC file table
+    makeStageC file "" (expand table 0) 0 (wide := true)
     makeTreeLean module name file table width
   return 0

@@ -4,7 +4,7 @@ public import UnicodeBasic.Internal.BTree
 
 /-! # Kernel copy of the `case_folding` table
 
-This module holds the same table as `UnicodeCLib/case_folding.c` as a B-tree, for the kernel
+This module holds the same data as `UnicodeCLib/case_folding.c` as a B-tree, for the kernel
 to read. It is internal and may change at any time.
 -/
 
