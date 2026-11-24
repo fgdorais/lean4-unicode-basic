@@ -11,6 +11,9 @@ rev = "main"
 name = "UnicodeBasic"
 path = ".."
 
+[[lean_lib]]
+name = "Builders"
+
 [[lean_exe]]
 name = "MakeCLib"
 

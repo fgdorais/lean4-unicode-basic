@@ -24,6 +24,14 @@ example : getLowerChar 'Σ' = 'σ' := by decide +kernel
 example : getTitleChar 'ǆ' = 'ǅ' := by decide +kernel
 example : (getScript 'ا').code = 0x41726162 := by decide +kernel -- Arab
 example : (getScript '日').code = 0x48616E69 := by decide +kernel -- Hani
+example : getBidiClass 'א' = .rightToLeft := by decide +kernel
+example : getBidiClass '٣' = .arabicNumber := by decide +kernel
+example : isBidiMirrored '«' = true := by decide +kernel
+example : getCanonicalCombiningClass '\u0301' = 230 := by decide +kernel
+example : isDefaultIgnorableCodePoint '\u200B' = true := by decide +kernel
+example : getDigit? '٣' = some 3 := by decide +kernel
+example : isNumeric '½' = true := by decide +kernel
+example : getDecimalRange? '٣' = some ('٠', '٩') := by decide +kernel
 
 /-! Agreement of the kernel copy of the `prop` table with the C table -/
 
@@ -33,6 +41,21 @@ elab "body_of% " id:ident : term => do
   let some (.defnInfo d) := (← getEnv).find? id.getId
     | throwError "{id} is not a definition"
   return d.value
+
+/-- Computable copy of `Internal.bidiClassTree` -/
+def bidiClassTree : Internal.BTree Nat := body_of% Unicode.Internal.bidiClassTree
+
+/-- Computable copy of `Internal.bidiMirroredTree` -/
+def bidiMirroredTree : Internal.BTree Nat := body_of% Unicode.Internal.bidiMirroredTree
+
+/-- Computable copy of `Internal.combiningClassTree` -/
+def combiningClassTree : Internal.BTree Nat := body_of% Unicode.Internal.combiningClassTree
+
+/-- Computable copy of `Internal.defaultIgnorableTree` -/
+def defaultIgnorableTree : Internal.BTree Nat := body_of% Unicode.Internal.defaultIgnorableTree
+
+/-- Computable copy of `Internal.numericTree` -/
+def numericTree : Internal.BTree Nat := body_of% Unicode.Internal.numericTree
 
 /-- Computable copy of `Internal.caseTree` -/
 def caseTree : Internal.BTree Nat := body_of% Unicode.Internal.caseTree
@@ -45,6 +68,16 @@ def scriptTree : Internal.BTree Nat := body_of% Unicode.Internal.scriptTree
 
 /-- Code points where the B-tree copies of the C tables and the C tables disagree -/
 def treeTests : Array (String × (UInt32 → Bool)) := #[
+  ("BidiClassTree", fun c =>
+    CLib.lookupBidiClassIn bidiClassTree c.toNat == CLib.lookupBidiClass c),
+  ("BidiMirroredTree", fun c =>
+    CLib.lookupBidiMirroredIn bidiMirroredTree c.toNat == CLib.lookupBidiMirrored c),
+  ("CombiningClassTree", fun c =>
+    CLib.lookupCombiningClassIn combiningClassTree c.toNat == CLib.lookupCombiningClass c),
+  ("DefaultIgnorableTree", fun c =>
+    CLib.lookupDefaultIgnorableIn defaultIgnorableTree c.toNat == CLib.lookupDefaultIgnorable c),
+  ("NumericTree", fun c =>
+    CLib.lookupNumericIn numericTree c.toNat == CLib.lookupNumeric c),
   ("CaseTree", fun c => CLib.lookupCaseIn caseTree c.toNat == CLib.lookupCase c),
   ("PropTree", fun c => CLib.lookupPropIn propTree c.toNat == CLib.lookupProp c),
   ("ScriptTree", fun c => CLib.lookupScriptIn scriptTree c.toNat == CLib.lookupScript c)]
