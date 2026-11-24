@@ -12,7 +12,7 @@ tables, plus Lean copies of the C tables, all committed to the repository:
 | Output | Written by | Read by | Used for |
 | --- | --- | --- | --- |
 | `data/*.txt` | `util/MakeTables.lean` | `UnicodeBasic/TableLookup.lean`, via `include_str` | Most properties |
-| `UnicodeCLib/*.c` (except `basic.c`) | `util/MakeCLib.lean` | `UnicodeBasic/TableLookup.lean`, via `@[extern]` | Properties with values of at most 64 bits: general category, `Other_*` bits, simple case mappings, script, bidi class, bidi mirrored, canonical combining class, default ignorable, numeric value |
+| `UnicodeCLib/*.c` (except `basic.c`) | `util/MakeCLib.lean` | `UnicodeBasic/TableLookup.lean`, via `@[extern]` | Properties with values of at most 128 bits: general category, `Other_*` bits, simple case mappings, script, bidi class, bidi mirrored, canonical combining class, default ignorable, numeric value, canonical decomposition, case folding |
 | `UnicodeBasic/Internal/*Tree.lean` | `util/MakeCLib.lean` | The kernel, through the bodies of the `CLib` lookups | Proofs by `decide +kernel` about the same properties |
 
 The data flow is:
@@ -58,10 +58,10 @@ Both generators use paths relative to `util/`, so run them from there.
 `MakeTables` takes property names as arguments (`lake exe MakeTables Name White_Space`). With no
 arguments it writes the tables the library uses:
 
-`Canonical_Decomposition_Mapping`, `Case_Folding`, `Decomposition_Mapping`, `Name`,
-`Script_Extensions`, `Script_Name`, `Special_Casing`.
+`Decomposition_Mapping`, `Name`, `Script_Extensions`, `Script_Name`, `Special_Casing`.
 
 It also knows a few more (`Alphabetic`, `Bidi_Class`, `Bidi_Mirrored`, `Canonical_Combining_Class`,
+`Canonical_Decomposition_Mapping`, `Case_Folding`,
 `Case_Mapping`, `Cased`, `Default_Ignorable_Code_Point`, `General_Category`, `Lowercase`, `Math`,
 `Noncharacter_Code_Point`, `Numeric_Value`, `Other`, `Other_*`, `Prepended_Concatenation_Mark`,
 `Titlecase`, `Uppercase`, `Variation_Selector`, `White_Space`). These are not read by the library, which gets
@@ -115,8 +115,7 @@ no longer reads.)
 00A8;<compat>;0020;0308
 ```
 
-Used by `Canonical_Decomposition_Mapping`, `Case_Folding`, `Decomposition_Mapping`,
-`Script_Name` and `Special_Casing`.
+Used by `Decomposition_Mapping`, `Script_Name` and `Special_Casing`.
 
 ### Compression
 
@@ -131,12 +130,8 @@ generators fold anything the library can compute back:
   `<tangut component>`, `<tangut ideograph>`, `<jurchen character>`, `<seal character>`.
   Tags are lowercase; the names the library returns follow the Standard's casing exactly
   (for example `CJK UNIFIED IDEOGRAPH-4E00`, `<control-0000>`).
-- `Canonical_Decomposition_Mapping` stores the full (recursive) canonical decomposition, so the
-  lookup needs no recursion. `Decomposition_Mapping` stores the single-step mapping with its
-  compatibility tag (`<font>`, `<compat>`, …), or an empty tag field for canonical mappings.
-- `Case_Folding` is `code;simple;full`, one record per code point in `CaseFolding.txt`:
-  `simple` is empty when there is no simple (`C` or `S`) folding, and `full` is empty unless the
-  full (`F`) folding has two or more code points.
+- `Decomposition_Mapping` stores the single-step mapping with its compatibility tag (`<font>`,
+  `<compat>`, …), or an empty tag field for canonical mappings.
 - `Special_Casing` is `code;lower;title;upper`, unconditional mappings only, with each field empty
   when it agrees with the simple mapping from `UnicodeData.txt`.
 - `Script_Extensions` values are space-separated script codes (see below), sorted by code.
@@ -187,6 +182,22 @@ literals. A code point outside every row gets the function's default.
 These five files come from one generic writer, `makeTableC`, which drops rows with the default
 value and merges adjacent rows with equal data.
 
+Two tables need up to 128 bits of data per row. Their rows are `unicode_wide_data_t`
+(`cmin`, `cmax`, then the low and high 64 bits of the data as `lo` and `hi`), and their lookups
+return a Lean `CLib.Row`, built by `unicode_row` in `basic.h`. Their writer is `makeWideTableC`;
+the default is `0`.
+
+- **`decomposition.c`**, `unicode_decomposition_lookup`: the full (recursive) canonical
+  decomposition of the code point, so the lookup needs no recursion, 21 bits per code point and
+  ended by `0`. Hangul syllables are not in the table: `lookupCanonicalDecompositionMapping`
+  computes them. The generator fails if a decomposition has more than four code points.
+- **`case_folding.c`**, `unicode_case_folding_lookup`: bits 0–21 are the simple (`C` or `S`) case
+  folding minus the code point, modulo `2^22`, or `0` for none, so that runs such as `A`–`Z`
+  share one row. Bits 22–84 are the full (`F`) case folding, 21 bits per code point and ended by
+  `0`, when it has two or more code points. The Stability Policy limits full case foldings to
+  three times the length of the string, and the generator fails if one is longer than three code
+  points.
+
 `prop.c` also folds alternating case pairs. A run like `Lu Ll Lu Ll …` (Latin Extended-A, Greek,
 Cyrillic) is stored as one row whose category is the union `LC` (= `Lu|Ll|Lt`), with bit 31 saying
 which parity is uppercase: if `(c & 1) == bit31` the code point is `Lu`, otherwise `Ll`. The same
@@ -205,7 +216,8 @@ same rows as a B-tree `Internal.fooTree : Internal.BTree Nat`. A tree follows th
 continues in a leaf once at most 64 rows are left. A leaf `leaf lo hi keys block` holds rows `lo`
 to `hi - 1`, with their `cmin` and `cmax` packed 42 bits per row in `keys` and their C data packed
 in `block`: 63 bits per row for `case`, 36 for `prop`, 32 for `script`, 5 for `bidi_class`, 8 for
-`combining_class`, 52 for `numeric` and 1 for `bidi_mirrored` and `default_ignorable`. `Internal.BTree` (in
+`combining_class`, 52 for `numeric`, 1 for `bidi_mirrored` and `default_ignorable`, 84 for
+`decomposition` and 85 for `case_folding`. `Internal.BTree` (in
 `UnicodeBasic/Internal/BTree.lean`) is generic in the block type, so tables whose values are not
 numbers can use it too. The trees are `noncomputable` so that programs never build them.
 
@@ -243,12 +255,13 @@ Defaults: decompositions → the code point itself / `none`, case folding and sp
 
 **C tables.** `TableLookup.CLib` declares the C functions as `@[extern]` definitions
 (`lookupProp`, `lookupCase`, `lookupScript`, `lookupBidiClass`, `lookupBidiMirrored`,
-`lookupCombiningClass`, `lookupDefaultIgnorable`, `lookupNumeric`), plus the `Other_*` bit masks.
-The body of each does the same lookup as the C table in pure Lean on its B-tree, for example
-`CLib.lookupPropIn Internal.propTree c.toNat`; the simpler tables share `CLib.lookupIn`, which
-takes the data width and the default. The `lookup*` functions outside `CLib` decode the C data
-into the library's types. Compiled code calls C, and the kernel unfolds the body, so `decide +kernel` can prove
-facts such as `GeneralCategory.isLetter 'é' = true` or `getUpperChar 'é' = 'É'`. The derived
+`lookupCombiningClass`, `lookupDefaultIgnorable`, `lookupNumeric`, `lookupDecomposition`,
+`lookupCaseFolding`), plus the `Other_*` bit masks. The body of each does the same lookup as the
+C table in pure Lean on its B-tree, for example `CLib.lookupPropIn Internal.propTree c.toNat`;
+the simpler tables share `CLib.lookupIn`, which takes the data width and the default, and the
+128-bit tables share `CLib.lookupRowIn`. The `lookup*` functions outside `CLib` decode the C data
+into the library's types. Compiled code calls C, and the kernel unfolds the body, so
+`decide +kernel` can prove facts such as `GeneralCategory.isLetter 'é' = true` or `getUpperChar 'é' = 'É'`. The derived
 properties are bit tests on one `lookupProp` call, for example
 
 ```lean
@@ -297,13 +310,13 @@ To add a property `Foo` in the same style (in this repo or a sibling library):
 5. Add the public `getFoo`/`isFoo (char : Char)` with a behavioral docstring.
 6. Add a `testFoo` to `TestTables` that checks the public function against UnicodeData.
 
-A property whose values fit in 64 bits can go in a C table instead, which saves the first-call
-parse and lets the kernel evaluate it. Build its rows (sorted, non-overlapping, data as a
-`UInt64`) in `MakeCLib`, add it to the `makeTableC`/`makeTreeLean` list in `main`, add the
-prototype to `basic.h`, and regenerate. In `TableLookup`, add a `CLib.lookupFooIn` on
-`CLib.lookupIn` and an `@[extern]` `CLib.lookupFoo` whose body is `CLib.lookupFooIn
-Internal.fooTree c.toNat`, then decode it in `lookupFoo`. Add a `FooTree` test and a
-`decide +kernel` example to `TestTables`.
+A property whose values fit in 64 bits (or 128, with `makeWideTableC` and `CLib.lookupRowIn`)
+can go in a C table instead, which saves the first-call parse and lets the kernel evaluate it.
+Build its rows (sorted, non-overlapping) in `MakeCLib`, add it to the matching table list in
+`main`, add the prototype to `basic.h`, and regenerate. In `TableLookup`, add a
+`CLib.lookupFooIn` on `CLib.lookupIn` (or `CLib.lookupRowIn`) and an `@[extern]` `CLib.lookupFoo`
+whose body is `CLib.lookupFooIn Internal.fooTree c.toNat`, then decode it in `lookupFoo`. Add a
+`FooTree` test and a `decide +kernel` example to `TestTables`.
 
 ## 8. Updating to a new Unicode version
 

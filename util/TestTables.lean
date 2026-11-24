@@ -29,6 +29,10 @@ example : getBidiClass '٣' = .arabicNumber := by decide +kernel
 example : isBidiMirrored '«' = true := by decide +kernel
 example : getCanonicalCombiningClass '\u0301' = 230 := by decide +kernel
 example : isDefaultIgnorableCodePoint '\u200B' = true := by decide +kernel
+example : getCanonicalDecomposition 'ǻ' = "a\u030A\u0301" := by decide +kernel
+example : getCanonicalDecomposition '각' = "\u1100\u1161\u11A8" := by decide +kernel
+example : getCaseFoldingChar 'Σ' = 'σ' := by decide +kernel
+example : unconsCaseFolding 'ß' = (0x73, [0x73]) := by decide +kernel
 example : getDigit? '٣' = some 3 := by decide +kernel
 example : isNumeric '½' = true := by decide +kernel
 example : getDecimalRange? '٣' = some ('٠', '٩') := by decide +kernel
@@ -57,6 +61,12 @@ def defaultIgnorableTree : Internal.BTree Nat := body_of% Unicode.Internal.defau
 /-- Computable copy of `Internal.numericTree` -/
 def numericTree : Internal.BTree Nat := body_of% Unicode.Internal.numericTree
 
+/-- Computable copy of `Internal.caseFoldingTree` -/
+def caseFoldingTree : Internal.BTree Nat := body_of% Unicode.Internal.caseFoldingTree
+
+/-- Computable copy of `Internal.decompositionTree` -/
+def decompositionTree : Internal.BTree Nat := body_of% Unicode.Internal.decompositionTree
+
 /-- Computable copy of `Internal.caseTree` -/
 def caseTree : Internal.BTree Nat := body_of% Unicode.Internal.caseTree
 
@@ -78,6 +88,10 @@ def treeTests : Array (String × (UInt32 → Bool)) := #[
     CLib.lookupDefaultIgnorableIn defaultIgnorableTree c.toNat == CLib.lookupDefaultIgnorable c),
   ("NumericTree", fun c =>
     CLib.lookupNumericIn numericTree c.toNat == CLib.lookupNumeric c),
+  ("CaseFoldingTree", fun c =>
+    CLib.lookupCaseFoldingIn caseFoldingTree c.toNat == CLib.lookupCaseFolding c),
+  ("DecompositionTree", fun c =>
+    CLib.lookupDecompositionIn decompositionTree c.toNat == CLib.lookupDecomposition c),
   ("CaseTree", fun c => CLib.lookupCaseIn caseTree c.toNat == CLib.lookupCase c),
   ("PropTree", fun c => CLib.lookupPropIn propTree c.toNat == CLib.lookupProp c),
   ("ScriptTree", fun c => CLib.lookupScriptIn scriptTree c.toNat == CLib.lookupScript c)]
