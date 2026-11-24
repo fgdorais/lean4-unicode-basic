@@ -71,6 +71,16 @@ LEAN_EXPORT uint64_t unicode_case_lookup(uint32_t c);
 
 LEAN_EXPORT uint32_t unicode_script_lookup(uint32_t c);
 
+LEAN_EXPORT uint64_t unicode_bidi_class_lookup(uint32_t c);
+
+LEAN_EXPORT uint64_t unicode_bidi_mirrored_lookup(uint32_t c);
+
+LEAN_EXPORT uint64_t unicode_combining_class_lookup(uint32_t c);
+
+LEAN_EXPORT uint64_t unicode_default_ignorable_lookup(uint32_t c);
+
+LEAN_EXPORT uint64_t unicode_numeric_lookup(uint32_t c);
+
 LEAN_EXPORT uint32_t unicode_script_of_abbrev(b_lean_obj_arg abbr);
 
 LEAN_EXPORT lean_obj_res unicode_script_to_abbrev(uint32_t scr);

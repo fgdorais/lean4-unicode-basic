@@ -12,8 +12,8 @@ tables, plus Lean copies of the C tables, all committed to the repository:
 | Output | Written by | Read by | Used for |
 | --- | --- | --- | --- |
 | `data/*.txt` | `util/MakeTables.lean` | `UnicodeBasic/TableLookup.lean`, via `include_str` | Most properties |
-| `UnicodeCLib/{prop,case,script}.c` | `util/MakeCLib.lean` | `UnicodeBasic/TableLookup.lean`, via `@[extern]` | The hottest lookups: general category, `Other_*` bits, simple case mappings, script |
-| `UnicodeBasic/Internal/{Case,Prop,Script}Tree.lean` | `util/MakeCLib.lean` | The kernel, through the bodies of `CLib.lookupCase`, `CLib.lookupProp` and `CLib.lookupScript` | Proofs by `decide +kernel` about the same properties |
+| `UnicodeCLib/*.c` (except `basic.c`) | `util/MakeCLib.lean` | `UnicodeBasic/TableLookup.lean`, via `@[extern]` | Properties with values of at most 64 bits: general category, `Other_*` bits, simple case mappings, script, bidi class, bidi mirrored, canonical combining class, default ignorable, numeric value |
+| `UnicodeBasic/Internal/*Tree.lean` | `util/MakeCLib.lean` | The kernel, through the bodies of the `CLib` lookups | Proofs by `decide +kernel` about the same properties |
 
 The data flow is:
 
@@ -30,10 +30,12 @@ Generated files are never edited by hand. Change the generator and regenerate.
 ## 1. The `util` package
 
 `util/` is its own Lake package (`util/lakefile.toml`). It requires UnicodeData from git and
-UnicodeBasic by path (`path = ".."`), and it has three executables:
+UnicodeBasic by path (`path = ".."`). Its library `Builders` holds the `mk*` functions that read
+the UCD and build compressed tables, shared by its three executables:
 
 - `MakeTables`: writes `../data/<Property>.txt`.
-- `MakeCLib`: writes `../UnicodeCLib/prop.c`, `case.c` and `script.c`.
+- `MakeCLib`: writes the C tables in `../UnicodeCLib/` and their kernel copies in
+  `../UnicodeBasic/Internal/`.
 - `TestTables`: checks the public API against UnicodeData (see section 6).
 
 `util` pins its own `lean-toolchain` and commits its own `lake-manifest.json`, so the UCD version
@@ -56,12 +58,12 @@ Both generators use paths relative to `util/`, so run them from there.
 `MakeTables` takes property names as arguments (`lake exe MakeTables Name White_Space`). With no
 arguments it writes the tables the library uses:
 
-`Bidi_Class`, `Bidi_Mirrored`, `Canonical_Combining_Class`, `Canonical_Decomposition_Mapping`,
-`Case_Folding`, `Decomposition_Mapping`, `Default_Ignorable_Code_Point`, `Name`, `Numeric_Value`,
+`Canonical_Decomposition_Mapping`, `Case_Folding`, `Decomposition_Mapping`, `Name`,
 `Script_Extensions`, `Script_Name`, `Special_Casing`, `White_Space`.
 
-It also knows a few more (`Alphabetic`, `Case_Mapping`, `Cased`, `General_Category`,
-`Lowercase`, `Math`, `Noncharacter_Code_Point`, `Other`, `Other_*`, `Prepended_Concatenation_Mark`,
+It also knows a few more (`Alphabetic`, `Bidi_Class`, `Bidi_Mirrored`, `Canonical_Combining_Class`,
+`Case_Mapping`, `Cased`, `Default_Ignorable_Code_Point`, `General_Category`, `Lowercase`, `Math`,
+`Noncharacter_Code_Point`, `Numeric_Value`, `Other`, `Other_*`, `Prepended_Concatenation_Mark`,
 `Titlecase`, `Uppercase`, `Variation_Selector`). These are not read by the library, which gets
 those properties from the C tables or computes them, but they are handy for inspecting the data.
 Each run prints the table size as `Size: <rows> + <extra code points covered by ranges>`.
@@ -91,9 +93,8 @@ Code points in some range have the property; all others do not. Adjacent ranges 
 0085;
 ```
 
-Used by `Bidi_Mirrored`, `Default_Ignorable_Code_Point` and `White_Space`. (The public
-`isWhiteSpace` currently computes the property directly, so only `lookupWhiteSpace` reads
-`White_Space.txt`.)
+Used by `White_Space`. (The public `isWhiteSpace` currently computes the property directly, so
+only `lookupWhiteSpace` reads `White_Space.txt`.)
 
 **Range data tables**: `start;stop;value…`, or `start;;value…` for a single code point. Every code
 point in the range has the same value. Adjacent ranges with equal values are merged.
@@ -104,8 +105,8 @@ point in the range has the same value. Adjacent ranges with equal values are mer
 000A;;B
 ```
 
-Used by `Bidi_Class` (short alias), `Canonical_Combining_Class` (decimal, only nonzero classes),
-`Name`, `Numeric_Value` and `Script_Extensions`.
+Used by `Name` and `Script_Extensions`. (The example is `MakeTables Bidi_Class`, which the library
+no longer reads.)
 
 **Point tables**: `code;value…`, one record per code point that has a non-default value.
 
@@ -130,10 +131,6 @@ generators fold anything the library can compute back:
   `<tangut component>`, `<tangut ideograph>`, `<jurchen character>`, `<seal character>`.
   Tags are lowercase; the names the library returns follow the Standard's casing exactly
   (for example `CJK UNIFIED IDEOGRAPH-4E00`, `<control-0000>`).
-- `Numeric_Value`: a run of ten decimal digits is one record `start;stop;decimal` (the value is the
-  offset from `start`). A run of consecutive `Numeric_Type=Digit` values is
-  `start;stop;digit a-b` (or `digit a` for one code point). Other numerics are
-  `code;;numeric n` or `code;;numeric n/d`.
 - `Canonical_Decomposition_Mapping` stores the full (recursive) canonical decomposition, so the
   lookup needs no recursion. `Decomposition_Mapping` stores the single-step mapping with its
   compatibility tag (`<font>`, `<compat>`, …), or an empty tag field for canonical mappings.
@@ -176,6 +173,19 @@ literals. A code point outside every row gets the function's default.
   general category, as in `basic.h` and `UnicodeBasic.Types`), high 32 bits hold
   `Other_Uppercase` (bit 32), `Other_Lowercase` (33), `Other_Alphabetic` (34) and `Other_Math` (35).
   Default: `Cn`.
+- **`bidi_class.c`**, `unicode_bidi_class_lookup`: `data` is the index of the class in
+  `CLib.bidiClasses` (the constructor order of `BidiClass`). Default: `BN`.
+- **`combining_class.c`**, `unicode_combining_class_lookup`: `data` is the class. Default: `0`.
+- **`bidi_mirrored.c`** and **`default_ignorable.c`**: one row per range with the property, with
+  `data` `1`. Default: `0`.
+- **`numeric.c`**, `unicode_numeric_lookup`: bits 0–1 are `1` for `Numeric_Type=Decimal`, `2` for
+  `Digit` and `3` for `Numeric`. A run of consecutive decimal or digit values is one row, with
+  bits 2–22 the first code point of the run and bits 23–26 its value, so that the value of `c` is
+  `c - first + value`. For `Numeric`, bit 2 is the sign, bits 3–11 the denominator (`0` for none)
+  and bits 12–51 the absolute value of the numerator. Default: `0` (no numeric value).
+
+These five files come from one generic writer, `makeTableC`, which drops rows with the default
+value and merges adjacent rows with equal data.
 
 `prop.c` also folds alternating case pairs. A run like `Lu Ll Lu Ll …` (Latin Extended-A, Greek,
 Cyrillic) is stored as one row whose category is the union `LC` (= `Lu|Ll|Lt`), with bit 31 saying
@@ -188,14 +198,14 @@ are never returned.
 `UnicodeBasic/Types.lean`) and the prototypes. `basic.c` is hand-written (script abbreviation
 conversions) and is not generated.
 
-**Kernel copies of the C tables.** `MakeCLib` also writes `UnicodeBasic/Internal/CaseTree.lean`,
-`PropTree.lean` and `ScriptTree.lean`, the same rows as `case.c`, `prop.c` and `script.c` as
-B-trees: `Internal.caseTree`, `Internal.propTree` and `Internal.scriptTree`, each of type
-`Internal.BTree Nat`. A tree follows the C binary search: each internal node
+**Kernel copies of the C tables.** For each C table `foo.c`, `MakeCLib` also writes
+`UnicodeBasic/Internal/FooTree.lean` (for example `PropTree.lean`, `BidiClassTree.lean`) with the
+same rows as a B-tree `Internal.fooTree : Internal.BTree Nat`. A tree follows the C binary search: each internal node
 `node key left right` is one step of it, with `key` the `cmin` of the middle row, and the search
 continues in a leaf once at most 64 rows are left. A leaf `leaf lo hi keys block` holds rows `lo`
 to `hi - 1`, with their `cmin` and `cmax` packed 42 bits per row in `keys` and their C data packed
-in `block`: 63 bits per row for `case`, 36 for `prop` and 32 for `script`. `Internal.BTree` (in
+in `block`: 63 bits per row for `case`, 36 for `prop`, 32 for `script`, 5 for `bidi_class`, 8 for
+`combining_class`, 52 for `numeric` and 1 for `bidi_mirrored` and `default_ignorable`. `Internal.BTree` (in
 `UnicodeBasic/Internal/BTree.lean`) is generic in the block type, so tables whose values are not
 numbers can use it too. The trees are `noncomputable` so that programs never build them.
 
@@ -228,15 +238,17 @@ A lookup is then always the same three steps:
 3. If `c` is inside that row (`c ≤ stop` for ranges, `c == start` for point tables), decode its
    value; otherwise return the default.
 
-Defaults: `Bidi_Class` → `BN`, `Canonical_Combining_Class` → `0`, decompositions → the code point
-itself / `none`, case folding and special casing → "no change", `Numeric_Value` → `none`, binary
-properties → `false`, `Script_Extensions` → the singleton set of `lookupScript c`, `Name` →
-`<reserved-XXXX>`.
+Defaults: decompositions → the code point itself / `none`, case folding and special casing →
+"no change", binary properties → `false`, `Script_Extensions` → the singleton set of
+`lookupScript c`, `Name` → `<reserved-XXXX>`.
 
-**C tables.** `TableLookup.CLib` declares the C functions as `@[extern]` definitions (`lookupProp`,
-`lookupCase`, `lookupScript`), plus the `Other_*` bit masks. The body of each does the same lookup
-as the C table in pure Lean on its B-tree, for example `CLib.lookupPropIn Internal.propTree
-c.toNat`. Compiled code calls C, and the kernel unfolds the body, so `decide +kernel` can prove
+**C tables.** `TableLookup.CLib` declares the C functions as `@[extern]` definitions
+(`lookupProp`, `lookupCase`, `lookupScript`, `lookupBidiClass`, `lookupBidiMirrored`,
+`lookupCombiningClass`, `lookupDefaultIgnorable`, `lookupNumeric`), plus the `Other_*` bit masks.
+The body of each does the same lookup as the C table in pure Lean on its B-tree, for example
+`CLib.lookupPropIn Internal.propTree c.toNat`; the simpler tables share `CLib.lookupIn`, which
+takes the data width and the default. The `lookup*` functions outside `CLib` decode the C data
+into the library's types. Compiled code calls C, and the kernel unfolds the body, so `decide +kernel` can prove
 facts such as `GeneralCategory.isLetter 'é' = true` or `getUpperChar 'é' = 'É'`. The derived
 properties are bit tests on one `lookupProp` call, for example
 
@@ -266,9 +278,9 @@ tests with `lake exe TestTables` in `util`, or a few by name (`lake exe TestTabl
 mismatch prints `Error: <test> <code point>` and the exit code is 1. CI builds `util` and runs it
 on every pull request.
 
-The `CaseTree`, `PropTree` and `ScriptTree` tests are the exception: each compares the Lean lookup
-(`CLib.lookupCaseIn`, `CLib.lookupPropIn`, `CLib.lookupScriptIn`) on a computable copy of its tree
-with the C lookup on every code point, since nothing proves they agree. `TestTables` also has a few
+The `*Tree` tests (`PropTree`, `BidiClassTree`, …) are the exception: each compares the Lean lookup
+(`CLib.lookupPropIn`, `CLib.lookupBidiClassIn`, …) on a computable copy of its tree with the C
+lookup on every code point, since nothing proves they agree. `TestTables` also has a few
 `decide +kernel` examples, which fail to build if the kernel can no longer reduce property lookups.
 
 ## 7. Adding a table
@@ -286,9 +298,13 @@ To add a property `Foo` in the same style (in this repo or a sibling library):
 5. Add the public `getFoo`/`isFoo (char : Char)` with a behavioral docstring.
 6. Add a `testFoo` to `TestTables` that checks the public function against UnicodeData.
 
-Only move a property to the C tables if profiling shows the Lean lookup matters. Then extend
-`MakeCLib` and `basic.h`, regenerate, and keep the Lean side behind a `CLib` `@[extern]`
-declaration.
+A property whose values fit in 64 bits can go in a C table instead, which saves the first-call
+parse and lets the kernel evaluate it. Build its rows (sorted, non-overlapping, data as a
+`UInt64`) in `MakeCLib`, add it to the `makeTableC`/`makeTreeLean` list in `main`, add the
+prototype to `basic.h`, and regenerate. In `TableLookup`, add a `CLib.lookupFooIn` on
+`CLib.lookupIn` and an `@[extern]` `CLib.lookupFoo` whose body is `CLib.lookupFooIn
+Internal.fooTree c.toNat`, then decode it in `lookupFoo`. Add a `FooTree` test and a
+`decide +kernel` example to `TestTables`.
 
 ## 8. Updating to a new Unicode version
 
