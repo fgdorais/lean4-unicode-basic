@@ -262,17 +262,6 @@ private def parseDataTable (s : String) (f : UInt32 → UInt32 → Array String.
       r := r.push (start, stop, val)
     return r
 
-/-- Parse a range compressed property table -/
-private def parsePropTable (s : String) : Thunk <| Array (UInt32 × UInt32) :=
-  .mk fun _ => Id.run do
-    let mut r := #[]
-    let mut stream := UCDStream.ofString s
-    for record in stream do
-      let start := ofHexString! record[0]!
-      let stop := if record[1]!.isEmpty then start else ofHexString! record[1]!
-      r := r.push (start, stop)
-    return r
-
 /-- Get bidirectional class using lookup table
 
   Unicode property: `Bidi_Class` -/
@@ -564,18 +553,6 @@ public def lookupTitlecase (c : UInt32) : Bool :=
 public def lookupUppercase (c : UInt32) : Bool :=
   let m := CLib.oUpper ||| GC.Lu.toUInt64
   CLib.lookupProp c &&& m != 0
-
-/-- Check if code point is a white space character using lookup table
-
-  Unicode property: `White_Space` -/
-public def lookupWhiteSpace (c : UInt32) : Bool :=
-  let table := table.get
-  if c < table[0]!.1 then false else
-    match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
-    | (_, v) => c ≤ v
-where
-  str : String := include_str "../data/White_Space.txt"
-  table : Thunk <| Array (UInt32 × UInt32) := parsePropTable str
 
 /-- Get the script of a code point using lookup table
 

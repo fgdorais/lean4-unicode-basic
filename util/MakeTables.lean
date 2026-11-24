@@ -13,8 +13,7 @@ public def main (args : List String) : IO UInt32 := do
     "Name",
     "Script_Extensions",
     "Script_Name",
-    "Special_Casing",
-    "White_Space"]
+    "Special_Casing"]
   let tableDir : System.FilePath := ".."/"data"
   IO.FS.createDirAll tableDir
   for arg in args do
