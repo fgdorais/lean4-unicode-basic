@@ -120,13 +120,13 @@ public def getScriptSet (char : Char) : ScriptSet := lookupScriptSet char.val
 /-- Get character bidirectional class
 
   Unicode property: `Bidi_Class` -/
-@[inline]
+@[expose, inline]
 public def getBidiClass (char : Char) : BidiClass := lookupBidiClass char.val
 
 /-- Check if bidirectional mirrored character
 
   Unicode property: `Bidi_Mirrored` -/
-@[inline]
+@[expose, inline]
 public def isBidiMirrored (char : Char) : Bool := lookupBidiMirrored char.val
 
 /-- Check if bidirectional control character
@@ -1001,7 +1001,7 @@ public def isNoncharacterCodePoint (char : Char) : Bool :=
 
   Unicode property: `Default_Ignorable_Code_Point`
 -/
-@[inline]
+@[expose, inline]
 public def isDefaultIgnorableCodePoint (char : Char) : Bool :=
   lookupDefaultIgnorableCodePoint char.val
 
