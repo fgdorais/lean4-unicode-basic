@@ -59,12 +59,12 @@ Both generators use paths relative to `util/`, so run them from there.
 arguments it writes the tables the library uses:
 
 `Canonical_Decomposition_Mapping`, `Case_Folding`, `Decomposition_Mapping`, `Name`,
-`Script_Extensions`, `Script_Name`, `Special_Casing`, `White_Space`.
+`Script_Extensions`, `Script_Name`, `Special_Casing`.
 
 It also knows a few more (`Alphabetic`, `Bidi_Class`, `Bidi_Mirrored`, `Canonical_Combining_Class`,
 `Case_Mapping`, `Cased`, `Default_Ignorable_Code_Point`, `General_Category`, `Lowercase`, `Math`,
 `Noncharacter_Code_Point`, `Numeric_Value`, `Other`, `Other_*`, `Prepended_Concatenation_Mark`,
-`Titlecase`, `Uppercase`, `Variation_Selector`). These are not read by the library, which gets
+`Titlecase`, `Uppercase`, `Variation_Selector`, `White_Space`). These are not read by the library, which gets
 those properties from the C tables or computes them, but they are handy for inspecting the data.
 Each run prints the table size as `Size: <rows> + <extra code points covered by ranges>`.
 
@@ -93,8 +93,8 @@ Code points in some range have the property; all others do not. Adjacent ranges 
 0085;
 ```
 
-Used by `White_Space`. (The public `isWhiteSpace` currently computes the property directly, so
-only `lookupWhiteSpace` reads `White_Space.txt`.)
+The library reads no table of this shape; `MakeTables` writes it for the binary properties it
+can inspect (`White_Space`, `Alphabetic`, …).
 
 **Range data tables**: `start;stop;value…`, or `start;;value…` for a single code point. Every code
 point in the range has the same value. Adjacent ranges with equal values are merged.
@@ -226,10 +226,9 @@ API.
 ```
 
 `include_str` embeds the file in the compiled module. The `Thunk` defers parsing until the first
-lookup, so programs pay only for the tables they use. There are three parsers, one per record
-shape: `parsePropTable` (`Array (UInt32 × UInt32)`), `parseDataTable`
-(`Array (UInt32 × UInt32 × α)`, with an empty `stop` read as `start`) and `parseTable`
-(`Array (UInt32 × α)`). Each takes a function that turns the remaining fields into the value type.
+lookup, so programs pay only for the tables they use. There are two parsers, one per record
+shape the library reads: `parseDataTable` (`Array (UInt32 × UInt32 × α)`, with an empty `stop`
+read as `start`) and `parseTable` (`Array (UInt32 × α)`). Each takes a function that turns the remaining fields into the value type.
 
 A lookup is then always the same three steps:
 
@@ -239,8 +238,8 @@ A lookup is then always the same three steps:
    value; otherwise return the default.
 
 Defaults: decompositions → the code point itself / `none`, case folding and special casing →
-"no change", binary properties → `false`, `Script_Extensions` → the singleton set of
-`lookupScript c`, `Name` → `<reserved-XXXX>`.
+"no change", `Script_Extensions` → the singleton set of `lookupScript c`, `Name` →
+`<reserved-XXXX>`.
 
 **C tables.** `TableLookup.CLib` declares the C functions as `@[extern]` definitions
 (`lookupProp`, `lookupCase`, `lookupScript`, `lookupBidiClass`, `lookupBidiMirrored`,
