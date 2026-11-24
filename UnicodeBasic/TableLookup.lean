@@ -5,6 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 module
 import UnicodeBasic.CharacterDatabase
 import UnicodeBasic.Hangul
+public import UnicodeBasic.Internal.CaseTree
+public import UnicodeBasic.Internal.PropTree
+public import UnicodeBasic.Internal.ScriptTree
 public import UnicodeBasic.Types
 
 /-! # Table lookups
@@ -17,8 +20,19 @@ namespace Unicode
 
 namespace CLib
 
-@[extern "unicode_case_lookup"]
-protected opaque lookupCase (c : UInt32) : UInt64
+/-- Simple case mappings of a code point, looked up in the B-tree `t` (internal use only) -/
+@[expose] public protected def lookupCaseIn (t : Internal.BTree Nat) (c : Nat) : UInt64 :=
+  match t.find? c with
+  | none => 0
+  | some (block, k) => (block >>> (63 * k) &&& 0x7FFFFFFFFFFFFFFF).toUInt64
+
+/-- Simple case mappings of a code point (internal use only) -/
+-- Compiled code calls the C table. The kernel unfolds the body, which reads the same table from
+-- `UnicodeBasic.Internal.CaseTree`. `util/TestTables` checks that the two agree on every code
+-- point.
+@[extern "unicode_case_lookup", expose]
+public protected def lookupCase (c : UInt32) : UInt64 :=
+  CLib.lookupCaseIn Internal.caseTree c.toNat
 
 /-- `Other_Uppercase` bit of `CLib.lookupProp` (internal use only) -/
 public protected abbrev oUpper : UInt64 := 0x100000000
@@ -29,12 +43,50 @@ public protected abbrev oAlpha : UInt64 := 0x400000000
 /-- `Other_Math` bit of `CLib.lookupProp` (internal use only) -/
 public protected abbrev oMath  : UInt64 := 0x800000000
 
-/-- General category and `Other_*` property bits of a code point (internal use only) -/
-@[extern "unicode_prop_lookup"]
-public protected opaque lookupProp (c : UInt32) : UInt64
+/-- General category and `Other_*` property bits of a code point, looked up in the B-tree `t`
+(internal use only) -/
+@[expose] public protected def lookupPropIn (t : Internal.BTree Nat) (c : Nat) : UInt64 :=
+  match t.find? c with
+  | none => 0x20000000 -- Cn
+  | some (block, k) =>
+    let d := block >>> (36 * k) &&& 0xFFFFFFFFF
+    let gc := d &&& 0x3FFFFFFF
+    let pb := d >>> 31 &&& 1
+    let op := d &&& 0xF00000000
+    -- Alternating pairs, see `UnicodeCLib/prop.c`
+    let gc :=
+      if gc == 0x7 then -- LC
+        if c % 2 == pb then 0x1 else 0x2 -- Lu, Ll
+      else if gc == 0x6000 then -- PG
+        if c % 2 == pb then 0x2000 else 0x4000 -- Ps, Pe
+      else if gc == 0x18000 then -- PQ
+        if c % 2 == pb then 0x8000 else 0x10000 -- Pi, Pf
+      else gc
+    (op ||| gc).toUInt64
 
-@[extern "unicode_script_lookup"]
-protected opaque lookupScript (c : UInt32) : Script
+/-- General category and `Other_*` property bits of a code point (internal use only) -/
+-- Compiled code calls the C table. The kernel unfolds the body, which reads the same table from
+-- `UnicodeBasic.Internal.PropTree`. `util/TestTables` checks that the two agree on every code
+-- point.
+@[extern "unicode_prop_lookup", expose]
+public protected def lookupProp (c : UInt32) : UInt64 :=
+  CLib.lookupPropIn Internal.propTree c.toNat
+
+/-- Script of a code point, looked up in the B-tree `t` (internal use only) -/
+@[expose] public protected def lookupScriptIn (t : Internal.BTree Nat) (c : Nat) : Script :=
+  let v : UInt32 :=
+    match t.find? c with
+    | none => (default : Script).code -- Zzzz
+    | some (block, k) => (block >>> (32 * k) &&& 0xFFFFFFFF).toUInt32
+  if h : Script.isValid v then ⟨v, h⟩ else default
+
+/-- Script of a code point (internal use only) -/
+-- Compiled code calls the C table. The kernel unfolds the body, which reads the same table from
+-- `UnicodeBasic.Internal.ScriptTree`. `util/TestTables` checks that the two agree on every code
+-- point.
+@[extern "unicode_script_lookup", expose]
+public protected def lookupScript (c : UInt32) : Script :=
+  CLib.lookupScriptIn Internal.scriptTree c.toNat
 
 end CLib
 
@@ -159,7 +211,7 @@ where
     `Simple_Lowercase_Mapping`
     `Simple_Uppercase_Mapping`
     `Simple_Titlecase_Mapping` -/
-@[inline]
+@[expose, inline]
 public def lookupCaseMapping (c : UInt32) : UInt32 × UInt32 × UInt32 :=
   let v : UInt64 := CLib.lookupCase c
   if v == 0 then (c, c, c) else
@@ -449,7 +501,7 @@ where
 /-- Get the script of a code point using lookup table
 
   Unicode property: `Script` -/
-@[inline]
+@[expose, inline]
 public def lookupScript (c : UInt32) : Script := CLib.lookupScript c
 
 /-- Get the name of a script
