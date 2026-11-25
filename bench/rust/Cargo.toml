@@ -1,0 +1,15 @@
+[package]
+name = "unicode-bench"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+icu_casemap = "2.4.0"
+icu_properties = "2.4.0"
+
+[build-dependencies]
+cc = "1"
+
+[profile.release]
+debug = false
