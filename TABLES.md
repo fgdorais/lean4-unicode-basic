@@ -282,10 +282,10 @@ and `lookupCased`, `lookupLowercase`, `lookupUppercase`, `lookupMath` work the s
 ## 5. The public API on top
 
 The functions in `UnicodeBasic.lean` take `Char`, call the matching `lookup*` on `char.val`, and
-convert the result to the public type. Many add a small ASCII shortcut before the lookup
-(`getGC` uses a 128-entry array; case mappings and `isWhiteSpace` test ranges directly). Some
-properties need no table at all: `isBidiControl`, `isHexDigit` and `isNoncharacterCodePoint` are
-short range tests, and `isWhiteSpace` uses the general category plus U+0085.
+convert the result to the public type. There are no ASCII shortcuts: every code point goes
+through the same lookup, so the kernel reduces ASCII and non-ASCII characters the same way. Some
+properties need no table at all: `isBidiControl`, `isHexDigit`, `isNoncharacterCodePoint` and
+`isWhiteSpace` are short range tests.
 
 Docstrings on these functions describe behavior and name the Unicode property they implement. They
 never mention tables, encodings or shortcuts; implementation notes go in `--` comments.
