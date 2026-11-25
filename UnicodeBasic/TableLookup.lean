@@ -15,6 +15,9 @@ public import UnicodeBasic.Internal.DefaultIgnorableTree
 public import UnicodeBasic.Internal.NumericTree
 public import UnicodeBasic.Internal.PropTree
 public import UnicodeBasic.Internal.ScriptTree
+import UnicodeBasic.Internal.ScriptExtensionsTable
+import UnicodeBasic.Internal.ScriptNameTable
+import UnicodeBasic.Internal.SpecialCasingTable
 public import UnicodeBasic.Types
 
 /-! # Table lookups
@@ -339,17 +342,10 @@ public def lookupCaseMapping (c : UInt32) : UInt32 × UInt32 × UInt32 :=
     `Titlecase_Mapping`
     `Uppercase_Mapping` -/
 public def lookupSpecialCasing (c : UInt32) : List UInt32 × List UInt32 × List UInt32 :=
-  let t := table.get
+  let t := Internal.specialCasingTable
   if c < t[0]!.1 then ([], [], []) else
     match t[find c (fun i => t[i]!.1) 0 t.size.toUSize]! with
     | (c', v) => if c == c' then v else ([], [], [])
-where
-  str : String := include_str "../data/Special_Casing.txt"
-  table : Thunk <| Array (UInt32 × List UInt32 × List UInt32 × List UInt32) :=
-    parseTable str fun _ x =>
-      let parse (s : String.Slice) : List UInt32 :=
-        if s.isEmpty then [] else s.split " " |>.toList.map ofHexString!
-      (parse x[0]!, parse x[1]!, parse x[2]!)
 
 /-- Get decomposition mapping using lookup table
 
@@ -564,27 +560,16 @@ public def lookupScript (c : UInt32) : Script := CLib.lookupScript c
 
   Unicode property: `Script` -/
 public def lookupScriptName (s : Script) : Option String :=
-  let table := table.get
+  let table := Internal.scriptNameTable
   if s.code < table[0]!.1 then none else
     match table[find s.code (fun i => table[i]!.1) 0 table.size.toUSize]! with
-    | (c, v) => if s.code = c then v else none
-where
-  str : String := include_str "../data/Script_Name.txt"
-  table : Thunk <| Array (UInt32 × Option String) := parseTable str fun _ n => some n[0]!.copy
+    | (c, v) => if s.code = c then some v else none
 
 /-- Get the set of scripts a code point is commonly used with, using lookup table
 
   Unicode property: `Script_Extensions` -/
 public def lookupScriptSet (c : UInt32) : ScriptSet :=
-  let table := table.get
+  let table := Internal.scriptExtensionsTable
   if c < table[0]!.1 then ⟨#[lookupScript c], rfl⟩ else
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
     | (_, c₁, v) => if c ≤ c₁ then v else ⟨#[lookupScript c], rfl⟩
-where
-  str : String := include_str "../data/Script_Extensions.txt"
-  table : Thunk <| Array (UInt32 × UInt32 × ScriptSet) :=
-    parseDataTable str fun _ _ x =>
-      let a := x[0]!.split ' ' |>.toArray.map fun s =>
-        let s := ofHexString! s
-        if h : Script.isValid s then ⟨s, h⟩ else panic! "invalid script code"
-      if h : ScriptSet.isSorted a then ⟨a, h⟩ else panic! "unsorted script set"

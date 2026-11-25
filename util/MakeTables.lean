@@ -7,6 +7,34 @@ import Builders
 
 open Unicode
 
+/-- Directory of the UnicodeBasic library modules -/
+def libDir : System.FilePath := ".."/"UnicodeBasic"
+
+/-- `c` as a Lean hexadecimal literal -/
+def hexLit (c : UInt32) : String := "0x" ++ toHexStringRaw c
+
+/-- Write `UnicodeBasic/Internal/<module>.lean` with `rows` as the array `Internal.<name>` of
+type `Array <type>`, for the `prop` table -/
+def makeTableLean (module name prop type doc : String) (imports : List String)
+    (rows : Array String) : IO Unit :=
+  IO.FS.withFile (libDir / "Internal" / s!"{module}.lean") .write fun file => do
+    file.putStrLn "/- THIS IS A GENERATED FILE - DO NOT EDIT -/\nmodule"
+    for i in imports do
+      file.putStrLn s!"public import {i}"
+    file.putStrLn s!"
+/-! # The `{prop}` table
+
+This module holds {doc}.
+It is internal and may change at any time.
+-/
+
+namespace Unicode.Internal
+
+/-- The `{prop}` table (internal use only) -/
+@[expose] public def {name} : Array ({type}) := #["
+    file.putStrLn <| ",\n".intercalate (rows.toList.map ("  " ++ ·))
+    file.putStrLn "]"
+
 public def main (args : List String) : IO UInt32 := do
   let args := if args != [] then args else [
     "Decomposition_Mapping",
@@ -266,34 +294,36 @@ public def main (args : List String) : IO UInt32 := do
     | "Script_Extensions" =>
       IO.println s!"Generating table {arg}"
       let table := mkScriptExtensions
-      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
-        for (c₀, c₁, v) in table do
-          let v := " ".intercalate (v.toList.map fun s => toHexStringRaw s.code)
-          if c₀ == c₁ then
-            file.putStrLn <| toHexStringRaw c₀ ++ ";;" ++ v
-          else
-            file.putStrLn <| toHexStringRaw c₀ ++ ";" ++ toHexStringRaw c₁ ++ ";" ++ v
+      makeTableLean "ScriptExtensionsTable" "scriptExtensionsTable" arg
+        "UInt32 × UInt32 × ScriptSet"
+        "the code points with explicit script extensions, as ranges sorted by code point"
+        ["UnicodeBasic.Types"] <| table.map fun (c₀, c₁, v) =>
+          let v := ", ".intercalate (v.toList.map fun s => s!"⟨{hexLit s.code}, rfl⟩")
+          s!"({hexLit c₀}, {hexLit c₁}, ⟨#[{v}], rfl⟩)"
       IO.println s!"Size: {table.size}"
     | "Script_Name" =>
       IO.println s!"Generating table {arg}"
       let table := mkScriptName
-      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
-        for (c, name) in table do
-          file.putStrLn <| toHexStringRaw c ++ ";" ++ name
+      makeTableLean "ScriptNameTable" "scriptNameTable" arg "UInt32 × String"
+        "the long names of the scripts, sorted by script code" [] <|
+          table.map fun (c, name) => s!"({hexLit c}, {repr name})"
       IO.println s!"Size: {table.size}"
     | "Special_Casing" =>
       let table := Unicode.SpecialCasing.data.get
       IO.println s!"Generating table {arg}"
-      IO.FS.withFile (tableDir/(arg ++ ".txt")) .write fun file => do
-        for (c, l, t, u) in table do
-          let d := getUnicodeData! c
-          let sl := (d.lowercase.map Char.val).getD c
-          let st := ((d.titlecase <|> d.uppercase).map Char.val).getD c
-          let su := (d.uppercase.map Char.val).getD c
-          let l := if l == #[sl] then "" else " ".intercalate (l.toList.map toHexStringRaw)
-          let t := if t == #[st] then "" else " ".intercalate (t.toList.map toHexStringRaw)
-          let u := if u == #[su] then "" else " ".intercalate (u.toList.map toHexStringRaw)
-          file.putStrLn <| toHexStringRaw c ++ ";" ++ l ++ ";" ++ t ++ ";" ++ u
+      let rows := table.map fun (c, l, t, u) =>
+        let d := getUnicodeData! c
+        let sl := (d.lowercase.map Char.val).getD c
+        let st := ((d.titlecase <|> d.uppercase).map Char.val).getD c
+        let su := (d.uppercase.map Char.val).getD c
+        let lit (m : Array UInt32) (s : UInt32) : String :=
+          if m == #[s] then "[]" else "[" ++ ", ".intercalate (m.toList.map hexLit) ++ "]"
+        s!"({hexLit c}, {lit l sl}, {lit t st}, {lit u su})"
+      makeTableLean "SpecialCasingTable" "specialCasingTable" arg
+        "UInt32 × List UInt32 × List UInt32 × List UInt32"
+        ("the unconditional full case mappings (lowercase, titlecase, uppercase) that\n" ++
+          "differ from the simple ones, sorted by code point, where `[]` means no difference") []
+        rows
       IO.println s!"Size: {table.size}"
     | "Titlecase" =>
       IO.println s!"Generating table {arg}"

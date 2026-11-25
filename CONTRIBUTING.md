@@ -16,7 +16,7 @@ cd util && lake build --wfail        # table generators and tests
 lake exe TestTables                  # (in util) check the library against UnicodeData
 ```
 
-The lookup tables in `data/` are generated from the Unicode Character Database by `util/MakeTables` (`cd util && lake exe MakeTables`), and the C tables in `UnicodeCLib/` by `util/MakeCLib`. Don't edit generated files by hand. Change the generator and regenerate instead. See [TABLES.md](TABLES.md) for how the tables are generated, laid out and read.
+The lookup tables in `data/` and `UnicodeBasic/Internal/*Table.lean` are generated from the Unicode Character Database by `util/MakeTables` (`cd util && lake exe MakeTables`), and the C tables in `UnicodeCLib/` by `util/MakeCLib`. Don't edit generated files by hand. Change the generator and regenerate instead. See [TABLES.md](TABLES.md) for how the tables are generated, laid out and read.
 
 CI runs the same commands on every pull request, and they must pass with no warnings. The Lean version is set in `lean-toolchain` and is updated automatically, so please don't change it in a pull request.
 
@@ -24,7 +24,7 @@ CI runs the same commands on every pull request, and they must pass with no warn
 
 UnicodeBasic has no dependencies, and that is deliberate: please don't add Batteries, Mathlib or any other `require` to the main package. The `util/` and `docs/` packages are separate and may have dependencies.
 
-UnicodeBasic never imports UnicodeData. Data reaches the library only through generated tables in `data/`, read by `UnicodeBasic.TableLookup`, or through the C library in `UnicodeCLib/`.
+UnicodeBasic never imports UnicodeData. Data reaches the library only through generated tables in `data/` and `UnicodeBasic/Internal/`, read by `UnicodeBasic.TableLookup`, or through the C library in `UnicodeCLib/`.
 
 ## Code style
 

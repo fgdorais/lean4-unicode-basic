@@ -11,7 +11,8 @@ tables, plus Lean copies of the C tables, all committed to the repository:
 
 | Output | Written by | Read by | Used for |
 | --- | --- | --- | --- |
-| `data/*.txt` | `util/MakeTables.lean` | `UnicodeBasic/TableLookup.lean`, via `include_str` | Most properties |
+| `data/*.txt` | `util/MakeTables.lean` | `UnicodeBasic/TableLookup.lean`, via `include_str` | `Decomposition_Mapping`, `Name` |
+| `UnicodeBasic/Internal/*Table.lean` | `util/MakeTables.lean` | `UnicodeBasic/TableLookup.lean`, via `import` | Small tables: `Script_Extensions`, `Script_Name`, `Special_Casing` |
 | `UnicodeCLib/*.c` (except `basic.c`) | `util/MakeCLib.lean` | `UnicodeBasic/TableLookup.lean`, via `@[extern]` | Properties with values of at most 128 bits: general category, `Other_*` bits, simple case mappings, script, bidi class, bidi mirrored, canonical combining class, default ignorable, numeric value, canonical decomposition, case folding |
 | `UnicodeBasic/Internal/*Tree.lean` | `util/MakeCLib.lean` | The kernel, through the bodies of the `CLib` lookups | Proofs by `decide +kernel` about the same properties |
 
@@ -22,6 +23,7 @@ UCD files (in UnicodeData's data/ucd/)
    │  UnicodeData parses them (UnicodeData.data, PropList, CaseFolding, …)
    ▼
 util/MakeTables  ──►  data/<Property>.txt  ──include_str──►  TableLookup.lookup*  ──►  public API
+util/MakeTables  ──►  Internal/*Table.lean ──import───────►  TableLookup.lookup*  ──►  public API
 util/MakeCLib    ──►  UnicodeCLib/*.c      ──@[extern]────►  TableLookup.CLib.*  ──►  public API
 ```
 
@@ -33,7 +35,8 @@ Generated files are never edited by hand. Change the generator and regenerate.
 UnicodeBasic by path (`path = ".."`). Its library `Builders` holds the `mk*` functions that read
 the UCD and build compressed tables, shared by its three executables:
 
-- `MakeTables`: writes `../data/<Property>.txt`.
+- `MakeTables`: writes `../data/<Property>.txt`, or `../UnicodeBasic/Internal/<Module>Table.lean`
+  for the small tables.
 - `MakeCLib`: writes the C tables in `../UnicodeCLib/` and their kernel copies in
   `../UnicodeBasic/Internal/`.
 - `TestTables`: checks the public API against UnicodeData (see section 6).
@@ -48,7 +51,7 @@ To regenerate everything:
 
 ```sh
 cd util
-lake exe MakeTables     # all tables in data/
+lake exe MakeTables     # all tables in data/ and Internal/*Table.lean
 lake exe MakeCLib       # all C tables in UnicodeCLib/
 lake exe TestTables     # must print nothing and exit 0
 ```
@@ -105,7 +108,7 @@ point in the range has the same value. Adjacent ranges with equal values are mer
 000A;;B
 ```
 
-Used by `Name` and `Script_Extensions`. (The example is `MakeTables Bidi_Class`, which the library
+Used by `Name`. (The example is `MakeTables Bidi_Class`, which the library
 no longer reads.)
 
 **Point tables**: `code;value…`, one record per code point that has a non-default value.
@@ -115,7 +118,7 @@ no longer reads.)
 00A8;<compat>;0020;0308
 ```
 
-Used by `Decomposition_Mapping`, `Script_Name` and `Special_Casing`.
+Used by `Decomposition_Mapping`.
 
 ### Compression
 
@@ -132,10 +135,10 @@ generators fold anything the library can compute back:
   (for example `CJK UNIFIED IDEOGRAPH-4E00`, `<control-0000>`).
 - `Decomposition_Mapping` stores the single-step mapping with its compatibility tag (`<font>`,
   `<compat>`, …), or an empty tag field for canonical mappings.
-- `Special_Casing` is `code;lower;title;upper`, unconditional mappings only, with each field empty
-  when it agrees with the simple mapping from `UnicodeData.txt`.
-- `Script_Extensions` values are space-separated script codes (see below), sorted by code.
-  `Script_Name` maps a script code to its long name.
+- `Special_Casing` rows are `(code, lower, title, upper)`, unconditional mappings only, with each
+  list `[]` when it agrees with the simple mapping from `UnicodeData.txt`.
+- `Script_Extensions` rows are `(start, stop, set)`, where `set` is a `ScriptSet` sorted by script
+  code (see below). `Script_Name` maps a script code to its long name.
 - Hangul syllables (names and decompositions) and `Noncharacter_Code_Point` are not in any
   table. They are computed in `UnicodeBasic/Hangul.lean` and `TableLookup` from their
   algorithmic definitions.
@@ -258,6 +261,12 @@ A lookup is then always the same three steps:
 3. If `c` is inside that row (`c ≤ stop` for ranges, `c == start` for point tables), decode its
    value; otherwise return the default.
 
+**Small tables.** `Script_Extensions`, `Script_Name` and `Special_Casing` have so few rows that
+they are generated as Lean array literals instead of text, in `UnicodeBasic/Internal/<Module>Table.lean`
+(`Internal.scriptExtensionsTable`, `Internal.scriptNameTable`, `Internal.specialCasingTable`). They
+are sorted like the text tables and use the same three-step lookup, with no parsing. The rows
+hold the library's types directly, for example `ScriptSet` values with their proofs.
+
 Defaults: decompositions → the code point itself / `none`, case folding and special casing →
 "no change", `Script_Extensions` → the singleton set of `lookupScript c`, `Name` →
 `<reserved-XXXX>`.
@@ -312,7 +321,9 @@ To add a property `Foo` in the same style (in this repo or a sibling library):
    merged array of ranges or points. Fold anything computable into ranges or leave it out.
 2. Add a `"Foo"` case to `main` that writes `../data/Foo.txt` in one of the three record shapes,
    and add `"Foo"` to the default argument list.
-3. Run the generator and commit `data/Foo.txt`.
+   A table of a few hundred rows can instead be written as a Lean array with `makeTableLean`,
+   like `Script_Name`.
+3. Run the generator and commit `data/Foo.txt` (or `UnicodeBasic/Internal/FooTable.lean`).
 4. In the library, add `lookupFoo (c : UInt32)` with a `where` clause that `include_str`s the file
    into a `Thunk` with the matching parser, and the three-step lookup above with a sensible
    default. Mark it internal.
