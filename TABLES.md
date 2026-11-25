@@ -191,14 +191,14 @@ The rows of these five tables drop the default value and merge adjacent rows wit
 (`compressTable`).
 
 Two tables need up to 128 bits of data. Their values are `uint64_t value[M][2]` (the low and high
-64 bits), and their lookups return a Lean `CLib.Row`, built by `unicode_row` in `basic.h`. The
-default is `0`.
+64 bits), and each has two lookups, `unicode_foo_lookup_lo` and `unicode_foo_lookup_hi`, that
+return the low and high 64 bits. The default is `0`.
 
-- **`decomposition.c`**, `unicode_decomposition_lookup`: the full (recursive) canonical
+- **`decomposition.c`**, `unicode_decomposition_lookup_lo`/`_hi`: the full (recursive) canonical
   decomposition of the code point, so the lookup needs no recursion, 21 bits per code point and
   ended by `0`. Hangul syllables are not in the table: `lookupCanonicalDecompositionMapping`
   computes them. The generator fails if a decomposition has more than four code points.
-- **`case_folding.c`**, `unicode_case_folding_lookup`: bits 0–21 are the simple (`C` or `S`) case
+- **`case_folding.c`**, `unicode_case_folding_lookup_lo`/`_hi`: bits 0–21 are the simple (`C` or `S`) case
   folding minus the code point, modulo `2^22`, or `0` for none, so that runs such as `A`–`Z`
   share one row. Bits 22–84 are the full (`F`) case folding, 21 bits per code point and ended by
   `0`, when it has two or more code points. The Stability Policy limits full case foldings to
@@ -264,11 +264,11 @@ Defaults: decompositions → the code point itself / `none`, case folding and sp
 
 **C tables.** `TableLookup.CLib` declares the C functions as `@[extern]` definitions
 (`lookupProp`, `lookupCase`, `lookupScript`, `lookupBidiClass`, `lookupBidiMirrored`,
-`lookupCombiningClass`, `lookupDefaultIgnorable`, `lookupNumeric`, `lookupDecomposition`,
-`lookupCaseFolding`), plus the `Other_*` bit masks. The body of each does the same lookup as the
+`lookupCombiningClass`, `lookupDefaultIgnorable`, `lookupNumeric`, `lookupDecompositionLo`/`Hi`,
+`lookupCaseFoldingLo`/`Hi`), plus the `Other_*` bit masks. The body of each does the same lookup as the
 C table in pure Lean on its B-tree, for example `CLib.lookupPropIn Internal.propTree c.toNat`;
 the simpler tables share `CLib.lookupIn`, which takes the data width and the default, and the
-128-bit tables share `CLib.lookupRowIn`. The `lookup*` functions outside `CLib` decode the C data
+128-bit tables share `CLib.lookupWideIn`, which returns the whole value as a `Nat`. The `lookup*` functions outside `CLib` decode the C data
 into the library's types. Compiled code calls C, and the kernel unfolds the body, so
 `decide +kernel` can prove facts such as `GeneralCategory.isLetter 'é' = true` or `getUpperChar 'é' = 'É'`. The derived
 properties are bit tests on one `lookupProp` call, for example
@@ -319,12 +319,13 @@ To add a property `Foo` in the same style (in this repo or a sibling library):
 5. Add the public `getFoo`/`isFoo (char : Char)` with a behavioral docstring.
 6. Add a `testFoo` to `TestTables` that checks the public function against UnicodeData.
 
-A property whose values fit in 64 bits (or 128, with `makeWideTableC` and `CLib.lookupRowIn`)
+A property whose values fit in 64 bits (or 128, with `makeStageC (wide := true)` and `CLib.lookupWideIn`)
 can go in a C table instead, which saves the first-call parse and lets the kernel evaluate it.
 Build its rows (sorted, non-overlapping) in `MakeCLib`, add it to the matching table list in
 `main`, add the prototype to `basic.h`, and regenerate. In `TableLookup`, add a
-`CLib.lookupFooIn` on `CLib.lookupIn` (or `CLib.lookupRowIn`) and an `@[extern]` `CLib.lookupFoo`
-whose body is `CLib.lookupFooIn Internal.fooTree c.toNat`, then decode it in `lookupFoo`. Add a
+`CLib.lookupFooIn` on `CLib.lookupIn` (or `CLib.lookupWideIn`) and an `@[extern]` `CLib.lookupFoo`
+whose body is `CLib.lookupFooIn Internal.fooTree c.toNat` (for 128 bits, `CLib.lookupFooLo` and
+`CLib.lookupFooHi`, the low and high 64 bits of it), then decode it in `lookupFoo`. Add a
 `FooTree` test and a `decide +kernel` example to `TestTables`.
 
 ## 8. Updating to a new Unicode version

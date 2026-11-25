@@ -59,14 +59,6 @@ extern "C" {
 #define UNICODE_GC_Cn UINT32_C(0x20000000)
 #define UNICODE_GC_C (UNICODE_GC_Cc | UNICODE_GC_Cf | UNICODE_GC_Cs | UNICODE_GC_Co | UNICODE_GC_Cn)
 
-/* A `Unicode.CLib.Row` with fields `lo` and `hi` */
-static inline lean_obj_res unicode_row(uint64_t lo, uint64_t hi) {
-  lean_object * r = lean_alloc_ctor(0, 0, 2 * sizeof(uint64_t));
-  lean_ctor_set_uint64(r, 0, lo);
-  lean_ctor_set_uint64(r, sizeof(uint64_t), hi);
-  return r;
-}
-
 LEAN_EXPORT uint64_t unicode_prop_lookup(uint32_t c);
 
 LEAN_EXPORT uint64_t unicode_case_lookup(uint32_t c);
@@ -83,9 +75,11 @@ LEAN_EXPORT uint64_t unicode_default_ignorable_lookup(uint32_t c);
 
 LEAN_EXPORT uint64_t unicode_numeric_lookup(uint32_t c);
 
-LEAN_EXPORT lean_obj_res unicode_case_folding_lookup(uint32_t c);
+LEAN_EXPORT uint64_t unicode_case_folding_lookup_lo(uint32_t c);
+LEAN_EXPORT uint64_t unicode_case_folding_lookup_hi(uint32_t c);
 
-LEAN_EXPORT lean_obj_res unicode_decomposition_lookup(uint32_t c);
+LEAN_EXPORT uint64_t unicode_decomposition_lookup_lo(uint32_t c);
+LEAN_EXPORT uint64_t unicode_decomposition_lookup_hi(uint32_t c);
 
 LEAN_EXPORT uint32_t unicode_script_of_abbrev(b_lean_obj_arg abbr);
 

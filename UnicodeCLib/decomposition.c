@@ -5,10 +5,14 @@ static const uint8_t stage1[0x1100];
 static const uint16_t stage2[39][256];
 static const uint64_t value[1964][2];
 
-lean_obj_res unicode_decomposition_lookup(uint32_t c) {
-  if (c > 0x10FFFF) return unicode_row(0, 0);
-  const uint64_t *v = value[stage2[stage1[c >> 8]][c & 0xFF]];
-  return unicode_row(v[0], v[1]);
+uint64_t unicode_decomposition_lookup_lo(uint32_t c) {
+  if (c > 0x10FFFF) return 0;
+  return value[stage2[stage1[c >> 8]][c & 0xFF]][0];
+}
+
+uint64_t unicode_decomposition_lookup_hi(uint32_t c) {
+  if (c > 0x10FFFF) return 0;
+  return value[stage2[stage1[c >> 8]][c & 0xFF]][1];
 }
 
 static const uint8_t stage1[] = {

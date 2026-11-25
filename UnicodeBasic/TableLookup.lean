@@ -176,47 +176,53 @@ public protected def lookupProp (c : UInt32) : UInt64 :=
 public protected def lookupScript (c : UInt32) : Script :=
   CLib.lookupScriptIn Internal.scriptTree c.toNat
 
-/-- The two 64-bit words of a 128-bit row of a C table (internal use only) -/
-public structure Row where
-  /-- Low 64 bits (internal use only) -/
-  lo : UInt64
-  /-- High 64 bits (internal use only) -/
-  hi : UInt64
-deriving BEq
-
 /-- Data of a code point, looked up in the B-tree `t` with data `width` bits wide, or `0`, as a
-`Row` (internal use only) -/
-@[expose] public protected def lookupRowIn (t : Internal.BTree Nat) (width c : Nat) : Row :=
-  let d := match t.find? c with
-    | none => 0
-    | some (block, k) => block >>> (width * k) &&& (1 <<< width) - 1
-  ⟨(d &&& 0xFFFFFFFFFFFFFFFF).toUInt64, (d >>> 64).toUInt64⟩
+`Nat` (internal use only) -/
+@[expose] public protected def lookupWideIn (t : Internal.BTree Nat) (width c : Nat) : Nat :=
+  match t.find? c with
+  | none => 0
+  | some (block, k) => block >>> (width * k) &&& (1 <<< width) - 1
 
 /-- Encoded case foldings of a code point, looked up in the B-tree `t` (internal use only) -/
-@[expose] public protected def lookupCaseFoldingIn (t : Internal.BTree Nat) (c : Nat) : Row :=
-  CLib.lookupRowIn t 85 c
+@[expose] public protected def lookupCaseFoldingIn (t : Internal.BTree Nat) (c : Nat) : Nat :=
+  CLib.lookupWideIn t 85 c
 
-/-- Encoded case foldings of a code point, see `UnicodeCLib/case_folding.c` (internal use only) -/
+/-- Low 64 bits of the encoded case foldings of a code point, see `UnicodeCLib/case_folding.c`
+(internal use only) -/
 -- Compiled code calls the C table. The kernel unfolds the body, which reads the same data from
 -- `UnicodeBasic.Internal.CaseFoldingTree`. `util/TestTables` checks that the two agree on every
 -- code point.
-@[extern "unicode_case_folding_lookup", expose]
-public protected def lookupCaseFolding (c : UInt32) : Row :=
-  CLib.lookupCaseFoldingIn Internal.caseFoldingTree c.toNat
+@[extern "unicode_case_folding_lookup_lo", expose]
+public protected def lookupCaseFoldingLo (c : UInt32) : UInt64 :=
+  (CLib.lookupCaseFoldingIn Internal.caseFoldingTree c.toNat).toUInt64
+
+/-- High 64 bits of the encoded case foldings of a code point, see `UnicodeCLib/case_folding.c`
+(internal use only) -/
+-- Compiled code calls the C table, as for `CLib.lookupCaseFoldingLo`.
+@[extern "unicode_case_folding_lookup_hi", expose]
+public protected def lookupCaseFoldingHi (c : UInt32) : UInt64 :=
+  (CLib.lookupCaseFoldingIn Internal.caseFoldingTree c.toNat >>> 64).toUInt64
 
 /-- Encoded canonical decomposition of a code point, looked up in the B-tree `t` (internal use
 only) -/
-@[expose] public protected def lookupDecompositionIn (t : Internal.BTree Nat) (c : Nat) : Row :=
-  CLib.lookupRowIn t 84 c
+@[expose] public protected def lookupDecompositionIn (t : Internal.BTree Nat) (c : Nat) : Nat :=
+  CLib.lookupWideIn t 84 c
 
-/-- Encoded canonical decomposition of a code point, see `UnicodeCLib/decomposition.c` (internal
-use only) -/
+/-- Low 64 bits of the encoded canonical decomposition of a code point, see
+`UnicodeCLib/decomposition.c` (internal use only) -/
 -- Compiled code calls the C table. The kernel unfolds the body, which reads the same data from
 -- `UnicodeBasic.Internal.DecompositionTree`. `util/TestTables` checks that the two agree on every
 -- code point.
-@[extern "unicode_decomposition_lookup", expose]
-public protected def lookupDecomposition (c : UInt32) : Row :=
-  CLib.lookupDecompositionIn Internal.decompositionTree c.toNat
+@[extern "unicode_decomposition_lookup_lo", expose]
+public protected def lookupDecompositionLo (c : UInt32) : UInt64 :=
+  (CLib.lookupDecompositionIn Internal.decompositionTree c.toNat).toUInt64
+
+/-- High 64 bits of the encoded canonical decomposition of a code point, see
+`UnicodeCLib/decomposition.c` (internal use only) -/
+-- Compiled code calls the C table, as for `CLib.lookupDecompositionLo`.
+@[extern "unicode_decomposition_lookup_hi", expose]
+public protected def lookupDecompositionHi (c : UInt32) : UInt64 :=
+  (CLib.lookupDecompositionIn Internal.decompositionTree c.toNat >>> 64).toUInt64
 
 /-- Code points packed 21 bits each in `d`, up to the first `0`, at most `n` of them (internal
 use only) -/
@@ -291,10 +297,9 @@ public def lookupCanonicalDecompositionMapping (c : UInt32) : List UInt32 :=
     let t := i % 28
     if t == 0 then [l, v] else [l, v, 0x11A7 + t]
   else
-    let r := CLib.lookupDecomposition c
-    match CLib.unpackCodes (r.lo.toNat ||| r.hi.toNat <<< 64) 4 with
-    | [] => [c]
-    | l => l
+    let lo := CLib.lookupDecompositionLo c
+    if lo == 0 then [c] else
+      CLib.unpackCodes (lo.toNat ||| (CLib.lookupDecompositionHi c).toNat <<< 64) 4
 
 /-- Get simple and full case foldings of a code point using lookup table
 
@@ -305,13 +310,13 @@ public def lookupCanonicalDecompositionMapping (c : UInt32) : List UInt32 :=
   Unicode properties:
     `Case_Folding`
     `Simple_Case_Folding` -/
-@[expose]
+@[expose, inline]
 public def lookupCaseFolding (c : UInt32) : Option UInt32 × List UInt32 :=
-  let r := CLib.lookupCaseFolding c
-  let d := r.lo.toNat ||| r.hi.toNat <<< 64
-  let s := d &&& 0x3FFFFF
-  let s := if s == 0 then none else some ((c.toNat + s) % 0x400000).toUInt32
-  (s, CLib.unpackCodes (d >>> 22) 3)
+  let lo := CLib.lookupCaseFoldingLo c
+  let s := lo &&& 0x3FFFFF
+  let s := if s == 0 then none else some ((c.toUInt64 + s) % 0x400000).toUInt32
+  if lo >>> 22 == 0 then (s, []) else
+    (s, CLib.unpackCodes (lo.toNat >>> 22 ||| (CLib.lookupCaseFoldingHi c).toNat <<< 42) 3)
 
 /-- Get simple case mappings of a code point using lookup table
 

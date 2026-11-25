@@ -252,8 +252,9 @@ def indexType (n : Nat) : String := if n ≤ 0x100 then "uint8_t" else "uint16_t
 /-- Write `UnicodeCLib/<file>.c` with the three-stage table of `values` (one per code point) and
 the C function `unicode_<file>_lookup`. Stage 1 gives the number of the 256-code-point block of
 each code point, stage 2 the index in `value` of each code point of each distinct block, and
-`value` the distinct values. With `wide`, values have 128 bits and the lookup returns a
-`CLib.Row`; otherwise the lookup returns them as `type`. -/
+`value` the distinct values. With `wide`, values have 128 bits and the C functions
+`unicode_<file>_lookup_lo` and `unicode_<file>_lookup_hi` return their low and high 64 bits;
+otherwise `unicode_<file>_lookup` returns them as `type`. -/
 def makeStageC (file type : String) (values : Array Nat) (default : Nat) (wide := false) :
     IO Unit := do
   let distinct : Array Nat := Id.run do
@@ -279,11 +280,12 @@ def makeStageC (file type : String) (values : Array Nat) (default : Nat) (wide :
     else if type == "uint32_t" then s!"UINT32_C({v})" else s!"UINT64_C({v})"
   let valueDecl := if wide then s!"static const uint64_t value[{distinct.size}][2];"
     else s!"static const {type} value[{distinct.size}];"
-  let body := if wide then s!"  if (c > 0x10FFFF) return unicode_row(0, 0);
-  const uint64_t *v = value[stage2[stage1[c >> 8]][c & 0xFF]];
-  return unicode_row(v[0], v[1]);"
-    else s!"  if (c > 0x10FFFF) return {lit default};
-  return value[stage2[stage1[c >> 8]][c & 0xFF]];"
+  let lookup (name index : String) : String := s!"{if wide then "uint64_t" else type} unicode_{file}_{name}(uint32_t c) \{
+  if (c > 0x10FFFF) return {if wide then "0" else lit default};
+  return value[stage2[stage1[c >> 8]][c & 0xFF]]{index};
+}"
+  let body := if wide then lookup "lookup_lo" "[0]" ++ "\n\n" ++ lookup "lookup_hi" "[1]"
+    else lookup "lookup" ""
   IO.FS.withFile (clibDir / s!"{file}.c") .write fun h => do
     h.putStrLn s!"/* THIS IS A GENERATED FILE - DO NOT EDIT */
 #include \"basic.h\"
@@ -292,9 +294,7 @@ static const {indexType stage2.size} stage1[0x1100];
 static const {indexType distinct.size} stage2[{stage2.size}][256];
 {valueDecl}
 
-{if wide then "lean_obj_res" else type} unicode_{file}_lookup(uint32_t c) \{
 {body}
-}
 
 static const {indexType stage2.size} stage1[] = \{"
     for i in [0:stage1.size:32] do
