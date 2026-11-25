@@ -34,6 +34,16 @@ compiler; `lean` must be on the path for `lean.h`). ICU and libunistring are loa
 the system (`libicuuc.so.N` or `libicucore.dylib`, `libunistring.so.N` or `libunistring.dylib`), so
 no headers are needed; a library that is missing shows `-`.
 
+`external.c` then repeats the C comparison with cold caches. Before each batch of 100 lookups, it
+reads an 8 MB buffer, which evicts the tables from the L1 and L2 caches, and it times only the
+batches. Each figure is the extra time per lookup over an empty batch. To evict the tables all the
+way to memory, use a buffer larger than the last-level cache, with fewer batches to keep the run
+short:
+
+```sh
+CC="cc -DJUNK_MB=1024 -DBATCHES=100" bench/run.sh
+```
+
 `rust/` needs Cargo and `lean` on the path. Before timing, it checks `Alphabetic` and `Lowercase`
 against the other two on every code point and prints the number of disagreements.
 
@@ -72,6 +82,79 @@ Unicode 18.0), which does not affect speed.
 |                 | CJK   | 1.9 | 6.8 | 1.7 | 2.5 |
 |                 | mixed | 1.9 | 6.7 | 1.7 | 2.7 |
 |                 | text  | 2.0 | 8.2 | 1.7 | 2.6 |
+
+### C with cold caches
+
+Our three-stage tables trade memory for simplicity (the C library is about 330 KB), so these runs
+check what that costs when the tables are not already in cache. The figures below average two runs.
+
+L1 and L2 evicted before each batch of 100 lookups (default settings; the two runs agree to within
+about 1 ns):
+
+| lookup          | input | ours | ICU | utf8proc | libunistring |
+|-----------------|-------|-----:|----:|---------:|-------------:|
+| general cat.    | ASCII | 1.5 | 2.2 | 1.8 | 2.7 |
+|                 | Latin | 1.8 | 2.6 | 4.3 | 2.9 |
+|                 | CJK   | 1.7 | 3.0 | 1.9 | 3.6 |
+|                 | mixed | 1.8 | 2.8 | 4.1 | 3.4 |
+|                 | text  | 1.1 | 2.2 | 2.5 | 3.1 |
+| uppercase       | ASCII | 1.6 | 12.2 | 7.0 | 2.0 |
+|                 | Latin | 2.4 | 15.1 | 13.1 | 2.4 |
+|                 | CJK   | 1.9 | 3.0 | 2.0 | 3.3 |
+|                 | mixed | 2.8 | 12.8 | 9.1 | 5.5 |
+|                 | text  | 2.0 | 7.2 | 3.6 | 3.4 |
+| script          | ASCII | 1.4 | 4.5 | - | 1.9 |
+|                 | Latin | 1.8 | 6.0 | - | 2.2 |
+|                 | CJK   | 2.0 | 6.0 | - | 2.6 |
+|                 | mixed | 2.0 | 6.5 | - | 2.9 |
+|                 | text  | 1.6 | 5.3 | - | 2.0 |
+| bidi class      | ASCII | 1.4 | 2.0 | 2.2 | 2.7 |
+|                 | Latin | 1.8 | 2.9 | 4.4 | 6.4 |
+|                 | CJK   | 1.7 | 2.7 | 1.9 | 1.2 |
+|                 | mixed | 1.4 | 2.5 | 4.6 | 7.7 |
+|                 | text  | 1.5 | 2.2 | 3.1 | 3.5 |
+| combining class | ASCII | 1.2 | 10.5 | 2.3 | 2.7 |
+|                 | Latin | 1.8 | 10.5 | 4.5 | 3.0 |
+|                 | CJK   | 1.7 | 11.3 | 1.6 | 3.4 |
+|                 | mixed | 1.1 | 10.6 | 4.8 | 4.2 |
+|                 | text  | 1.1 | 10.7 | 2.6 | 4.2 |
+
+Tables evicted to memory before each batch of 100 lookups (`JUNK_MB=1024`, `BATCHES=100`, larger
+than this machine's 260 MB L3; the two runs differ by up to about 5 ns, so the figures are rounded):
+
+| lookup          | input | ours | ICU | utf8proc | libunistring |
+|-----------------|-------|-----:|----:|---------:|-------------:|
+| general cat.    | ASCII | 6 | 13 | 12 | 10 |
+|                 | Latin | 8 | 15 | 23 | 9 |
+|                 | CJK   | 7 | 19 | 9 | 14 |
+|                 | mixed | 10 | 16 | 24 | 12 |
+|                 | text  | 5 | 12 | 14 | 8 |
+| uppercase       | ASCII | 9 | 22 | 19 | 9 |
+|                 | Latin | 15 | 27 | 29 | 15 |
+|                 | CJK   | 8 | 18 | 9 | 8 |
+|                 | mixed | 20 | 27 | 31 | 17 |
+|                 | text  | 9 | 23 | 17 | 11 |
+| script          | ASCII | 6 | 17 | - | 8 |
+|                 | Latin | 7 | 22 | - | 10 |
+|                 | CJK   | 7 | 22 | - | 10 |
+|                 | mixed | 11 | 33 | - | 13 |
+|                 | text  | 7 | 18 | - | 10 |
+| bidi class      | ASCII | 7 | 14 | 13 | 7 |
+|                 | Latin | 7 | 16 | 22 | 11 |
+|                 | CJK   | 6 | 16 | 8 | 6 |
+|                 | mixed | 8 | 17 | 23 | 12 |
+|                 | text  | 8 | 15 | 16 | 8 |
+| combining class | ASCII | 5 | 36 | 13 | 8 |
+|                 | Latin | 7 | 40 | 20 | 8 |
+|                 | CJK   | 6 | 36 | 9 | 8 |
+|                 | mixed | 9 | 43 | 24 | 9 |
+|                 | text  | 4 | 36 | 14 | 9 |
+
+Even when cold, our lookups stay at or below the others, except uppercase: libunistring ties
+ours on Latin input and is about 3 ns faster on mixed input, where the many distinct case mappings
+spread over more cache lines. A lookup is three dependent loads: `stage1`, which is small and
+shared by all characters, then a row of `stage2` and an entry of `value`, which nearby characters
+share.
 
 ### Rust: rustc 1.97 (std has Unicode 17.0), ICU4X 2.4
 

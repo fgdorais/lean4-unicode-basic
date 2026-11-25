@@ -9,6 +9,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 #include <dlfcn.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include "basic.h"
 #ifdef HAVE_UTF8PROC
@@ -153,6 +155,38 @@ static int icu_script(int32_t c) {
 #define COLS 4
 static const char *libs[COLS] = {"ours", "ICU", "utf8proc", "unistring"};
 
+/* Cache pressure: before each batch of `BATCH` lookups, read a `JUNK_MB` buffer, by default larger
+   than the L1 and L2 caches, so that each batch starts with the tables evicted from them; only the
+   batches are timed. A `JUNK_MB` larger than the last-level cache evicts the tables to memory. */
+#ifndef JUNK_MB
+#define JUNK_MB 8
+#endif
+#ifndef BATCHES
+#define BATCHES 2000
+#endif
+#define JUNK ((size_t)JUNK_MB << 20)
+#define BATCH 100
+static uint8_t *junk;
+static volatile uint64_t junk_sink;
+
+static void evict(void) {
+  uint64_t acc = 0;
+  for (size_t j = 0; j < JUNK; j += 64) acc += junk[j];
+  junk_sink += acc;
+}
+
+#define TIME_COLD(expr) ({ \
+  volatile uint64_t sink = 0; \
+  double total = 0; \
+  for (int b = 0; b < BATCHES; b++) { \
+    evict(); \
+    double t = now(); \
+    for (int i = b * BATCH; i < (b + 1) * BATCH; i++) { uint32_t c = input[i]; sink += (uint64_t)(expr); } \
+    total += now() - t; \
+  } \
+  (void)sink; \
+  total * 1e9 / ((double)BATCHES * BATCH); })
+
 static void row(const char *name, const double t[COLS]) {
   printf("| %-15s |", name);
   for (int j = 0; j < COLS; j++)
@@ -160,25 +194,7 @@ static void row(const char *name, const double t[COLS]) {
   printf("\n");
 }
 
-int main(void) {
-  load_icu();
-  load_unistring();
-  load_text();
-  if (icu_version) printf("ICU %d", icu_version); else printf(icu_charType ? "ICU" : "no ICU");
-#ifdef HAVE_UTF8PROC
-  printf(", utf8proc %s", utf8proc_version());
-#else
-  printf(", no utf8proc");
-#endif
-  printf(us_toupper ? ", libunistring" : ", no libunistring");
-  printf("; ns per call, %d code points x %d\n", N, REPEAT);
-  for (int k = 0; k < 5; k++) {
-    if (k == 4 && !text_len) break;
-    fill(k);
-    printf("\n%s\n\n| %-15s |", inputs[k], "lookup");
-    for (int j = 0; j < COLS; j++) printf(" %9s |", libs[j]);
-    printf("\n|---|---|---|---|---|\n");
-    double t[5][COLS];
+static void measure(double t[5][COLS]) {
     for (int i = 0; i < 5; i++) for (int j = 0; j < COLS; j++) t[i][j] = -1;
     t[0][0] = TIME(unicode_prop_lookup(c));
     t[1][0] = TIME(unicode_case_lookup(c));
@@ -205,6 +221,79 @@ int main(void) {
       t[3][3] = TIME(us_bidi_class(c));
       t[4][3] = TIME(us_combining_class(c));
     }
+}
+
+static double cold_base;
+
+static void measure_cold(double t[5][COLS]) {
+    for (int i = 0; i < 5; i++) for (int j = 0; j < COLS; j++) t[i][j] = -1;
+    t[0][0] = TIME_COLD(unicode_prop_lookup(c));
+    t[1][0] = TIME_COLD(unicode_case_lookup(c));
+    t[2][0] = TIME_COLD(unicode_script_lookup(c));
+    t[3][0] = TIME_COLD(unicode_bidi_class_lookup(c));
+    t[4][0] = TIME_COLD(unicode_combining_class_lookup(c));
+    if (icu_charType) {
+      t[0][1] = TIME_COLD(icu_charType(c));
+      t[1][1] = TIME_COLD(icu_toupper(c));
+      t[2][1] = TIME_COLD(icu_script(c));
+      t[3][1] = TIME_COLD(icu_charDirection(c));
+      t[4][1] = TIME_COLD(icu_getCombiningClass(c));
+    }
+#ifdef HAVE_UTF8PROC
+    t[0][2] = TIME_COLD(utf8proc_category(c));
+    t[1][2] = TIME_COLD(utf8proc_toupper(c));
+    t[3][2] = TIME_COLD(utf8proc_get_property(c)->bidi_class);
+    t[4][2] = TIME_COLD(utf8proc_get_property(c)->combining_class);
+#endif
+    if (us_toupper) {
+      t[0][3] = TIME_COLD(us_general_category(c).bitmask);
+      t[1][3] = TIME_COLD(us_toupper(c));
+      t[2][3] = TIME_COLD((uintptr_t)us_script(c));
+      t[3][3] = TIME_COLD(us_bidi_class(c));
+      t[4][3] = TIME_COLD(us_combining_class(c));
+    }
+  for (int i = 0; i < 5; i++)
+    for (int j = 0; j < COLS; j++)
+      if (t[i][j] >= 0) t[i][j] -= cold_base;
+}
+
+int main(void) {
+  load_icu();
+  load_unistring();
+  load_text();
+  if (icu_version) printf("ICU %d", icu_version); else printf(icu_charType ? "ICU" : "no ICU");
+#ifdef HAVE_UTF8PROC
+  printf(", utf8proc %s", utf8proc_version());
+#else
+  printf(", no utf8proc");
+#endif
+  printf(us_toupper ? ", libunistring" : ", no libunistring");
+  printf("; ns per call, %d code points x %d\n", N, REPEAT);
+  for (int k = 0; k < 5; k++) {
+    if (k == 4 && !text_len) break;
+    fill(k);
+    printf("\n%s\n\n| %-15s |", inputs[k], "lookup");
+    for (int j = 0; j < COLS; j++) printf(" %9s |", libs[j]);
+    printf("\n|---|---|---|---|---|\n");
+    double t[5][COLS];
+    measure(t);
+    static const char *names[5] =
+      {"general cat.", "uppercase", "script", "bidi class", "combining class"};
+    for (int i = 0; i < 5; i++) row(names[i], t[i]);
+  }
+  junk = malloc(JUNK);
+  if (!junk) return 1;
+  memset(junk, 1, JUNK);
+  for (int k = 0; k < 5; k++) {
+    if (k == 4 && !text_len) break;
+    fill(k);
+    cold_base = TIME_COLD(c);
+    printf("\n%s, cold: %d MB read before each batch of %d lookups (%.2f ns per lookup of loop and"
+      " timing subtracted)\n\n| %-15s |", inputs[k], JUNK_MB, BATCH, cold_base, "lookup");
+    for (int j = 0; j < COLS; j++) printf(" %9s |", libs[j]);
+    printf("\n|---|---|---|---|---|\n");
+    double t[5][COLS];
+    measure_cold(t);
     static const char *names[5] =
       {"general cat.", "uppercase", "script", "bidi class", "combining class"};
     for (int i = 0; i < 5; i++) row(names[i], t[i]);
