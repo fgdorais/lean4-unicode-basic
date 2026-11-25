@@ -342,7 +342,7 @@ public def lookupCaseMapping (c : UInt32) : UInt32 × UInt32 × UInt32 :=
     `Titlecase_Mapping`
     `Uppercase_Mapping` -/
 public def lookupSpecialCasing (c : UInt32) : List UInt32 × List UInt32 × List UInt32 :=
-  let t := Internal.specialCasingTable
+  let t := Internal.specialCasingTable.get
   if c < t[0]!.1 then ([], [], []) else
     match t[find c (fun i => t[i]!.1) 0 t.size.toUSize]! with
     | (c', v) => if c == c' then v else ([], [], [])
@@ -560,7 +560,7 @@ public def lookupScript (c : UInt32) : Script := CLib.lookupScript c
 
   Unicode property: `Script` -/
 public def lookupScriptName (s : Script) : Option String :=
-  let table := Internal.scriptNameTable
+  let table := Internal.scriptNameTable.get
   if s.code < table[0]!.1 then none else
     match table[find s.code (fun i => table[i]!.1) 0 table.size.toUSize]! with
     | (c, v) => if s.code = c then some v else none
@@ -569,7 +569,7 @@ public def lookupScriptName (s : Script) : Option String :=
 
   Unicode property: `Script_Extensions` -/
 public def lookupScriptSet (c : UInt32) : ScriptSet :=
-  let table := Internal.scriptExtensionsTable
+  let table := Internal.scriptExtensionsTable.get
   if c < table[0]!.1 then ⟨#[lookupScript c], rfl⟩ else
     match table[find c (fun i => table[i]!.1) 0 table.size.toUSize]! with
     | (_, c₁, v) => if c ≤ c₁ then v else ⟨#[lookupScript c], rfl⟩

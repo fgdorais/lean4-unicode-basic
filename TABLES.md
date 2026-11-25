@@ -264,7 +264,8 @@ A lookup is then always the same three steps:
 **Small tables.** `Script_Extensions`, `Script_Name` and `Special_Casing` have so few rows that
 they are generated as Lean array literals instead of text, in `UnicodeBasic/Internal/<Module>Table.lean`
 (`Internal.scriptExtensionsTable`, `Internal.scriptNameTable`, `Internal.specialCasingTable`). They
-are sorted like the text tables and use the same three-step lookup, with no parsing. The rows
+are sorted like the text tables and use the same three-step lookup, with no parsing. Each
+array is in a `Thunk`, so it is built on first use rather than when a program starts. The rows
 hold the library's types directly, for example `ScriptSet` values with their proofs.
 
 Defaults: decompositions → the code point itself / `none`, case folding and special casing →

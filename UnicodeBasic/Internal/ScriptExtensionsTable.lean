@@ -10,8 +10,9 @@ It is internal and may change at any time.
 
 namespace Unicode.Internal
 
+-- The `Thunk` builds the array on first use, not when a program starts.
 /-- The `Script_Extensions` table (internal use only) -/
-@[expose] public def scriptExtensionsTable : Array (UInt32 × UInt32 × ScriptSet) := #[
+@[expose] public def scriptExtensionsTable : Thunk (Array (UInt32 × UInt32 × ScriptSet)) := .mk fun _ => #[
   (0x00B7, 0x00B7, ⟨#[⟨0x41767374, rfl⟩, ⟨0x43617269, rfl⟩, ⟨0x436F7074, rfl⟩, ⟨0x4475706C, rfl⟩, ⟨0x456C6261, rfl⟩, ⟨0x47656F72, rfl⟩, ⟨0x476C6167, rfl⟩, ⟨0x476F6E67, rfl⟩, ⟨0x476F7468, rfl⟩, ⟨0x4772656B, rfl⟩, ⟨0x48616E69, rfl⟩, ⟨0x4C61746E, rfl⟩, ⟨0x4C796469, rfl⟩, ⟨0x4D61686A, rfl⟩, ⟨0x5065726D, rfl⟩, ⟨0x53686177, rfl⟩], rfl⟩),
   (0x02BC, 0x02BC, ⟨#[⟨0x42656E67, rfl⟩, ⟨0x4379726C, rfl⟩, ⟨0x44657661, rfl⟩, ⟨0x4C61746E, rfl⟩, ⟨0x4C697375, rfl⟩, ⟨0x54686169, rfl⟩, ⟨0x546F746F, rfl⟩], rfl⟩),
   (0x02C7, 0x02C7, ⟨#[⟨0x426F706F, rfl⟩, ⟨0x4C61746E, rfl⟩], rfl⟩),

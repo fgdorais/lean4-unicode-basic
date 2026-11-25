@@ -10,8 +10,9 @@ It is internal and may change at any time.
 
 namespace Unicode.Internal
 
+-- The `Thunk` builds the array on first use, not when a program starts.
 /-- The `Special_Casing` table (internal use only) -/
-@[expose] public def specialCasingTable : Array (UInt32 × List UInt32 × List UInt32 × List UInt32) := #[
+@[expose] public def specialCasingTable : Thunk (Array (UInt32 × List UInt32 × List UInt32 × List UInt32)) := .mk fun _ => #[
   (0x00DF, [], [0x0053, 0x0073], [0x0053, 0x0053]),
   (0x0130, [0x0069, 0x0307], [], []),
   (0x0149, [], [0x02BC, 0x004E], [0x02BC, 0x004E]),

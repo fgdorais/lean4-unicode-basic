@@ -9,8 +9,9 @@ It is internal and may change at any time.
 
 namespace Unicode.Internal
 
+-- The `Thunk` builds the array on first use, not when a program starts.
 /-- The `Script_Name` table (internal use only) -/
-@[expose] public def scriptNameTable : Array (UInt32 × String) := #[
+@[expose] public def scriptNameTable : Thunk (Array (UInt32 × String)) := .mk fun _ => #[
   (0x41646C6D, "Adlam"),
   (0x41676862, "Caucasian_Albanian"),
   (0x41686F6D, "Ahom"),

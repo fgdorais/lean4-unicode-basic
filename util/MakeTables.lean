@@ -14,7 +14,7 @@ def libDir : System.FilePath := ".."/"UnicodeBasic"
 def hexLit (c : UInt32) : String := "0x" ++ toHexStringRaw c
 
 /-- Write `UnicodeBasic/Internal/<module>.lean` with `rows` as the array `Internal.<name>` of
-type `Array <type>`, for the `prop` table -/
+type `Array <type>`, in a `Thunk`, for the `prop` table -/
 def makeTableLean (module name prop type doc : String) (imports : List String)
     (rows : Array String) : IO Unit :=
   IO.FS.withFile (libDir / "Internal" / s!"{module}.lean") .write fun file => do
@@ -30,8 +30,9 @@ It is internal and may change at any time.
 
 namespace Unicode.Internal
 
+-- The `Thunk` builds the array on first use, not when a program starts.
 /-- The `{prop}` table (internal use only) -/
-@[expose] public def {name} : Array ({type}) := #["
+@[expose] public def {name} : Thunk (Array ({type})) := .mk fun _ => #["
     file.putStrLn <| ",\n".intercalate (rows.toList.map ("  " ++ ·))
     file.putStrLn "]"
 
