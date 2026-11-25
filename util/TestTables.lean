@@ -89,9 +89,11 @@ def treeTests : Array (String × (UInt32 → Bool)) := #[
   ("NumericTree", fun c =>
     CLib.lookupNumericIn numericTree c.toNat == CLib.lookupNumeric c),
   ("CaseFoldingTree", fun c =>
-    CLib.lookupCaseFoldingIn caseFoldingTree c.toNat == CLib.lookupCaseFolding c),
+    CLib.lookupCaseFoldingIn caseFoldingTree c.toNat ==
+      (CLib.lookupCaseFoldingLo c).toNat ||| (CLib.lookupCaseFoldingHi c).toNat <<< 64),
   ("DecompositionTree", fun c =>
-    CLib.lookupDecompositionIn decompositionTree c.toNat == CLib.lookupDecomposition c),
+    CLib.lookupDecompositionIn decompositionTree c.toNat ==
+      (CLib.lookupDecompositionLo c).toNat ||| (CLib.lookupDecompositionHi c).toNat <<< 64),
   ("CaseTree", fun c => CLib.lookupCaseIn caseTree c.toNat == CLib.lookupCase c),
   ("PropTree", fun c => CLib.lookupPropIn propTree c.toNat == CLib.lookupProp c),
   ("ScriptTree", fun c => CLib.lookupScriptIn scriptTree c.toNat == CLib.lookupScript c)]
