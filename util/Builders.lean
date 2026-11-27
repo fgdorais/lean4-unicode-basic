@@ -113,7 +113,7 @@ def mkCanonicalCombiningClass : IO <| Array (UInt32 × UInt32 × Nat) := do
         t := t.push (d.code, d.code, d.cc)
   return t
 
-partial def mkCanonicalDecompositionMapping : IO <| Array (UInt32 × List Char) := do
+def mkCanonicalDecompositionMapping : IO <| Array (UInt32 × List Char) := do
   let mut t := #[]
   for data in UnicodeData.data.get do
     match data.decomp with
@@ -122,11 +122,15 @@ partial def mkCanonicalDecompositionMapping : IO <| Array (UInt32 × List Char) 
     | _ => continue
   return t
 where
-  fullDecomposition : List Char → List Char
-  | [] => unreachable!
-  | h :: t =>
+  /-- Each step replaces the first character by its decomposition, so there are fewer steps than
+  code points unless the mappings have a cycle -/
+  fullDecomposition (l : List Char) : List Char := loop 0x110000 l
+  loop : Nat → List Char → List Char
+  | _, [] => unreachable!
+  | 0, _ => panic! "cyclic canonical decomposition"
+  | fuel + 1, h :: t =>
     match (getUnicodeData h).decomp with
-    | some ⟨none, l⟩ => fullDecomposition (l ++ t)
+    | some ⟨none, l⟩ => loop fuel (l ++ t)
     | _ => h :: t
 
 def mkCaseMapping : IO <| Array (UInt32 × UInt32 × UInt32 × UInt32 × UInt32) := do

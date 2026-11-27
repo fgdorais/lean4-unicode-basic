@@ -236,14 +236,17 @@ end CLib
 
 /-- Binary search -/
 @[specialize]
-private partial def find (c : UInt32) (t : USize → UInt32) (lo hi : USize) : USize :=
+private def find (c : UInt32) (t : USize → UInt32) (lo hi : USize) : USize :=
   let mid := (lo + hi) / 2
-  if lo = mid then
-    lo
-  else if c < t mid then
-    find c t lo mid
+  if lo < mid ∧ mid < hi then
+    if c < t mid then
+      find c t lo mid
+    else
+      find c t mid hi
   else
-    find c t mid hi
+    lo
+termination_by hi.toNat - lo.toNat
+decreasing_by all_goals simp only [USize.lt_iff_toNat_lt] at *; lia
 
 /-- Parse a simple table -/
 private def parseTable (s : String) (f : UInt32 → Array String.Slice → α) : Thunk <| Array (UInt32 × α) :=

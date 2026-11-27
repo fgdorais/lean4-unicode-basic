@@ -116,18 +116,22 @@ def testBidiMirrored (d : UnicodeData) : Bool :=
 def testCanonicalCombiningClass (d : UnicodeData) : Bool :=
   d.cc == getCanonicalCombiningClass d.char
 
-partial def testCanonicalDecompositionMapping (d : UnicodeData) : Bool :=
+def testCanonicalDecompositionMapping (d : UnicodeData) : Bool :=
   let l := match d.decomp with
     | some ⟨none, l⟩ => mapping (l.map Char.val)
     | _ => [d.code]
   getCanonicalDecomposition d.char == String.ofList (l.map fun c => Char.ofNat c.toNat)
 where
-  mapping : List UInt32 → List UInt32
-  | [] => unreachable!
-  | c :: cs =>
+  /-- Each step replaces the first code point by its decomposition, so there are fewer steps than
+  code points unless the mappings have a cycle -/
+  mapping (l : List UInt32) : List UInt32 := loop 0x110000 l
+  loop : Nat → List UInt32 → List UInt32
+  | _, [] => unreachable!
+  | 0, _ => panic! "cyclic canonical decomposition"
+  | fuel + 1, c :: cs =>
     let d := getUnicodeData! c
     match d.decomp with
-    | some ⟨none, l⟩ => mapping <| l.map Char.val ++ cs
+    | some ⟨none, l⟩ => loop fuel <| l.map Char.val ++ cs
     | _ => c :: cs
 
 def testCased (d : UnicodeData) : Bool :=
