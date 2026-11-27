@@ -320,7 +320,7 @@ def natLit (n : Nat) : String :=
 
 /-- B-tree on entries `lo` to `hi - 1` of `table`, as Lean source, bisecting the rows; the
 values of a leaf are packed `width` bits each -/
-partial def btree (table : Array (UInt32 × UInt32 × Nat)) (width : Nat) (indent : String)
+def btree (table : Array (UInt32 × UInt32 × Nat)) (width : Nat) (indent : String)
     (lo hi : Nat) : String :=
   let indent' := indent ++ "  "
   if hi - lo ≤ leafSize then
@@ -333,6 +333,8 @@ partial def btree (table : Array (UInt32 × UInt32 × Nat)) (width : Nat) (inden
     let mid := (lo + hi) / 2
     s!".node {natLit table[mid]!.1.toNat}\n{indent'}({btree table width indent' lo mid})"
       ++ s!"\n{indent'}({btree table width indent' mid hi})"
+termination_by hi - lo
+decreasing_by all_goals simp only [leafSize] at *; lia
 
 /-- `table` with its data as `Nat` -/
 def natData (table : Array (UInt32 × UInt32 × UInt64)) : Array (UInt32 × UInt32 × Nat) :=
